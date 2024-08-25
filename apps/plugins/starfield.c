@@ -27,21 +27,11 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
 /* Key assignement */
 #define STARFIELD_QUIT                        PLA_EXIT
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define STARFIELD_QUIT2                       PLA_UP
-#define STARFIELD_INCREASE_ZMOVE              PLA_SCROLL_FWD
-#define STARFIELD_INCREASE_ZMOVE_REPEAT       PLA_SCROLL_FWD_REPEAT
-#define STARFIELD_DECREASE_ZMOVE              PLA_SCROLL_BACK
-#define STARFIELD_DECREASE_ZMOVE_REPEAT       PLA_SCROLL_BACK_REPEAT
-#else
 #define STARFIELD_QUIT2                       PLA_CANCEL
 #define STARFIELD_INCREASE_ZMOVE              PLA_UP
 #define STARFIELD_INCREASE_ZMOVE_REPEAT       PLA_UP_REPEAT
 #define STARFIELD_DECREASE_ZMOVE              PLA_DOWN
 #define STARFIELD_DECREASE_ZMOVE_REPEAT       PLA_DOWN_REPEAT
-#endif
 #define STARFIELD_INCREASE_NB_STARS           PLA_RIGHT
 #define STARFIELD_INCREASE_NB_STARS_REPEAT    PLA_RIGHT_REPEAT
 #define STARFIELD_DECREASE_NB_STARS           PLA_LEFT
@@ -230,16 +220,23 @@ static int plugin_main(void)
         rb->sleep(1);
         rb->lcd_clear_display();
 
+#if ((CONFIG_CODEC == SWCODEC)  || !defined(SIMULATOR) && \
+    ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)))
+
         /* This will make the stars pulse to the music */
         if(pulse){
 
             /* Get the peaks. ( Borrowed from vu_meter ) */
+#if (CONFIG_CODEC == SWCODEC)
             static struct pcm_peaks peaks;
             rb->mixer_channel_calculate_peaks(PCM_MIXER_CHAN_PLAYBACK,
                                               &peaks);
             #define left_peak peaks.left
             #define right_peak peaks.right
-
+#else
+            int left_peak = rb->mas_codec_readreg(0xC);
+            int right_peak = rb->mas_codec_readreg(0xD);
+#endif
             /* Devide peak data by 4098 to bring the max
                value down from ~32k to 8 */
             left_peak  =    left_peak/0x1000;
@@ -264,7 +261,9 @@ static int plugin_main(void)
             starfield.z_move = avg_peak;
 
         } /* if pulse */
-
+#else
+        (void) avg_peak;
+#endif
         starfield_move_and_draw(&starfield);
 
 #ifdef HAVE_LCD_COLOR
@@ -334,7 +333,6 @@ enum plugin_status plugin_start(const void* parameter)
     int ret;
 
     (void)parameter;
-
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
 

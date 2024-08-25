@@ -7,7 +7,7 @@
  *                     \/            \/     \/    \/            \/
  * $Id$
  *
- * Copyright (C) 2002 by Linus Nielsen Feltzing, Uwe Freese, Laurent Baum,
+ * Copyright (C) 2002 by Linus Nielsen Feltzing, Uwe Freese, Laurent Baum, 
  *                       Przemyslaw Holubowski
  *
  * This program is free software; you can redistribute it and/or
@@ -59,14 +59,13 @@ void rtc_init(void)
 {
     unsigned char tmp;
     int rv;
-
+    
     /* initialize Control 1 register */
     tmp = 0;
     pp_i2c_send(RTC_ADDR, RTC_CTRL1, tmp);
-
+    
     /* read value of the Control 2 register - we'll need it to preserve alarm and timer interrupt assertion flags */
     rv = i2c_readbytes(RTC_ADDR, RTC_CTRL2, 1, &tmp);
-    (void)rv;
     /* preserve alarm and timer interrupt flags */
     tmp &= (RTC_TF | RTC_AF | RTC_TIE | RTC_AIE);
     pp_i2c_send(RTC_ADDR, RTC_CTRL2, tmp);
@@ -86,9 +85,9 @@ int rtc_read_datetime(struct tm *tm)
     tm->tm_mday = BCD2DEC(buf[3] & 0x3f);
     tm->tm_mon  = BCD2DEC(buf[5] & 0x1f) - 1;
     tm->tm_year = BCD2DEC(buf[6]) + 100;
+    tm->tm_yday = 0; /* Not implemented for now */
 
     set_day_of_week(tm);
-    set_day_of_year(tm);
 
     return read;
 }
@@ -120,7 +119,6 @@ void rtc_set_alarm(int h, int m)
 
     /* clear alarm interrupt */
     rv = i2c_readbytes(RTC_ADDR, RTC_CTRL2, 1, buf);
-    (void)rv;
     buf[0] &= RTC_AF;
     pp_i2c_send(RTC_ADDR, RTC_CTRL2, buf[0]);
 
@@ -130,7 +128,7 @@ void rtc_set_alarm(int h, int m)
     else
         /* ignore minutes comparison query */
         buf[0] = RTC_AE;
-
+    
     if( h >= 0 )
         buf[1] = DEC2BCD(h);
     else
@@ -174,7 +172,7 @@ void rtc_enable_alarm(bool enable)
     }
     else
     {
-        /* disable alarm interrupt */
+        /* disable alarm interrupt */       
         if(rtc_lock_alarm_clear)
             /* lock disabling alarm before it was checked whether or not the unit was started by RTC alarm */
             return;
@@ -182,7 +180,6 @@ void rtc_enable_alarm(bool enable)
         tmp &= ~(RTC_AIE | RTC_AF);
         pp_i2c_send(RTC_ADDR, RTC_CTRL2, tmp);
     }
-    (void)rv;
 }
 
 bool rtc_check_alarm_started(bool release_alarm)
@@ -196,14 +193,14 @@ bool rtc_check_alarm_started(bool release_alarm)
     {
         started = alarm_state;
         alarm_state &= ~release_alarm;
-    }
-    else
-    {
+    } 
+    else 
+    { 
         /* read Control 2 register which contains alarm flag */
         rv = i2c_readbytes(RTC_ADDR, RTC_CTRL2, 1, &tmp);
 
         alarm_state = started = ( (tmp & RTC_AF) && (tmp & RTC_AIE) );
-
+        
         if(release_alarm && started)
         {
             rv = i2c_readbytes(RTC_ADDR, RTC_CTRL2, 1, &tmp);
@@ -214,8 +211,7 @@ bool rtc_check_alarm_started(bool release_alarm)
         run_before = true;
         rtc_lock_alarm_clear = false;
     }
-    (void)rv;
-
+    
     return started;
 }
 
@@ -223,10 +219,11 @@ bool rtc_check_alarm_flag(void)
 {
     unsigned char tmp=0;
     int rv=0;
-
+    
     /* read Control 2 register which contains alarm flag */
     rv = i2c_readbytes(RTC_ADDR, RTC_CTRL2, 1, &tmp);
-    (void)rv;
+
     return (tmp & RTC_AF);
 }
 #endif /* HAVE_RTC_ALARM */
+

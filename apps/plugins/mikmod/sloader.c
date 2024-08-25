@@ -6,12 +6,12 @@
 	it under the terms of the GNU Library General Public License as
 	published by the Free Software Foundation; either version 2 of
 	the License, or (at your option) any later version.
-
+ 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Library General Public License for more details.
-
+ 
 	You should have received a copy of the GNU Library General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id$
+  $Id: sloader.c,v 1.3 2007/12/06 17:46:08 denis111 Exp $
 
   Routines for loading samples. The sample loader utilizes the routines
   provided by the "registered" sample loader.
@@ -56,7 +56,7 @@ typedef struct ITPACK {
 int SL_Init(SAMPLOAD* s)
 {
 	if(!sl_buffer)
-		if(!(sl_buffer=(SWORD*)MikMod_malloc(SLBUFSIZE*sizeof(SWORD)))) return 0;
+		if(!(sl_buffer=MikMod_malloc(SLBUFSIZE*sizeof(SWORD)))) return 0;
 
 	sl_rlength = s->length;
 	if(s->infmt & SF_16BITS) sl_rlength>>=1;
@@ -68,15 +68,16 @@ int SL_Init(SAMPLOAD* s)
 void SL_Exit(SAMPLOAD *s)
 {
 	if(sl_rlength>0) _mm_fseek(s->reader,sl_rlength,SEEK_CUR);
-
-	MikMod_free(sl_buffer);
-	sl_buffer=NULL;
+	if(sl_buffer) {
+		MikMod_free(sl_buffer);
+		sl_buffer=NULL;
+	}
 }
 
 /* unpack a 8bit IT packed sample */
-static int read_itcompr8(ITPACK* status,MREADER *reader,SWORD *out,UWORD count,UWORD* incnt)
+static int read_itcompr8(ITPACK* status,MREADER *reader,SWORD *sl_buffer,UWORD count,UWORD* incnt)
 {
-	SWORD *dest=out,*end=out+count;
+	SWORD *dest=sl_buffer,*end=sl_buffer+count;
 	UWORD x,y,needbits,havebits,new_count=0;
 	UWORD bits = status->bits;
 	UWORD bufbits = status->bufbits;
@@ -144,13 +145,13 @@ static int read_itcompr8(ITPACK* status,MREADER *reader,SWORD *out,UWORD count,U
 	status->bufbits = bufbits;
 	status->last = last;
 	status->buf = buf;
-	return (dest-out);
+	return (dest-sl_buffer);
 }
 
 /* unpack a 16bit IT packed sample */
-static int read_itcompr16(ITPACK *status,MREADER *reader,SWORD *out,UWORD count,UWORD* incnt)
+static int read_itcompr16(ITPACK *status,MREADER *reader,SWORD *sl_buffer,UWORD count,UWORD* incnt)
 {
-	SWORD *dest=out,*end=out+count;
+	SWORD *dest=sl_buffer,*end=sl_buffer+count;
 	SLONG x,y,needbits,havebits,new_count=0;
 	UWORD bits = status->bits;
 	UWORD bufbits = status->bufbits;
@@ -218,7 +219,7 @@ static int read_itcompr16(ITPACK *status,MREADER *reader,SWORD *out,UWORD count,
 	status->bufbits = bufbits;
 	status->last = last;
 	status->buf = buf;
-	return (dest-out);
+	return (dest-sl_buffer);
 }
 
 static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor,ULONG length,MREADER* reader,int dither)
@@ -230,11 +231,9 @@ static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor
 	int result,c_block=0;	/* compression bytes until next block */
 	ITPACK status;
 	UWORD incnt = 0;
-
-	status.buf = 0;
-	status.last = 0;
-	status.bufbits = 0;
-	status.bits = 0;
+    
+    memset(&status, 0, sizeof(status)); /* initialize status */
+    
 
 	while(length) {
 		stodo=(length<SLBUFSIZE)?length:SLBUFSIZE;
@@ -262,10 +261,6 @@ static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor
 			c_block -= stodo;
 		} else {
 			if(infmt&SF_16BITS) {
-				if(_mm_eof(reader)) {
-					_mm_errno=MMERR_NOT_A_STREAM;/* better error? */
-					return 1;
-				}
 				if(infmt&SF_BIG_ENDIAN)
 					_mm_read_M_SWORDS(sl_buffer,stodo,reader);
 				else
@@ -274,10 +269,6 @@ static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor
 				SBYTE *src;
 				SWORD *dest;
 
-				if(_mm_eof(reader)) {
-					_mm_errno=MMERR_NOT_A_STREAM;/* better error? */
-					return 1;
-				}
 				reader->Read(reader,sl_buffer,sizeof(SBYTE)*stodo);
 				src = (SBYTE*)sl_buffer;
 				dest  = sl_buffer;
@@ -297,7 +288,7 @@ static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor
 				sl_old = sl_buffer[t];
 			}
 
-		if((infmt^outfmt) & SF_SIGNED)
+		if((infmt^outfmt) & SF_SIGNED) 
 			for(t=0;t<stodo;t++)
 				sl_buffer[t]^= 0x8000;
 
@@ -349,7 +340,7 @@ static int SL_LoadInternal(void* buffer,UWORD infmt,UWORD outfmt,int scalefactor
 int SL_Load(void* buffer,SAMPLOAD *smp,ULONG length)
 {
 	return SL_LoadInternal(buffer,smp->infmt,smp->outfmt,smp->scalefactor,
-				length,smp->reader,0);
+	                       length,smp->reader,0);
 }
 
 /* Registers a sample for loading when SL_LoadSamples() is called. */
@@ -366,7 +357,7 @@ SAMPLOAD* SL_RegisterSample(SAMPLE* s,int type,MREADER* reader)
 		cruise = sndfxlist;
 	} else
 		return NULL;
-
+	
 	/* Allocate and add structure to the END of the list */
 	if(!(news=(SAMPLOAD*)MikMod_malloc(sizeof(SAMPLOAD)))) return NULL;
 
@@ -416,7 +407,7 @@ static ULONG SampleTotal(SAMPLOAD* samplist,int type)
 static ULONG RealSpeed(SAMPLOAD *s)
 {
 	return(s->sample->speed/(s->scalefactor?s->scalefactor:1));
-}
+}    
 
 static int DitherSamples(SAMPLOAD* samplist,int type)
 {
@@ -426,7 +417,7 @@ static int DitherSamples(SAMPLOAD* samplist,int type)
 
 	if(!samplist) return 0;
 
-	if((maxsize=MD_SampleSpace(type)*1024) != 0)
+	if((maxsize=MD_SampleSpace(type)*1024)) 
 		while(SampleTotal(samplist,type)>maxsize) {
 			/* First Pass - check for any 16 bit samples */
 			s = samplist;
@@ -482,15 +473,15 @@ static int DitherSamples(SAMPLOAD* samplist,int type)
 
 int SL_LoadSamples(void)
 {
-	int rc;
+	int ok;
 
 	_mm_critical = 0;
 
 	if((!musiclist)&&(!sndfxlist)) return 0;
-	rc=DitherSamples(musiclist,MD_MUSIC)||DitherSamples(sndfxlist,MD_SNDFX);
+	ok=DitherSamples(musiclist,MD_MUSIC)||DitherSamples(sndfxlist,MD_SNDFX);
 	musiclist=sndfxlist=NULL;
 
-	return rc;
+	return ok;
 }
 
 void SL_Sample16to8(SAMPLOAD* s)
@@ -526,5 +517,6 @@ void SL_HalveSample(SAMPLOAD* s,int factor)
 	s->sample->loopstart = s->loopstart / s->scalefactor;
 	s->sample->loopend   = s->loopend / s->scalefactor;
 }
+
 
 /* ex:set ts=4: */

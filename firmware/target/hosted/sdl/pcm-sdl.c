@@ -51,6 +51,7 @@
 extern bool debug_audio;
 #endif
 
+#if CONFIG_CODEC == SWCODEC
 static int cvt_status = -1;
 
 static const void *pcm_data;
@@ -124,11 +125,24 @@ void pcm_play_dma_stop(void)
 #endif
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause)
+        SDL_PauseAudio(1);
+    else
+        SDL_PauseAudio(0);
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return pcm_data_size;
+}
+
 static void write_to_soundcard(struct pcm_udata *udata)
 {
 #ifdef DEBUG
     if (debug_audio && (udata->debug == NULL)) {
-        udata->debug = fopen("audiodebug.raw", "abe");
+        udata->debug = fopen("audiodebug.raw", "ab");
         DEBUGF("Audio debug file open\n");
     }
 #endif
@@ -276,6 +290,13 @@ static void sdl_audio_callback(struct pcm_udata *udata, Uint8 *stream, int len)
     SDL_UnlockMutex(audio_lock);
 }
 
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    uintptr_t addr = (uintptr_t)pcm_data;
+    *count = pcm_data_size / 4;
+    return (void *)((addr + 2) & ~3);
+}
+
 #ifdef HAVE_RECORDING
 void pcm_rec_lock(void)
 {
@@ -344,7 +365,7 @@ void pcm_play_dma_init(void)
 #ifdef DEBUG
     udata.debug = NULL;
     if (debug_audio) {
-        udata.debug = fopen("audiodebug.raw", "wbe");
+        udata.debug = fopen("audiodebug.raw", "wb");
         DEBUGF("Audio debug file open\n");
     }
 #endif
@@ -390,3 +411,5 @@ void pcm_play_dma_init(void)
 void pcm_play_dma_postinit(void)
 {
 }
+
+#endif /* CONFIG_CODEC == SWCODEC */

@@ -20,17 +20,11 @@ OTHER_SRC += $(PDBOX_SRC)
 
 $(PDBOXBUILDDIR)/pdbox.rock: $(PDBOX_OBJ) $(MPEG_OBJ)
 
-PDBOXFLAGS = $(PLUGINFLAGS) -fno-strict-aliasing -Wno-cast-function-type
-PDBOXLDFLAGS = $(PLUGINLDFLAGS)
+PDBOXFLAGS = $(PLUGINFLAGS) -fno-strict-aliasing -Wno-cast-function-type 
+PDBOXLDFLAGS = $(PLUGINLDFLAGS) 
 ifdef APP_TYPE
 PDBOXLDFLAGS += -lm
 endif
-
-# Disable stringop-truncation warnings on GCC 8 or greater
-ifeq ($(shell expr $(GCCNUM) \> 800),1)
-    PDBOXFLAGS += -Wno-stringop-truncation
-endif
-
 
 $(PDBOXBUILDDIR)/pdbox.rock: $(PDBOX_OBJ) $(TLSFLIB)
 

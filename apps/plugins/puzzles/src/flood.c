@@ -31,12 +31,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
@@ -145,13 +140,13 @@ static void decode_params(game_params *ret, char const *string)
         if (*string == 'c') {
             string++;
 	    ret->colours = atoi(string);
-            while (*string && isdigit((unsigned char)*string)) string++;
+            while (string[1] && isdigit((unsigned char)string[1])) string++;
 	} else if (*string == 'm') {
             string++;
 	    ret->leniency = atoi(string);
-            while (*string && isdigit((unsigned char)*string)) string++;
-	} else
-            string++;
+            while (string[1] && isdigit((unsigned char)string[1])) string++;
+	}
+	string++;
     }
 }
 
@@ -215,9 +210,7 @@ static const char *validate_params(const game_params *params, bool full)
     if (params->w * params->h < 2)
         return "Grid must contain at least two squares";
     if (params->w < 1 || params->h < 1)
-        return "Width and height must be at least one";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
+        return "Width and height must both be at least one";
     if (params->colours < 3 || params->colours > 10)
         return "Must have between 3 and 10 colours";
     if (params->leniency < 0)
@@ -561,10 +554,8 @@ static char *new_game_desc(const game_params *params, random_state *rs,
     /*
      * Invent a random grid.
      */
-    do {
-        for (i = 0; i < wh; i++)
-            scratch->grid[i] = random_upto(rs, params->colours);
-    } while (completed(w, h, scratch->grid));
+    for (i = 0; i < wh; i++)
+        scratch->grid[i] = random_upto(rs, params->colours);
 
     /*
      * Run the solver, and count how many moves it uses.
@@ -779,7 +770,7 @@ struct game_ui {
 static game_ui *new_ui(const game_state *state)
 {
     struct game_ui *ui = snew(struct game_ui);
-    ui->cursor_visible = getenv_bool("PUZZLES_SHOW_CURSOR", false);
+    ui->cursor_visible = false;
     ui->cx = FILLX;
     ui->cy = FILLY;
     return ui;
@@ -790,21 +781,18 @@ static void free_ui(game_ui *ui)
     sfree(ui);
 }
 
-static void game_changed_state(game_ui *ui, const game_state *oldstate,
-                               const game_state *newstate)
+static char *encode_ui(const game_ui *ui)
+{
+    return NULL;
+}
+
+static void decode_ui(game_ui *ui, const char *encoding)
 {
 }
 
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
+static void game_changed_state(game_ui *ui, const game_state *oldstate,
+                               const game_state *newstate)
 {
-    if (button == CURSOR_SELECT &&
-        state->grid[0] != state->grid[ui->cy*state->w+ui->cx])
-        return "Fill";
-    if (button == CURSOR_SELECT2 &&
-        state->soln && state->solnpos < state->soln->nmoves)
-        return "Advance";
-    return "";
 }
 
 struct game_drawstate {
@@ -830,26 +818,35 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 {
     int w = state->w, h = state->h;
     int tx = -1, ty = -1, move = -1;
-    char *nullret = MOVE_NO_EFFECT;
 
     if (button == LEFT_BUTTON) {
 	tx = FROMCOORD(x);
         ty = FROMCOORD(y);
-        if (ui->cursor_visible) {
-            ui->cursor_visible = false;
-            nullret = MOVE_UI_UPDATE;
-        }
-    } else if (IS_CURSOR_MOVE(button)) {
-        return move_cursor(button, &ui->cx, &ui->cy, w, h, false,
-                           &ui->cursor_visible);
+        ui->cursor_visible = false;
+    } else if (button == CURSOR_LEFT && ui->cx > 0) {
+        ui->cx--;
+        ui->cursor_visible = true;
+        return UI_UPDATE;
+    } else if (button == CURSOR_RIGHT && ui->cx+1 < w) {
+        ui->cx++;
+        ui->cursor_visible = true;
+        return UI_UPDATE;
+    } else if (button == CURSOR_UP && ui->cy > 0) {
+        ui->cy--;
+        ui->cursor_visible = true;
+        return UI_UPDATE;
+    } else if (button == CURSOR_DOWN && ui->cy+1 < h) {
+        ui->cy++;
+        ui->cursor_visible = true;
+        return UI_UPDATE;
     } else if (button == CURSOR_SELECT) {
         tx = ui->cx;
         ty = ui->cy;
-    } else if (button == CURSOR_SELECT2) {
-        if (state->soln && state->solnpos < state->soln->nmoves)
-            move = state->soln->moves[state->solnpos];
+    } else if (button == CURSOR_SELECT2 &&
+               state->soln && state->solnpos < state->soln->nmoves) {
+	move = state->soln->moves[state->solnpos];
     } else {
-        return MOVE_UNUSED;
+        return NULL;
     }
 
     if (tx >= 0 && tx < w && ty >= 0 && ty < h &&
@@ -862,7 +859,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
         return dupstr(buf);
     }
 
-    return nullret;
+    return NULL;
 }
 
 static game_state *execute_move(const game_state *state, const char *move)
@@ -872,8 +869,7 @@ static game_state *execute_move(const game_state *state, const char *move)
 
     if (move[0] == 'M' &&
         sscanf(move+1, "%d", &c) == 1 &&
-        c >= 0 && c < state->colours &&
-        c != state->grid[FILLY * state->w + FILLX] &&
+        c >= 0 &&
         !state->complete) {
         int *queue = snewn(state->w * state->h, int);
 	ret = dup_game(state);
@@ -924,23 +920,11 @@ static game_state *execute_move(const game_state *state, const char *move)
 
         sol->moves = snewn(sol->nmoves, char);
         for (i = 0, p = move; i < sol->nmoves; i++) {
-            if (!*p) {
-              badsolve:
-                sfree(sol->moves);
-                sfree(sol);
-                return NULL;
-            };
+            assert(*p);
             sol->moves[i] = atoi(p);
-            if (sol->moves[i] < 0 || sol->moves[i] >= state->colours ||
-                (i == 0 ?
-                 sol->moves[i] == state->grid[FILLY * state->w + FILLX] :
-                 sol->moves[i] == sol->moves[i-1]))
-                /* Solution contains a fill with an invalid colour or
-                 * the current colour. */
-                goto badsolve;
             p += strspn(p, "0123456789");
             if (*p) {
-                if (*p != ',') goto badsolve;
+                assert(*p == ',');
                 p++;
             }
         }
@@ -965,7 +949,7 @@ static game_state *execute_move(const game_state *state, const char *move)
  */
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int tilesize; } ads, *ds = &ads;
@@ -1092,33 +1076,31 @@ static void draw_tile(drawing *dr, game_drawstate *ds,
         colour += COL_1;
     draw_rect(dr, tx, ty, TILESIZE, TILESIZE, colour);
 
-    if (SEP_WIDTH > 0) {
-        if (tile & BORDER_L)
-            draw_rect(dr, tx, ty,
-                      SEP_WIDTH, TILESIZE, COL_SEPARATOR);
-        if (tile & BORDER_R)
-            draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty,
-                      SEP_WIDTH, TILESIZE, COL_SEPARATOR);
-        if (tile & BORDER_U)
-            draw_rect(dr, tx, ty,
-                      TILESIZE, SEP_WIDTH, COL_SEPARATOR);
-        if (tile & BORDER_D)
-            draw_rect(dr, tx, ty + TILESIZE - SEP_WIDTH,
-                      TILESIZE, SEP_WIDTH, COL_SEPARATOR);
+    if (tile & BORDER_L)
+        draw_rect(dr, tx, ty,
+                  SEP_WIDTH, TILESIZE, COL_SEPARATOR);
+    if (tile & BORDER_R)
+        draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty,
+                  SEP_WIDTH, TILESIZE, COL_SEPARATOR);
+    if (tile & BORDER_U)
+        draw_rect(dr, tx, ty,
+                  TILESIZE, SEP_WIDTH, COL_SEPARATOR);
+    if (tile & BORDER_D)
+        draw_rect(dr, tx, ty + TILESIZE - SEP_WIDTH,
+                  TILESIZE, SEP_WIDTH, COL_SEPARATOR);
 
-        if (tile & CORNER_UL)
-            draw_rect(dr, tx, ty,
-                      SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
-        if (tile & CORNER_UR)
-            draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty,
-                      SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
-        if (tile & CORNER_DL)
-            draw_rect(dr, tx, ty + TILESIZE - SEP_WIDTH,
-                      SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
-        if (tile & CORNER_DR)
-            draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty + TILESIZE - SEP_WIDTH,
-                      SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
-    }
+    if (tile & CORNER_UL)
+        draw_rect(dr, tx, ty,
+                  SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
+    if (tile & CORNER_UR)
+        draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty,
+                  SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
+    if (tile & CORNER_DL)
+        draw_rect(dr, tx, ty + TILESIZE - SEP_WIDTH,
+                  SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
+    if (tile & CORNER_DR)
+        draw_rect(dr, tx + TILESIZE - SEP_WIDTH, ty + TILESIZE - SEP_WIDTH,
+                  SEP_WIDTH, SEP_WIDTH, COL_SEPARATOR);
 
     if (tile & CURSOR)
         draw_rect_outline(dr, tx + CURSOR_INSET, ty + CURSOR_INSET,
@@ -1147,6 +1129,13 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
      * moved into some generic 'draw-recessed-rectangle' utility fn. */
     if (!ds->started) {
 	int coords[10];
+
+	draw_rect(dr, 0, 0,
+		  TILESIZE * w + 2 * BORDER,
+		  TILESIZE * h + 2 * BORDER, COL_BACKGROUND);
+	draw_update(dr, 0, 0,
+		    TILESIZE * w + 2 * BORDER,
+		    TILESIZE * h + 2 * BORDER);
 
 	/*
 	 * Recessed area containing the whole puzzle.
@@ -1290,20 +1279,6 @@ static float game_anim_length(const game_state *oldstate,
     return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->cursor_visible)
-    {
-        *x = COORD(ui->cx);
-        *y = COORD(ui->cy);
-        *w = *h = TILESIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     if (state->complete && state->moves <= state->movelimit) {
@@ -1337,6 +1312,19 @@ static float game_flash_length(const game_state *oldstate,
     return 0.0F;
 }
 
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
+{
+}
+
+static void game_print(drawing *dr, const game_state *state, int tilesize)
+{
+}
+
 #ifdef COMBINED
 #define thegame flood
 #endif
@@ -1358,14 +1346,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    NULL, NULL, /* get_prefs, set_prefs */
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILESIZE, game_compute_size, game_set_size,
@@ -1375,10 +1361,9 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
-    false, false, NULL, NULL,          /* print_size, print */
+    false, false, game_print_size, game_print,
     true,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     0,				       /* flags */
 };

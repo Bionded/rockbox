@@ -23,7 +23,6 @@
 #define __MV_H__
 
 #include <stdbool.h>
-#include <stdint.h>
 #include "config.h"
 
 /* FixMe: These macros are a bit nasty and perhaps misplaced here.
@@ -40,19 +39,6 @@
 #define IF_MD_NONVOID(x...) void
 #define IF_MD_DRV(d)  0
 #endif /* HAVE_MULTIDRIVE */
-
-/* Storage size */
-#if (CONFIG_STORAGE & STORAGE_ATA) && defined(HAVE_LBA48)
-typedef uint64_t sector_t;
-#define STORAGE_64BIT_SECTOR
-#elif (CONFIG_STORAGE & STORAGE_SD) && defined(HAVE_SDUC)
-typedef uint64_t sector_t;
-#define STORAGE_64BIT_SECTOR
-#else
-typedef unsigned long sector_t;
-#undef STORAGE_64BIT_SECTOR
-#endif
-
 
 /* Volumes mean things that have filesystems on them, like partitions */
 #ifdef HAVE_MULTIVOLUME
@@ -84,9 +70,6 @@ typedef unsigned long sector_t;
 #if (CONFIG_STORAGE & STORAGE_RAMDISK)
 #define RAMDISK_VOL_DEC "RAMDisk"
 #endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-#define USB_VOL_DEC "USB"
-#endif
 #if (CONFIG_STORAGE & STORAGE_HOSTFS)
 #ifndef HOSTFS_VOL_DEC /* overridable */
 #define HOSTFS_VOL_DEC  DEFAULT_VOL_DEC
@@ -101,10 +84,6 @@ typedef unsigned long sector_t;
 #define VOL_MAX_LEN      (1 + VOL_DEC_MAX_LEN + 2 + 1)
 #define VOL_NUM_MAX      100
 
-#ifndef ROOT_VOLUME
-#define ROOT_VOLUME      INT_MAX
-#endif
-
 #else /* empty definitions if no multi-volume */
 #define IF_MV(x...)
 #define IF_MV_NONVOID(x...) void
@@ -117,26 +96,16 @@ typedef unsigned long sector_t;
 #define CHECK_DRV(drive) \
     ((unsigned int)IF_MD_DRV(drive) < NUM_DRIVES)
 
-/* contains info about a volume */
-struct volumeinfo
-{
-    int drive;      /* drive number */
-    int partition;  /* partition number (0 for superfloppy drives) */
-};
-
 /* Volume-centric functions (in disk.c) */
 void volume_recalc_free(IF_MV_NONVOID(int volume));
 unsigned int volume_get_cluster_size(IF_MV_NONVOID(int volume));
-void volume_size(IF_MV(int volume,) sector_t *size, sector_t *free);
+void volume_size(IF_MV(int volume,) unsigned long *size, unsigned long *free);
 #ifdef HAVE_DIRCACHE
 bool volume_ismounted(IF_MV_NONVOID(int volume));
 #endif
 #ifdef HAVE_HOTSWAP
 bool volume_removable(int volume);
 bool volume_present(int volume);
-#else
-#define volume_present(x) 1
-#define volueme_removeable(x) 0
 #endif /* HAVE_HOTSWAP */
 
 #ifdef HAVE_MULTIDRIVE
@@ -148,7 +117,5 @@ static inline int volume_drive(int volume)
     (void)volume;
 }
 #endif /* HAVE_MULTIDRIVE */
-
-int volume_partition(int volume);
 
 #endif /* __MV_H__ */

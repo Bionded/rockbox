@@ -27,8 +27,7 @@ enum yesno_res
 {
     YESNO_YES,
     YESNO_NO,
-    YESNO_USB,
-    YESNO_TMO
+    YESNO_USB
 };
 
 struct text_message
@@ -49,13 +48,7 @@ extern enum yesno_res gui_syncyesno_run(
                            const struct text_message * main_message,
                            const struct text_message * yes_message,
                            const struct text_message * no_message);
-
-extern enum yesno_res gui_syncyesno_run_w_tmo(
-                                     int ticks, enum yesno_res tmo_default_res,
-                                     const struct text_message * main_message,
-                                     const struct text_message * yes_message,
-                                     const struct text_message * no_message);
-
+                           
 bool yesno_pop(const char* text);
 
 #endif /* _GUI_YESNO_H_ */

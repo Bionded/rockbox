@@ -55,12 +55,6 @@ sub mapscan {
         elsif($_ =~ / +0x([0-9a-f]+) *_loadaddress = \./) {
             $start = $1;
         }
-        elsif($_ =~ / +0x([0-9a-f]+) *_dramcopystart = \./) {
-            $start = $1;
-        }
-        elsif($_ =~ / +0x([0-9a-f]+) *__start/) {
-            $start = $1;
-        }
     }
     close(M);
 
@@ -106,19 +100,11 @@ printf O ("Binary size: %s\n", filesize($ENV{'BINARY'}));
 printf O ("Voice format: %s\n", definescan("$ENV{APPSDIR}/talk.h", "VOICE_VERSION"));
 
 if ($ENV{'APPSDIR'} =~ /\/apps$/) {
-    if (-f "rockbox.bin") {
-        printf O ("Actual size: %s\n", filesize("rockbox.bin"));
-    } else {
-        printf O ("Actual size: %s\n", filesize($ENV{'BINARY'}));
-    }
+  printf O ("Actual size: %s\n", filesize("rockbox.bin"));
   printf O ("RAM usage: %s\n", mapscan("rockbox.map"));
   printf O ("Features: %s\n", features("apps/features"));
 } elsif ($ENV{'APPSDIR'} =~ /\/bootloader$/) {
-    if (-f "bootloader.bin") {
-        printf O ("Actual size: %s\n", filesize("bootloader.bin"));
-    } else {
-        printf O ("Actual size: %s\n", filesize($ENV{'BINARY'}));
-    }
+  printf O ("Actual size: %s\n", filesize("bootloader.bin"));
   printf O ("RAM usage: %s\n", mapscan("bootloader.map"));
 }
 

@@ -33,14 +33,6 @@
 #include "platform.h"
 #define MAX_SONGS  32
 
-static char readchar(int fd, char failchr)
-{
-    char ch;
-    if (read(fd,&ch,sizeof(ch)) == sizeof(ch))
-        return ch;
-    return failchr;
-}
-
 static bool parse_dec(int *retval, const char *p, int minval, int maxval)
 {
     int r = 0;
@@ -81,13 +73,10 @@ static bool parse_text(char *retval, const char *p)
 
 static int ASAP_ParseDuration(const char *s)
 {
-    #define chk_digit(rtn) if (*s < '0' || *s > '9') {return (rtn);}
-    #define set_digit(mult)   r += (mult) * (*s++ - '0')
-    #define parse_digit(m) chk_digit(r) set_digit(m)
-
-    int r = 0;
-    chk_digit(-1);
-    set_digit(1);
+    int r;
+    if (*s < '0' || *s > '9')
+        return -1;
+    r = *s++ - '0';
     if (*s >= '0' && *s <= '9')
         r = 10 * r + *s++ - '0';
     if (*s == ':') {
@@ -95,18 +84,23 @@ static int ASAP_ParseDuration(const char *s)
         if (*s < '0' || *s > '5')
             return -1;
         r = 60 * r + (*s++ - '0') * 10;
-        chk_digit(-1);
-        set_digit(1);
+        if (*s < '0' || *s > '9')
+            return -1;
+        r += *s++ - '0';
     }
-
     r *= 1000;
     if (*s != '.')
         return r;
     s++;
-    parse_digit(100);
-    parse_digit(10);
-    parse_digit(1);
-
+    if (*s < '0' || *s > '9')
+        return r;
+    r += 100 * (*s++ - '0');
+    if (*s < '0' || *s > '9')
+        return r;
+    r += 10 * (*s++ - '0');
+    if (*s < '0' || *s > '9')
+        return r;
+    r += *s - '0';
     return r;
 }
 
@@ -114,13 +108,13 @@ static bool read_asap_string(char* source, char** buf, char** buffer_end, char**
 {
     if(parse_text(*buf,source) == false)
         return false;
-
+  
     /* set dest pointer */
     *dest = *buf;
-
+    
     /* move buf ptr */
     *buf += strlen(*buf)+1;
-
+       
     /* check size */
     if(*buf >= *buffer_end)
     {
@@ -132,52 +126,54 @@ static bool read_asap_string(char* source, char** buf, char** buffer_end, char**
 
 static bool parse_sap_header(int fd, struct mp3entry* id3, int file_len)
 {
-    #define EOH_CHAR (0xFF)
     int module_index = 0;
     int sap_signature = -1;
     int duration_index = 0;
-    unsigned char cur_char = 0;
+    unsigned char cur_char = 0; 
     int i;
-
+    
     /* set defaults */
     int numSongs = 1;
     int defSong = 0;
     int durations[MAX_SONGS];
     for (i = 0; i < MAX_SONGS; i++)
         durations[i] = -1;
-
+    
     /* use id3v2 buffer for our strings */
     char* buffer = id3->id3v2buf;
     char* buffer_end = id3->id3v2buf + ID3V2_BUF_SIZE;
-
+    
     /* parse file */
     while (1)
     {
         char line[256];
         char *p;
-
+        
         if (module_index + 8 >= file_len)
             return false;
-        cur_char = readchar(fd, EOH_CHAR);
+        /* read a char */
+        read(fd,&cur_char,1);
         /* end of header */
-        if (cur_char == EOH_CHAR)
+        if (cur_char == 0xff)
             break;
-
+            
         i = 0;
-        while (cur_char != 0x0d)
+        while (cur_char != 0x0d) 
         {
-            line[i++] = cur_char;
+            line[i++] = cur_char; 
             module_index++;
             if (module_index >= file_len || (unsigned)i >= sizeof(line) - 1)
                 return false;
-            cur_char = readchar(fd, 0x0d);
+            /* read a char */
+            read(fd,&cur_char,1);
         }
         if (++module_index >= file_len )
             return false;
-        cur_char = readchar(fd, EOH_CHAR);
-        if ( cur_char != 0x0a)
-            return false;
-
+        /* read a char */
+        read(fd,&cur_char,1);
+        if ( cur_char != 0x0a)    
+            return false;    
+            
         line[i] = '\0';
         for (p = line; *p != '\0'; p++) {
             if (*p == ' ') {
@@ -185,71 +181,68 @@ static bool parse_sap_header(int fd, struct mp3entry* id3, int file_len)
                 break;
             }
         }
-        static const char *tg_options[] = {"SAP", "AUTHOR", "NAME", "DATE",
-                                            "SONGS", "DEFSONG", "TIME", NULL};
+        
         /* parse tags */
-        int tg_op = string_option(line, tg_options, false);
-        if (tg_op == 0) /*SAP*/
+        if(strcmp(line, "SAP") == 0)
             sap_signature = 1;
         if (sap_signature == -1)
             return false;
-
-        if (tg_op == 1) /*AUTHOR*/
+        if (strcmp(line, "AUTHOR") == 0)
         {
             if(read_asap_string(p, &buffer, &buffer_end, &id3->artist) == false)
                 return false;
         }
-        else if(tg_op == 2) /*NAME*/
+        else if(strcmp(line, "NAME") == 0)
         {
             if(read_asap_string(p, &buffer, &buffer_end, &id3->title) == false)
                 return false;
         }
-        else if(tg_op == 3) /*DATE*/
+        else if(strcmp(line, "DATE") == 0)
         {
             if(read_asap_string(p, &buffer, &buffer_end, &id3->year_string) == false)
-                return false;
+                return false;          
         }
-        else if (tg_op == 4) /*SONGS*/
+        else if (strcmp(line, "SONGS") == 0)
         {
             if (parse_dec(&numSongs, p, 1, MAX_SONGS) == false )
-                return false;
+                return false; 
         }
-        else if (tg_op == 5) /*DEFSONG*/
+        else if (strcmp(line, "DEFSONG") == 0)
         {
             if (parse_dec(&defSong, p, 0, MAX_SONGS) == false)
-                return false;
+                return false; 
         }
-        else if (tg_op == 6) /*TIME*/
+        else if (strcmp(line, "TIME") == 0) 
         {
             int durationTemp = ASAP_ParseDuration(p);
             if (durationTemp < 0 || duration_index >= MAX_SONGS)
                 return false;
             durations[duration_index++] = durationTemp;
         }
-    }
-
+    }    
+    
     /* set length: */
     int length =  durations[defSong];
     if (length < 0)
         length = 180 * 1000;
     id3->length = length;
-
+    
     lseek(fd, 0, SEEK_SET);
     return true;
 }
 
 
 bool get_asap_metadata(int fd, struct mp3entry* id3)
-{
+{  
 
     int filelength = filesize(fd);
-
+ 
     if(parse_sap_header(fd, id3, filelength) == false)
     {
         DEBUGF("parse sap header failed.\n");
         return false;
-    }
-
+    }   
+        
     id3->bitrate = 706;
     id3->frequency = 44100;
 

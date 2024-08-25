@@ -982,13 +982,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Píp við lagskipti"
+    *: none
+    swcodec: "Píp við lagskipti"
   </dest>
   <voice>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </voice>
 </phrase>
 <phrase>
@@ -996,13 +999,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Lág"
+    *: none
+    swcodec: "Lág"
   </dest>
   <voice>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </voice>
 </phrase>
 <phrase>
@@ -1010,13 +1016,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Mið"
+    *: none
+    swcodec: "Mið"
   </dest>
   <voice>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </voice>
 </phrase>
 <phrase>
@@ -1024,13 +1033,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Há"
+    *: none
+    swcodec: "Há"
   </dest>
   <voice>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </voice>
 </phrase>
 <phrase>
@@ -1251,13 +1263,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Letur"
+    *: none
+    lcd_bitmap: "Letur"
   </dest>
   <voice>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </voice>
 </phrase>
 <phrase>
@@ -1324,13 +1339,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Stöðu-/flettistik"
+    *: none
+    lcd_bitmap: "Stöðu-/flettistik"
   </dest>
   <voice>
-    *: "Status- and Scrollbar"
+    *: none
+    lcd_bitmap: "Status- and Scrollbar"
   </voice>
 </phrase>
 <phrase>
@@ -1460,15 +1478,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Lína inn"
+    recording,archosplayer: "Lína inn"
   </dest>
   <voice>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </voice>
 </phrase>
 <phrase>
@@ -1679,15 +1697,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Tíðni"
+    recording,play_frequency: "Tíðni"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </voice>
 </phrase>
 <phrase>
@@ -1713,18 +1731,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Innbyggður hljóðnemi"
     recording: "Hljóðnemi"
+    iriverh100,iriverh120,iriverh300: "Innbyggður hljóðnemi"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </voice>
 </phrase>
 <phrase>
@@ -1879,13 +1897,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Hindra úrklippi"
+    *: none
+    swcodec: "Hindra úrklippi"
   </dest>
   <voice>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </voice>
 </phrase>
 <phrase>
@@ -2076,13 +2097,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Á hvolfi"
+    *: none
+    lcd_bitmap: "Á hvolfi"
   </dest>
   <voice>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </voice>
 </phrase>
 <phrase>
@@ -2090,13 +2114,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Vallínutegund"
+    *: none
+    lcd_bitmap: "Vallínutegund"
   </dest>
   <voice>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </voice>
 </phrase>
 <phrase>
@@ -2104,13 +2131,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Vísir"
+    *: none
+    lcd_bitmap: "Vísir"
   </dest>
   <voice>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </voice>
 </phrase>
 <phrase>
@@ -2118,13 +2148,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Súla (öfug)"
+    *: none
+    lcd_bitmap: "Súla (öfug)"
   </dest>
   <voice>
-    *: "Inverse Bar"
+    *: none
+    lcd_bitmap: "Inverse Bar"
   </voice>
 </phrase>
 <phrase>
@@ -2216,13 +2249,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Skrunsúla"
+    *: none
+    lcd_bitmap: "Skrunsúla"
   </dest>
   <voice>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </voice>
 </phrase>
 <phrase>
@@ -2230,13 +2266,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Stöðu súla"
+    *: none
+    lcd_bitmap: "Stöðu súla"
   </dest>
   <voice>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </voice>
 </phrase>
 <phrase>
@@ -2261,13 +2300,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Hljóðstyrki skjár"
+    *: none
+    lcd_bitmap: "Hljóðstyrki skjár"
   </dest>
   <voice>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </voice>
 </phrase>
 <phrase>
@@ -2275,13 +2317,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Rafhlöðu skjár"
+    *: none
+    lcd_bitmap: "Rafhlöðu skjár"
   </dest>
   <voice>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </voice>
 </phrase>
 <phrase>
@@ -2289,13 +2334,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Myndrænn"
+    *: none
+    lcd_bitmap: "Myndrænn"
   </dest>
   <voice>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </voice>
 </phrase>
 <phrase>
@@ -2303,13 +2351,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Í tölum"
+    *: none
+    lcd_bitmap: "Í tölum"
   </dest>
   <voice>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </voice>
 </phrase>
 <phrase>
@@ -2497,7 +2548,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -2514,7 +2565,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
@@ -3010,13 +3061,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Rafhlaða: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Rafhl.: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Rafhl.: %d%% %dh %dm"
   </dest>
   <voice>
     *: "Battery level"
@@ -3073,24 +3124,24 @@
   user: core
   <source>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    archosondio*: "M M C"
     multivolume: "H D 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "micro S D"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "micro S D"
     xduoox3: "micro S D 2"
+    archosondio*: "M M C"
   </voice>
 </phrase>
 <phrase>
@@ -3220,35 +3271,39 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,ipod*,sansae200*,sansac200*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,gigabeat*,mrobe100,gogearsa9200: ""
   </voice>
 </phrase>
 <phrase>
@@ -3308,23 +3363,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "Harði diskurinn er fullur. Ýtið á POWER til að halda áfram."
-    iriverh100,iriverh120,iriverh300: "Harði diskurinn er fullur. Ýtið á STOP til að halda áfram."
     recording: "Harði diskurinn er fullur. Ýtið á OFF til að halda áfram."
+    iriverh100,iriverh120,iriverh300: "Harði diskurinn er fullur. Ýtið á STOP til að halda áfram."
+    iaudiom5,iaudiox5: "Harði diskurinn er fullur. Ýtið á POWER til að halda áfram."
+    sansae200*,sansac200*,vibe500: "Harði diskurinn er fullur. Ýtið á PREV til að halda áfram."
     samsungyh*: "Harði diskurinn er fullur. Ýtið á LEFT til að halda áfram."
-    sansac200*,sansae200*,vibe500: "Harði diskurinn er fullur. Ýtið á PREV til að halda áfram."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,sansac200*,sansae200*: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -3443,7 +3498,7 @@
   </dest>
   <voice>
     *: none
-    alarm: "Vakna eftir"
+    alarm: "Waking up in"
   </voice>
 </phrase>
 <phrase>
@@ -3487,22 +3542,22 @@
   <source>
     *: none
     alarm: "PLAY=Set OFF=Cancel"
-    gigabeats: "SELECT=Set POWER=Cancel"
     ipod*: "SELECT=Set MENU=Cancel"
     iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: none
     alarm: "PLAY=Vista OFF=Hætta við"
-    gigabeats: "SELECT=Vista POWER=Hætta við"
     ipod*: "SELECT=Vista MENU=Hætta við"
     iriverh10,iriverh10_5gb: "SELECT=Vista PREV=Hætta við"
+    gigabeats: "SELECT=Vista POWER=Hætta við"
+    vibe500: "OK=Vista C=Hætta við"
     mpiohd300: "ENTER=Vista MENU=Hætta við"
     sansafuzeplus: "SELECT=Vista  BACK=Hætta við"
-    vibe500: "OK=Vista C=Hætta við"
   </dest>
   <voice>
     *: none
@@ -5714,21 +5769,23 @@
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
-  </source>
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
+    *: "OFF to abort"
   <dest>
     *: "OFF til að slíta vinnslu"
-    gigabeatfx: "POWER til að slíta vinnslu"
-    gigabeats,sansafuzeplus: "BACK til að slíta vinnslu"
-    iaudiom5,iaudiox5: "Long PLAY til að slíta vinnslu"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP til að slíta vinnslu"
     ipod*: "PLAY/PAUSE til að slíta vinnslu"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV til að slíta vinnslu"
-    iriverh100,iriverh120,iriverh300: "STOP til að slíta vinnslu"
+    iaudiox5,iaudiom5: "Long PLAY til að slíta vinnslu"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV til að slíta vinnslu"
+    gigabeats: "BACK til að slíta vinnslu"
+    gigabeatfx: "POWER til að slíta vinnslu"
+    sansafuzeplus: "BACK til að slíta vinnslu"
   </dest>
   <voice>
     *: ""
@@ -6104,6 +6161,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_AFMT_PCM_WAV
   desc: audio format description
   user: core
@@ -6153,13 +6227,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Breytihamur: %s %s"
+    *: none
+    swcodec: "Breytihamur: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -6212,13 +6289,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Útgáfutími"
+    *: none
+    swcodec: "Útgáfutími"
   </dest>
   <voice>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </voice>
 </phrase>
 <phrase>
@@ -6302,15 +6382,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>

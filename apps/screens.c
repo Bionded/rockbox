@@ -20,7 +20,7 @@
  ****************************************************************************/
 
 #include <stdbool.h>
-#include <string-extra.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "backlight.h"
@@ -30,6 +30,7 @@
 #include "icons.h"
 #include "font.h"
 #include "audio.h"
+#include "mp3_playback.h"
 #include "usb.h"
 #include "settings.h"
 #include "status.h"
@@ -40,6 +41,7 @@
 #include "powermgmt.h"
 #include "talk.h"
 #include "misc.h"
+#include "metadata.h"
 #include "screens.h"
 #include "debug.h"
 #include "led.h"
@@ -54,7 +56,229 @@
 #include "language.h"
 #include "replaygain.h"
 
+#if defined(ARCHOS_FMRECORDER) || defined(ARCHOS_RECORDERV2)
+#include "adc.h"
+#endif
+
+#if (CONFIG_STORAGE & STORAGE_MMC) && (defined(ARCHOS_ONDIOSP) || defined(ARCHOS_ONDIOFM))
+int mmc_remove_request(void)
+{
+    struct queue_event ev;
+    FOR_NB_SCREENS(i)
+        screens[i].clear_display();
+    splash(0, ID2P(LANG_REMOVE_MMC));
+
+    while (1)
+    {
+        queue_wait_w_tmo(&button_queue, &ev, HZ/2);
+        switch (ev.id)
+        {
+            case SYS_HOTSWAP_EXTRACTED:
+                return SYS_HOTSWAP_EXTRACTED;
+
+            case SYS_USB_DISCONNECTED:
+                return SYS_USB_DISCONNECTED;
+        }
+    }
+}
+#endif
 #include "ctype.h"
+
+/* the charging screen is only used for archos targets */
+#if CONFIG_CHARGING && !defined(HAVE_POWEROFF_WHILE_CHARGING) && defined(CPU_SH)
+
+#ifdef HAVE_LCD_BITMAP
+static void charging_display_info(bool animate)
+{
+    unsigned char charging_logo[36];
+    const int pox_x = (LCD_WIDTH - sizeof(charging_logo)) / 2;
+    const int pox_y = 32;
+    static unsigned phase = 3;
+    unsigned i;
+
+#if !defined(NEED_ATA_POWER_BATT_MEASURE)
+    {
+        int battv = battery_voltage();
+        lcd_putsf(0, 7, "  Batt: %d.%02dV %d%%  ", battv / 1000,
+                 (battv % 1000) / 10, battery_level());
+    }
+#elif defined(ARCHOS_FMRECORDER) || defined(ARCHOS_RECORDERV2)
+    /* IDE power is normally off here, so display input current instead */
+    lcd_putsf(7, 7, "%dmA  ", 
+              (adc_read(ADC_EXT_POWER) * EXT_SCALE_FACTOR) / 10000);
+#endif
+
+#ifdef ARCHOS_RECORDER
+    lcd_puts(0, 2, "Charge mode:");
+
+    const char *s;
+    if (charge_state == CHARGING)
+        s = str(LANG_BATTERY_CHARGE);
+    else if (charge_state == TOPOFF)
+        s = str(LANG_BATTERY_TOPOFF_CHARGE);
+    else if (charge_state == TRICKLE)
+        s = str(LANG_BATTERY_TRICKLE_CHARGE);
+    else
+        s = "not charging";
+
+    lcd_puts(0, 3, s);
+    if (!charger_enabled())
+        animate = false;
+#endif /* ARCHOS_RECORDER */
+
+    /* middle part */
+    memset(charging_logo+3, 0x00, 32);
+    charging_logo[0] = 0x3C;
+    charging_logo[1] = 0x24;
+    charging_logo[2] = charging_logo[35] = 0xFF;
+
+    if (!animate)
+    {   /* draw the outline */
+        /* middle part */
+        lcd_mono_bitmap(charging_logo, pox_x, pox_y + 8,
+                        sizeof(charging_logo), 8);
+        lcd_set_drawmode(DRMODE_FG);
+        /* upper line */
+        charging_logo[0] = charging_logo[1] = 0x00;
+        memset(charging_logo+2, 0x80, 34);
+        lcd_mono_bitmap(charging_logo, pox_x, pox_y, sizeof(charging_logo), 8);
+        /* lower line */
+        memset(charging_logo+2, 0x01, 34);
+        lcd_mono_bitmap(charging_logo, pox_x, pox_y + 16,
+                        sizeof(charging_logo), 8);
+        lcd_set_drawmode(DRMODE_SOLID);
+    }
+    else
+    {   /* animate the middle part */
+        for (i = 3; i<MIN(sizeof(charging_logo)-1, phase); i++)
+        {
+            if ((i-phase) % 8 == 0)
+            {   /* draw a "bubble" here */
+                unsigned bitpos;
+                bitpos = (phase + i/8) % 15; /* "bounce" effect */
+                if (bitpos > 7)
+                    bitpos = 14 - bitpos;
+                charging_logo[i] = BIT_N(bitpos);
+            }
+        }
+        lcd_mono_bitmap(charging_logo, pox_x, pox_y + 8,
+                        sizeof(charging_logo), 8);
+        phase++;
+    }
+    lcd_update();
+}
+#else /* not HAVE_LCD_BITMAP */
+
+static unsigned long logo_chars[4];
+static const unsigned char logo_pattern[] = {
+    0x07, 0x04, 0x1c, 0x14, 0x1c, 0x04, 0x07, 0, /* char 1 */
+    0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0, /* char 2 */
+    0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0, /* char 3 */
+    0x1f, 0x01, 0x01, 0x01, 0x01, 0x01, 0x1f, 0, /* char 4 */
+};
+
+static void logo_lock_patterns(bool on)
+{
+    int i;
+
+    if (on)
+    {
+        for (i = 0; i < 4; i++)
+            logo_chars[i] = lcd_get_locked_pattern();
+    }
+    else
+    {
+        for (i = 0; i < 4; i++)
+            lcd_unlock_pattern(logo_chars[i]);
+    }
+}
+
+static void charging_display_info(bool animate)
+{
+    int battv;
+    unsigned i, ypos;
+    static unsigned phase = 3;
+    char buf[32];
+
+    battv = battery_voltage();
+    lcd_putsf(4, 1, " %d.%02dV", battv / 1000, (battv % 1000) / 10);
+
+    memcpy(buf, logo_pattern, 32); /* copy logo patterns */
+
+    if (!animate) /* build the screen */
+    {
+        lcd_double_height(false);
+        lcd_puts(0, 0, "[Charging]");
+        for (i = 0; i < 4; i++)
+            lcd_putc(i, 1, logo_chars[i]);
+    }
+    else          /* animate the logo */
+    {
+        for (i = 3; i < MIN(19, phase); i++)
+        {
+            if ((i - phase) % 5 == 0)
+            {    /* draw a "bubble" here */
+                ypos = (phase + i/5) % 9; /* "bounce" effect */
+                if (ypos > 4)
+                    ypos = 8 - ypos;
+                buf[5 - ypos + 8 * (i/5)] |= 0x10u >> (i%5);
+            }
+        }
+        phase++;
+    }
+
+    for (i = 0; i < 4; i++)
+        lcd_define_pattern(logo_chars[i], buf + 8 * i);
+
+    lcd_update();
+}
+#endif /* (not) HAVE_LCD_BITMAP */
+
+/* blocks while charging, returns on event:
+   1 if charger cable was removed
+   2 if Off/Stop key was pressed
+   3 if On key was pressed
+   4 if USB was connected */
+
+int charging_screen(void)
+{
+    unsigned int button;
+    int rc = 0;
+
+    ide_power_enable(false); /* power down the disk, else would be spinning */
+
+    lcd_clear_display();
+    backlight_set_timeout(global_settings.backlight_timeout);
+#ifdef HAVE_REMOTE_LCD
+    remote_backlight_set_timeout(global_settings.remote_backlight_timeout);
+#endif
+    backlight_set_timeout_plugged(global_settings.backlight_timeout_plugged);
+
+#ifdef HAVE_LCD_CHARCELLS
+    logo_lock_patterns(true);
+#endif
+    charging_display_info(false);
+
+    do
+    {
+        gui_syncstatusbar_draw(&statusbars, false);
+        charging_display_info(true);
+        button = get_action(CONTEXT_STD,HZ/3);
+        if (button == ACTION_STD_OK)
+            rc = 2;
+        else if (usb_detect() == USB_INSERTED)
+            rc = 3;
+        /* do not depend on power management thread here */
+        else if (!(power_input_status() & POWER_INPUT_MAIN_CHARGER))
+            rc = 1;
+    } while (!rc);
+
+#ifdef HAVE_LCD_CHARCELLS
+    logo_lock_patterns(false);
+#endif
+    return rc;
+}
+#endif /* CONFIG_CHARGING && !HAVE_POWEROFF_WHILE_CHARGING && defined(CPU_SH) */
 
 #if CONFIG_CHARGING
 void charging_splash(void)
@@ -65,7 +289,7 @@ void charging_splash(void)
 #endif
 
 
-#if (CONFIG_RTC != 0)
+#if defined(HAVE_LCD_BITMAP) && (CONFIG_RTC != 0)
 
 /* little helper function for voice output */
 static void say_time(int cursorpos, const struct tm *tm)
@@ -123,7 +347,7 @@ static void say_time(int cursorpos, const struct tm *tm)
 #define OFF_YEAR    9
 #define OFF_DAY     14
 
-bool set_time_screen(const char* title, struct tm *tm, bool set_date)
+bool set_time_screen(const char* title, struct tm *tm)
 {
     struct viewport viewports[NB_SCREENS];
     bool done = false, usb = false;
@@ -138,10 +362,6 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
         offsets_ptr[IDX_YEAR] = OFF_DAY;
         offsets_ptr[IDX_DAY] = OFF_YEAR;
     }
-
-    int last_item = IDX_DAY; /*time & date*/
-    if (!set_date)
-        last_item = IDX_SECONDS; /*time*/
 
     /* speak selection when screen is entered */
     say_time(cursorpos, tm);
@@ -165,7 +385,6 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
         unsigned char buffer[20];
 #endif
         int *valptr = NULL;
-
         static unsigned char daysinmonth[] =
             {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -211,13 +430,12 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
             /* 6 possible cursor possitions, 2 values stored for each: x, y */
             unsigned int cursor[6][2];
             struct viewport *vp = &viewports[s];
-            struct viewport *last_vp;
             struct screen *screen = &screens[s];
             static unsigned char rtl_idx[] =
                 { IDX_SECONDS, IDX_MINUTES, IDX_HOURS, IDX_DAY, IDX_MONTH, IDX_YEAR };
 
             viewport_set_defaults(vp, s);
-            last_vp = screen->set_viewport(vp);
+            screen->set_viewport(vp);
             nb_lines = viewport_get_nb_lines(vp);
 
             /* minimum lines needed is 2 + title line */
@@ -233,10 +451,12 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
             else
                 prev_line_height = 0;
 
+            screen->getstringsize(SEPARATOR, &separator_width, NULL);
+
             /* weekday */
-            weekday_width = screen->getstringsize(str(LANG_WEEKDAY_SUNDAY + tm->tm_wday),
-                                     NULL, NULL);
-            separator_width = screen->getstringsize(SEPARATOR, NULL, NULL);
+            screen->getstringsize(str(LANG_WEEKDAY_SUNDAY + tm->tm_wday),
+                                     &weekday_width, NULL);
+            screen->getstringsize(" ", &separator_width, NULL);
 
             for(i=0, j=0; i < 6; i++)
             {
@@ -245,7 +465,7 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
                     j = weekday_width + separator_width;
                     prev_line_height *= 2;
                 }
-                width = screen->getstringsize(ptr[i], NULL, NULL);
+                screen->getstringsize(ptr[i], &width, NULL);
                 cursor[i][INDEX_Y] = prev_line_height;
                 cursor[i][INDEX_X] = j;
                 j += width + separator_width;
@@ -286,7 +506,7 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
             if (nb_lines > 5)
                 screen->puts(0, 5, str(LANG_TIME_REVERT));
             screen->update_viewport();
-            screen->set_viewport(last_vp);
+            screen->set_viewport(NULL);
         }
 
         /* set the most common numbers */
@@ -323,11 +543,11 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
         button = get_action(CONTEXT_SETTINGS_TIME, TIMEOUT_BLOCK);
         switch ( button ) {
             case ACTION_STD_PREV:
-                cursorpos = clamp_value_wrap(--cursorpos, last_item, 0);
+                cursorpos = clamp_value_wrap(--cursorpos, 5, 0);
                 say_time(cursorpos, tm);
                 break;
             case ACTION_STD_NEXT:
-                cursorpos = clamp_value_wrap(++cursorpos, last_item, 0);
+                cursorpos = clamp_value_wrap(++cursorpos, 5, 0);
                 say_time(cursorpos, tm);
                 break;
             case ACTION_SETTINGS_INC:
@@ -363,14 +583,51 @@ bool set_time_screen(const char* title, struct tm *tm, bool set_date)
 #endif
     return usb;
 }
-#endif /* (CONFIG_RTC != 0) */
+#endif /* defined(HAVE_LCD_BITMAP) && (CONFIG_RTC != 0) */
+
+#if (CONFIG_KEYPAD == RECORDER_PAD) && !defined(HAVE_SW_POWEROFF)
+#include "scroll_engine.h"
+bool shutdown_screen(void)
+{
+    int button;
+    bool done = false;
+    long time_entered = current_tick;
+
+    lcd_scroll_stop();
+
+    splash(0, str(LANG_CONFIRM_SHUTDOWN));
+
+    while(!done && TIME_BEFORE(current_tick,time_entered+HZ*2))
+    {
+        button = get_action(CONTEXT_STD,HZ);
+        switch(button)
+        {
+            case ACTION_STD_CANCEL:
+                sys_poweroff();
+                break;
+
+            /* do nothing here, because ACTION_NONE might be caused
+             * by timeout or button release. In case of timeout the loop
+             * is terminated by TIME_BEFORE */
+            case ACTION_NONE:
+                break;
+
+            default:
+                if(default_event_handler(button) == SYS_USB_CONNECTED)
+                    return true;
+                done = true;
+                break;
+        }
+    }
+    return false;
+}
+#endif
 
 static const int id3_headers[]=
 {
-    LANG_TAGNAVI_ALL_TRACKS,
     LANG_ID3_TITLE,
     LANG_ID3_ARTIST,
-    LANG_ID3_COMPOSER,
+    LANG_ID3_COMPOSER,    
     LANG_ID3_ALBUM,
     LANG_ID3_ALBUMARTIST,
     LANG_ID3_GROUPING,
@@ -381,25 +638,19 @@ static const int id3_headers[]=
     LANG_ID3_YEAR,
     LANG_ID3_LENGTH,
     LANG_ID3_PLAYLIST,
-    LANG_FORMAT,
     LANG_ID3_BITRATE,
     LANG_ID3_FREQUENCY,
+#if CONFIG_CODEC == SWCODEC
     LANG_ID3_TRACK_GAIN,
-    LANG_ALBUM_GAIN,
+    LANG_ID3_ALBUM_GAIN,
+#endif
     LANG_FILESIZE,
     LANG_ID3_PATH,
-    LANG_DATE,
-    LANG_TIME,
 };
 
 struct id3view_info {
     struct mp3entry* id3;
-    struct tm *modified;
-    int track_ct;
     int count;
-    struct playlist_info *playlist;
-    int playlist_display_index;
-    int playlist_amount;
     int info_id[ARRAYLEN(id3_headers)];
 };
 
@@ -432,6 +683,7 @@ static void say_number_and_spell(char *buf, bool year_style)
     }
 }
 
+#if CONFIG_CODEC == SWCODEC
 /* Say a replaygain ID3 value from its text form */
 static void say_gain(char *buf)
 {
@@ -487,6 +739,7 @@ static void say_gain(char *buf)
     }else /* we didn't find a number, just spell everything */
         talk_spell(buf, true);
 }
+#endif
 
 static const char * id3_get_or_speak_info(int selected_item, void* data,
                                           char *buffer, size_t buffer_len,
@@ -494,19 +747,13 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
 {
     struct id3view_info *info = (struct id3view_info*)data;
     struct mp3entry* id3 =info->id3;
-    const unsigned char * const *unit;
-    unsigned int unit_ct;
-    unsigned long length;
-    bool pl_modified;
-    struct tm *tm = info->modified;
     int info_no=selected_item/2;
     if(!(selected_item%2))
     {/* header */
         if(say_it)
             talk_id(id3_headers[info->info_id[info_no]], false);
         snprintf(buffer, buffer_len,
-                 info->info_id[info_no] > 0 ? "[%s]" : "%s",
-                 str(id3_headers[info->info_id[info_no]]));
+                 "[%s]", str(id3_headers[info->info_id[info_no]]));
         return buffer;
     }
     else
@@ -515,14 +762,6 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
         char * val=NULL;
         switch(id3_headers[info->info_id[info_no]])
         {
-            case LANG_TAGNAVI_ALL_TRACKS:
-                if (info->track_ct <= 1)
-                    return NULL;
-                snprintf(buffer, buffer_len, "%d", info->track_ct);
-                val = buffer;
-                if(say_it)
-                    talk_number(info->track_ct, true);
-                break;
             case LANG_ID3_TITLE:
                 val=id3->title;
                 if(say_it && val)
@@ -581,9 +820,7 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
             case LANG_ID3_COMMENT:
                 if (!id3->comment)
                     return NULL;
-
-                strmemccpy(buffer, id3->comment, buffer_len);
-
+                snprintf(buffer, buffer_len, "%s", id3->comment);
                 val=buffer;
                 if(say_it && val)
                     talk_spell(val, true);
@@ -609,65 +846,23 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
                 }
                 break;
             case LANG_ID3_LENGTH:
-                length = info->track_ct > 1 ? id3->length : id3->length / 1000;
-
-                format_time_auto(buffer, buffer_len,
-                                 length, UNIT_SEC | UNIT_TRIM_ZERO, true);
+                format_time(buffer, buffer_len, id3->length);
                 val=buffer;
                 if(say_it)
-                    talk_value(length, UNIT_TIME, true);
+                    talk_value(id3->length /1000, UNIT_TIME, true);
                 break;
             case LANG_ID3_PLAYLIST:
-                if (info->playlist_display_index == 0 || info->playlist_amount == 0 )
-                    return NULL;
-
-                pl_modified = playlist_modified(info->playlist);
-
-                snprintf(buffer, buffer_len, "%d/%d%s",
-                         info->playlist_display_index, info->playlist_amount,
-                         pl_modified ? "* " :"  ");
-                val = buffer;
-                size_t prefix_len = strlen(buffer);
-                buffer += prefix_len;
-                buffer_len -= prefix_len;
-
-                if (info->playlist)
-                     playlist_name(info->playlist, buffer, buffer_len);
-                else
-                {
-                    if (playlist_allow_dirplay(NULL))
-                        strmemccpy(buffer, "(Folder)", buffer_len);
-                    else if (playlist_dynamic_only())
-                        strmemccpy(buffer, "(Dynamic)", buffer_len);
-                    else
-                        playlist_name(NULL, buffer, buffer_len);
-                }
-
-                if(say_it)
-                {
-                    talk_number(info->playlist_display_index, true);
-                    talk_id(VOICE_OF, true);
-                    talk_number(info->playlist_amount, true);
-
-                    if (pl_modified)
-                        talk_spell("Modified", true);
-                    if (buffer) /* playlist name */
-                        talk_spell(buffer, true);
-                }
-                break;
-            case LANG_FORMAT:
-                if (id3->codectype == AFMT_UNKNOWN && info->track_ct > 1)
-                    return NULL;
-
-                strmemccpy(buffer, get_codec_string(id3->codectype), buffer_len);
-
+                snprintf(buffer, buffer_len, "%d/%d",
+                         playlist_get_display_index(), playlist_amount());
                 val=buffer;
                 if(say_it)
-                    talk_spell(val, true);
+                {
+                    talk_number(playlist_get_display_index(), true);
+                    talk_id(VOICE_OF, true);
+                    talk_number(playlist_amount(), true);
+                }
                 break;
             case LANG_ID3_BITRATE:
-                if (!id3->bitrate)
-                    return NULL;
                 snprintf(buffer, buffer_len, "%d kbps%s", id3->bitrate,
             id3->vbr ? str(LANG_ID3_VBR) : (const unsigned char*) "");
                 val=buffer;
@@ -679,74 +874,40 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
                 }
                 break;
             case LANG_ID3_FREQUENCY:
-                if (!id3->frequency)
-                    return NULL;
                 snprintf(buffer, buffer_len, "%ld Hz", id3->frequency);
                 val=buffer;
                 if(say_it)
                     talk_value(id3->frequency, UNIT_HERTZ, true);
                 break;
+#if CONFIG_CODEC == SWCODEC
             case LANG_ID3_TRACK_GAIN:
                 replaygain_itoa(buffer, buffer_len, id3->track_level);
                 val=(id3->track_level) ? buffer : NULL; /* only show level!=0 */
                 if(say_it && val)
                     say_gain(val);
                 break;
-            case LANG_ALBUM_GAIN:
+            case LANG_ID3_ALBUM_GAIN:
                 replaygain_itoa(buffer, buffer_len, id3->album_level);
                 val=(id3->album_level) ? buffer : NULL; /* only show level!=0 */
                 if(say_it && val)
                     say_gain(val);
                 break;
+#endif
             case LANG_ID3_PATH:
                 val=id3->path;
                 if(say_it && val)
                     talk_fullpath(val, true);
-                break;
+                break;    
             case LANG_ID3_COMPOSER:
                 val=id3->composer;
                 if(say_it && val)
                     talk_spell(val, true);
                 break;
             case LANG_FILESIZE: /* not LANG_ID3_FILESIZE because the string is shared */
-                if (!id3->filesize)
-                    return NULL;
-                if (info->track_ct > 1)
-                {
-                    unit = kibyte_units;
-                    unit_ct = 3;
-                }
-                else
-                {
-                    unit = byte_units;
-                    unit_ct = 4;
-                }
-                output_dyn_value(buffer, buffer_len, id3->filesize, unit, unit_ct, true);
+                output_dyn_value(buffer, buffer_len, id3->filesize, byte_units, 4, true);
                 val=buffer;
                 if(say_it && val)
-                    output_dyn_value(NULL, 0, id3->filesize, unit, unit_ct, true);
-                break;
-            case LANG_DATE:
-                if (!tm)
-                    return NULL;
-
-                snprintf(buffer, buffer_len, "%04d/%02d/%02d",
-                         tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-
-                val = buffer;
-                if (say_it)
-                    talk_date(tm, true);
-                break;
-            case LANG_TIME:
-                if (!tm)
-                    return NULL;
-
-                snprintf(buffer, buffer_len, "%02d:%02d:%02d",
-                         tm->tm_hour, tm->tm_min, tm->tm_sec);
-
-                val = buffer;
-                if (say_it)
-                    talk_time(tm, true);
+                    output_dyn_value(NULL, 0, id3->filesize, byte_units, 4, true);
                 break;
         }
         if((!val || !*val) && say_it)
@@ -756,11 +917,11 @@ static const char * id3_get_or_speak_info(int selected_item, void* data,
 }
 
 /* gui_synclist callback */
-static const char* id3_get_name_cb(int selected_item, void* data,
-                                   char *buffer, size_t buffer_len)
+static const char* id3_get_info(int selected_item, void* data,
+                                char *buffer, size_t buffer_len)
 {
     return id3_get_or_speak_info(selected_item, data, buffer,
-                                 buffer_len, false) ? : "";
+                                 buffer_len, false);
 }
 
 static int id3_speak_item(int selected_item, void* data)
@@ -774,48 +935,34 @@ static int id3_speak_item(int selected_item, void* data)
     return 0;
 }
 
-/* Note: If track_ct > 1, filesize value will be treated as
- * KiB (instead of Bytes), and length as s instead of ms.
- */
-bool browse_id3_ex(struct mp3entry *id3, struct playlist_info *playlist,
-                int playlist_display_index, int playlist_amount,
-                struct tm *modified, int track_ct)
+bool browse_id3(void)
 {
     struct gui_synclist id3_lists;
+    struct mp3entry* id3 = audio_current_track();
     int key;
     unsigned int i;
     struct id3view_info info;
-    info.id3 = id3;
-    info.modified = modified;
-    info.track_ct = track_ct;
-    info.playlist = playlist;
-    info.playlist_amount = playlist_amount;
-    bool ret = false;
-    int curr_activity = get_current_activity();
-    bool is_curr_track_info = curr_activity != ACTIVITY_PLUGIN &&
-                              curr_activity != ACTIVITY_PLAYLISTVIEWER;
-    if (is_curr_track_info)
-        push_current_activity(ACTIVITY_ID3SCREEN);
-refresh_info:
     info.count = 0;
-    info.playlist_display_index = playlist_display_index;
+    info.id3 = id3;
+    bool ret = false;
+    push_current_activity(ACTIVITY_ID3SCREEN);
     for (i = 0; i < ARRAYLEN(id3_headers); i++)
     {
         char temp[8];
         info.info_id[i] = i;
-        if (id3_get_or_speak_info((i*2)+1, &info, temp, 8, false) != NULL)
+        if (id3_get_info((i*2)+1, &info, temp, 8) != NULL)
             info.info_id[info.count++] = i;
     }
 
-    gui_synclist_init(&id3_lists, &id3_get_name_cb, &info, true, 2, NULL);
+    gui_synclist_init(&id3_lists, &id3_get_info, &info, true, 2, NULL);
     if(global_settings.talk_menu)
         gui_synclist_set_voice_callback(&id3_lists, id3_speak_item);
     gui_synclist_set_nb_items(&id3_lists, info.count*2);
-    gui_synclist_set_title(&id3_lists, str(LANG_TRACK_INFO), NOICON);
     gui_synclist_draw(&id3_lists);
     gui_synclist_speak_item(&id3_lists);
     while (true) {
-        if(!list_do_action(CONTEXT_LIST,HZ/2, &id3_lists, &key)
+        if(!list_do_action(CONTEXT_LIST,HZ/2,
+                           &id3_lists, &key,LIST_WRAP_UNLESS_HELD)
            && key!=ACTION_NONE && key!=ACTION_UNKNOWN)
         {
             if (key == ACTION_STD_OK || key == ACTION_STD_CANCEL)
@@ -829,32 +976,11 @@ refresh_info:
                 ret =  true;
                 break;
             }
-        } 
-        else if (is_curr_track_info)
-        {
-            if (!audio_status())
-            {
-                ret = false;
-                break;
-            }
-            else
-            {
-                playlist_display_index = playlist_get_display_index();
-                if (playlist_display_index != info.playlist_display_index)
-                    goto refresh_info;
-            }
         }
     }
-    if (is_curr_track_info)
-        pop_current_activity();
-    return ret;
-}
 
-bool browse_id3(struct mp3entry *id3, int playlist_display_index, int playlist_amount,
-                struct tm *modified, int track_ct)
-{
-    return browse_id3_ex(id3, NULL, playlist_display_index, playlist_amount,
-                         modified, track_ct);
+    pop_current_activity();
+    return ret;
 }
 
 static const char* runtime_get_data(int selected_item, void* data,
@@ -897,15 +1023,20 @@ int view_runtime(void)
     struct gui_synclist lists;
     int action;
     gui_synclist_init(&lists, runtime_get_data, NULL, false, 2, NULL);
+#if !defined(HAVE_LCD_CHARCELLS)
     gui_synclist_set_title(&lists, str(LANG_RUNNING_TIME), NOICON);
+#else
+    gui_synclist_set_title(&lists, NULL, NOICON);
+#endif
     if(global_settings.talk_menu)
         gui_synclist_set_voice_callback(&lists, runtime_speak_data);
+    gui_synclist_set_icon_callback(&lists, NULL);
     gui_synclist_set_nb_items(&lists, 4);
 
     while(1)
     {
         global_status.runtime += ((current_tick - lasttime) / HZ);
-
+        
         lasttime = current_tick;
         if (say_runtime)
         {
@@ -913,7 +1044,8 @@ int view_runtime(void)
             say_runtime = false;
         }
         gui_synclist_draw(&lists);
-        list_do_action(CONTEXT_STD, HZ, &lists, &action);
+        list_do_action(CONTEXT_STD, HZ,
+                    &lists, &action, LIST_WRAP_UNLESS_HELD);
         if(action == ACTION_STD_CANCEL)
             break;
         if(action == ACTION_STD_OK) {
@@ -979,13 +1111,13 @@ int calibrate(void)
     enum touchscreen_mode old_mode = touchscreen_get_mode();
     struct touchscreen_calibration cal;
     int i, ret = 0;
-
+    
     /* hide the statusbar */
     viewportmanager_theme_enable(SCREEN_MAIN, false, NULL);
 
     touchscreen_disable_mapping(); /* set raw mode */
     touchscreen_set_mode(TOUCHSCREEN_POINT);
-
+    
     for(i=0; i<3; i++)
     {
         screen->clear_display();

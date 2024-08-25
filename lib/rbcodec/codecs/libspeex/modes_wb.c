@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007 Jean-Marc Valin
+/* Copyright (C) 2002-2007 Jean-Marc Valin 
    File: modes.c
 
    Describes the wideband modes of the codec
@@ -6,18 +6,18 @@
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-
+   
    - Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-
+   
    - Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
-
+   
    - Neither the name of the Xiph.org Foundation nor the names of its
    contributors may be used to endorse or promote products derived from
    this software without specific prior written permission.
-
+   
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -55,9 +55,9 @@
 #endif
 
 #ifndef ROCKBOX_VOICE_CODEC
-EXPORT const SpeexMode * const speex_mode_list[SPEEX_NB_MODES] = {&speex_nb_mode, &speex_wb_mode, &speex_uwb_mode};
+const SpeexMode * const speex_mode_list[SPEEX_NB_MODES] = {&speex_nb_mode, &speex_wb_mode, &speex_uwb_mode};
 #else
-EXPORT const SpeexMode * const speex_mode_list[SPEEX_NB_MODES] = {&speex_nb_mode, &speex_wb_mode, NULL};
+const SpeexMode * const speex_mode_list[SPEEX_NB_MODES] = {&speex_nb_mode, &speex_wb_mode, NULL};
 #endif
 
 extern const signed char hexc_table[];
@@ -250,7 +250,7 @@ static const SpeexSBMode sb_wb_mode = {
 };
 
 
-EXPORT const SpeexMode speex_wb_mode = {
+const SpeexMode speex_wb_mode = {
    &sb_wb_mode,
    wb_mode_query,
    "wideband (sub-band CELP)",
@@ -285,7 +285,7 @@ EXPORT const SpeexMode speex_wb_mode = {
 
 #ifndef ROCKBOX_VOICE_CODEC
 /* Split-band "ultra-wideband" (32 kbps) CELP mode*/
-EXPORT static const SpeexSBMode sb_uwb_mode = {
+static const SpeexSBMode sb_uwb_mode = {
    &speex_wb_mode,
    320,    /*frameSize*/
    80,     /*subframeSize*/
@@ -365,9 +365,12 @@ const SpeexMode speex_uwb_mode = {
 /* We have defined speex_lib_get_mode() as a macro in speex.h */
 #undef speex_lib_get_mode
 
-EXPORT const SpeexMode * speex_lib_get_mode (int mode)
+const SpeexMode * speex_lib_get_mode (int mode)
 {
    if (mode < 0 || mode >= SPEEX_NB_MODES) return NULL;
 
    return speex_mode_list[mode];
 }
+
+
+

@@ -316,6 +316,16 @@ void I_ShutdownGraphics(void)
 #define DOOMBUTTON_ENTER   BUTTON_MENU
 #define DOOMBUTTON_WEAPON  BUTTON_DISPLAY
 
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define DOOMBUTTON_ESC     BUTTON_POWER
+#define DOOMBUTTON_UP      BUTTON_STOP
+#define DOOMBUTTON_DOWN    BUTTON_PLAY
+#define DOOMBUTTON_LEFT    BUTTON_LEFT
+#define DOOMBUTTON_RIGHT   BUTTON_RIGHT
+#define DOOMBUTTON_SHOOT   BUTTON_VOLUP
+#define DOOMBUTTON_OPEN    BUTTON_VOLDOWN
+#define DOOMBUTTON_ENTER   BUTTON_MENU
+
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define DOOMBUTTON_UP      BUTTON_UP
 #define DOOMBUTTON_DOWN    BUTTON_DOWN
@@ -453,9 +463,6 @@ void I_ShutdownGraphics(void)
 #define DOOMBUTTON_MAP     BUTTON_BOTTOMRIGHT
 
 #elif CONFIG_KEYPAD == SANSA_CONNECT_PAD
-#define DOOMBUTTON_SCROLLWHEEL
-#define DOOMBUTTON_SCROLLWHEEL_CC     BUTTON_SCROLL_BACK
-#define DOOMBUTTON_SCROLLWHEEL_CW    BUTTON_SCROLL_FWD
 #define DOOMBUTTON_UP      BUTTON_UP
 #define DOOMBUTTON_DOWN    BUTTON_DOWN
 #define DOOMBUTTON_LEFT    BUTTON_LEFT
@@ -554,34 +561,12 @@ void I_ShutdownGraphics(void)
 #define DOOMBUTTON_LEFT    BUTTON_PREV
 #define DOOMBUTTON_RIGHT   BUTTON_NEXT
 #define DOOMBUTTON_SHOOT   BUTTON_PLAY
-#define DOOMBUTTON_OPEN    (BUTTON_HOME | BUTTON_PWRALT)
-#define DOOMBUTTON_ESC     BUTTON_POWER
-#define DOOMBUTTON_ENTER   BUTTON_PLAY
-#define DOOMBUTTON_WEAPON  BUTTON_VOL_UP
-
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define DOOMBUTTON_UP      BUTTON_HOME
-#define DOOMBUTTON_DOWN    BUTTON_OPTION
-#define DOOMBUTTON_LEFT    BUTTON_PREV
-#define DOOMBUTTON_RIGHT   BUTTON_NEXT
-#define DOOMBUTTON_SHOOT   BUTTON_PLAY
 #define DOOMBUTTON_OPEN    (BUTTON_HOME | BUTTON_POWER)
 #define DOOMBUTTON_ESC     BUTTON_POWER
 #define DOOMBUTTON_ENTER   BUTTON_PLAY
 #define DOOMBUTTON_WEAPON  BUTTON_VOL_UP
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define DOOMBUTTON_UP      BUTTON_UP
-#define DOOMBUTTON_DOWN    BUTTON_DOWN
-#define DOOMBUTTON_LEFT    BUTTON_PREV
-#define DOOMBUTTON_RIGHT   BUTTON_NEXT
-#define DOOMBUTTON_SHOOT   BUTTON_PLAY
-#define DOOMBUTTON_OPEN    BUTTON_OPTION
-#define DOOMBUTTON_ESC     BUTTON_HOME
-#define DOOMBUTTON_ENTER   BUTTON_PLAY
-#define DOOMBUTTON_WEAPON  BUTTON_VOL_UP
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define DOOMBUTTON_UP      BUTTON_PREV
 #define DOOMBUTTON_DOWN    BUTTON_NEXT
 #define DOOMBUTTON_LEFT    BUTTON_HOME
@@ -593,33 +578,17 @@ void I_ShutdownGraphics(void)
 #define DOOMBUTTON_WEAPON  (BUTTON_PLAY|BUTTON_REPEAT)
 #define DOOMBUTTON_MAP     (BUTTON_POWER|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define DOOMBUTTON_UP      BUTTON_PREV
 #define DOOMBUTTON_DOWN    BUTTON_NEXT
-#define DOOMBUTTON_LEFT    BUTTON_SCROLL_BACK
-#define DOOMBUTTON_RIGHT   BUTTON_SCROLL_FWD
-#define DOOMBUTTON_SHOOT   BUTTON_PLAY
-#define DOOMBUTTON_OPEN    BUTTON_BACK
-#define DOOMBUTTON_ESC     BUTTON_MENU
-#define DOOMBUTTON_ENTER   BUTTON_PLAY
-#define DOOMBUTTON_WEAPON  BUTTON_VOL_UP
-#define DOOMBUTTON_MAP     BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define DOOMBUTTON_UP      BUTTON_UP
-#define DOOMBUTTON_DOWN    BUTTON_DOWN
-#define DOOMBUTTON_LEFT    BUTTON_LEFT
-#define DOOMBUTTON_RIGHT   BUTTON_RIGHT
-#define DOOMBUTTON_SHOOT   BUTTON_SELECT
+#define DOOMBUTTON_LEFT    BUTTON_HOME
+#define DOOMBUTTON_RIGHT   BUTTON_VOL_DOWN
 #define DOOMBUTTON_OPEN    BUTTON_PLAY
 #define DOOMBUTTON_ESC     BUTTON_POWER
-#define DOOMBUTTON_ENTER   BUTTON_SELECT
-#define DOOMBUTTON_WEAPON  BUTTON_VOL_UP
-#define DOOMBUTTON_MAP     BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#define DOOMBUTTON_ESC     BUTTON_POWER
-#define DOOMBUTTON_MAP     BUTTON_PREV
+#define DOOMBUTTON_ENTER   BUTTON_VOL_UP
+#define DOOMBUTTON_SHOOT   BUTTON_VOL_UP
+#define DOOMBUTTON_WEAPON  (BUTTON_PLAY|BUTTON_REPEAT)
+#define DOOMBUTTON_MAP     (BUTTON_POWER|BUTTON_REPEAT)
 
 #else
 #error Keymap not defined!
@@ -743,7 +712,7 @@ static inline void getkey()
        D_PostEvent(&event);
    }
 #endif
-#endif
+#endif   
    newbuttonstate = rb->button_status();
 #ifdef DOOMBUTTON_SCROLLWHEEL
    newbuttonstate |= read_scroll_wheel();
@@ -952,7 +921,7 @@ void I_FinishUpdate (void)
 {
     int count;
     byte *src = d_screens[0];
-
+    
 #if (CONFIG_LCD == LCD_H300) && !defined(SIMULATOR)
     count = SCREENWIDTH*SCREENHEIGHT;
 
@@ -1061,12 +1030,6 @@ void I_FinishUpdate (void)
 	rb->lcd_blit_pal256(src, 0, 0, 0, 0, LCD_WIDTH, LCD_HEIGHT);
 #endif
 #elif defined(HAVE_LCD_COLOR)
-    static fb_data *lcd_fb = NULL;
-    if (!lcd_fb)
-    {
-        struct viewport *vp_main = *(rb->screens[SCREEN_MAIN]->current_viewport);
-        lcd_fb = vp_main->buffer->fb_ptr;
-    }
 #if(LCD_HEIGHT>LCD_WIDTH)
     if(rotate_screen)
     {
@@ -1074,7 +1037,7 @@ void I_FinishUpdate (void)
 
         for (y = 1; y <= SCREENHEIGHT; y++)
         {
-            fb_data *dst = lcd_fb + LCD_WIDTH - y;
+            fb_data *dst = rb->lcd_framebuffer + LCD_WIDTH - y;
             count = SCREENWIDTH;
 
             do
@@ -1088,14 +1051,14 @@ void I_FinishUpdate (void)
     else
 #endif
     {
-        fb_data *dst = lcd_fb;
+        fb_data *dst = rb->lcd_framebuffer;
         count = SCREENWIDTH*SCREENHEIGHT;
 
         do
             *dst++ = palette[*src++];
         while (--count);
     }
-    rb->lcd_update();
+    rb->lcd_update(); 
 #else /* !HAVE_LCD_COLOR */
 
     unsigned char *dst;
@@ -1112,8 +1075,8 @@ void I_FinishUpdate (void)
 
         grey_ub_gray_bitmap(greybuffer, 0, y, SCREENWIDTH, 1);
     }
-#endif
-#endif
+#endif 
+#endif  
 }
 
 //
@@ -1140,7 +1103,7 @@ void I_InitGraphics(void)
    printf("Starting Graphics engine\n");
 
    noprintf=1;
-
+   
 #if defined(HAVE_LCD_MODES)
 #if (HAVE_LCD_MODES & LCD_MODE_PAL256)
 	rb->lcd_set_mode(LCD_MODE_PAL256);

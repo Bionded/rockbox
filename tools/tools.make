@@ -15,7 +15,6 @@ $(TOOLSDIR)/scramble: $(TOOLSDIR)/scramble.c $(TOOLSDIR)/iriver.c \
 		$(TOOLSDIR)/iaudio_bl_flash.c \
 		$(TOOLSDIR)/creative.c $(TOOLSDIR)/hmac-sha1.c \
 		$(TOOLSDIR)/rkw.c
-$(TOOLSDIR)/descramble: $(TOOLSDIR)/descramble.c $(TOOLSDIR)/iriver.c $(TOOLSDIR)/gigabeat.c
 
 $(TOOLSDIR)/rdf2binary:	$(TOOLSDIR)/rdf2binary.c
 $(TOOLSDIR)/convbdf: $(TOOLSDIR)/convbdf.c
@@ -39,7 +38,11 @@ $(TOOLSDIR)/uclpack: $(TOOLSDIR)/ucl/uclpack.c $(wildcard $(TOOLSDIR)/ucl/src/*.
 $(TOOLSDIR)/convttf: $(TOOLSDIR)/convttf.c
 	$(call PRINTS,CC $(@F))
 	$(SILENT)$(HOSTCC) $(TOOLSFLAGS) -lm -O2 -Wall -g $+ -o $@ \
-		`pkg-config --cflags --libs freetype2`
+		`freetype-config --libs` `freetype-config --cflags`
+
+$(TOOLSDIR)/player_unifont: $(TOOLSDIR)/player_unifont.c $(ROOTDIR)/firmware/drivers/lcd-charset-player.c
+	$(call PRINTS,CC $(@F))
+	$(SILENT)$(HOSTCC) $(TOOLSFLAGS) -DARCHOS_PLAYER -D__PCTOOL__ -I$(ROOTDIR)/firmware/export -I. $+ -o $@
 
 # implicit rule for simple tools
 $(TOOLSDIR)/%: $(TOOLSDIR)/%.c

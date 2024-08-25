@@ -91,6 +91,9 @@ void ev_poll(void)
     if (rb->button_hold()&~holdbutton)
         fb.mode=(fb.mode+1)%4;
     holdbutton=rb->button_hold();
+#elif CONFIG_KEYPAD == RECORDER_PAD
+    if (pressed & BUTTON_ON)
+        fb.mode=(fb.mode+1)%4;
 #endif
 
 #ifdef HAVE_WHEEL_POSITION
@@ -217,10 +220,12 @@ void ev_poll(void)
 #else
         if(pressed & options.MENU) {
 #endif
+#if (CONFIG_KEYPAD != RECORDER_PAD)
 #ifdef HAVE_WHEEL_POSITION
             rb->wheel_send_events(true);
 #endif
             if (do_user_menu() == USER_MENU_QUIT) 
+#endif
             {
                 die("");
                 cleanshut=1;
@@ -282,12 +287,6 @@ fb_data *frameb;
 void vid_update(int scanline) 
 { 
    register int cnt=0;
-    static fb_data *lcd_fb = NULL;
-    if (!lcd_fb)
-    {
-        struct viewport *vp_main = *(rb->screens[SCREEN_MAIN]->current_viewport);
-        lcd_fb = vp_main->buffer->fb_ptr;
-    }
     int scanline_remapped;
 #if (LCD_HEIGHT == 64) && (LCD_DEPTH == 1) /* Archos, Clip, m200v4 */
     int balance = 0;
@@ -296,11 +295,59 @@ void vid_update(int scanline)
     else if (fb.mode==2)
         scanline-=8;
     scanline_remapped = scanline / 16;
-    frameb = lcd_fb + scanline_remapped * LCD_WIDTH;
+    frameb = rb->lcd_framebuffer + scanline_remapped * LCD_WIDTH;
     while (cnt < 160) {
         balance += LCD_WIDTH;
         if (balance > 0)
         {
+#if (CONFIG_CPU == SH7034) && !defined(SIMULATOR)
+             asm volatile (
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+                 "mov.b   @%0,r0         \n"
+                 "add     %1,%0          \n"
+                 "tst     #0x02, r0      \n"  /* ~bit 1 */
+                 "rotcr   r1             \n"
+
+                 "shlr16  r1             \n"
+                 "shlr8   r1             \n"
+                 "not     r1,r1          \n"  /* account for negated bits */
+                 "mov.b   r1,@%2         \n"
+                 : /* outputs */
+                 : /* inputs */
+                 /* %0 */ "r"(scan.buf[0] + cnt),
+                 /* %1 */ "r"(256), /* scan.buf line length */
+                 /* %2 */ "r"(frameb++)
+                 : /* clobbers */
+                 "r0", "r1"
+             );
+#else
              register unsigned scrbyte = 0;
              if (scan.buf[0][cnt] & 0x02)  scrbyte |= 0x01;
              if (scan.buf[1][cnt] & 0x02)  scrbyte |= 0x02;
@@ -311,6 +358,7 @@ void vid_update(int scanline)
              if (scan.buf[6][cnt] & 0x02)  scrbyte |= 0x40;
              if (scan.buf[7][cnt] & 0x02)  scrbyte |= 0x80;
              *(frameb++) = scrbyte;
+#endif
              balance -= 160;
         }
         cnt ++;
@@ -322,7 +370,7 @@ void vid_update(int scanline)
     else if (fb.mode==2)
         scanline-=8;
     scanline_remapped = scanline / 4;
-    frameb = lcd_fb + scanline_remapped * LCD_WIDTH;
+    frameb = rb->lcd_framebuffer + scanline_remapped * LCD_WIDTH;
     while (cnt < 160) {
         *(frameb++) = (scan.buf[0][cnt]&0x3) |
                       ((scan.buf[1][cnt]&0x3)<<2) |

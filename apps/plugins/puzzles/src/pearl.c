@@ -35,12 +35,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 #include "grid.h"
@@ -277,12 +272,8 @@ static const char *validate_params(const game_params *params, bool full)
 {
     if (params->w < 5) return "Width must be at least five";
     if (params->h < 5) return "Height must be at least five";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
     if (params->difficulty < 0 || params->difficulty >= DIFFCOUNT)
         return "Unknown difficulty level";
-    if (params->difficulty >= DIFF_TRICKY && params->w + params->h < 11)
-	return "Width or height must be at least six for Tricky";
 
     return NULL;
 }
@@ -296,8 +287,7 @@ static int pearl_solve(int w, int h, char *clues, char *result,
 {
     int W = 2*w+1, H = 2*h+1;
     short *workspace;
-    DSF *dsf;
-    int *dsfsize;
+    int *dsf, *dsfsize;
     int x, y, b, d;
     int ret = -1;
 
@@ -350,7 +340,7 @@ static int pearl_solve(int w, int h, char *clues, char *result,
      * We maintain a dsf of connected squares, together with a
      * count of the size of each equivalence class.
      */
-    dsf = dsf_new(w*h);
+    dsf = snewn(w*h, int);
     dsfsize = snewn(w*h, int);
 
     /*
@@ -593,7 +583,7 @@ static int pearl_solve(int w, int h, char *clues, char *result,
 	{
 	    int nonblanks, loopclass;
 
-	    dsf_reinit(dsf);
+	    dsf_init(dsf, w*h);
 	    for (x = 0; x < w*h; x++)
 		dsfsize[x] = 1;
 
@@ -860,39 +850,10 @@ cleanup:
                if (ret == 1) assert(b < 0xD); /* we should have had a break by now */
             }
         }
-
-        /*
-         * Ensure we haven't left the _data structure_ inconsistent,
-         * regardless of the consistency of the _puzzle_. In
-         * particular, we should never have marked one square as
-         * linked to its neighbour if the neighbour is not
-         * reciprocally linked back to the original square.
-         *
-         * This can happen if we get part way through solving an
-         * impossible puzzle and then give up trying to make further
-         * progress. So here we fix it up to avoid confusing the rest
-         * of the game.
-         */
-        for (y = 0; y < h; y++) {
-            for (x = 0; x < w; x++) {
-                for (d = 1; d <= 8; d += d) {
-                    int nx = x + DX(d), ny = y + DY(d);
-                    int rlink;
-                    if (0 <= nx && nx < w && 0 <= ny && ny < h)
-                        rlink = result[ny*w+nx] & F(d);
-                    else
-                        rlink = 0;     /* off-board squares don't link back */
-
-                    /* If other square doesn't link to us, don't link to it */
-                    if (!rlink)
-                        result[y*w+x] &= ~d;
-                }
-            }
-        }
     }
 
     sfree(dsfsize);
-    dsf_free(dsf);
+    sfree(dsf);
     sfree(workspace);
     assert(ret >= 0);
     return ret;
@@ -980,9 +941,9 @@ static int pearl_loopgen_bias(void *vctx, char *board, int face)
              * to reprocess the edges for this boundary.
              */
             if (oldface == c || newface == c) {
-                grid_face *f = g->faces[face];
+                grid_face *f = &g->faces[face];
                 for (k = 0; k < f->order; k++)
-                    tdq_add(b->edges_todo, f->edges[k]->index);
+                    tdq_add(b->edges_todo, f->edges[k] - g->edges);
             }
         }
     }
@@ -998,15 +959,15 @@ static int pearl_loopgen_bias(void *vctx, char *board, int face)
          * the vertextypes_todo list.
          */
         while ((j = tdq_remove(b->edges_todo)) >= 0) {
-            grid_edge *e = g->edges[j];
-            int fc1 = e->face1 ? board[e->face1->index] : FACE_BLACK;
-            int fc2 = e->face2 ? board[e->face2->index] : FACE_BLACK;
+            grid_edge *e = &g->edges[j];
+            int fc1 = e->face1 ? board[e->face1 - g->faces] : FACE_BLACK;
+            int fc2 = e->face2 ? board[e->face2 - g->faces] : FACE_BLACK;
             bool oldedge = b->edges[j];
             bool newedge = (fc1==c) ^ (fc2==c);
             if (oldedge != newedge) {
                 b->edges[j] = newedge;
-                tdq_add(b->vertextypes_todo, e->dot1->index);
-                tdq_add(b->vertextypes_todo, e->dot2->index);
+                tdq_add(b->vertextypes_todo, e->dot1 - g->dots);
+                tdq_add(b->vertextypes_todo, e->dot2 - g->dots);
             }
         }
 
@@ -1021,7 +982,7 @@ static int pearl_loopgen_bias(void *vctx, char *board, int face)
          * old neighbours.
          */
         while ((j = tdq_remove(b->vertextypes_todo)) >= 0) {
-            grid_dot *d = g->dots[j];
+            grid_dot *d = &g->dots[j];
             int neighbours[2], type = 0, n = 0;
             
             for (k = 0; k < d->order; k++) {
@@ -1029,10 +990,10 @@ static int pearl_loopgen_bias(void *vctx, char *board, int face)
                 grid_dot *d2 = (e->dot1 == d ? e->dot2 : e->dot1);
                 /* dir == 0,1,2,3 for an edge going L,U,R,D */
                 int dir = (d->y == d2->y) + 2*(d->x+d->y > d2->x+d2->y);
-                int ei = e->index;
+                int ei = e - g->edges;
                 if (b->edges[ei]) {
                     type |= 1 << dir;
-                    neighbours[n] = d2->index;
+                    neighbours[n] = d2 - g->dots; 
                     n++;
                 }
             }
@@ -1087,8 +1048,9 @@ static int pearl_loopgen_bias(void *vctx, char *board, int face)
     return ctx->score;
 }
 
-static void pearl_loopgen(int w, int h, char *lines, random_state *rs, grid *g)
+static void pearl_loopgen(int w, int h, char *lines, random_state *rs)
 {
+    grid *g = grid_new(GRID_SQUARE, w-1, h-1, NULL);
     char *board = snewn(g->num_faces, char);
     int i, s = g->tilesize;
     struct pearl_loopgen_bias_ctx biasctx;
@@ -1140,7 +1102,7 @@ static void pearl_loopgen(int w, int h, char *lines, random_state *rs, grid *g)
     }
 
     for (i = 0; i < g->num_edges; i++) {
-        grid_edge *e = g->edges[i];
+        grid_edge *e = g->edges + i;
         enum face_colour c1 = FACE_COLOUR(e->face1);
         enum face_colour c2 = FACE_COLOUR(e->face2);
         assert(c1 != FACE_GREY);
@@ -1168,6 +1130,7 @@ static void pearl_loopgen(int w, int h, char *lines, random_state *rs, grid *g)
         }
     }
 
+    grid_free(g);
     sfree(board);
 
 #if defined LOOPGEN_DIAGNOSTICS && !defined GENERATION_DIAGNOSTICS
@@ -1190,11 +1153,11 @@ static void pearl_loopgen(int w, int h, char *lines, random_state *rs, grid *g)
 }
 
 static int new_clues(const game_params *params, random_state *rs,
-                     char *clues, char *grid_out)
+                     char *clues, char *grid)
 {
     int w = params->w, h = params->h, diff = params->difficulty;
     int ngen = 0, x, y, d, ret, i;
-    grid *g = grid_new(GRID_SQUARE, w-1, h-1, NULL);
+
 
     /*
      * Difficulty exception: 5x5 Tricky is not generable (the
@@ -1205,13 +1168,13 @@ static int new_clues(const game_params *params, random_state *rs,
 
     while (1) {
         ngen++;
-	pearl_loopgen(w, h, grid_out, rs, g);
+	pearl_loopgen(w, h, grid, rs);
 
 #ifdef GENERATION_DIAGNOSTICS
 	printf("grid array:\n");
 	for (y = 0; y < h; y++) {
 	    for (x = 0; x < w; x++) {
-		int type = grid_out[y*w+x];
+		int type = grid[y*w+x];
 		char s[5], *p = s;
 		if (type & L) *p++ = 'L';
 		if (type & R) *p++ = 'R';
@@ -1230,7 +1193,7 @@ static int new_clues(const game_params *params, random_state *rs,
 	 */
 	for (y = 0; y < h; y++)
 	    for (x = 0; x < w; x++) {
-		int type = grid_out[y*w+x];
+		int type = grid[y*w+x];
 
 		clues[y*w+x] = NOCLUE;
 
@@ -1244,7 +1207,7 @@ static int new_clues(const game_params *params, random_state *rs,
 		    for (d = 1; d <= 8; d += d) if (type & d) {
 			int xx = x + DX(d), yy = y + DY(d);
 			assert(xx >= 0 && xx < w && yy >= 0 && yy < h);
-			if ((bLU|bLD|bRU|bRD) & (1 << grid_out[yy*w+xx]))
+			if ((bLU|bLD|bRU|bRD) & (1 << grid[yy*w+xx]))
 			    break;
 		    }
 		    if (d <= 8)	       /* we found one */
@@ -1258,7 +1221,7 @@ static int new_clues(const game_params *params, random_state *rs,
 		    for (d = 1; d <= 8; d += d) if (type & d) {
 			int xx = x + DX(d), yy = y + DY(d);
 			assert(xx >= 0 && xx < w && yy >= 0 && yy < h);
-			if (!((bLR|bUD) & (1 << grid_out[yy*w+xx])))
+			if (!((bLR|bUD) & (1 << grid[yy*w+xx])))
 			    break;
 		    }
 		    if (d > 8)	       /* we didn't find a counterexample */
@@ -1284,7 +1247,7 @@ static int new_clues(const game_params *params, random_state *rs,
             /*
              * See if we can solve the puzzle just like this.
              */
-            ret = pearl_solve(w, h, clues, grid_out, diff, false);
+            ret = pearl_solve(w, h, clues, grid, diff, false);
             assert(ret > 0);	       /* shouldn't be inconsistent! */
             if (ret != 1)
                 continue;		       /* go round and try again */
@@ -1293,7 +1256,7 @@ static int new_clues(const game_params *params, random_state *rs,
              * Check this puzzle isn't too easy.
              */
             if (diff > DIFF_EASY) {
-                ret = pearl_solve(w, h, clues, grid_out, diff-1, false);
+                ret = pearl_solve(w, h, clues, grid, diff-1, false);
                 assert(ret > 0);
                 if (ret == 1)
                     continue; /* too easy: try again */
@@ -1360,7 +1323,7 @@ static int new_clues(const game_params *params, random_state *rs,
                 clue = clues[y*w+x];
                 clues[y*w+x] = 0;	       /* try removing this clue */
 
-                ret = pearl_solve(w, h, clues, grid_out, diff, false);
+                ret = pearl_solve(w, h, clues, grid, diff, false);
                 assert(ret > 0);
                 if (ret != 1)
                     clues[y*w+x] = clue;   /* oops, put it back again */
@@ -1381,7 +1344,6 @@ static int new_clues(const game_params *params, random_state *rs,
 
 	break;			       /* got it */
     }
-    grid_free(g);
 
     debug(("%d %dx%d loops before finished puzzle.\n", ngen, w, h));
 
@@ -1529,35 +1491,29 @@ static char nbits[16] = { 0, 1, 1, 2,
 
 #define ERROR_CLUE 16
 
-/* Returns false if the state is invalid. */
-static bool dsf_update_completion(game_state *state, int ax, int ay, char dir,
-                                 DSF *dsf)
+static void dsf_update_completion(game_state *state, int ax, int ay, char dir,
+                                 int *dsf)
 {
     int w = state->shared->w /*, h = state->shared->h */;
     int ac = ay*w+ax, bx, by, bc;
 
-    if (!(state->lines[ac] & dir)) return true; /* no link */
+    if (!(state->lines[ac] & dir)) return; /* no link */
     bx = ax + DX(dir); by = ay + DY(dir);
 
-    if (!INGRID(state, bx, by))
-        return false; /* should not have a link off grid */
+    assert(INGRID(state, bx, by)); /* should not have a link off grid */
 
     bc = by*w+bx;
-    if (!(state->lines[bc] & F(dir)))
-        return false; /* should have reciprocal link */
-    if (!(state->lines[bc] & F(dir))) return true;
+    assert(state->lines[bc] & F(dir)); /* should have reciprocal link */
+    if (!(state->lines[bc] & F(dir))) return;
 
     dsf_merge(dsf, ac, bc);
-    return true;
 }
 
-/* Returns false if the state is invalid. */
-static bool check_completion(game_state *state, bool mark)
+static void check_completion(game_state *state, bool mark)
 {
     int w = state->shared->w, h = state->shared->h, x, y, i, d;
     bool had_error = false;
-    DSF *dsf;
-    int *component_state;
+    int *dsf, *component_state;
     int nsilly, nloop, npath, largest_comp, largest_size, total_pathsize;
     enum { COMP_NONE, COMP_LOOP, COMP_PATH, COMP_SILLY, COMP_EMPTY };
 
@@ -1576,16 +1532,13 @@ static bool check_completion(game_state *state, bool mark)
      * same reasons, since Loopy and Pearl have basically the same
      * form of expected solution.
      */
-    dsf = dsf_new(w*h);
+    dsf = snew_dsf(w*h);
 
     /* Build the dsf. */
     for (x = 0; x < w; x++) {
         for (y = 0; y < h; y++) {
-            if (!dsf_update_completion(state, x, y, R, dsf) ||
-                !dsf_update_completion(state, x, y, D, dsf)) {
-                dsf_free(dsf);
-                return false;
-            }
+            dsf_update_completion(state, x, y, R, dsf);
+            dsf_update_completion(state, x, y, D, dsf);
         }
     }
 
@@ -1666,7 +1619,7 @@ static bool check_completion(game_state *state, bool mark)
      * part of a single loop, for which our counter variables
      * nsilly,nloop,npath are enough. */
     sfree(component_state);
-    dsf_free(dsf);
+    sfree(dsf);
 
     /*
      * Check that no clues are contradicted. This code is similar to
@@ -1740,7 +1693,6 @@ static bool check_completion(game_state *state, bool mark)
         if (!had_error)
             state->completed = true;
     }
-    return true;
 }
 
 /* completion check:
@@ -1858,52 +1810,17 @@ struct game_ui {
 
     int curx, cury;        /* grid position of keyboard cursor */
     bool cursor_active;    /* true iff cursor is shown */
-
-    /*
-     * User preference: general visual style of the GUI. GUI_MASYU is
-     * how this puzzle is traditionally presented, with clue dots in
-     * the middle of grid squares, and the solution loop connecting
-     * square-centres. GUI_LOOPY shifts the grid by half a square in
-     * each direction, so that the clue dots are at _vertices_ of the
-     * grid and the solution loop follows the grid edges, which you
-     * could argue is more logical.
-     */
-    enum { GUI_MASYU, GUI_LOOPY } gui_style;
 };
-
-static void legacy_prefs_override(struct game_ui *ui_out)
-{
-    static bool initialised = false;
-    static int gui_style = -1;
-
-    if (!initialised) {
-        initialised = true;
-
-        switch (getenv_bool("PEARL_GUI_LOOPY", -1)) {
-          case 0:
-            gui_style = GUI_MASYU;
-            break;
-          case 1:
-            gui_style = GUI_LOOPY;
-            break;
-        }
-    }
-
-    if (gui_style != -1)
-        ui_out->gui_style = gui_style;
-}
 
 static game_ui *new_ui(const game_state *state)
 {
     game_ui *ui = snew(game_ui);
+    int sz = state->shared->sz;
 
     ui->ndragcoords = -1;
-    ui->dragcoords = state ? snewn(state->shared->sz, int) : NULL;
-    ui->cursor_active = getenv_bool("PUZZLES_SHOW_CURSOR", false);
+    ui->dragcoords = snewn(sz, int);
+    ui->cursor_active = false;
     ui->curx = ui->cury = 0;
-
-    ui->gui_style = GUI_MASYU;
-    legacy_prefs_override(ui);
 
     return ui;
 }
@@ -1914,28 +1831,13 @@ static void free_ui(game_ui *ui)
     sfree(ui);
 }
 
-static config_item *get_prefs(game_ui *ui)
+static char *encode_ui(const game_ui *ui)
 {
-    config_item *ret;
-
-    ret = snewn(2, config_item);
-
-    ret[0].name = "Puzzle appearance";
-    ret[0].kw = "appearance";
-    ret[0].type = C_CHOICES;
-    ret[0].u.choices.choicenames = ":Traditional:Loopy-style";
-    ret[0].u.choices.choicekws = ":traditional:loopy";
-    ret[0].u.choices.selected = ui->gui_style;
-
-    ret[1].name = NULL;
-    ret[1].type = C_END;
-
-    return ret;
+    return NULL;
 }
 
-static void set_prefs(game_ui *ui, const config_item *cfg)
+static void decode_ui(game_ui *ui, const char *encoding)
 {
-    ui->gui_style = cfg[0].u.choices.selected;
 }
 
 static void game_changed_state(game_ui *ui, const game_state *oldstate,
@@ -1943,25 +1845,11 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
 {
 }
 
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    if (IS_CURSOR_SELECT(button) && ui->cursor_active) {
-        if (button == CURSOR_SELECT) {
-            if (ui->ndragcoords == -1) return "Start";
-            return "Stop";
-        }
-        if (button == CURSOR_SELECT2 && ui->ndragcoords >= 0)
-            return "Cancel";
-    }
-    return "";
-}
-
 #define PREFERRED_TILE_SIZE 31
 #define HALFSZ (ds->halfsz)
 #define TILE_SIZE (ds->halfsz*2 + 1)
 
-#define BORDER ((ui->gui_style == GUI_LOOPY) ? (TILE_SIZE/8) : (TILE_SIZE/2))
+#define BORDER ((get_gui_style() == GUI_LOOPY) ? (TILE_SIZE/8) : (TILE_SIZE/2))
 
 #define BORDER_WIDTH (max(TILE_SIZE / 32, 1))
 
@@ -1977,6 +1865,22 @@ static const char *current_key_label(const game_ui *ui,
 #define DS_FLASH (1 << 21)
 #define DS_CURSOR (1 << 22)
 
+enum { GUI_MASYU, GUI_LOOPY };
+
+static int get_gui_style(void)
+{
+    static int gui_style = -1;
+
+    if (gui_style == -1) {
+        char *env = getenv("PEARL_GUI_LOOPY");
+        if (env && (env[0] == 'y' || env[0] == 'Y'))
+            gui_style = GUI_LOOPY;
+        else
+            gui_style = GUI_MASYU;
+    }
+    return gui_style;
+}
+
 struct game_drawstate {
     int halfsz;
     bool started;
@@ -1987,9 +1891,76 @@ struct game_drawstate {
     char *draglines;            /* size w*h; lines flipped by current drag */
 };
 
+static void update_ui_drag(const game_state *state, game_ui *ui,
+                           int gx, int gy)
+{
+    int /* sz = state->shared->sz, */ w = state->shared->w;
+    int i, ox, oy, pos;
+    int lastpos;
+
+    if (!INGRID(state, gx, gy))
+        return;                        /* square is outside grid */
+
+    if (ui->ndragcoords < 0)
+        return;                        /* drag not in progress anyway */
+
+    pos = gy * w + gx;
+
+    lastpos = ui->dragcoords[ui->ndragcoords > 0 ? ui->ndragcoords-1 : 0];
+    if (pos == lastpos)
+        return;             /* same square as last visited one */
+
+    /* Drag confirmed, if it wasn't already. */
+    if (ui->ndragcoords == 0)
+        ui->ndragcoords = 1;
+
+    /*
+     * Dragging the mouse into a square that's already been visited by
+     * the drag path so far has the effect of truncating the path back
+     * to that square, so a player can back out part of an uncommitted
+     * drag without having to let go of the mouse.
+     */
+    for (i = 0; i < ui->ndragcoords; i++)
+        if (pos == ui->dragcoords[i]) {
+            ui->ndragcoords = i+1;
+            return;
+        }
+
+    /*
+     * Otherwise, dragging the mouse into a square that's a rook-move
+     * away from the last one on the path extends the path.
+     */
+    oy = ui->dragcoords[ui->ndragcoords-1] / w;
+    ox = ui->dragcoords[ui->ndragcoords-1] % w;
+    if (ox == gx || oy == gy) {
+        int dx = (gx < ox ? -1 : gx > ox ? +1 : 0);
+        int dy = (gy < oy ? -1 : gy > oy ? +1 : 0);
+        int dir = (dy>0 ? D : dy<0 ? U : dx>0 ? R : L);
+        while (ox != gx || oy != gy) {
+            /*
+             * If the drag attempts to cross a 'no line here' mark,
+             * stop there. We physically don't allow the user to drag
+             * over those marks.
+             */
+            if (state->marks[oy*w+ox] & dir)
+                break;
+            ox += dx;
+            oy += dy;
+            ui->dragcoords[ui->ndragcoords++] = oy * w + ox;
+        }
+    }
+
+    /*
+     * Failing that, we do nothing at all: if the user has dragged
+     * diagonally across the board, they'll just have to return the
+     * mouse to the last known position and do whatever they meant to
+     * do again, more slowly and clearly.
+     */
+}
+
 /*
- * Routine shared between multiple callers to work out the intended
- * effect of a drag path on the grid.
+ * Routine shared between interpret_move and game_redraw to work out
+ * the intended effect of a drag path on the grid.
  *
  * Call it in a loop, like this:
  *
@@ -2037,102 +2008,6 @@ static void interpret_ui_drag(const game_state *state, const game_ui *ui,
     }
 }
 
-static void update_ui_drag(const game_state *state, game_ui *ui,
-                           int gx, int gy)
-{
-    int /* sz = state->shared->sz, */ w = state->shared->w;
-    int i, ox, oy, pos;
-    int lastpos;
-
-    if (!INGRID(state, gx, gy))
-        return;                        /* square is outside grid */
-
-    if (ui->ndragcoords < 0)
-        return;                        /* drag not in progress anyway */
-
-    pos = gy * w + gx;
-
-    lastpos = ui->dragcoords[ui->ndragcoords > 0 ? ui->ndragcoords-1 : 0];
-    if (pos == lastpos)
-        return;             /* same square as last visited one */
-
-    /* Drag confirmed, if it wasn't already. */
-    if (ui->ndragcoords == 0)
-        ui->ndragcoords = 1;
-
-    /*
-     * Dragging the mouse into a square that's already been visited by
-     * the drag path so far has the effect of truncating the path back
-     * to that square, so a player can back out part of an uncommitted
-     * drag without having to let go of the mouse.
-     *
-     * An exception is that you're allowed to drag round in a loop
-     * back to the very start of the drag, provided that doesn't
-     * create a vertex of the wrong degree. This allows a player who's
-     * after an extra challenge to draw the entire loop in a single
-     * drag, without it cancelling itself just before release.
-     */
-    for (i = 1; i < ui->ndragcoords; i++)
-        if (pos == ui->dragcoords[i]) {
-            ui->ndragcoords = i+1;
-            return;
-        }
-
-    if (pos == ui->dragcoords[0]) {
-        /* More complex check for a loop-shaped drag, which has to go
-         * through interpret_ui_drag to decide on the final degree of
-         * the start/end vertex. */
-        ui->dragcoords[ui->ndragcoords] = pos;
-        bool clearing = true;
-        int lines = state->lines[pos] & (L|R|U|D);
-        for (i = 0; i < ui->ndragcoords; i++) {
-            int sx, sy, dx, dy, dir, oldstate, newstate;
-            interpret_ui_drag(state, ui, &clearing, i, &sx, &sy, &dx, &dy,
-                              &dir, &oldstate, &newstate);
-            if (sx == gx && sy == gy)
-                lines ^= (oldstate ^ newstate);
-            if (dx == gx && dy == gy)
-                lines ^= (F(oldstate) ^ F(newstate));
-        }
-        if (NBITS(lines) > 2) {
-            /* Bad vertex degree: fall back to the backtracking behaviour. */
-            ui->ndragcoords = 1;
-            return;
-        }
-    }
-
-    /*
-     * Otherwise, dragging the mouse into a square that's a rook-move
-     * away from the last one on the path extends the path.
-     */
-    oy = ui->dragcoords[ui->ndragcoords-1] / w;
-    ox = ui->dragcoords[ui->ndragcoords-1] % w;
-    if (ox == gx || oy == gy) {
-        int dx = (gx < ox ? -1 : gx > ox ? +1 : 0);
-        int dy = (gy < oy ? -1 : gy > oy ? +1 : 0);
-        int dir = (dy>0 ? D : dy<0 ? U : dx>0 ? R : L);
-        while (ox != gx || oy != gy) {
-            /*
-             * If the drag attempts to cross a 'no line here' mark,
-             * stop there. We physically don't allow the user to drag
-             * over those marks.
-             */
-            if (state->marks[oy*w+ox] & dir)
-                break;
-            ox += dx;
-            oy += dy;
-            ui->dragcoords[ui->ndragcoords++] = oy * w + ox;
-        }
-    }
-
-    /*
-     * Failing that, we do nothing at all: if the user has dragged
-     * diagonally across the board, they'll just have to return the
-     * mouse to the last known position and do whatever they meant to
-     * do again, more slowly and clearly.
-     */
-}
-
 static char *mark_in_direction(const game_state *state, int x, int y, int dir,
 			       bool primary, char *buf)
 {
@@ -2143,11 +2018,11 @@ static char *mark_in_direction(const game_state *state, int x, int y, int dir,
 
     char ch = primary ? 'F' : 'M', *other;
 
-    if (!INGRID(state, x, y) || !INGRID(state, x2, y2)) return MOVE_UI_UPDATE;
+    if (!INGRID(state, x, y) || !INGRID(state, x2, y2)) return UI_UPDATE;
 
     /* disallow laying a mark over a line, or vice versa. */
     other = primary ? state->marks : state->lines;
-    if (other[y*w+x] & dir || other[y2*w+x2] & dir2) return MOVE_UI_UPDATE;
+    if (other[y*w+x] & dir || other[y2*w+x2] & dir2) return UI_UPDATE;
     
     sprintf(buf, "%c%d,%d,%d;%c%d,%d,%d", ch, dir, x, y, ch, dir2, x2, y2);
     return dupstr(buf);
@@ -2167,26 +2042,26 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     char tmpbuf[80];
 
     bool shift = button & MOD_SHFT, control = button & MOD_CTRL;
-    button = STRIP_BUTTON_MODIFIERS(button);
+    button &= ~MOD_MASK;
 
     if (IS_MOUSE_DOWN(button)) {
 	ui->cursor_active = false;
 
         if (!INGRID(state, gx, gy)) {
             ui->ndragcoords = -1;
-            return MOVE_UI_UPDATE;
+            return NULL;
         }
 
         ui->clickx = x; ui->clicky = y;
         ui->dragcoords[0] = gy * w + gx;
         ui->ndragcoords = 0;           /* will be 1 once drag is confirmed */
 
-        return MOVE_UI_UPDATE;
+        return UI_UPDATE;
     }
 
     if (button == LEFT_DRAG && ui->ndragcoords >= 0) {
         update_ui_drag(state, ui, gx, gy);
-        return MOVE_UI_UPDATE;
+        return UI_UPDATE;
     }
 
     if (IS_MOUSE_RELEASE(button)) release = true;
@@ -2196,48 +2071,42 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 	    ui->cursor_active = true;
 	} else if (control || shift) {
 	    char *move;
-	    if (ui->ndragcoords > 0) return MOVE_NO_EFFECT;
+	    if (ui->ndragcoords > 0) return NULL;
 	    ui->ndragcoords = -1;
 	    move = mark_in_direction(state, ui->curx, ui->cury,
 				     KEY_DIRECTION(button), control, tmpbuf);
 	    if (control && !shift && *move)
-                move_cursor(button, &ui->curx, &ui->cury, w, h, false, NULL);
+		move_cursor(button, &ui->curx, &ui->cury, w, h, false);
 	    return move;
 	} else {
-            move_cursor(button, &ui->curx, &ui->cury, w, h, false, NULL);
+	    move_cursor(button, &ui->curx, &ui->cury, w, h, false);
 	    if (ui->ndragcoords >= 0)
 		update_ui_drag(state, ui, ui->curx, ui->cury);
 	}
-	return MOVE_UI_UPDATE;
+	return UI_UPDATE;
     }
 
     if (IS_CURSOR_SELECT(button)) {
 	if (!ui->cursor_active) {
 	    ui->cursor_active = true;
-	    return MOVE_UI_UPDATE;
+	    return UI_UPDATE;
 	} else if (button == CURSOR_SELECT) {
 	    if (ui->ndragcoords == -1) {
 		ui->ndragcoords = 0;
 		ui->dragcoords[0] = ui->cury * w + ui->curx;
 		ui->clickx = CENTERED_COORD(ui->curx);
 		ui->clicky = CENTERED_COORD(ui->cury);
-		return MOVE_UI_UPDATE;
+		return UI_UPDATE;
 	    } else release = true;
-	} else if (button == CURSOR_SELECT2) {
-            if (ui->ndragcoords >= 0) {
-                ui->ndragcoords = -1;
-                return MOVE_UI_UPDATE;
-            }
-            return MOVE_NO_EFFECT;
-        }
+	} else if (button == CURSOR_SELECT2 && ui->ndragcoords >= 0) {
+	    ui->ndragcoords = -1;
+	    return UI_UPDATE;
+	}
     }
 
     if (button == 27 || button == '\b') {
-        if (ui->ndragcoords >= 0) {
-            ui->ndragcoords = -1;
-            return MOVE_UI_UPDATE;
-        }
-        return MOVE_NO_EFFECT;
+        ui->ndragcoords = -1;
+        return UI_UPDATE;
     }
 
     if (release) {
@@ -2269,7 +2138,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 
             ui->ndragcoords = -1;
 
-            return buf ? buf : MOVE_UI_UPDATE;
+            return buf ? buf : UI_UPDATE;
         } else if (ui->ndragcoords == 0) {
             /* Click (or tiny drag). Work out which edge we were
              * closest to. */
@@ -2290,12 +2159,12 @@ static char *interpret_move(const game_state *state, game_ui *ui,
             cx = CENTERED_COORD(gx);
             cy = CENTERED_COORD(gy);
 
-            if (!INGRID(state, gx, gy)) return MOVE_UI_UPDATE;
+            if (!INGRID(state, gx, gy)) return UI_UPDATE;
 
             if (max(abs(x-cx),abs(y-cy)) < TILE_SIZE/4) {
                 /* TODO closer to centre of grid: process as a cell click not an edge click. */
 
-                return MOVE_UI_UPDATE;
+                return UI_UPDATE;
             } else {
 		int direction;
                 if (abs(x-cx) < abs(y-cy)) {
@@ -2314,7 +2183,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     if (button == 'H' || button == 'h')
         return dupstr("H");
 
-    return MOVE_UNUSED;
+    return NULL;
 }
 
 static game_state *execute_move(const game_state *state, const char *move)
@@ -2377,7 +2246,7 @@ static game_state *execute_move(const game_state *state, const char *move)
             goto badmove;
     }
 
-    if (!check_completion(ret, true)) goto badmove;
+    check_completion(ret, true);
 
     return ret;
 
@@ -2393,7 +2262,7 @@ badmove:
 #define FLASH_TIME 0.5F
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int halfsz; } ads, *ds = &ads;
@@ -2471,8 +2340,8 @@ static void game_free_drawstate(drawing *dr, game_drawstate *ds)
 }
 
 static void draw_lines_specific(drawing *dr, game_drawstate *ds,
-                                const game_ui *ui, int x, int y,
-                                unsigned int lflags, unsigned int shift, int c)
+                                int x, int y, unsigned int lflags,
+                                unsigned int shift, int c)
 {
     int ox = COORD(x), oy = COORD(y);
     int t2 = HALFSZ, t16 = HALFSZ/4;
@@ -2521,7 +2390,7 @@ static void draw_square(drawing *dr, game_drawstate *ds, const game_ui *ui,
 	      COL_CURSOR_BACKGROUND : COL_BACKGROUND);
 	      
 
-    if (ui->gui_style == GUI_LOOPY) {
+    if (get_gui_style() == GUI_LOOPY) {
         /* Draw small dot, underneath any lines. */
         draw_circle(dr, cx, cy, t16, COL_GRID, COL_GRID);
     } else {
@@ -2548,7 +2417,7 @@ static void draw_square(drawing *dr, game_drawstate *ds, const game_ui *ui,
             draw_line(dr, mx-msz, my-msz, mx+msz, my+msz, COL_BLACK);
             draw_line(dr, mx-msz, my+msz, mx+msz, my-msz, COL_BLACK);
         } else {
-            if (ui->gui_style == GUI_LOOPY) {
+            if (get_gui_style() == GUI_LOOPY) {
                 /* draw grid lines connecting centre of cells */
                 draw_line(dr, cx, cy, cx+xoff, cy+yoff, COL_GRID);
             }
@@ -2558,11 +2427,11 @@ static void draw_square(drawing *dr, game_drawstate *ds, const game_ui *ui,
     /* Draw each of the four directions, where laid (or error, or drag, etc.)
      * Order is important here, specifically for the eventual colours of the
      * exposed end caps. */
-    draw_lines_specific(dr, ds, ui, x, y, lflags, 0,
+    draw_lines_specific(dr, ds, x, y, lflags, 0,
                         (lflags & DS_FLASH ? COL_FLASH : COL_BLACK));
-    draw_lines_specific(dr, ds, ui, x, y, lflags, DS_ESHIFT, COL_ERROR);
-    draw_lines_specific(dr, ds, ui, x, y, lflags, DS_DSHIFT, COL_DRAGOFF);
-    draw_lines_specific(dr, ds, ui, x, y, lflags, DS_DSHIFT, COL_DRAGON);
+    draw_lines_specific(dr, ds, x, y, lflags, DS_ESHIFT, COL_ERROR);
+    draw_lines_specific(dr, ds, x, y, lflags, DS_DSHIFT, COL_DRAGOFF);
+    draw_lines_specific(dr, ds, x, y, lflags, DS_DSHIFT, COL_DRAGON);
 
     /* Draw a clue, if present */
     if (clue != NOCLUE) {
@@ -2589,9 +2458,18 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     bool force = false;
 
     if (!ds->started) {
-        if (ui->gui_style == GUI_MASYU) {
+        /*
+         * The initial contents of the window are not guaranteed and
+         * can vary with front ends. To be on the safe side, all games
+         * should start by drawing a big background-colour rectangle
+         * covering the whole window.
+         */
+        draw_rect(dr, 0, 0, w*TILE_SIZE + 2*BORDER, h*TILE_SIZE + 2*BORDER,
+                  COL_BACKGROUND);
+
+        if (get_gui_style() == GUI_MASYU) {
             /*
-             * Black rectangle which is the main grid.
+             * Smaller black rectangle which is the main grid.
              */
             draw_rect(dr, BORDER - BORDER_WIDTH, BORDER - BORDER_WIDTH,
                       w*TILE_SIZE + 2*BORDER_WIDTH + 1,
@@ -2664,82 +2542,52 @@ static float game_flash_length(const game_state *oldstate,
         return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->cursor_active) {
-        *x = COORD(ui->curx);
-        *y = COORD(ui->cury);
-        *w = *h = TILE_SIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     return state->completed ? +1 : 0;
 }
 
-static void game_print_size(const game_params *params, const game_ui *ui,
-                            float *x, float *y)
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
 {
     int pw, ph;
 
     /*
      * I'll use 6mm squares by default.
      */
-    game_compute_size(params, 600, ui, &pw, &ph);
+    game_compute_size(params, 600, &pw, &ph);
     *x = pw / 100.0F;
     *y = ph / 100.0F;
 }
 
-static void game_print(drawing *dr, const game_state *state, const game_ui *ui,
-                       int tilesize)
+static void game_print(drawing *dr, const game_state *state, int tilesize)
 {
     int w = state->shared->w, h = state->shared->h, x, y;
     int black = print_mono_colour(dr, 0);
     int white = print_mono_colour(dr, 1);
 
+    /* No GUI_LOOPY here: only use the familiar masyu style. */
+
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     game_drawstate *ds = game_new_drawstate(dr, state);
     game_set_size(dr, ds, NULL, tilesize);
 
-    if (ui->gui_style == GUI_MASYU) {
-        /* Draw grid outlines (black). */
-        for (x = 0; x <= w; x++)
-            draw_line(dr, COORD(x), COORD(0), COORD(x), COORD(h), black);
-        for (y = 0; y <= h; y++)
-            draw_line(dr, COORD(0), COORD(y), COORD(w), COORD(y), black);
-    } else {
-        /* Draw small dots, and dotted lines connecting them. For
-         * added clarity, try to start and end the dotted lines a
-         * little way away from the dots. */
-	print_line_width(dr, TILE_SIZE / 40);
-	print_line_dotted(dr, true);
-        for (x = 0; x < w; x++) {
-            for (y = 0; y < h; y++) {
-                int cx = COORD(x) + HALFSZ, cy = COORD(y) + HALFSZ;
-                draw_circle(dr, cx, cy, tilesize/10, black, black);
-                if (x+1 < w)
-                    draw_line(dr, cx+tilesize/5, cy,
-                              cx+tilesize-tilesize/5, cy, black);
-                if (y+1 < h)
-                    draw_line(dr, cx, cy+tilesize/5,
-                              cx, cy+tilesize-tilesize/5, black);
-            }
-        }
-	print_line_dotted(dr, false);
-    }
+    /* Draw grid outlines (black). */
+    for (x = 0; x <= w; x++)
+        draw_line(dr, COORD(x), COORD(0), COORD(x), COORD(h), black);
+    for (y = 0; y <= h; y++)
+        draw_line(dr, COORD(0), COORD(y), COORD(w), COORD(y), black);
 
     for (x = 0; x < w; x++) {
         for (y = 0; y < h; y++) {
             int cx = COORD(x) + HALFSZ, cy = COORD(y) + HALFSZ;
             int clue = state->shared->clues[y*w+x];
 
-            draw_lines_specific(dr, ds, ui, x, y,
-                                state->lines[y*w+x], 0, black);
+            draw_lines_specific(dr, ds, x, y, state->lines[y*w+x], 0, black);
 
             if (clue != NOCLUE) {
                 int c = (clue == CORNER) ? black : white;
@@ -2772,14 +2620,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    get_prefs, set_prefs,
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
@@ -2789,11 +2635,10 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
     true, false, game_print_size, game_print,
     false,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     0,				       /* flags */
 };
 
@@ -2802,7 +2647,7 @@ const struct game thegame = {
 #include <time.h>
 #include <stdarg.h>
 
-static const char *quis = NULL;
+const char *quis = NULL;
 
 static void usage(FILE *out) {
     fprintf(out, "usage: %s <params>\n", quis);
@@ -2861,7 +2706,7 @@ static void start_soak(game_params *p, random_state *rs, int nsecs)
     sfree(clues);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     game_params *p = NULL;
     random_state *rs = NULL;

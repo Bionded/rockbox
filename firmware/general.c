@@ -31,6 +31,7 @@
 #include "time.h"
 #include "timefuncs.h"
 
+#if CONFIG_CODEC == SWCODEC
 int round_value_to_list32(unsigned long value,
                           const unsigned long list[],
                           int count,
@@ -86,6 +87,7 @@ int make_list_from_caps32(unsigned long src_mask,
 
     return count;
 } /* make_list_from_caps32 */
+#endif /* CONFIG_CODEC == SWCODEC */
 
 /* Create a filename with a number part in a way that the number is 1
  * higher than the highest numbered file matching the same pattern.
@@ -107,7 +109,7 @@ char *create_numbered_filename(char *buffer, const char *path,
     int suffixlen = strlen(suffix);
 
     if (buffer != path)
-        strmemccpy(buffer, path, MAX_PATH);
+        strlcpy(buffer, path, MAX_PATH);
 
     pathlen = strlen(buffer);
 
@@ -181,7 +183,7 @@ char *create_datetime_filename(char *buffer, const char *path,
     last_tm = *tm;
 
     if (buffer != path)
-        strmemccpy(buffer, path, MAX_PATH);
+        strlcpy(buffer, path, MAX_PATH);
 
     pathlen = strlen(buffer);
     snprintf(buffer + pathlen, MAX_PATH - pathlen,

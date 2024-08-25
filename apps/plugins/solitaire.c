@@ -32,8 +32,68 @@
  * Key definitions
  */
 
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#   define SOL_QUIT         BUTTON_OFF
+#   define SOL_UP           BUTTON_UP
+#   define SOL_DOWN         BUTTON_DOWN
+#   define SOL_LEFT         BUTTON_LEFT
+#   define SOL_RIGHT        BUTTON_RIGHT
+#   define SOL_MOVE         BUTTON_ON
+#   define SOL_DRAW         BUTTON_F1
+#   define SOL_REM2CUR      BUTTON_PLAY
+#   define SOL_CUR2STACK    BUTTON_F2
+#   define SOL_REM2STACK    BUTTON_F3
+#   define HK_MOVE         "ON"
+#   define HK_DRAW         "F1"
+#   define HK_REM2CUR      "PLAY"
+#   define HK_CUR2STACK    "F2"
+#   define HK_REM2STACK    "F3"
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#   define SOL_QUIT         BUTTON_OFF
+#   define SOL_UP           BUTTON_UP
+#   define SOL_DOWN         BUTTON_DOWN
+#   define SOL_LEFT         BUTTON_LEFT
+#   define SOL_RIGHT        BUTTON_RIGHT
+#   define SOL_MOVE         BUTTON_ON
+#   define SOL_DRAW         BUTTON_F1
+#   define SOL_REM2CUR      BUTTON_SELECT
+#   define SOL_CUR2STACK    BUTTON_F2
+#   define SOL_REM2STACK    BUTTON_F3
+#   define HK_MOVE         "ON"
+#   define HK_DRAW         "F1"
+#   define HK_REM2CUR      "SELECT"
+#   define HK_CUR2STACK    "F2"
+#   define HK_REM2STACK    "F3"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#   define SOL_QUIT         BUTTON_OFF
+#   define SOL_UP_PRE       BUTTON_UP
+#   define SOL_UP           (BUTTON_UP | BUTTON_REL)
+#   define SOL_DOWN_PRE     BUTTON_DOWN
+#   define SOL_DOWN         (BUTTON_DOWN | BUTTON_REL)
+#   define SOL_LEFT_PRE     BUTTON_LEFT
+#   define SOL_LEFT         (BUTTON_LEFT | BUTTON_REL)
+#   define SOL_RIGHT_PRE    BUTTON_RIGHT
+#   define SOL_RIGHT        (BUTTON_RIGHT | BUTTON_REL)
+#   define SOL_MOVE_PRE     BUTTON_MENU
+#   define SOL_MOVE         (BUTTON_MENU | BUTTON_REL)
+#   define SOL_DRAW_PRE     BUTTON_MENU
+#   define SOL_DRAW         (BUTTON_MENU | BUTTON_REPEAT)
+#   define SOL_REM2CUR_PRE  BUTTON_DOWN
+#   define SOL_REM2CUR      (BUTTON_DOWN | BUTTON_REPEAT)
+#   define SOL_CUR2STACK_PRE BUTTON_UP
+#   define SOL_CUR2STACK    (BUTTON_UP | BUTTON_REPEAT)
+#   define SOL_REM2STACK_PRE BUTTON_RIGHT
+#   define SOL_REM2STACK    (BUTTON_RIGHT | BUTTON_REPEAT)
+#   define HK_MOVE         "MODE"
+#   define HK_DRAW         "MODE.."
+#   define HK_REM2CUR      "DOWN.."
+#   define HK_CUR2STACK    "UP.."
+#   define HK_REM2STACK    "RIGHT.."
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #   define SOL_QUIT         BUTTON_OFF
 #   define SOL_UP           BUTTON_UP
 #   define SOL_DOWN         BUTTON_DOWN
@@ -56,7 +116,7 @@
 
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#   define SOL_QUIT         (BUTTON_SELECT | BUTTON_REPEAT)
+#   define SOL_QUIT         (BUTTON_SELECT | BUTTON_MENU)
 #   define SOL_UP           BUTTON_SCROLL_BACK
 #   define SOL_DOWN         BUTTON_SCROLL_FWD
 #   define SOL_LEFT_PRE     BUTTON_LEFT
@@ -646,45 +706,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #   define HK_CUR2STACK      "DBL PLAY"
 #   define HK_REM2STACK      "NEXT"
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#   define SOL_QUIT          BUTTON_POWER
-#   define SOL_UP            BUTTON_HOME
-#   define SOL_DOWN          BUTTON_OPTION
-#   define SOL_LEFT          BUTTON_PREV
-#   define SOL_RIGHT         BUTTON_NEXT
-#   define SOL_MOVE_PRE      BUTTON_PLAY
-#   define SOL_MOVE          (BUTTON_PLAY | BUTTON_REL)
-#   define SOL_DRAW          (BUTTON_POWER | BUTTON_REPEAT)
-#   define SOL_REM2CUR       BUTTON_VOL_DOWN
-#   define SOL_CUR2STACK_PRE BUTTON_PLAY
-#   define SOL_CUR2STACK     (BUTTON_PLAY | BUTTON_REPEAT)
-#   define SOL_REM2STACK     BUTTON_VOL_UP
-#   define HK_MOVE           "PLAY"
-#   define HK_DRAW           "DBL HOME"
-#   define HK_REM2CUR        "PREV"
-#   define HK_CUR2STACK      "DBL PLAY"
-#   define HK_REM2STACK      "NEXT"
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#   define SOL_QUIT          BUTTON_POWER
-#   define SOL_UP            BUTTON_HOME
-#   define SOL_DOWN          BUTTON_OPTION
-#   define SOL_LEFT          BUTTON_PREV
-#   define SOL_RIGHT         BUTTON_NEXT
-#   define SOL_MOVE_PRE      BUTTON_PLAY
-#   define SOL_MOVE          (BUTTON_PLAY | BUTTON_REL)
-#   define SOL_DRAW          (BUTTON_POWER | BUTTON_REPEAT)
-#   define SOL_REM2CUR       BUTTON_VOL_DOWN
-#   define SOL_CUR2STACK_PRE BUTTON_PLAY
-#   define SOL_CUR2STACK     (BUTTON_PLAY | BUTTON_REPEAT)
-#   define SOL_REM2STACK     BUTTON_VOL_UP
-#   define HK_MOVE           "PLAY"
-#   define HK_DRAW           "DBL HOME"
-#   define HK_REM2CUR        "PREV"
-#   define HK_CUR2STACK      "DBL PLAY"
-#   define HK_REM2STACK      "NEXT"
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #   define SOL_QUIT          BUTTON_POWER
 #   define SOL_UP            BUTTON_PREV
 #   define SOL_DOWN          BUTTON_NEXT
@@ -703,46 +725,24 @@ CONFIG_KEYPAD == MROBE500_PAD
 #   define HK_CUR2STACK      "DBL PLAY"
 #   define HK_REM2STACK      "POWER+"
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #   define SOL_QUIT          BUTTON_POWER
 #   define SOL_UP            BUTTON_PREV
 #   define SOL_DOWN          BUTTON_NEXT
-#   define SOL_LEFT          BUTTON_SCROLL_BACK
-#   define SOL_RIGHT         BUTTON_SCROLL_FWD
-#   define SOL_MOVE_PRE      BUTTON_PLAY
+#   define SOL_LEFT          BUTTON_HOME
+#   define SOL_RIGHT         BUTTON_VOL_DOWN
+#   define SOL_MOVE_PRE      BUTTON_VOL_UP
 #   define SOL_MOVE          (BUTTON_PLAY | BUTTON_REL)
 #   define SOL_DRAW          (BUTTON_POWER | BUTTON_REPEAT)
-#   define SOL_REM2CUR       BUTTON_VOL_DOWN
+#   define SOL_REM2CUR       (BUTTON_POWER | BUTTON_VOL_DOWN)
 #   define SOL_CUR2STACK_PRE BUTTON_PLAY
 #   define SOL_CUR2STACK     (BUTTON_PLAY | BUTTON_REPEAT)
-#   define SOL_REM2STACK     BUTTON_VOL_UP
+#   define SOL_REM2STACK     (BUTTON_POWER | BUTTON_VOL_UP)
 #   define HK_MOVE           "PLAY"
-#   define HK_DRAW           "DBL HOME"
-#   define HK_REM2CUR        "PREV"
+#   define HK_DRAW           "DBL POWER"
+#   define HK_REM2CUR        "POWER"
 #   define HK_CUR2STACK      "DBL PLAY"
-#   define HK_REM2STACK      "NEXT"
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#   define SOL_QUIT         BUTTON_POWER
-#   define SOL_UP           BUTTON_UP
-#   define SOL_DOWN         BUTTON_DOWN
-#   define SOL_LEFT         BUTTON_LEFT
-#   define SOL_RIGHT        BUTTON_RIGHT
-#   define SOL_MOVE_PRE     BUTTON_SELECT
-#   define SOL_MOVE         (BUTTON_SELECT|BUTTON_REL)
-#   define SOL_DRAW         BUTTON_PLAY
-#   define SOL_REM2CUR      BUTTON_VOL_DOWN
-#   define SOL_CUR2STACK_PRE BUTTON_SELECT
-#   define SOL_CUR2STACK    (BUTTON_SELECT|BUTTON_REPEAT)
-#   define SOL_REM2STACK    BUTTON_VOL_UP
-#   define HK_MOVE          "SELECT"
-#   define HK_DRAW          "PLAY"
-#   define HK_REM2CUR       "VOL-"
-#   define HK_CUR2STACK     "HOLD SELECT"
-#   define HK_REM2STACK     "VOL+"
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#   define SOL_QUIT         BUTTON_POWER
+#   define HK_REM2STACK      "POWER+"
 
 #else
 #error No keymap defined!
@@ -953,8 +953,8 @@ static void draw_card( card_t *card, int x, int y,
     if( card->known )
     {
         rb->lcd_bitmap_part( card_deck, CARD_GFX_WIDTH * card->num,
-                             CARD_GFX_HEIGHT * card->suit,
-                             STRIDE(SCREEN_MAIN,
+                             CARD_GFX_HEIGHT * card->suit, 
+                             STRIDE(SCREEN_MAIN, 
                                     BMPWIDTH_card_deck, BMPHEIGHT_card_deck),
                              x+1, y+1, CARD_GFX_WIDTH, CARD_GFX_HEIGHT );
     }
@@ -970,7 +970,7 @@ static void draw_card( card_t *card, int x, int y,
 static void draw_empty_stack( int s, int x, int y, bool cursor )
 {
     rb->lcd_bitmap_part( solitaire_suitsi, 0,
-                 CARD_GFX_HEIGHT * s,
+                 CARD_GFX_HEIGHT * s, 
                  STRIDE( SCREEN_MAIN,
                          BMPWIDTH_solitaire_suitsi, BMPHEIGHT_solitaire_suitsi),
                  x+1, y+1, CARD_GFX_WIDTH, CARD_GFX_HEIGHT );
@@ -1039,11 +1039,8 @@ void solitaire_init(void);
 enum { MENU_RESUME, MENU_SAVE_AND_QUIT, MENU_QUIT, MENU_USB };
 
 static bool _ingame;
-static int solitaire_menu_cb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int solitaire_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = (intptr_t)this_item;
     if( action == ACTION_REQUEST_MENUITEM )
     {
@@ -1088,7 +1085,7 @@ static int solitaire_menu(bool in_game)
 
             case 2:
                 if (rb->set_option("Draw Cards Option", &sol.draw_type,
-                                   RB_INT, drawcards, 2, NULL))
+                                   INT, drawcards, 2, NULL))
                     result = MENU_USB;
                 break;
 
@@ -1621,11 +1618,11 @@ static int save_game( void )
 static int load_game( void )
 {
     int checksum, retval;
-
+    
     int fd = open_save_file( O_RDONLY );
     if( fd < 0 )
         return -1;
-
+    
     retval = 0; /* Assume good case */
     if(    ( rb->lseek( fd, -(off_t)sizeof( int ), SEEK_END ) == -((ssize_t)sizeof( int ))-1 )
         || ( rb->read( fd, &checksum, sizeof( int ) ) < ((ssize_t)sizeof( int )) )
@@ -1649,7 +1646,7 @@ static int load_game( void )
         rb->splash( 2*HZ, "Save file was corrupted. Aborting." );
         retval = -3;
     }
-
+    
     rb->close( fd );
     delete_save_file();
     return retval;
@@ -1678,7 +1675,7 @@ static int solitaire( int skipmenu )
     {
         switch( solitaire_menu(false) )
         {
-            case MENU_SAVE_AND_QUIT:
+            case MENU_QUIT:
                 return SOLITAIRE_QUIT;
 
             case MENU_USB:
@@ -2149,7 +2146,6 @@ static int solitaire( int skipmenu )
                 break;
 
             case SYS_POWEROFF:
-            case SYS_REBOOT:
                 return SOLITAIRE_SAVE_AND_QUIT;
 
             default:

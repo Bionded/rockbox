@@ -27,41 +27,29 @@
 #include "panic.h"
 #include "alsa-controls.h"
 
-static int hw_init = 0;
+static int fd_hw;
 
-static long int vol_l_hw = 255;
-static long int vol_r_hw = 255;
-
-static int muted = -1;
-
-void audiohw_mute(int mute)
+static void hw_open(void)
 {
-    if (!hw_init || muted == mute)
-       return;
+    fd_hw = open("/dev/snd/controlC0", O_RDWR);
+    if(fd_hw < 0)
+        panicf("Cannot open '/dev/snd/controlC0'");
+}
 
-    muted = mute;
-
-    if(mute)
-    {
-        long int ps0 = 0;
-        alsa_controls_set_ints("Output Port Switch", 1, &ps0);
-    }
-    else
-    {
-        long int ps2 = 2;
-        alsa_controls_set_ints("Output Port Switch", 1, &ps2);
-    }
+static void hw_close(void)
+{
+    close(fd_hw);
 }
 
 void audiohw_preinit(void)
 {
-    alsa_controls_init("default");
-    hw_init = 1;
-#if defined(AUDIOHW_MUTE_ON_STOP) || defined(AUDIOHW_NEEDS_INITIAL_UNMUTE)
-    audiohw_mute(true);  /* Start muted to avoid the POP */
-#else
-    audiohw_mute(false);
-#endif
+    long int hp = 2;
+
+    alsa_controls_init();
+    hw_open();
+
+    /* Output port switch set to Headphones */
+    alsa_controls_set_ints("Output Port Switch", 1, &hp);
 }
 
 void audiohw_postinit(void)
@@ -70,8 +58,7 @@ void audiohw_postinit(void)
 
 void audiohw_close(void)
 {
-    hw_init = 0;
-    muted = -1;
+    hw_close();
     alsa_controls_close();
 }
 
@@ -82,11 +69,8 @@ void audiohw_set_frequency(int fsel)
 
 void audiohw_set_volume(int vol_l, int vol_r)
 {
-    vol_l_hw = -vol_l/5;
-    vol_r_hw = -vol_r/5;
-
-    if (!hw_init)
-       return;
+    long int vol_l_hw = -vol_l/5;
+    long int vol_r_hw = -vol_r/5;
 
     alsa_controls_set_ints("Left Playback Volume", 1, &vol_l_hw);
     alsa_controls_set_ints("Right Playback Volume", 1, &vol_r_hw);

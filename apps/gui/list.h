@@ -26,16 +26,13 @@
 #include "icon.h"
 #include "screen_access.h"
 #include "skin_engine/skin_engine.h"
-#include "line.h"
 
 #define SCROLLBAR_WIDTH global_settings.scrollbar_width
 
-enum synclist_cursor
-{
-    SYNCLIST_CURSOR_NOSTYLE = 0,
-    SYNCLIST_CURSOR_INVERT,
-    SYNCLIST_CURSOR_COLOR,
-    SYNCLIST_CURSOR_GRADIENT,
+enum list_wrap {
+    LIST_WRAP_ON = 0,
+    LIST_WRAP_OFF,
+    LIST_WRAP_UNLESS_HELD,
 };
 
 /*
@@ -71,35 +68,6 @@ typedef enum themable_icons list_get_icon(int selected_item, void * data);
 typedef const char * list_get_name(int selected_item, void * data,
                                    char * buffer, size_t buffer_len);
 /*
- * Draw callback
- *  - display : functions supplied depends on the screen call originated from (typ: MAIN)
- *  - list_info : a pointer to an internal struct containing item display information
- */
-/* owner drawn lists need to know this info */
-struct list_putlineinfo_t {
-    int x;
-    int y;
-    int item_indent;
-    int item_offset;
-    int line;
-
-    int icon;
-    int icon_width;
-
-    struct screen *display;
-    struct viewport *vp;
-    struct line_desc *linedes;
-    struct gui_synclist * list;
-    const char *dsp_text;
-
-    bool is_selected;
-    bool is_title;
-    bool show_cursor;
-    bool have_icons;
-};
-
-typedef void list_draw_item(struct list_putlineinfo_t *list_info);
-/*
  * Voice callback
  *  - selected_item : an integer that tells the number of the item to speak
  *  - data : a void pointer to the data you gave to the list when you
@@ -117,78 +85,56 @@ typedef int list_speak_item(int selected_item, void * data);
  *          selected item, negative value for default coloring.
  */
 typedef int list_get_color(int selected_item, void * data);
-
-struct list_selection_color
-{
-    /* text color, in native lcd format
-     * (convert with LCD_RGBPACK() if necessary) */
-    unsigned text_color;
-    /* only STYLE_GRADIENT supported set line_color & line_end_color the same
-     * for solid color, in native
-     * lcd format (convert with LCD_RGBPACK() if necessary) */
-    unsigned line_color;
-    unsigned line_end_color;
-    /* viewport foreground and background, in native
-     * lcd format (convert with LCD_RGBPACK() if necessary) */
-    unsigned fg_color;
-    unsigned bg_color;
-    /* To enable:
-     * call gui_synclist_set_sel_color(gui_synclist*, list_selection_color*)
-     * If using the default viewport you should call 
-     * gui_synclist_set_sel_color(gui_synclist*, NULL) when finished */
-};
 #endif
 
 struct gui_synclist
 {
-    /*flags to hold settings show: icons, scrollbar etc..*/
-    int scrollbar;
-    int cursor_style;
-    bool show_icons;
-    bool keyclick;
-    bool talk_menu;
-    bool wraparound;
-    bool scroll_paginated;
-    /* whether the text of the whole items of the list have to be
+    /* defines wether the list should stop when reaching the top/bottom
+     * or should continue (by going to bottom/top) */
+    bool limit_scroll;
+    /* wether the text of the whole items of the list have to be
      * scrolled or only for the selected item */
     bool scroll_all;
     int nb_items;
     int selected_item;
-
-#ifdef HAVE_TOUCHSCREEN
-    /* absolute Y coordinate, used for smooth scrolling */
-    int y_pos;
-#endif
     int start_item[NB_SCREENS]; /* the item that is displayed at the top of the screen */
     /* the number of lines that are selected at the same time */
     int selected_size;
     /* the number of pixels each line occupies (including optional padding on touchscreen */
     int line_height[NB_SCREENS];
+#ifdef HAVE_LCD_BITMAP
     int offset_position[NB_SCREENS]; /* the list's screen scroll placement in pixels */
+#endif
     long scheduled_talk_tick, last_talked_tick, dirty_tick;
 
     list_get_icon *callback_get_item_icon;
     list_get_name *callback_get_item_name;
     list_speak_item *callback_speak_item;
-    list_draw_item *callback_draw_item;
 
     /* The data that will be passed to the callback function YOU implement */
     void * data;
     /* The optional title, set to NULL for none */
-    const char * title;
+    char * title;
     /* Optional title icon */
     enum themable_icons title_icon;
+    bool show_selection_marker; /* set to true by default */
 
 #ifdef HAVE_LCD_COLOR
     int title_color;
     list_get_color *callback_get_item_color;
-    struct list_selection_color *selection_color;
 #endif
     struct viewport *parent[NB_SCREENS];
 };
 
 
+#ifdef HAVE_LCD_BITMAP
 extern void list_init(void);
+/* parse global setting to static int */
+extern void gui_list_screen_scroll_step(int ofs);
+
+/* parse global setting to static bool */
+extern void gui_list_screen_scroll_out_of_view(bool enable);
+#endif /* HAVE_LCD_BITMAP */
 
 extern void gui_synclist_init(
     struct gui_synclist * lists,
@@ -204,7 +150,6 @@ extern void gui_synclist_set_voice_callback(struct gui_synclist * lists, list_sp
 extern void gui_synclist_set_viewport_defaults(struct viewport *vp, enum screen_type screen);
 #ifdef HAVE_LCD_COLOR
 extern void gui_synclist_set_color_callback(struct gui_synclist * lists, list_get_color color_callback);
-extern void gui_synclist_set_sel_color(struct gui_synclist * lists, struct list_selection_color *list_sel_color);
 #endif
 extern void gui_synclist_speak_item(struct gui_synclist * lists);
 extern int gui_synclist_get_nb_items(struct gui_synclist * lists);
@@ -217,18 +162,36 @@ extern void gui_synclist_select_item(struct gui_synclist * lists,
                                      int item_number);
 extern void gui_synclist_add_item(struct gui_synclist * lists);
 extern void gui_synclist_del_item(struct gui_synclist * lists);
-extern void gui_synclist_set_title(struct gui_synclist * lists, const char * title,
+extern void gui_synclist_limit_scroll(struct gui_synclist * lists, bool scroll);
+extern void gui_synclist_set_title(struct gui_synclist * lists, char * title,
                                    enum themable_icons icon);
+extern void gui_synclist_hide_selection_marker(struct gui_synclist *lists,
+                                                bool hide);
+extern bool gui_synclist_item_is_onscreen(struct gui_synclist *lists,
+                                          enum screen_type screen, int item);
 
+#if CONFIG_CODEC == SWCODEC
 extern bool gui_synclist_keyclick_callback(int action, void* data);
+#endif
 /*
  * Do the action implied by the given button,
  * returns true if the action was handled.
  * NOTE: *action may be changed regardless of return value
  */
-extern bool gui_synclist_do_button(struct gui_synclist * lists, int *action);
-#if !defined(PLUGIN)
-struct listitem_viewport_cfg;
+extern bool gui_synclist_do_button(struct gui_synclist * lists,
+                                       int *action,
+                                       enum list_wrap);
+#if defined(HAVE_LCD_BITMAP) && !defined(PLUGIN)
+struct listitem_viewport_cfg {
+    struct wps_data *data;
+    OFFSETTYPE(char *)   label;
+    int     width;
+    int     height;
+    int     xmargin;
+    int     ymargin;
+    bool    tile;
+    struct skin_viewport selected_item_vp;
+};
 
 bool skinlist_get_item(struct screen *display, struct gui_synclist *list, int x, int y, int *item);
 bool skinlist_draw(struct screen *display, struct gui_synclist *list);
@@ -243,13 +206,13 @@ enum themable_icons skinlist_get_item_icon(int offset, bool wrap);
 bool skinlist_needs_scrollbar(enum screen_type screen);
 void skinlist_get_scrollbar(int* nb_item, int* first_shown, int* last_shown);
 int skinlist_get_line_count(enum screen_type screen, struct gui_synclist *list);
-#endif /* !PLUGIN) */
+#endif
 
 #if  defined(HAVE_TOUCHSCREEN)
 /* this needs to be fixed if we ever get more than 1 touchscreen on a target */
 extern unsigned gui_synclist_do_touchscreen(struct gui_synclist * gui_list);
 /* only for private use in gui/list.c */
-extern void _gui_synclist_stop_kinetic_scrolling(struct gui_synclist * gui_list);
+extern void _gui_synclist_stop_kinetic_scrolling(void);
 #endif
 
 /* If the list has a pending postponed scheduled announcement, that
@@ -260,7 +223,8 @@ extern int list_do_action_timeout(struct gui_synclist *lists, int timeout);
    list_do_action_timeout) with the gui_synclist_do_button call, for
    convenience. */
 extern bool list_do_action(int context, int timeout,
-                           struct gui_synclist *lists, int *action);
+                           struct gui_synclist *lists, int *action,
+                           enum list_wrap wrap);
 
 
 /** Simplelist implementation.
@@ -269,12 +233,11 @@ extern bool list_do_action(int context, int timeout,
  **/
 
 struct simplelist_info {
-    const char *title; /* title to show on the list */
+    char *title; /* title to show on the list */
     int  count; /* number of items in the list, each item is selection_size high */
     int selection_size; /* list selection size, usually 1 */
+    bool hide_selection;
     bool scroll_all;
-    bool hide_theme;
-    bool speak_onshow; /* list speaks first item or 'empty list' */
     int  timeout;
     int  selection; /* the item to select when the list is first displayed */
                     /* when the list is exited, this will be set to the
@@ -291,7 +254,6 @@ struct simplelist_info {
     list_speak_item *get_talk; /* can be NULL to not speak */
 #ifdef HAVE_LCD_COLOR
     list_get_color *get_color;
-    struct list_selection_color *selection_color;
 #endif
     void *callback_data; /* data for callbacks */
 };
@@ -317,16 +279,14 @@ void simplelist_addline(const char *fmt, ...);
 /* setup the info struct. members not setup in this function need to be assigned manually
    members set in this function:
     info.selection_size = 1;
+    info.hide_selection = false;
     info.scroll_all = false;
-    info.hide_theme = false;
-    info.speak_onshow = true;
     info.action_callback = NULL;
     info.title_icon = Icon_NOICON;
     info.get_icon = NULL;
     info.get_name = NULL;
     info.get_voice = NULL;
     info.get_color = NULL;
-    info.list_selection_color = NULL;
     info.timeout = HZ/10;
     info.selection = 0;
 */

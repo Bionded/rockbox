@@ -48,7 +48,7 @@ void audiohw_set_volume(int volume)
 #ifdef HAVE_SW_VOLUME_CONTROL
     volume = sdl_volume_level(volume);
     pcm_set_master_volume(volume, volume);
-#else
+#elif CONFIG_CODEC == SWCODEC
     extern void pcm_set_mixer_volume(int volume);
     pcm_set_mixer_volume(volume);
 #endif
@@ -87,6 +87,14 @@ void audiohw_set_bass(int value)        { (void)value; }
 void audiohw_set_treble(int value)      { (void)value; }
 #endif
 #endif /* HAVE_SW_TONE_CONTROLS */
+#if CONFIG_CODEC != SWCODEC
+void audiohw_set_channel(int value)     { (void)value; }
+void audiohw_set_stereo_width(int value){ (void)value; }
+#ifdef HAVE_PITCHCONTROL
+void audiohw_set_pitch(int32_t value)   { (void)value; }
+int32_t audiohw_get_pitch(void)         { return PITCH_SPEED_100; }
+#endif
+#endif /* CONFIG_CODEC != SWCODEC */
 #if defined(AUDIOHW_HAVE_BASS_CUTOFF)
 void audiohw_set_bass_cutoff(int value) { (void)value; }
 #endif
@@ -118,10 +126,6 @@ void audiohw_set_lineout_volume(int vol_l, int vol_r)
 void audiohw_set_filter_roll_off(int value)
     { (void)value; }
 #endif
-#if defined(AUDIOHW_HAVE_POWER_MODE)
-void audiohw_set_power_mode(int value)
-    { (void)value; }
-#endif
 
 void audiohw_close(void) {}
 
@@ -130,3 +134,25 @@ unsigned int pcm_sampr_to_hw_sampr(unsigned int samplerate,
                                    unsigned int type)
     { return samplerate; (void)type; }
 #endif /* CONFIG_SAMPR_TYPES */
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+int mas_codec_readreg(int reg)
+{
+    (void)reg;
+    return 0;
+}
+
+int mas_codec_writereg(int reg, unsigned int val)
+{
+    (void)reg;
+    (void)val;
+    return 0;
+}
+int mas_writemem(int bank, int addr, const unsigned long* src, int len)
+{
+    (void)bank;
+    (void)addr;
+    (void)src;
+    (void)len;
+    return 0;
+}
+#endif

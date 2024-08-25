@@ -157,6 +157,13 @@ void pcm_play_dma_stop(void)
     I2STXCOM = 0xa;
 }
 
+/* pause playback by disabling LRCK */
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause) I2STXCOM |= 1;
+    else  I2STXCOM &= ~1;
+}
+
 /* MCLK = 12MHz (MCLKDIV2=1), [CS42L55 DS, s4.8] */
 #define MCLK_FREQ     12000000
 
@@ -214,6 +221,20 @@ void pcm_play_dma_init(void)
 void pcm_play_dma_postinit(void)
 {
     audiohw_postinit();
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    size_t total_bytes;
+    dmac_ch_get_info(&dma_play_ch, NULL, &total_bytes);
+    return total_bytes;
+}
+
+const void* pcm_play_dma_get_peak_buffer(int *count)
+{
+    void *addr = dmac_ch_get_info(&dma_play_ch, count, NULL);
+    *count >>= 2; /* bytes to samples */
+    return addr; /* aligned to dest burst */
 }
 
 #ifdef HAVE_PCM_DMA_ADDRESS

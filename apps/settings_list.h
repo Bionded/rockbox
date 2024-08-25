@@ -69,11 +69,10 @@ struct filename_setting {
 
 struct int_setting {
     void (*option_callback)(int);
-    int16_t unit;
-    int16_t step;
+    int unit;
     int min;
     int max;
-
+    int step;
     const char* (*formatter)(char*, size_t, int, const char*);
     int32_t (*get_talk_id)(int, int);
 };
@@ -101,7 +100,6 @@ struct table_setting {
 };
 #define F_TABLE_SETTING 0x2000
 #define F_ALLOW_ARBITRARY_VALS 0x4000
-
 /* these use the _isfunc_type type for the function */
 /* typedef int (*_isfunc_type)(void); */
 #define F_MIN_ISFUNC    0x100000 /* min(above) is function pointer to above type */
@@ -152,25 +150,19 @@ struct custom_setting {
 - a NVRAM setting is removed
 */
 #define F_TEMPVAR    0x0400 /* used if the setting should be set using a temp var */
-#define F_PADTITLE   0x0800 /* pad the title with spaces to force it to scroll */
+#define F_PADTITLE   0x800 /* pad the title with spaces to force it to scroll */
 #define F_NO_WRAP     0x1000 /* used if the list should not wrap */
 
-#define F_CB_ON_SELECT_ONLY 0x10000000 /* option_callback only called if selected */
-#define F_CB_ONLY_IF_CHANGED 0x20000000 /* option_callback only called if setting changed */
-
-#define F_DEPRECATED    0x40000000 /* DEPRECATED setting, don't write to .cfg */
 #define F_BANFROMQS     0x80000000 /* ban the setting from the quickscreen items */
-
-
+#define F_DEPRECATED    0x40000000 /* DEPRECATED setting, don't write to .cfg */
 struct settings_list {
     uint32_t             flags;   /* BD__ _SER TFFF NNN_ _ATW PTVC IFRB STTT */
     void                *setting;
     int                  lang_id; /* -1 for none */
     union storage_type   default_val;
     const char          *cfg_name; /* this settings name in the cfg file   */
-    const char          *cfg_vals; /* comma seperated symbolic values for bool
-                                    * or choice/table settings -- the i'th value
-                                    * maps to the integer i */
+    const char          *cfg_vals; /*comma seperated legal values, or NULL */
+                                   /* used with F_T_UCHARPTR this is the folder prefix */
     union {
         const void *RESERVED; /* to stop compile errors, will be removed */
         const struct sound_setting *sound_setting; /* use F_T_SOUND for this */

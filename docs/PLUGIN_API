@@ -111,20 +111,20 @@ void audio_resume(void)
 
 void audio_set_input_source(int source, unsigned flags)
     \group sound
-    \conditions (INPUT_SRC_CAPS != 0)
+    \conditions (CONFIG_CODEC == SWCODEC) && (INPUT_SRC_CAPS != 0)
     \param source
     \param flags
     \description
 
 void audio_set_output_source(int monitor)
     \group sound
-    \conditions (INPUT_SRC_CAPS != 0)
+    \conditions (CONFIG_CODEC == SWCODEC) && (INPUT_SRC_CAPS != 0)
     \param monitor
     \description
 
 void audio_set_recording_gain(int left, int right, int type)
     \group sound
-    \conditions (defined(HAVE_RECORDING))
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
     \param left
     \param right
     \param type
@@ -185,13 +185,22 @@ unsigned int battery_voltage(void)
     \description
 
 unsigned short *bidi_l2v( const unsigned char *str, int orientation )
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param str
     \param orientation
     \return
     \description
 
+void bitswap(unsigned char *data, int length)
+    \group sound
+    \conditions (!defined(SIMULATOR)) && (CONFIG_CODEC != SWCODEC)
+    \param data
+    \param length
+    \description Swap the bits for each element of array =data= of size =length=
+
 int bufadvance(int handle_id, off_t offset)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \param offset
     \return
@@ -199,6 +208,7 @@ int bufadvance(int handle_id, off_t offset)
 
 int bufalloc(const void *src, size_t size, enum data_type type)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param src
     \param size
     \param type
@@ -207,12 +217,31 @@ int bufalloc(const void *src, size_t size, enum data_type type)
 
 bool bufclose(int handle_id)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
+    \return
+    \description
+
+ssize_t bufcuttail(int handle_id, size_t size)
+    \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
+    \param handle_id
+    \param size
     \return
     \description
 
 ssize_t bufgetdata(int handle_id, size_t size, void **data)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
+    \param handle_id
+    \param size
+    \param data
+    \return
+    \description
+
+ssize_t bufgettail(int handle_id, size_t size, void **data)
+    \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \param size
     \param data
@@ -221,6 +250,7 @@ ssize_t bufgetdata(int handle_id, size_t size, void **data)
 
 int bufopen(const char *file, size_t offset, enum data_type type)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param file
     \param offset
     \param type
@@ -229,6 +259,7 @@ int bufopen(const char *file, size_t offset, enum data_type type)
 
 ssize_t bufread(int handle_id, size_t size, void *dest)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \param size
     \param dest
@@ -237,31 +268,37 @@ ssize_t bufread(int handle_id, size_t size, void *dest)
 
 int bufseek(int handle_id, size_t newpos)
     \group buffering API
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \param newpos
     \return
     \description
 
 ssize_t buf_get_offset(int handle_id, void *ptr)
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \param ptr
     \return
     \description
 
 ssize_t buf_handle_offset(int handle_id)
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \return
     \description
 
 void buf_request_buffer_handle(int handle_id)
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \description
 
 void buf_set_base_handle(int handle_id)
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \param handle_id
     \description
 
 size_t buf_used(void)
+    \conditions ((CONFIG_CODEC == SWCODEC))
     \return
     \description
 
@@ -316,7 +353,7 @@ bool button_hold(void)
     \description
 
 struct event_queue *button_queue
-    \conditions (defined(HAVE_LCD_ENABLE))
+    \conditions !defined(HAVE_LCD_CHARCELLS) )) && (defined(HAVE_LCD_ENABLE
     \return
     \description
 
@@ -335,6 +372,7 @@ void cancel_cpu_boost(void)
     \description Unboosts the CPU for the current thread
 
 const unsigned char *font_get_bits( struct font *pf, unsigned short char_code )
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param pf
     \param char_code
     \return
@@ -372,6 +410,7 @@ int closedir(DIR* dir)
 
 int codec_load_file(const char* codec, struct codec_api *api)
     \group misc
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param codec
     \param api
     \return
@@ -387,7 +426,7 @@ int count_mp3_frames(int fd, int startpos, int filesize, void (*progressfunc)(in
     \description
 
 void cpu_boost(bool on_off)
-    \conditions (!defined(SIMULATOR)) && (defined(HAVE_ADJUSTABLE_CPU_FREQ)) && !defined(CPU_BOOST_LOGGING)
+    \conditions (!defined(SIMULATOR)) && (defined(HAVE_ADJUSTABLE_CPU_FREQ)) && !defined(CPU_BOOST_LOGGING) 
     \param on_off
     \description Boosts the CPU if =on_off= is true, otherwise it unboosts the CPU
 
@@ -501,6 +540,7 @@ int do_menu(const struct menu_item_ex *menu, int *start_selected, struct viewpor
 
 intptr_t dsp_configure(struct dsp_config *dsp, int setting, intptr_t value)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param dsp
     \param setting
     \param value
@@ -509,11 +549,13 @@ intptr_t dsp_configure(struct dsp_config *dsp, int setting, intptr_t value)
 
 void dsp_dither_enable(bool enable)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param enable
     \description
 
 int dsp_process(struct dsp_config *dsp, char *dest, const char *src[], int count)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param dsp
     \param dest
     \param src[]
@@ -523,11 +565,13 @@ int dsp_process(struct dsp_config *dsp, char *dest, const char *src[], int count
 
 void dsp_set_crossfeed(bool enable)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param enable
     \description
 
 void dsp_set_eq(bool enable)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param enable
     \description
 
@@ -570,17 +614,28 @@ bool find_albumart(const struct mp3entry *id3, char *buf, int buflen)
     \return
     \description
 
+unsigned long find_next_frame(int fd, long *offset, long max_offset, unsigned long last_header)
+    \group misc
+    \param fd
+    \param offset
+    \param max_offset
+    \param last_header
+    \return
+    \description
+
 void flush_icache(void)
     \conditions (defined(CACHE_FUNCTIONS_AS_CALL))
     \description
 
 struct font* font_get(int font)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param font
     \return the font structure for =font=
     \description If the requested font isn't loaded/compiled-in, decrement the font number and try again.
     \see [S[firmware/export/font.h]]
 
 int font_getstringsize(const unsigned char *str, int *w, int *h, int fontnumber)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param str
     \param w
     \param h
@@ -589,12 +644,14 @@ int font_getstringsize(const unsigned char *str, int *w, int *h, int fontnumber)
     \description
 
 int font_get_width(struct font* pf, unsigned short char_code)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param pf
     \param char_code
     \return
     \description
 
 struct font* font_load(const char *path)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param path
     \return
     \description Load font =path= and returns a struct font pointer for it
@@ -609,6 +666,7 @@ int get_action(int context, int timeout)
 
 const char *get_codec_filename(int cod_spec)
     \group misc
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param cod_spec
     \return
     \description
@@ -623,6 +681,7 @@ int get_custom_action(int context,int timeout, const struct button_mapping* (*ge
 
 bool get_metadata(struct mp3entry* id3, int fd, const char* trackname)
     \group misc
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param id3
     \param fd
     \param trackname
@@ -648,6 +707,7 @@ struct system_status *global_status
     \see [S[apps/settings.h]]
 
 void gui_scrollbar_draw(struct screen * screen, int x, int y, int width, int height, int items, int min_shown, int max_shown, unsigned flags)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param screen
     \param x
     \param y
@@ -669,7 +729,7 @@ void gui_synclist_del_item(struct gui_synclist * lists)
     \param lists
     \description
 
-bool gui_synclist_do_button(struct gui_synclist * lists, unsigned *action)
+bool gui_synclist_do_button(struct gui_synclist * lists, unsigned *action, enum list_wrap wrap)
     \group list
     \param lists
     \param action
@@ -704,6 +764,12 @@ void gui_synclist_init(struct gui_synclist * lists, list_get_name callback_get_i
     \param parent[NB_SCREENS]
     \description
 
+void gui_synclist_limit_scroll(struct gui_synclist * lists, bool scroll)
+    \group list
+    \param lists
+    \param scroll
+    \description
+
 void gui_synclist_select_item(struct gui_synclist * lists, int item_number)
     \group list
     \param lists
@@ -729,11 +795,37 @@ void gui_synclist_set_title(struct gui_synclist *lists, char* title, int icon)
     \param icon
     \description
 
+void gui_syncstatusbar_draw(struct gui_syncstatusbar * bars, bool force_redraw)
+    \group scroll bar
+    \param bars
+    \param force_redraw refreshes =bars= if true
+    \description Draws an initialized statusbar =bars= on the screen and refreshs it if =force_redraw= is true.
+    \see [S[apps/gui/statusbar.h]]
+
 enum yesno_res gui_syncyesno_run(const struct text_message * main_message, const struct text_message * yes_message, const struct text_message * no_message)
     \group list
     \param main_message
     \param yes_message
     \param no_message
+    \return
+    \description
+
+void i2c_begin(void)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)) && ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \description
+
+void i2c_end(void)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)) && ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \description
+
+int i2c_write(int address, const unsigned char* buf, int count )
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)) && ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \param address
+    \param buf
+    \param count
     \return
     \description
 
@@ -755,17 +847,16 @@ bool is_backlight_on(bool ignore_always_off)
     \return
     \description
 
-int kbd_input(char* buffer, int buflen, unsigned short *kbd)
+int kbd_input(char* buffer, int buflen)
     \group misc
     \param buffer
     \param buflen
-    \param *kbd
     \return 0 upon success, negative upon failure
     \description Prompt for a string to be stored in =buffer= which is of length =buflen=
 
 void lcd_bitmap(const fb_data *src, int x, int y, int width, int height)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \param src
     \param x
     \param y
@@ -775,7 +866,7 @@ void lcd_bitmap(const fb_data *src, int x, int y, int width, int height)
 
 void lcd_bitmap_part(const fb_data *src, int src_x, int src_y, int stride, int x, int y, int width, int height)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \param src
     \param src_x
     \param src_y
@@ -788,7 +879,7 @@ void lcd_bitmap_part(const fb_data *src, int src_x, int src_y, int stride, int x
 
 void lcd_bitmap_transparent(const fb_data *src, int x, int y, int width, int height)
     \group lcd
-    \conditions (LCD_DEPTH >= 16)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH == 16)
     \param src
     \param x
     \param y
@@ -798,7 +889,7 @@ void lcd_bitmap_transparent(const fb_data *src, int x, int y, int width, int hei
 
 void lcd_bitmap_transparent_part(const fb_data *src, int src_x, int src_y, int stride, int x, int y, int width, int height)
     \group lcd
-    \conditions (LCD_DEPTH >= 16)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH == 16)
     \param src
     \param src_x
     \param src_y
@@ -811,7 +902,7 @@ void lcd_bitmap_transparent_part(const fb_data *src, int src_x, int src_y, int s
 
 void lcd_blit_grey_phase(unsigned char *values, unsigned char *phases, int bx, int by, int bwidth, int bheight, int stride)
     \group lcd
-    \conditions ((LCD_DEPTH < 4) && !defined(SIMULATOR))
+    \conditions !defined(HAVE_LCD_CHARCELLS) )) && ((LCD_DEPTH < 4) && !defined(SIMULATOR
     \param values
     \param phases
     \param bx
@@ -823,7 +914,7 @@ void lcd_blit_grey_phase(unsigned char *values, unsigned char *phases, int bx, i
 
 void lcd_blit_mono(const unsigned char *data, int x, int by, int width, int bheight, int stride)
     \group lcd
-    \conditions ((LCD_DEPTH < 4) && !defined(SIMULATOR))
+    \conditions !defined(HAVE_LCD_CHARCELLS) )) && ((LCD_DEPTH < 4) && !defined(SIMULATOR
     \param data
     \param x
     \param by
@@ -834,7 +925,7 @@ void lcd_blit_mono(const unsigned char *data, int x, int by, int width, int bhei
 
 void lcd_blit_yuv(unsigned char * const src[3], int src_x, int src_y, int stride, int x, int y, int width, int height)
     \group lcd
-    \conditions (LCD_DEPTH >= 16)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH == 16)
     \param src[3]
     \param src_x
     \param src_y
@@ -849,8 +940,22 @@ void lcd_clear_display(void)
     \group lcd
     \description Clears the LCD and the framebuffer
 
+void lcd_define_pattern(unsigned long ucs, const char *pattern)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param ucs
+    \param pattern is a 8x8 pixelbitmap
+    \description Define a custom pattern for index =ucs=
+
+void lcd_double_height(bool on)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param on
+    \description
+
 void lcd_drawline(int x1, int y1, int x2, int y2)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x1 X top coordinate
     \param y1 Y top coordinate
     \param x2 X bottom coordinate
@@ -859,12 +964,14 @@ void lcd_drawline(int x1, int y1, int x2, int y2)
 
 void lcd_drawpixel(int x, int y)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x
     \param y
     \description Draws a pixel at (=x=, =y=) within current drawing mode
 
 void lcd_drawrect(int x, int y, int width, int height)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x
     \param y
     \param width
@@ -873,6 +980,7 @@ void lcd_drawrect(int x, int y, int width, int height)
 
 void lcd_fillrect(int x, int y, int width, int height)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x
     \param y
     \param width
@@ -881,6 +989,7 @@ void lcd_fillrect(int x, int y, int width, int height)
 
 fb_data* lcd_framebuffer
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \return
     \description Pointer to the framebuffer
     \see [S[firmware/export/lcd.h]]
@@ -895,37 +1004,55 @@ int lcd_getstringsize(const unsigned char *str, int *w, int *h)
 
 fb_data* lcd_get_backdrop(void)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \return Pointer to framebuffer data
     \description Gets the current backdrop
     \see lcd_framebuffer
 
 unsigned lcd_get_background(void)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \return
     \description
 
 int lcd_get_drawmode(void)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \return current LCD drawing mode
     \description
 
 unsigned lcd_get_foreground(void)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \return
     \description
 
+unsigned long lcd_get_locked_pattern(void)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \return
+    \description Get a locked pattern index
+    \see [S[firmware/drivers/lcd-player.c]]
+
 void lcd_hline(int x1, int x2, int y)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x1 X start coordinate
     \param x2 X end coordinate
     \param y Y coordinate
     \description Draws a horizontal line at (=x1=, =y=) -> (=x2=, =y=) within current drawing mode
 
+void lcd_icon(int icon, bool enable)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param icon
+    \param enable
+    \description
+    \see [S[firmware/drivers/lcd-player.c]]
+
 void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int height)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param src
     \param x
     \param y
@@ -935,6 +1062,7 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
 
 void lcd_mono_bitmap_part(const unsigned char *src, int src_x, int src_y, int stride, int x, int y, int width, int height)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param src
     \param src_x
     \param src_y
@@ -944,6 +1072,14 @@ void lcd_mono_bitmap_part(const unsigned char *src, int src_x, int src_y, int st
     \param width
     \param height
     \description
+
+void lcd_putc(int x, int y, unsigned long ucs)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param x
+    \param y
+    \param ucs
+    \description Put character =ucs= at coordinates (=x=, =y=)
 
 void lcd_puts(int x, int y, const unsigned char *string)
     \group lcd
@@ -965,6 +1101,15 @@ void lcd_puts_scroll(int x, int y, const unsigned char* string)
     \param y Column Y
     \param string
     \description Puts scrolling string on the LCD at row =x= and column =y=. The scrolling style is STYLE_DEFAULT.
+
+void lcd_put_cursor(int x, int y, unsigned long ucs)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param x
+    \param y
+    \param ucs
+    \description Put cursor at coordinates (=x=, =y=)
+    \see [S[firmware/export/lcd.h]]
 
 void lcd_remote_bitmap(const fb_remote_data *src, int x, int y, int width, int height)
     \conditions (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
@@ -1176,21 +1321,27 @@ void lcd_remote_vline(int x, int y1, int y2)
     \param y2
     \description
 
+void lcd_remove_cursor(void)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \description Remove the cursor from the screen
+
 void lcd_setfont(int font)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param font
     \description Set default font
 
 void lcd_set_backdrop(fb_data* backdrop)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \param backdrop Pointer to backdrop image
     \description Set the backdrop to =backdrop=
     \see lcd_framebuffer
 
 void lcd_set_background(unsigned foreground)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \param foreground
     \description
 
@@ -1201,18 +1352,19 @@ void lcd_set_contrast(int x)
 
 void lcd_set_drawmode(int mode)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param mode
     \description
 
 void lcd_set_foreground(unsigned foreground)
     \group lcd
-    \conditions (LCD_DEPTH > 1)
+    \conditions !defined(HAVE_LCD_CHARCELLS)  && (LCD_DEPTH > 1)
     \param foreground
     \description
 
 void lcd_set_invert_display(bool yesno)
     \group lcd
-    \conditions (defined(HAVE_LCD_INVERT))
+    \conditions !defined(HAVE_LCD_CHARCELLS) )) && (defined(HAVE_LCD_INVERT
     \param yesno
     \description
 
@@ -1220,12 +1372,19 @@ void lcd_stop_scroll(void)
     \group lcd
     \description Stop all scrolling lines on the screen
 
+void lcd_unlock_pattern(unsigned long ucs)
+    \group lcd
+    \conditions (defined(HAVE_LCD_CHARCELLS))
+    \param ucs
+    \description Unlock pattern of index =ucs=
+
 void lcd_update(void)
     \group lcd
     \description Pushes LCD framebuffer changes to the LCD
 
 void lcd_update_rect(int x, int y, int width, int height)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x measured in pixels
     \param y measured in pixels
     \param width measured in pixels
@@ -1234,6 +1393,7 @@ void lcd_update_rect(int x, int y, int width, int height)
 
 void lcd_vline(int x, int y1, int y2)
     \group lcd
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param x X coordinate
     \param y1 Y start coordinate
     \param y2 Y end coordinate
@@ -1241,7 +1401,7 @@ void lcd_vline(int x, int y1, int y2)
 
 void lcd_yuv_set_options(unsigned options)
     \group lcd
-    \conditions (LCD_DEPTH >= 16) && (defined(TOSHIBA_GIGABEAT_F) || defined(SANSA_E200) || defined(SANSA_C200)  || defined(IRIVER_H10) || defined(COWON_D2))
+    \conditions !defined(HAVE_LCD_CHARCELLS) )) && (LCD_DEPTH == 16) && (defined(TOSHIBA_GIGABEAT_F) || defined(SANSA_E200) || defined(SANSA_C200)  || defined(IRIVER_H10) || defined(COWON_D2
     \param options
     \description
 
@@ -1257,17 +1417,69 @@ void logf(const char *fmt, ...) ATTRIBUTE_PRINTF(1, 2)
 
 const unsigned long *audio_master_sampr_list
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \return
     \description
 
 const unsigned long *hw_freq_sampr
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \return
     \description
 
 const unsigned long *rec_freq_sampr
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
+    \return
+    \description
+
+int mas_codec_readreg(int reg)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)) && ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \param reg
+    \return
+    \description
+
+int mas_codec_writereg(int reg, unsigned int val)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)) && ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \param reg
+    \param val
+    \return
+    \description
+
+int mas_readmem(int bank, int addr, unsigned long* dest, int len)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC))
+    \param bank
+    \param addr
+    \param dest
+    \param len
+    \return
+    \description
+
+int mas_readreg(int reg)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC))
+    \param reg
+    \return
+    \description
+
+int mas_writemem(int bank, int addr, const unsigned long* src, int len)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC))
+    \param bank
+    \param addr
+    \param src
+    \param len
+    \return
+    \description
+
+int mas_writereg(int reg, unsigned int val)
+    \group MAS communication
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC))
+    \param reg
+    \param val
     \return
     \description
 
@@ -1324,18 +1536,59 @@ time_t mktime(struct tm *t)
     \return
     \description
 
+bool mp3info(struct mp3entry *entry, const char *filename)
+    \group misc
+    \param entry
+    \param filename
+    \return FALSE if successfull
+    \description The given =entry= is filled in with whatever id3 info it could find about the given =filename=
+
+bool mp3_is_playing(void)
+    \group sound
+    \conditions (!defined(SIMULATOR))
+    \return true if an mp3 is playing, else return false
+    \description Note: a paused mp3 is considered as a playing mp3
+
+void mp3_play_data(const unsigned char* start, int size, void (*get_more)(unsigned char** start, size_t* size))
+    \group sound
+    \conditions (!defined(SIMULATOR))
+    \param start points to the begining of the file to play
+    \param size is the size to play
+    \param get_more is a callback function
+    \description Plays a chunk of an mp3 file
+
+void mp3_play_pause(bool play)
+    \group sound
+    \conditions (!defined(SIMULATOR))
+    \param play
+    \description If playback was paused and =play= is TRUE, resume playback. If playback isn't paused and =play= is FALSE, pause playback.
+
+void mp3_play_stop(void)
+    \group sound
+    \conditions (!defined(SIMULATOR))
+    \description Stops playback
+
+unsigned long mpeg_get_last_header(void)
+    \group playback control
+    \conditions (!defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC))
+    \return
+    \description
+
 void mutex_init(struct mutex *m)
     \group kernel/ system
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param m
     \description
 
 void mutex_lock(struct mutex *m)
     \group kernel/ system
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param m
     \description
 
 void mutex_unlock(struct mutex *m)
     \group kernel/ system
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param m
     \description
 
@@ -1356,52 +1609,83 @@ bool option_screen(const struct settings_list *setting, struct viewport parent[N
 
 void pcm_apply_settings(void)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \description
+
+void pcm_calculate_peaks(int *left, int *right)
+    \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \param left
+    \param right
     \description
 
 void pcm_calculate_rec_peaks(int *left, int *right)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
     \param left
     \param right
     \description
 
 void pcm_close_recording(void)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
+    \description
+
+size_t pcm_get_bytes_waiting(void)
+    \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \return
     \description
 
 void pcm_init_recording(void)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
+    \description
+
+bool pcm_is_paused(void)
+    \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \return true if playback is paused, else false
     \description
 
 bool pcm_is_playing(void)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \return true unless playback is paused
     \description
 
 void pcm_play_data(pcm_more_callback_type get_more, unsigned char* start, size_t size)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param get_more Optional callback
     \param start is the address of raw 16-16, interleaved PCM data
     \param size is the size of the data to play
-    \description May be used without the callback parameter in order to play a single clip. If you wish to play sound continuously, then use the callback instead and return the buffer address and size to be played from that callback. Every time that a buffer is played out, the callback is asked for the next buffer to play but without stopping and starting playback. The callback is called asynchronously in interrupt context so what you may do in there is limited.
+    \description May be used without the callback parameter in order to play a single clip. If you wish to play sound continuously, then use the callback instead and return the buffer address and size to be played from that callback. Every time that a buffer is played out, the callback is asked for the next buffer to play but without stopping and starting playback. The callback is called asynchronously in interrupt context so what you may do in there is limited. 
 
 void pcm_play_lock(void)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \description
+
+void pcm_play_pause(bool play)
+    \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \param play
+    \description Pauses or unpauses the playback depending on the truth value of =play=
 
 void pcm_play_stop(void)
     \group sound
-    \description Stops the playback and empties the audio buffer.
+    \conditions (CONFIG_CODEC == SWCODEC)
+    \description Stops the playback and empties the audio buffer unlike [F[pcm_play_pause]]
 
 void pcm_play_unlock(void)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \description
 
 void pcm_record_data(pcm_more_callback_type2 more_ready, void *start, size_t size)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
     \param more_ready
     \param start
     \param size
@@ -1409,25 +1693,38 @@ void pcm_record_data(pcm_more_callback_type2 more_ready, void *start, size_t siz
 
 void pcm_record_more(void *start, size_t size)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
     \param start
     \param size
     \description
 
 void pcm_set_frequency(unsigned int frequency)
     \group sound
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param frequency
     \description
 
 void pcm_stop_recording(void)
     \group sound
-    \conditions defined(HAVE_RECORDING)
+    \conditions (CONFIG_CODEC == SWCODEC) && (defined(HAVE_RECORDING))
     \description
 
-struct playlist_info *playlist_get_current(void)
-    \group playback control
-    \return pointer to current playlist
+bool peak_meter_get_use_dbfs(void)
+    \conditions ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \return 1 if the meter currently is displaying dBfs values, 0 if the meter is displaying percent values
     \description
+
+unsigned short peak_meter_scale_value(unsigned short val, int meterwidth)
+    \conditions ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \param val is the volume value (range: 0 <= val < MAX_PEAK)
+    \param meterwidth is the width of the meter in pixel
+    \return a value between 0 and meterwidth
+    \description Scales a peak value as read from the MAS to the range of =meterwidth=. The scaling is performed according to the scaling method (dBfs / linear) and the range (peak_meter_range_min .. peak_meter_range_max).
+
+void peak_meter_set_use_dbfs(bool use)
+    \conditions ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F))
+    \param use If =use= is 0 use linear percent scale, else use dBfs
+    \description Specifies whether the values displayed are scaled as dBfs or as linear percent values
 
 int playlist_amount(void)
     \group playback control
@@ -1602,11 +1899,13 @@ void queue_delete(struct event_queue *q)
     \description
 
 bool queue_empty(const struct event_queue *q)
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param q
     \return
     \description
 
 void queue_enable_queue_send(struct event_queue *q, struct queue_sender_list *send, struct thread_entry *owner)
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param q
     \param send
     \param owner
@@ -1624,11 +1923,13 @@ void queue_post(struct event_queue *q, long id, intptr_t data)
     \description
 
 void queue_reply(struct event_queue *q, intptr_t retval)
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param q
     \param retval
     \description
 
 intptr_t queue_send(struct event_queue *q, long id, intptr_t data)
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param q
     \param id
     \param data
@@ -1636,6 +1937,7 @@ intptr_t queue_send(struct event_queue *q, long id, intptr_t data)
     \description
 
 void queue_wait(struct event_queue *q, struct queue_event *ev)
+    \conditions (CONFIG_CODEC == SWCODEC)
     \param q
     \param ev
     \description
@@ -1658,6 +1960,7 @@ struct dirent* readdir(DIR* dir)
     \description
 
 int read_bmp_file(const char* filename, struct bitmap *bm, int maxsize, int format)
+    \conditions (defined(HAVE_LCD_BITMAP))
     \param filename
     \param bm
     \param maxsize
@@ -1715,6 +2018,7 @@ struct screen* screens[NB_SCREENS]
     \description
 
 void screen_clear_area(struct screen * display, int xstart, int ystart, int width, int height)
+    \conditions !defined(HAVE_LCD_CHARCELLS) 
     \param display
     \param xstart
     \param ystart
@@ -1723,6 +2027,7 @@ void screen_clear_area(struct screen * display, int xstart, int ystart, int widt
     \description
 
 void screen_dump_set_hook(void (*hook)(int fh))
+    \conditions (defined(HAVE_LCD_BITMAP))
     \param hook
     \description
 
@@ -1752,7 +2057,7 @@ void semaphore_wait(struct semaphore *s)
     \param s
     \description
 
-const struct settings_list* find_setting(const void* variable)
+const struct settings_list* find_setting(const void* variable, int *id)
     \group options
     \param variable
     \param id
@@ -1855,14 +2160,14 @@ bool simplelist_show_list(struct simplelist_info *info)
 
 void sim_lcd_ex_init(int shades, unsigned long (*getpixel)(int, int))
     \group special simulator hooks
-    \conditions (defined(SIMULATOR) && LCD_DEPTH < 8))
+    \conditions (defined(SIMULATOR)) && (defined(HAVE_LCD_BITMAP) && LCD_DEPTH < 8)
     \param shades
     \param getpixel
     \description
 
 void sim_lcd_ex_update_rect(int x, int y, int width, int height)
     \group special simulator hooks
-    \conditions (defined(SIMULATOR) LCD_DEPTH < 8))
+    \conditions (defined(SIMULATOR)) && (defined(HAVE_LCD_BITMAP) && LCD_DEPTH < 8)
     \param x
     \param y
     \param width
@@ -1903,6 +2208,7 @@ void sound_set(int setting, int value)
 
 void sound_set_pitch(int pitch)
     \group playback control
+    \conditions ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) ||  (CONFIG_CODEC == SWCODEC))
     \param pitch
     \description
 
@@ -1934,10 +2240,15 @@ void srand(unsigned int seed)
     \param seed
     \description Seed the random number generator
 
+struct gui_syncstatusbar *statusbars
+    \group scroll bar
+    \return
+    \description
+
 int strcasecmp(const char *, const char *)
     \group strings and memory
-    \param
-    \param
+    \param 
+    \param 
     \return an integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2
     \description The  strcasecmp() function compares the two strings s1 and s2, ignoring the case of the characters
 
@@ -1957,8 +2268,8 @@ char *strchr(const char *s, int c)
 
 int strcmp(const char *, const char *)
     \group strings and memory
-    \param
-    \param
+    \param 
+    \param 
     \return
     \description strcmp() compares the string a to string b. If a sorts lexicographically after b, strcmp returns a number greater than zero. If the two strings match, strcmp returns zero. If a sorts lexicographically before b, strcmp returns a number less than zero.
 
@@ -1986,8 +2297,8 @@ int strncasecmp(const char *s1, const char *s2, size_t n)
 
 int strncmp(const char *, const char *, size_t)
     \group strings and memory
-    \param
-    \param
+    \param 
+    \param 
     \param size_t
     \return
     \description

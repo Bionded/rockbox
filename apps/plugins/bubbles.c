@@ -76,13 +76,15 @@ enum {
 #endif
 
 #define ANGLE_STEP          2
-#define ANGLE_STEP_REP      6
+#define ANGLE_STEP_REP      4
 
 #define BUBBLES_QUIT1       PLA_EXIT
+#define BUBBLES_QUIT2       PLA_CANCEL
 
 /* these are better off shooting with up */
 #if (CONFIG_KEYPAD == SAMSUNG_YH820_PAD) \
  || (CONFIG_KEYPAD == SAMSUNG_YH92X_PAD) \
+ || (CONFIG_KEYPAD == ONDIO_PAD) \
  || (CONFIG_KEYPAD == IRIVER_H10_PAD)
 #define SHOOT_WITH_UP
 #endif
@@ -91,19 +93,10 @@ enum {
 #define BUBBLES_FIRE        PLA_UP
 #define BUBBLES_FIRE_REPEAT PLA_UP_REPEAT
 #define BUBBLES_PAUSE       PLA_SELECT
-#define BUBBLES_QUIT2       PLA_CANCEL
-#elif (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define BUBBLES_FIRE        PLA_SELECT
-#define BUBBLES_FIRE_REPEAT PLA_SELECT_REPEAT
-#define BUBBLES_PAUSE       PLA_DOWN
-#define BUBBLES_QUIT2       PLA_UP
 #else
 #define BUBBLES_FIRE        PLA_SELECT
 #define BUBBLES_FIRE_REPEAT PLA_SELECT_REPEAT
 #define BUBBLES_PAUSE       PLA_UP
-#define BUBBLES_QUIT2       PLA_CANCEL
 #endif
 
 /* external bitmaps */
@@ -127,17 +120,6 @@ enum {
 #elif (LCD_WIDTH == 480) && (LCD_HEIGHT == 640)
 #define XOFS          128
 #define MAX_FPS       40
-
-#elif (LCD_WIDTH == 360) && (LCD_HEIGHT == 400)
-#define XOFS            86
-#define YOFS            100
-#define SCORE_TXT_X     28
-#define SCORE_TXT_WIDTH 32
-#define SCORE_TXT_Y     48
-#define LEVEL_TXT_X     27
-#define LEVEL_TXT_WIDTH 32
-#define LEVEL_TXT_Y     5
-#define MAX_FPS         40
 
 /* 22x22 bubbles (iPod Video) */
 #elif (LCD_HEIGHT == 240) && (LCD_WIDTH == 320)
@@ -2375,14 +2357,12 @@ static int bubbles_handlebuttons(struct game_context* bb, bool animblock,
     switch(button){
         case BUBBLES_LEFT_REP:
             if(bb->angle > MIN_ANGLE) bb->angle -= ANGLE_STEP_REP;
-            break;
         case BUBBLES_LEFT:   /* change angle to the left */
             if(bb->angle > MIN_ANGLE) bb->angle -= ANGLE_STEP;
             break;
 
         case BUBBLES_RIGHT_REP:
             if(bb->angle < MAX_ANGLE) bb->angle += ANGLE_STEP_REP;
-            break;
         case BUBBLES_RIGHT:  /* change angle to the right */
             if(bb->angle < MAX_ANGLE) bb->angle += ANGLE_STEP;
             break;
@@ -2434,11 +2414,8 @@ static int bubbles_handlebuttons(struct game_context* bb, bool animblock,
     return BB_NONE;
 }
 
-static int bubbles_menu_cb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int bubbles_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM
        && !resume && (i==0))

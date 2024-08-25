@@ -43,7 +43,6 @@ struct filebuf {
     unsigned char* buf;
 };
 
-int verifyfirm(const struct filebuf* firmdata);
 int mknkboot(const struct filebuf *indata, const struct filebuf *bootdata,
              struct filebuf *outdata);
 #endif

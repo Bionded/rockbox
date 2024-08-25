@@ -26,7 +26,7 @@ you to configure settings related to audio playback.
   \item[All.] The current playlist will repeat when it is finished.
 
     %
-  \item[One. ]Repeat one track over and over unless track is manually skipped.
+  \item[One. ]Repeat one track over and over.
     %
   \item[Shuffle.] When the current playlist has finished playing, it will
     be shuffled and then repeated.
@@ -42,7 +42,7 @@ you to configure settings related to audio playback.
         Setting the End Point (B) is done accordingly using
         \ActionWpsAbSetBNextDir{}.  To reset the markers press \ActionWpsAbReset{}.
     }%
-    \opt{ipod,IAUDIO_X5_PAD,PBELL_VIBE500_PAD}{%
+    \opt{ipod,IAUDIO_X5_PAD,ONDIO_PAD,PLAYER_PAD,PBELL_VIBE500_PAD}{%
         To set the Start Point (A) press \ActionWpsBrowse{}. The following
         press of \ActionWpsBrowse{} will set the End Point (B), and a third
         successive \ActionWpsBrowse{} will reset the markers.
@@ -68,8 +68,15 @@ you to configure settings related to audio playback.
     This can happen if the \dap{} is knocked, shaken or jogged heavily while
     Rockbox is trying to read the hard drive.
 
-    The anti-skip buffer can be set to various values between
-    5 seconds and 10 minutes.\\
+    \opt{masd,masf}{
+      The anti-skip buffer can be set to a value between 0 and 7
+      seconds.\\
+    }
+
+    \opt{swcodec}{
+      The anti-skip buffer can be set to various values between
+      5 seconds and 10 minutes.\\
+    }
 
     \note{Having a large anti-skip buffer tends to use more power, and may
       reduce your battery life. It is recommended to always use the lowest
@@ -82,123 +89,116 @@ you to configure settings related to audio playback.
   set to \setting{Yes}, your music will fade out when you stop or pause 
   playback, and fade in when you resume playback.
     
-\section{Single Mode}
-  If the Single Mode  option is  set to \setting{Track}, your music
-  will pause at every automatic track change.
-  If it is set to \setting{Album}, \setting{Album Artist}, \setting{Artist},
-  \setting{Composer}, \setting{Work}, or \setting{Genre},
-  your music will pause at the next track change where this tag also
-  changes.
-
 \section{Party Mode}
   Enables unstoppable music playback. When new songs are
   selected, they are queued at the end of the current dynamic playlist
   instead of being played immediately. Pausing and stopping playback is
   disabled as well as skipping songs and launching plugins.
 
-\opt{crossfade}{
-\section{Crossfade}
-  This section controls the behavior of the crossfader.  The crossfader, when
-  enabled, smoothly fades one track into the next.  This can occur in two
-  situations: an automatic track change or a manual track skip.  An automatic
-  track change occurs at the end of the track, moving to the next track in the
-  playlist without user intervention.  A manual track skip goes to the next
-  track immediately when the appropriate button is pressed.\\
+\opt{swcodec}{
+  \opt{crossfade}{
+  \section{Crossfade}
+    This section controls the behavior of the crossfader.  The crossfader, when
+    enabled, smoothly fades one track into the next.  This can occur in two
+    situations: an automatic track change or a manual track skip.  An automatic
+    track change occurs at the end of the track, moving to the next track in the
+    playlist without user intervention.  A manual track skip goes to the next
+    track immediately when the appropriate button is pressed.\\
 
-  Options for crossfade settings are:
-  \begin{description}
-    \item[Enable Crossfade.] If set to \setting{Off}, crossfade is disabled
-      and all track changes are gapless.  If set to
-      \setting{Automatic Track Change Only}, crossfade occurs for automatic
-      track changes, but not for manual track skips.  The next setting,
-      \setting{Manual Track Skip Only}, is the opposite: tracks will only
-      crossfade when manually skipped.  If set to \setting{Shuffle}, crossfade
-      is enabled for all track changes, automatic or manual, when the shuffle
-      feature is set to \setting{Yes}, but disabled otherwise.  If set to
-      \setting{Shuffle or Manual Track Skip} then crossfade will be active
-      either when shuffle is set to \setting{Yes} or the track is manually
-      skipped.  If set to \setting{Always}, tracks will always crossfade into
-      one another.
-      %
-    \item[Fade In Delay.] The ``fade in delay'' is the length of time between
-      when the crossfade process begins and when the new track begins to fade
-      in.
-      %
-    \item[Fade In Duration.] The length of time, in seconds, that it takes
-      your music to fade in once the \setting{Fade In Delay} has ended.
-      %
-    \item[Fade Out Delay.] The ``fade out delay'' is the length of time
-      between when the crossfade process begins and when the old track begins
-      to fade out.
-      %
-    \item[Fade Out Duration.] The length of time, in seconds, that it takes
-      your music to fade out once the \setting{Fade Out Delay} has ended.
-      %
-    \item[Fade Out Mode.] If set to \setting{Crossfade}, one song will fade
-      out and the next song will simultaneously fade in. If set to 
-      \setting{Mix}, the ending song will not fade out at all, and will
-      continue to play as normal until its end with the starting song fading
-      in from under it. \setting{Mix} mode is not used for manual track skips,
-      even if it is selected here.
-    \end{description}
-      
-    \note{The rules above apply except in the instance where
-        \setting{Fade Out Delay} plus \setting{Fade Out Duration} is less then
-        \setting{Fade In Delay} (which would create a gap in the audio). In this case,
-        the \setting{Fade In Delay} is reduced to eliminate the gap.\\}
-
-        The graphic below illustrates how the different settings work in practice.
-
-       \Ifpdfoutput{\includegraphics[width=14cm]{configure_rockbox/images/crossfade_graphic.png}}
-       {\includegraphics{configure_rockbox/images/crossfade_graphic.png}}
-  }%\opt{crossfade}
-    
-\section{\label{ref:ReplayGain}Replaygain}
-  This allows you to control the replaygain function.
-  The purpose of replaygain is to adjust the volume of the music played
-  so that all songs (or albums, depending on your settings) have the
-  same apparent volume. This prevents sudden changes in volume when
-  changing between songs recorded at different volume levels.
-  For replaygain to work, the songs must have been processed by a program
-  that adds replaygain information to the ID3 tags (or Vorbis tags).\\
-      
-  Options for replaygain are:
-  \begin{description}
-    \item[Replaygain Type.] Choose the type of replaygain to apply:
-      \begin{description}
-      \item[Album Gain.] Maintain a constant volume level between
-        albums, but keep any intentional volume variations between 
-        songs in an album. (If album gain value is not available,
-        uses track gain information).
+    Options for crossfade settings are:
+    \begin{description}
+      \item[Enable Crossfade.] If set to \setting{Off}, crossfade is disabled
+        and all track changes are gapless.  If set to
+        \setting{Automatic Track Change Only}, crossfade occurs for automatic
+        track changes, but not for manual track skips.  The next setting,
+        \setting{Manual Track Skip Only}, is the opposite: tracks will only
+        crossfade when manually skipped.  If set to \setting{Shuffle}, crossfade
+        is enabled for all track changes, automatic or manual, when the shuffle
+        feature is set to \setting{Yes}, but disabled otherwise.  If set to
+        \setting{Shuffle or Manual Track Skip} then crossfade will be active
+        either when shuffle is set to \setting{Yes} or the track is manually
+        skipped.  If set to \setting{Always}, tracks will always crossfade into
+        one another.
         %
-      \item[Track Gain.] Maintain a constant volume level between
-        tracks. If track gain value is not available, no replaygain 
-        is applied.
+      \item[Fade In Delay.] The ``fade in delay'' is the length of time between
+        when the crossfade process begins and when the new track begins to fade
+        in.
         %
-      \item[Track Gain If Shuffling.] Maintains a constant volume
-        between tracks if \setting{Shuffle} is set to \setting{Yes}.
-        Reverts to album mode if \setting{Shuffle} is set to \setting{No}.
+      \item[Fade In Duration.] The length of time, in seconds, that it takes
+        your music to fade in once the \setting{Fade In Delay} has ended.
         %
-      \item[Off.] Do not process replaygain information, i.e. turn off
-        the replaygain function.
+      \item[Fade Out Delay.] The ``fade out delay'' is the length of time
+        between when the crossfade process begins and when the old track begins
+        to fade out.
+        %
+      \item[Fade Out Duration.] The length of time, in seconds, that it takes
+        your music to fade out once the \setting{Fade Out Delay} has ended.
+        %
+      \item[Fade Out Mode.] If set to \setting{Crossfade}, one song will fade
+        out and the next song will simultaneously fade in. If set to 
+        \setting{Mix}, the ending song will not fade out at all, and will
+        continue to play as normal until its end with the starting song fading
+        in from under it. \setting{Mix} mode is not used for manual track skips,
+        even if it is selected here.
       \end{description}
-      %
-    \item[Prevent Clipping.] Avoid clipping of a song's waveform.
-      If a song would clip during playback, the volume is lowered for 
-      that song. Replaygain information is needed for this to work.
-      %
-    \item[Pre-amp.] This allows you to adjust the volume when replaygain
-      is applied. Replaygain often lowers the volume, sometimes quite
-      much, so here you can compensate for that. Please note that a
-      (large) positive pre-amp setting can cause clipping, unless
-      prevent clipping is enabled.  The pre-amp can be set to any
-      decibel (dB) value between -12~dB and +12~dB, in increments of 0.5~dB.
-    \end{description}
+      
+      \note{The rules above apply except in the instance where
+          \setting{Fade Out Delay} plus \setting{Fade Out Duration} is less then
+          \setting{Fade In Delay} (which would create a gap in the audio). In this case,
+          the \setting{Fade In Delay} is reduced to eliminate the gap.\\}
 
-\section{Track Skip Beep}
-  Controls the volume of the beep that is heard when
-  skipping forward or backward between tracks. The beep is disabled when
-  set to \setting{Off}.
+          The graphic below illustrates how the different settings work in practice.
+
+         \includegraphics[width=14cm]{configure_rockbox/images/crossfade_graphic.png}
+    }%\opt{crossfade}
+    
+  \section{\label{ref:ReplayGain}Replaygain}
+    This allows you to control the replaygain function.
+    The purpose of replaygain is to adjust the volume of the music played
+    so that all songs (or albums, depending on your settings) have the
+    same apparent volume. This prevents sudden changes in volume when
+    changing between songs recorded at different volume levels.
+    For replaygain to work, the songs must have been processed by a program
+    that adds replaygain information to the ID3 tags (or Vorbis tags).\\
+      
+    Options for replaygain are:
+    \begin{description}
+      \item[Replaygain Type.] Choose the type of replaygain to apply:
+        \begin{description}
+        \item[Album Gain.] Maintain a constant volume level between
+          albums, but keep any intentional volume variations between 
+          songs in an album. (If album gain value is not available,
+          uses track gain information).
+          %
+        \item[Track Gain.] Maintain a constant volume level between
+          tracks. If track gain value is not available, no replaygain 
+          is applied.
+          %
+        \item[Track Gain If Shuffling.] Maintains a constant volume
+          between tracks if \setting{Shuffle} is set to \setting{Yes}.
+          Reverts to album mode if \setting{Shuffle} is set to \setting{No}.
+          %
+        \item[Off.] Do not process replaygain information, i.e. turn off
+          the replaygain function.
+        \end{description}
+        %
+      \item[Prevent Clipping.] Avoid clipping of a song's waveform.
+        If a song would clip during playback, the volume is lowered for 
+        that song. Replaygain information is needed for this to work.
+        %
+      \item[Pre-amp.] This allows you to adjust the volume when replaygain
+        is applied. Replaygain often lowers the volume, sometimes quite
+        much, so here you can compensate for that. Please note that a
+        (large) positive pre-amp setting can cause clipping, unless
+        prevent clipping is enabled.  The pre-amp can be set to any
+        decibel (dB) value between -12~dB and +12~dB, in increments of 0.5~dB.
+      \end{description}
+
+  \section{Track Skip Beep}
+    Controls the volume of the beep that is heard when
+    skipping forward or backward between tracks. The beep is disabled when
+    set to \setting{Off}.
+}%\opt{swcodec}
 
 \opt{spdif_power}{
   \section{\label{ref:SPDIF_OnOff}Optical Output}
@@ -224,10 +224,10 @@ you to configure settings related to audio playback.
   %
 
 \section{\label{ref:ConstrainAutoChange}Constrain Auto-Change}
-  If enabled and you have set \setting{Start Directory} to a directory
+  If enabled and you have set \setting{Start File Browser Here} to a directory
   other than root, \setting{Auto-Change Directory} will be constrained to the
   directory you have chosen and those below it.
-  See \reference{ref:StartDirectory}.
+  See \reference{ref:StartFileBrowserHere}.
   %
 
 \opt{headphone_detection}{
@@ -254,6 +254,18 @@ you to configure settings related to audio playback.
   \end{description}
 
 }%
+
+\section{Last.fm Log}\index{Last.fm Log}\index{Audioscrobbler|see{Last.fm Log}}
+  Enables logging of your played tracks for submission to 
+  \url{http://www.last.fm}. This service was formerly known as 
+  \emph{Audioscrobbler}. When you enable this option, you'll have to reboot to
+  start the logging. The log-file is called 
+  \opt{rtc}{\fname{.scrobbler.log},}%
+  \nopt{rtc}{\fname{.scrobbler-timeless.log},}%
+  and is to be found in the root directory of your \dap{}.\\
+
+  \note{See \wikilink{LastFMLog} for a further description, and for tools you 
+    can use to submit your Last.fm log.}
 
 \section{Cuesheet Support}\index{Cuesheet Support}
   Enables reading of cuesheet files for played tracks. If a cuesheet is found
@@ -287,41 +299,32 @@ you to configure settings related to audio playback.
   if a track ends, which can be achieved by combining this option with
   \setting{Repeat} set to \setting{One}
 
-\section{Rewind Across Tracks}\index{Rewind Across Tracks}
-  Enables rewinding to the end of the previous track. When enabled pressing rewind
-  at the very beginning of the current track (first 3 seconds) skips to the end of
-  the previous track.
-
-\section{Rewind Before Resume}\index{Rewind Before Resume}
-  When restarting a track or a bookmark, a short rewind can be done before the
-  playback is started. This can be useful when listening to speech material,
-  to help remember what was being said just before playback was stopped.
-  The size of the rewind can be set to various values between 0 (off) and
-  60 seconds.
-  \note{This option does not apply to resuming a paused track.  Use
-    the next option for rewinding on pause.}
-  \note{The actual rewind distance may differ a little from the requested
-    value, depending on the file in question.}
+\opt{swcodec}{
+  \section{Rewind Before Resume}\index{Rewind Before Resume}
+    When restarting a track or a bookmark, a short rewind can be done before the
+    playback is started. This can be useful when listening to speech material,
+    to help remember what was being said just before playback was stopped.
+    The size of the rewind can be set to various values between 0 (off) and
+    60 seconds.
+    \note{This option does not apply to resuming a paused track.  Use
+      the next option for rewinding on pause.}
+    \note{The actual rewind distance may differ a little from the requested
+      value, depending on the file in question.}
+}%\opt{swcodec}
 
 \section{Rewind on Pause}\index{Rewind on Pause}
   This option rewinds the current track by a small amount whenever it is
   paused (not stopped).  The amount to rewind can be set between 0 and
   15 seconds.
 
-\opt{play_frequency}{
-  \section{Frequency}\index{Frequency}
-    This is the sampling frequency used for the rockbox playback engine.  Audio
-    at a different sampling rate will be converted to this sampling rate prior to
-    mixing using a cubic Hermite polynomial resampler.
-    \note{For best quality and battery life, select the sampling rate used by
-    your audio.  This is typically 44.1kHz.}
-    \note{Opus files are always 48kHz.}
-}
-
-\opt{albumart}{
-  \section{Album Art}
-    Album art will not be loaded or displayed when set to \setting{Off}.
-    To prefer loading album art that is stored in a separate image file, set to
-    \setting{Prefer Image File}. The default behavior is to
-    \setting{Prefer Embedded} album art.
-}
+\opt{swcodec}{
+  \opt{play_frequency}{
+    \section{Frequency}\index{Frequency}
+      This is the sampling frequency used for the rockbox playback engine.  Audio
+      at a different sampling rate will be converted to this sampling rate prior to
+      mixing using a cubic Hermite polynomial resampler.
+      \note{For best quality and battery life, select the sampling rate used by
+      your audio.  This is typically 44.1kHz.}
+      \note{Opus files are always 48kHz.}
+  }
+}%\opt{swcodec}

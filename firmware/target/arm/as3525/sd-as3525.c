@@ -89,8 +89,6 @@
     | MCI_CMD_CRC_FAIL)
 
 #define MCI_FIFO(i)        ((unsigned long *) (pl180_base[i]+0x80))
-
-#define IDE_INTERFACE_CLK  (1<<6) /* non AHB interface */
 /* volumes */
 #define     INTERNAL_AS3525 0   /* embedded SD card */
 #define     SD_SLOT_AS3525   1   /* SD slot if present */
@@ -111,8 +109,7 @@ static void init_pl180_controller(const int drive);
 
 static tCardInfo card_info[NUM_DRIVES];
 
-/* maximum timeouts recommended in the SD Specification v2.00 */
-/* MCI_DATA_TIMER register data timeout in card bus clock periods */
+/* maximum timeouts recommanded in the SD Specification v2.00 */
 #define SD_MAX_READ_TIMEOUT     ((AS3525_PCLK_FREQ) / 1000 * 100) /* 100 ms */
 #define SD_MAX_WRITE_TIMEOUT    ((AS3525_PCLK_FREQ) / 1000 * 250) /* 250 ms */
 
@@ -146,17 +143,7 @@ static unsigned char *uncached_buffer = AS3525_UNCACHED_ADDR(&aligned_buffer[0])
 
 static inline void mci_delay(void) { udelay(1000) ; }
 
-static inline bool card_detect_target(void)
-{
-#if defined(HAVE_MULTIDRIVE)
-    return !(GPIOA_PIN(2));
-#else
-    return false;
-#endif
-}
-
-#if defined(HAVE_MULTIDRIVE) || defined(HAVE_HOTSWAP)
-static void enable_controller_mci(bool on)
+static void enable_controller(bool on)
 {
 
 #if defined(HAVE_BUTTON_LIGHT) && defined(HAVE_MULTIDRIVE)
@@ -210,34 +197,16 @@ static void enable_controller_mci(bool on)
 #endif
     }
 }
-#endif /* defined(HAVE_MULTIDRIVE) || defined(HAVE_HOTSWAP) */
 
-/* AMS v1 have two different drive interfaces MCI_SD(XPD) and GGU_IDE */
-static void enable_controller(bool on, const int drive)
+static inline bool card_detect_target(void)
 {
-
-    if (drive == INTERNAL_AS3525)
-    {
-#ifndef BOOTLOADER
-        if (on)
-        {
-            bitset32(&CGU_PERI, CGU_NAF_CLOCK_ENABLE);
-            CGU_IDE |= IDE_INTERFACE_CLK;    /* interface enable */
-        }
-        else
-        {
-            CGU_IDE &= ~(IDE_INTERFACE_CLK);  /* interface disable */
-            bitclr32(&CGU_PERI, CGU_NAF_CLOCK_ENABLE);
-        }
+#if defined(HAVE_MULTIDRIVE)
+    return !(GPIOA_PIN(2));
 #else
-    (void) on;
-#endif /* ndef BOOTLOADER */
-    }
-#if defined(HAVE_MULTIDRIVE) || defined(HAVE_HOTSWAP)
-    else
-        enable_controller_mci(on);
+    return false;
 #endif
 }
+
 
 #ifdef HAVE_HOTSWAP
 static int sd1_oneshot_callback(struct timeout *tmo)
@@ -357,7 +326,6 @@ static bool send_cmd(const int drive, const int cmd, const int arg,
     return false;
 }
 
-/* MCI_CLOCK = MCLK / 2x(ClkDiv[bits 7:0]+1) */
 #define MCI_FULLSPEED     (MCI_CLOCK_ENABLE | MCI_CLOCK_BYPASS)     /* MCLK   */
 #define MCI_HALFSPEED     (MCI_CLOCK_ENABLE)                        /* MCLK/2 */
 #define MCI_QUARTERSPEED  (MCI_CLOCK_ENABLE | 1)                    /* MCLK/4 */
@@ -377,7 +345,7 @@ static int sd_init_card(const int drive)
     /* 100 - 400kHz clock required for Identification Mode  */
     /*  Start of Card Identification Mode ************************************/
 
-    /* CMD0 Go Idle  -- all card functions switch back to default */
+    /* CMD0 Go Idle  */
     if(!send_cmd(drive, SD_GO_IDLE_STATE, 0, MCI_NO_RESP, NULL))
         return -1;
     mci_delay();
@@ -425,10 +393,10 @@ static int sd_init_card(const int drive)
 
         if(sd_wait_for_tran_state(drive))
             return -6;
-        /* CMD6 0xf indicates no influence, [3:0],0x1 - HS Access*/
+        /* CMD6 */
         if(!send_cmd(drive, SD_SWITCH_FUNC, 0x80fffff1, MCI_NO_RESP, NULL))
             return -7;
-        sleep(HZ/10);/* need to wait at least 8 clock periods */
+        sleep(HZ/10);
 
         /*  go back to STBY state so we can read csd */
         /*  CMD7 w/rca=0:  Deselect card to put it in STBY state */
@@ -446,7 +414,7 @@ static int sd_init_card(const int drive)
     sd_parse_csd(&card_info[drive]);
 
 #if defined(HAVE_MULTIDRIVE)
-    hs_card = (card_info[drive].speed >= 50000000);
+    hs_card = (card_info[drive].speed == 50000000);
 #endif
 
     /* Boost MCICLK to operating speed */
@@ -455,8 +423,7 @@ static int sd_init_card(const int drive)
 #if defined(HAVE_MULTIDRIVE)
     else
         /* MCICLK = PCLK/2 = 31MHz(HS) or PCLK/4 = 15.5 Mhz (STD)*/
-        MCI_CLOCK(drive) = (hs_card ? MCI_HALFSPEED : MCI_QUARTERSPEED) |
-                           MCI_CLOCK_POWERSAVE; /* SD supports powersave */
+        MCI_CLOCK(drive) = (hs_card ? MCI_HALFSPEED : MCI_QUARTERSPEED);
 #endif
 
     /*  CMD7 w/rca: Select card to put it in TRAN state */
@@ -550,7 +517,7 @@ static void init_pl180_controller(const int drive)
 int sd_init(void)
 {
     int ret;
-    CGU_IDE =   IDE_INTERFACE_CLK       /* enable interface */
+    CGU_IDE =   (1<<6)                  /*  enable non AHB interface*/
             |   (AS3525_IDE_DIV << 2)
             |    AS3525_CLK_PLLA;       /* clock source = PLLA */
 
@@ -573,9 +540,7 @@ int sd_init(void)
     /* init mutex */
     mutex_init(&sd_mtx);
 
-    for (int i = 0; i < NUM_DRIVES ; i++)
-        enable_controller(false, i);
-
+    enable_controller(false);
     return 0;
 }
 
@@ -680,7 +645,7 @@ static int sd_select_bank(signed char bank)
     return 0;
 }
 
-static int sd_transfer_sectors(IF_MD(int drive,) sector_t start,
+static int sd_transfer_sectors(IF_MD(int drive,) unsigned long start,
                                int count, void* buf, const bool write)
 {
 #ifndef HAVE_MULTIDRIVE
@@ -691,7 +656,7 @@ static int sd_transfer_sectors(IF_MD(int drive,) sector_t start,
     unsigned long response;
     bool aligned = !((uintptr_t)buf & (CACHEALIGN_SIZE - 1));
 
-    enable_controller(true, drive);
+    enable_controller(true);
     led(true);
 
     if (card_info[drive].initialized <= 0)
@@ -727,16 +692,17 @@ static int sd_transfer_sectors(IF_MD(int drive,) sector_t start,
         else
             discard_dcache_range(buf, count * SECTOR_SIZE);
     }
-    const int cmd = write ? SD_WRITE_MULTIPLE_BLOCK : SD_READ_MULTIPLE_BLOCK;
-    while(count > 0)
+
+    while(count)
     {
         /* 128 * 512 = 2^16, and doesn't fit in the 16 bits of DATA_LENGTH
          * register, so we have to transfer maximum 127 sectors at a time. */
         unsigned int transfer = (count >= 128) ? 127 : count; /* sectors */
         void *dma_buf;
-
-        sector_t bank_start = start;
-        // XXX 64-bit sectors?
+        const int cmd =
+            write ? SD_WRITE_MULTIPLE_BLOCK : SD_READ_MULTIPLE_BLOCK;
+        unsigned long bank_start = start;
+        unsigned long status;
 
         /* Only switch banks for internal storage */
         if(drive == INTERNAL_AS3525)
@@ -804,7 +770,10 @@ static int sd_transfer_sectors(IF_MD(int drive,) sector_t start,
             /*Small delay for writes prevents data crc failures at lower freqs*/
 #ifdef HAVE_MULTIDRIVE
             if((drive == SD_SLOT_AS3525) && !hs_card)
-                udelay(4);
+            {
+                int write_delay = 125;
+                while(write_delay--);
+            }
 #endif
         }
         else
@@ -835,7 +804,7 @@ static int sd_transfer_sectors(IF_MD(int drive,) sector_t start,
 
         last_disk_activity = current_tick;
 
-        if(!send_cmd(drive, SD_STOP_TRANSMISSION, 0, MCI_RESP, &response))
+        if(!send_cmd(drive, SD_STOP_TRANSMISSION, 0, MCI_RESP, &status))
         {
             ret = -4*20;
             goto sd_transfer_error;
@@ -862,7 +831,7 @@ sd_transfer_error:
 sd_transfer_error_nodma:
 
     led(false);
-    enable_controller(false, drive);
+    enable_controller(false);
 
     if (ret)    /* error */
         card_info[drive].initialized = 0;
@@ -870,7 +839,7 @@ sd_transfer_error_nodma:
     return ret;
 }
 
-int sd_read_sectors(IF_MD(int drive,) sector_t start, int count,
+int sd_read_sectors(IF_MD(int drive,) unsigned long start, int count,
                      void* buf)
 {
     int ret;
@@ -882,11 +851,11 @@ int sd_read_sectors(IF_MD(int drive,) sector_t start, int count,
     return ret;
 }
 
-int sd_write_sectors(IF_MD(int drive,) sector_t start, int count,
+int sd_write_sectors(IF_MD(int drive,) unsigned long start, int count,
                      const void* buf)
 {
 #ifdef VERIFY_WRITE
-    sector_t saved_start = start;
+    unsigned long saved_start = start;
     int saved_count = count;
     void *saved_buf = (void*)buf;
 #endif
@@ -953,18 +922,12 @@ void ams_sd_get_debug_info(struct ams_sd_debug_info *info)
     #define MCI_SD   *((volatile unsigned long *)(SD_MCI_BASE + 0x04))
 
     mutex_lock(&sd_mtx);
-
-    for (int i = 0; i < NUM_DRIVES ; i++)
-        enable_controller(true, i); /* must be on to read regs */
-
+    enable_controller(true); /* must be on to read regs */
     info->mci_nand = MCI_NAND;
 #ifdef HAVE_MULTIDRIVE
     info->mci_sd = MCI_SD;
 #endif
-
-    for (int i = 0; i < NUM_DRIVES ; i++)
-        enable_controller(false, i);
-
+    enable_controller(false);
     mutex_unlock(&sd_mtx);
 }
 
@@ -985,10 +948,10 @@ int sd_event(long id, intptr_t data)
 
         if (id == SYS_HOTSWAP_INSERTED)
         {
-            enable_controller(true, data);
+            enable_controller(true);
             init_pl180_controller(data);
             rc = sd_init_card(data);
-            enable_controller(false, data);
+            enable_controller(false);
         }
 
         mutex_unlock(&sd_mtx);

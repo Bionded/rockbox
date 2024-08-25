@@ -21,8 +21,54 @@
 #include "plugin.h"
 #include "lib/playback_control.h"
 
+
+
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define CHC_QUIT BUTTON_OFF
+#define CHC_STARTSTOP BUTTON_PLAY
+#define CHC_RESET BUTTON_LEFT
+#define CHC_MENU BUTTON_F1
+#define CHC_SETTINGS_INC BUTTON_UP
+#define CHC_SETTINGS_DEC BUTTON_DOWN
+#define CHC_SETTINGS_OK BUTTON_PLAY
+#define CHC_SETTINGS_OK2 BUTTON_LEFT
+#define CHC_SETTINGS_CANCEL BUTTON_OFF
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define CHC_QUIT BUTTON_OFF
+#define CHC_STARTSTOP BUTTON_SELECT
+#define CHC_RESET BUTTON_LEFT
+#define CHC_MENU BUTTON_F1
+#define CHC_SETTINGS_INC BUTTON_UP
+#define CHC_SETTINGS_DEC BUTTON_DOWN
+#define CHC_SETTINGS_OK BUTTON_SELECT
+#define CHC_SETTINGS_OK2 BUTTON_LEFT
+#define CHC_SETTINGS_CANCEL BUTTON_OFF
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define CHC_QUIT BUTTON_OFF
+#define CHC_STARTSTOP BUTTON_RIGHT
+#define CHC_RESET BUTTON_LEFT
+#define CHC_MENU BUTTON_MENU
+#define CHC_SETTINGS_INC BUTTON_UP
+#define CHC_SETTINGS_DEC BUTTON_DOWN
+#define CHC_SETTINGS_OK BUTTON_RIGHT
+#define CHC_SETTINGS_OK2 BUTTON_LEFT
+#define CHC_SETTINGS_CANCEL BUTTON_MENU
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+#define CHC_QUIT BUTTON_ON
+#define CHC_STARTSTOP BUTTON_PLAY
+#define CHC_RESET BUTTON_STOP
+#define CHC_MENU BUTTON_MENU
+#define CHC_SETTINGS_INC BUTTON_RIGHT
+#define CHC_SETTINGS_DEC BUTTON_LEFT
+#define CHC_SETTINGS_OK BUTTON_PLAY
+#define CHC_SETTINGS_CANCEL BUTTON_STOP
+#define CHC_SETTINGS_CANCEL2 BUTTON_MENU
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define CHC_QUIT BUTTON_SELECT
 #define CHC_STARTSTOP BUTTON_ON
@@ -45,6 +91,16 @@
 #define CHC_SETTINGS_DEC BUTTON_SCROLL_BACK
 #define CHC_SETTINGS_OK BUTTON_SELECT
 #define CHC_SETTINGS_CANCEL BUTTON_MENU
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define CHC_QUIT BUTTON_PLAY
+#define CHC_STARTSTOP BUTTON_MODE
+#define CHC_RESET BUTTON_EQ
+#define CHC_MENU BUTTON_SELECT
+#define CHC_SETTINGS_INC BUTTON_RIGHT
+#define CHC_SETTINGS_DEC BUTTON_LEFT
+#define CHC_SETTINGS_OK BUTTON_SELECT
+#define CHC_SETTINGS_CANCEL BUTTON_PLAY
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define CHC_QUIT BUTTON_REC
@@ -145,6 +201,17 @@
 #define CHC_MENU            BUTTON_MENU
 #define CHC_SETTINGS_INC    BUTTON_PLUS
 #define CHC_SETTINGS_DEC    BUTTON_MINUS
+#define CHC_SETTINGS_CANCEL BUTTON_POWER
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define CHC_QUIT BUTTON_POWER
+#define CHC_STARTSTOP BUTTON_PLAY
+#define CHC_RESET BUTTON_LEFT
+#define CHC_MENU BUTTON_MENU
+#define CHC_SETTINGS_INC BUTTON_VOLUP
+#define CHC_SETTINGS_DEC BUTTON_VOLDOWN
+#define CHC_SETTINGS_OK BUTTON_PLAY
+#define CHC_SETTINGS_OK2 BUTTON_LEFT
 #define CHC_SETTINGS_CANCEL BUTTON_POWER
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
@@ -345,7 +412,7 @@
 #define CHC_SETTINGS_CANCEL BUTTON_RIGHT
 #define CHC_SETTINGS_OK     (BUTTON_SELECT|BUTTON_REPEAT)
 
-#elif (CONFIG_KEYPAD == XDUOO_X3_PAD) || (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define CHC_QUIT            BUTTON_POWER
 #define CHC_STARTSTOP       BUTTON_PLAY
 #define CHC_RESET           BUTTON_OPTION
@@ -355,17 +422,7 @@
 #define CHC_SETTINGS_OK     BUTTON_PLAY
 #define CHC_SETTINGS_CANCEL BUTTON_POWER
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define CHC_QUIT            BUTTON_POWER
-#define CHC_STARTSTOP       BUTTON_PLAY
-#define CHC_RESET           BUTTON_OPTION
-#define CHC_MENU            BUTTON_HOME
-#define CHC_SETTINGS_INC    BUTTON_NEXT
-#define CHC_SETTINGS_DEC    BUTTON_PREV
-#define CHC_SETTINGS_OK     BUTTON_PLAY
-#define CHC_SETTINGS_CANCEL BUTTON_POWER
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define CHC_QUIT            BUTTON_POWER
 #define CHC_STARTSTOP       BUTTON_PLAY
 #define CHC_RESET           (BUTTON_PLAY|BUTTON_REPEAT)
@@ -375,28 +432,15 @@
 #define CHC_SETTINGS_OK     BUTTON_PLAY
 #define CHC_SETTINGS_CANCEL BUTTON_HOME
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define CHC_QUIT            BUTTON_POWER
 #define CHC_STARTSTOP       BUTTON_PLAY
-#define CHC_RESET           BUTTON_BACK
-#define CHC_MENU            BUTTON_MENU
-#define CHC_SETTINGS_INC    BUTTON_NEXT
-#define CHC_SETTINGS_DEC    BUTTON_PREV
+#define CHC_RESET           (BUTTON_PLAY|BUTTON_REPEAT)
+#define CHC_MENU            BUTTON_HOME
+#define CHC_SETTINGS_INC    BUTTON_VOL_UP
+#define CHC_SETTINGS_DEC    BUTTON_VOL_DOWN
 #define CHC_SETTINGS_OK     BUTTON_PLAY
-#define CHC_SETTINGS_CANCEL BUTTON_POWER
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define CHC_QUIT            BUTTON_POWER
-#define CHC_STARTSTOP       BUTTON_PLAY
-#define CHC_RESET           BUTTON_BACK
-#define CHC_MENU            BUTTON_MENU
-#define CHC_SETTINGS_INC    BUTTON_UP
-#define CHC_SETTINGS_DEC    BUTTON_DOWN
-#define CHC_SETTINGS_OK     BUTTON_SELECT
-#define CHC_SETTINGS_CANCEL BUTTON_POWER
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#define CHC_QUIT            BUTTON_POWER
+#define CHC_SETTINGS_CANCEL BUTTON_HOME
 
 #else
 #error No keymap defined!
@@ -428,7 +472,11 @@
 
 
 /* leave first line blank on bitmap display, for pause icon */
+#ifdef HAVE_LCD_BITMAP
 #define FIRST_LINE 1
+#else
+#define FIRST_LINE 0
+#endif
 
 #define MAX_PLAYERS 10
 
@@ -453,7 +501,7 @@ static struct {
 } timer_holder[MAX_PLAYERS];
 
 static int run_timer(int nr);
-static int chessclock_set_int(char* string,
+static int chessclock_set_int(char* string, 
                               int* variable,
                               int step,
                               int min,
@@ -573,6 +621,7 @@ enum plugin_status plugin_start(const void* parameter)
     return PLUGIN_OK;
 }
 
+#ifdef HAVE_LCD_BITMAP
 static void show_pause_mode(bool enabled)
 {
     static const char pause_icon[] = {0x00,0x7f,0x7f,0x00,0x7f,0x7f,0x00};
@@ -586,6 +635,9 @@ static void show_pause_mode(bool enabled)
         rb->lcd_set_drawmode(DRMODE_SOLID);
     }
 }
+#else
+#define show_pause_mode(enabled)  rb->lcd_icon(ICON_PAUSE, enabled)
+#endif
 
 static int run_timer(int nr)
 {
@@ -616,19 +668,15 @@ static int run_timer(int nr)
                 rb->lcd_puts(0, FIRST_LINE+1, (unsigned char *)"ROUND UP!");
             else
                 rb->lcd_puts(0, FIRST_LINE+1, (unsigned char *)"TIME OUT!");
-#ifdef HAVE_BACKLIGHT
             rb->backlight_on();
-#endif
             ticks = max_ticks;
         } else {
             now=*rb->current_tick;
             if (!chesspause) {
                 ticks+=now-last_tick;
                 if ((max_ticks-ticks)/HZ == 10) {
-#ifdef HAVE_BACKLIGHT
-                    /* Backlight on if 10 seconds remain */
+                     /* Backlight on if 10 seconds remain */
                     rb->backlight_on();
-#endif
                 }
             }
             last_tick=now;
@@ -756,7 +804,7 @@ static int run_timer(int nr)
     return retval;
 }
 
-static int chessclock_set_int(char* string,
+static int chessclock_set_int(char* string, 
                               int* variable,
                               int step,
                               int min,
@@ -828,3 +876,4 @@ static char * show_time(int seconds)
     rb->snprintf(buf, sizeof(buf), "%02d:%02d", seconds/60, seconds%60);
     return buf;
 }
+

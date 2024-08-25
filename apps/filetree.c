@@ -44,10 +44,8 @@
 #include "filetree.h"
 #include "misc.h"
 #include "strnatcmp.h"
+#ifdef HAVE_LCD_BITMAP
 #include "keyboard.h"
-
-#ifdef HAVE_MULTIVOLUME
-#include "mv.h"
 #endif
 
 #if CONFIG_TUNER
@@ -55,69 +53,33 @@
 #endif
 #include "wps.h"
 
-static struct compare_data
-{
-    int sort_dir; /* qsort key for sorting directories */
-    int(*_compar)(const char*, const char*, size_t);
-} cmp_data;
-
-/* dummmy functions to allow compatibility with strncmp & strncasecmp */
-static int strnatcmp_n(const char *a, const char *b, size_t n)
-{
-    (void)n;
-     return strnatcmp(a, b);
-}
-static int strnatcasecmp_n(const char *a, const char *b, size_t n)
-{
-    (void)n;
-     return strnatcasecmp(a, b);
-}
+static int compare_sort_dir; /* qsort key for sorting directories */
 
 int ft_build_playlist(struct tree_context* c, int start_index)
 {
     int i;
     int start=start_index;
-    int res;
-    struct playlist_info *playlist = playlist_get_current();
 
     tree_lock_cache(c);
     struct entry *entries = tree_get_entries(c);
 
-    struct playlist_insert_context pl_context;
-
-    res = playlist_insert_context_create(playlist, &pl_context,
-                                        PLAYLIST_REPLACE, false, false);
-    if (res >= 0)
+    for(i = 0;i < c->filesindir;i++)
     {
-        cpu_boost(true);
-        for(i = 0;i < c->filesindir;i++)
+        if((entries[i].attr & FILE_ATTR_MASK) == FILE_ATTR_AUDIO)
         {
-#if 0 /*only needed if displaying progress */
-            /* user abort */
-            if (action_userabort(TIMEOUT_NOBLOCK))
-            {
+            if (playlist_add(entries[i].name) < 0)
                 break;
-            }
-#endif
-            if((entries[i].attr & FILE_ATTR_MASK) == FILE_ATTR_AUDIO)
-            {
-                res = playlist_insert_context_add(&pl_context, entries[i].name);
-                if (res < 0)
-                    break;
-            }
-            else
-            {
-                /* Adjust the start index when se skip non-MP3 entries */
-                if(i < start)
-                    start_index--;
-            }
         }
-        cpu_boost(false);
+        else
+        {
+            /* Adjust the start index when se skip non-MP3 entries */
+            if(i < start)
+                start_index--;
+        }
     }
-    
-    playlist_insert_context_release(&pl_context);
 
     tree_unlock_cache(c);
+
     return start_index;
 }
 
@@ -126,32 +88,40 @@ int ft_build_playlist(struct tree_context* c, int start_index)
  * or started via bookmark autoload, true otherwise.
  *
  * Pointers to both the full pathname and the separated parts needed to
- * avoid allocating yet another path buffer on the stack (and save some
+ * avoid allocating yet another path buffer on the stack (and save some 
  * code; the caller typically needs to create the full pathname anyway)...
  */
 bool ft_play_playlist(char* pathname, char* dirname, char* filename)
 {
-    if (global_settings.party_mode && audio_status())
+    if (global_settings.party_mode && audio_status()) 
     {
         splash(HZ, ID2P(LANG_PARTY_MODE));
         return false;
     }
 
-    int res =  bookmark_autoload(pathname);
-    if (res == BOOKMARK_CANCEL || res == BOOKMARK_DO_RESUME || !warn_on_pl_erase())
+    if (bookmark_autoload(pathname))
+    {
         return false;
+    }
 
     splash(0, ID2P(LANG_WAIT));
+
+    /* about to create a new current playlist...
+       allow user to cancel the operation */
+    if (!warn_on_pl_erase())
+        return false;
 
     if (playlist_create(dirname, filename) != -1)
     {
         if (global_settings.playlist_shuffle)
+        {
             playlist_shuffle(current_tick, -1);
-
+        }
+        
         playlist_start(0, 0, 0);
         return true;
     }
-
+    
     return false;
 }
 
@@ -224,13 +194,9 @@ static int compare(const void* p1, const void* p2)
     struct entry* e2 = (struct entry*)p2;
     int criteria;
 
-    if (cmp_data.sort_dir == SORT_AS_FILE)
-    {   /* treat as two files */
-        criteria = global_settings.sort_file;
-    }
-    else if (e1->attr & ATTR_DIRECTORY && e2->attr & ATTR_DIRECTORY)
+    if (e1->attr & ATTR_DIRECTORY && e2->attr & ATTR_DIRECTORY)
     {   /* two directories */
-        criteria = cmp_data.sort_dir;
+        criteria = compare_sort_dir;
 
 #ifdef HAVE_MULTIVOLUME
         if (e1->attr & ATTR_VOLUME || e2->attr & ATTR_VOLUME)
@@ -265,23 +231,41 @@ static int compare(const void* p1, const void* p2)
 
             if (t1 != t2) /* if different */
                 return (t1 - t2) * (criteria == SORT_TYPE_REVERSED ? -1 : 1);
-            /* else alphabetical sorting */
-            return cmp_data._compar(e1->name, e2->name, MAX_PATH);
+            /* else fall through to alphabetical sorting */
         }
 
         case SORT_DATE:
         case SORT_DATE_REVERSED:
-        {
-            if (e1->time_write != e2->time_write)
-                return (e1->time_write - e2->time_write)
-                       * (criteria == SORT_DATE_REVERSED ? -1 : 1);
-            /* else fall through to alphabetical sorting */
-        }
+            /* Ignore SORT_TYPE */
+            if (criteria == SORT_DATE || criteria == SORT_DATE_REVERSED)
+            {
+                if (e1->time_write != e2->time_write)
+                    return (e1->time_write - e2->time_write)
+                           * (criteria == SORT_DATE_REVERSED ? -1 : 1);
+                /* else fall through to alphabetical sorting */
+            }
+
         case SORT_ALPHA:
         case SORT_ALPHA_REVERSED:
         {
-            return cmp_data._compar(e1->name, e2->name, MAX_PATH) *
-                (criteria == SORT_ALPHA_REVERSED ? -1 : 1);
+            if (global_settings.sort_case)
+            {
+                if (global_settings.interpret_numbers == SORT_INTERPRET_AS_NUMBER)
+                    return strnatcmp(e1->name, e2->name)
+                           * (criteria == SORT_ALPHA_REVERSED ? -1 : 1);
+                else
+                    return strncmp(e1->name, e2->name, MAX_PATH)
+                           * (criteria == SORT_ALPHA_REVERSED ? -1 : 1);
+            }
+            else
+            {
+                if (global_settings.interpret_numbers == SORT_INTERPRET_AS_NUMBER)
+                    return strnatcasecmp(e1->name, e2->name)
+                           * (criteria == SORT_ALPHA_REVERSED ? -1 : 1);
+                else
+                    return strncasecmp(e1->name, e2->name, MAX_PATH)
+                           * (criteria == SORT_ALPHA_REVERSED ? -1 : 1);
+            }
         }
 
     }
@@ -291,17 +275,11 @@ static int compare(const void* p1, const void* p2)
 /* load and sort directory into the tree's cache. returns NULL on failure. */
 int ft_load(struct tree_context* c, const char* tempdir)
 {
-    if (c->out_of_tree > 0) /* something else is loaded */
-        return 0;
-
     int files_in_dir = 0;
     int name_buffer_used = 0;
     struct dirent *entry;
     bool (*callback_show_item)(char *, int, struct tree_context *) = NULL;
     DIR *dir;
-
-    if (!c->is_browsing)
-        c->browse = NULL;
 
     if (tempdir)
         dir = opendir(tempdir);
@@ -321,25 +299,23 @@ int ft_load(struct tree_context* c, const char* tempdir)
         int len;
         struct dirinfo info;
         struct entry* dptr = tree_get_entry_at(c, files_in_dir);
-        if (!dptr)
-        {
-            c->dirfull = true;
+        if (!entry)
             break;
-        }
 
         info = dir_get_info(dir, entry);
         len = strlen((char *)entry->d_name);
+
+        /* skip directories . and .. */
+        if ((info.attribute & ATTR_DIRECTORY) &&
+            (((len == 1) && (!strncmp((char *)entry->d_name, ".", 1))) ||
+             ((len == 2) && (!strncmp((char *)entry->d_name, "..", 2))))) {
+            continue;
+        }
 
         /* Skip FAT volume ID */
         if (info.attribute & ATTR_VOLUME_ID) {
             continue;
         }
-
-        dptr->attr = info.attribute;
-        int dir_attr = (dptr->attr & ATTR_DIRECTORY);
-        /* skip directories . and .. */
-        if (dir_attr && is_dotdir_name(entry->d_name))
-            continue;
 
         /* filter out dotfiles and hidden files */
         if (*c->dirfilter != SHOW_ALL &&
@@ -348,53 +324,51 @@ int ft_load(struct tree_context* c, const char* tempdir)
             continue;
         }
 
-        if (*c->dirfilter == SHOW_PLUGINS && (dptr->attr & ATTR_DIRECTORY) &&
-            (dptr->attr &
-            (ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID | ATTR_VOLUME)) != 0) {
-            continue; /* skip non plugin folders */
-        }
+        dptr->attr = info.attribute;
 
         /* check for known file types */
-        if ( !(dir_attr) )
+        if ( !(dptr->attr & ATTR_DIRECTORY) )
             dptr->attr |= filetype_get_attr((char *)entry->d_name);
 
-        int file_attr = (dptr->attr & FILE_ATTR_MASK);
-
-#define CHK_FT(show,attr) (*c->dirfilter == (show) && file_attr != (attr))
         /* filter out non-visible files */
-        if ((!(dir_attr) && (CHK_FT(SHOW_PLAYLIST, FILE_ATTR_M3U) ||
-            (CHK_FT(SHOW_MUSIC, FILE_ATTR_AUDIO) && file_attr != FILE_ATTR_M3U) ||
+        if ((!(dptr->attr & ATTR_DIRECTORY) && (
+            (*c->dirfilter == SHOW_PLAYLIST &&
+             (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_M3U) ||
+            ((*c->dirfilter == SHOW_MUSIC &&
+             (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_AUDIO) &&
+             (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_M3U) ||
             (*c->dirfilter == SHOW_SUPPORTED && !filetype_supported(dptr->attr)))) ||
-            CHK_FT(SHOW_WPS,  FILE_ATTR_WPS)  ||
-            CHK_FT(SHOW_FONT, FILE_ATTR_FONT) ||
-            CHK_FT(SHOW_SBS,  FILE_ATTR_SBS)  ||
+            (*c->dirfilter == SHOW_WPS && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_WPS) ||
+#ifdef HAVE_LCD_BITMAP
+            (*c->dirfilter == SHOW_FONT && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_FONT) ||
+            (*c->dirfilter == SHOW_SBS  && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_SBS) ||
 #if CONFIG_TUNER
-            CHK_FT(SHOW_FMS, FILE_ATTR_FMS) ||
-            CHK_FT(SHOW_FMR, FILE_ATTR_FMR) ||
+            (*c->dirfilter == SHOW_FMS  && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_FMS) ||
+#endif
 #endif
 #ifdef HAVE_REMOTE_LCD
-            CHK_FT(SHOW_RWPS, FILE_ATTR_RWPS) ||
-            CHK_FT(SHOW_RSBS, FILE_ATTR_RSBS) ||
+            (*c->dirfilter == SHOW_RWPS && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_RWPS) ||
+            (*c->dirfilter == SHOW_RSBS && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_RSBS) ||
 #if CONFIG_TUNER
-            CHK_FT(SHOW_RFMS, FILE_ATTR_RFMS) ||
+            (*c->dirfilter == SHOW_RFMS  && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_RFMS) ||
 #endif
 #endif
-            CHK_FT(SHOW_M3U, FILE_ATTR_M3U) ||
-            CHK_FT(SHOW_CFG, FILE_ATTR_CFG) ||
-            CHK_FT(SHOW_LNG, FILE_ATTR_LNG) ||
-            CHK_FT(SHOW_MOD, FILE_ATTR_MOD) ||
-           /* show first level directories */
-           ((!(dir_attr) || c->dirlevel > 0)       &&
-            CHK_FT(SHOW_PLUGINS, FILE_ATTR_ROCK)   &&
-                       file_attr != FILE_ATTR_LUA  &&
-                       file_attr != FILE_ATTR_OPX) ||
+#if CONFIG_TUNER
+            (*c->dirfilter == SHOW_FMR && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_FMR) ||
+#endif
+            (*c->dirfilter == SHOW_M3U && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_M3U) ||
+            (*c->dirfilter == SHOW_CFG && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_CFG) ||
+            (*c->dirfilter == SHOW_LNG && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_LNG) ||
+            (*c->dirfilter == SHOW_MOD && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_MOD) ||
+            (*c->dirfilter == SHOW_PLUGINS && (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_ROCK &&
+                                              (dptr->attr & FILE_ATTR_MASK) != FILE_ATTR_LUA) ||
             (callback_show_item && !callback_show_item(entry->d_name, dptr->attr, c)))
         {
             continue;
         }
-#undef CHK_FT
 
-        if (len > c->cache.name_buffer_size - name_buffer_used - 1) {
+        if ((len > c->cache.name_buffer_size - name_buffer_used - 1) ||
+            (files_in_dir >= c->cache.max_entries)) {
             /* Tell the world that we ran out of buffer space */
             c->dirfull = true;
             break;
@@ -407,31 +381,14 @@ int ft_load(struct tree_context* c, const char* tempdir)
         strcpy(dptr->name, (char *)entry->d_name);
         name_buffer_used += len + 1;
 
-        if (dir_attr) /* count the remaining dirs */
+        if (dptr->attr & ATTR_DIRECTORY) /* count the remaining dirs */
             c->dirsindir++;
     }
     c->filesindir = files_in_dir;
     c->dirlength = files_in_dir;
     closedir(dir);
 
-    /* allow directories to be sorted into file list */
-    cmp_data.sort_dir = (*c->dirfilter == SHOW_PLUGINS) ? SORT_AS_FILE : c->sort_dir;
-
-    if (global_settings.sort_case)
-    {
-        if (global_settings.interpret_numbers == SORT_INTERPRET_AS_NUMBER)
-            cmp_data._compar = strnatcmp_n;
-        else
-            cmp_data._compar = strncmp;
-    }
-    else
-    {
-        if (global_settings.interpret_numbers == SORT_INTERPRET_AS_NUMBER)
-            cmp_data._compar = strnatcasecmp_n;
-        else
-            cmp_data._compar = strncasecmp;
-    }
-
+    compare_sort_dir = c->sort_dir;
     qsort(tree_get_entries(c), files_in_dir, sizeof(struct entry), compare);
 
     /* If thumbnail talking is enabled, make an extra run to mark files with
@@ -442,6 +399,7 @@ int ft_load(struct tree_context* c, const char* tempdir)
     tree_unlock_cache(c);
     return 0;
 }
+#ifdef HAVE_LCD_BITMAP
 static void ft_load_font(char *file)
 {
     int current_font_id;
@@ -470,85 +428,13 @@ static void ft_load_font(char *file)
     screens[screen].setuifont(
         font_load_ex(file,0,global_settings.glyphs_to_cache));
     viewportmanager_theme_changed(THEME_UI_VIEWPORT);
-}
-
-static void ft_apply_skin_file(char *buf, char *file, const int maxlen)
-{
-    splash(0, ID2P(LANG_WAIT));
-    set_file(buf, file, maxlen);
-    settings_apply_skins();
-}
-
-static const char *strip_slash(const char *path, const char *def)
-{
-    if (path)
-    {
-        while (*path == PATH_SEPCH)
-            path++; /* we don't want this treated as an absolute path */
-        return path;
-    }
-    return def;
-}
-
-int ft_assemble_path(char *buf, size_t bufsz, const char* currdir, const char* filename)
-{
-    size_t len;
-    const char *cd = strip_slash(currdir, "");
-    filename = strip_slash(filename, "");
-    /* remove slashes and NULL strings to make logic below simpler */
-
-#ifdef HAVE_MULTIVOLUME
-    /* Multi-volume device drives might be enumerated in root so everything
-       should be an absolute qualified path with <drive>/ prepended */
-    if (*cd != '\0') /* Not in / */
-    {
-        if (*cd == VOL_START_TOK)
-        {
-          /* use currdir, here we want the slash as it already contains the <drive> */
-            len = path_append(buf, currdir, filename, bufsz);
-        } /* buf => /currdir/filename */
-        else
-        {
-            len = path_append(buf, root_realpath(), cd, bufsz); /* /<drive>/currdir */
-            if(len < bufsz)
-                len += path_append(buf + len, PA_SEP_HARD, filename, bufsz - len);
-        } /* buf => /<drive>/currdir/filename */
-    }
-    else /* In / */
-    {
-        if (*filename == VOL_START_TOK)
-        {
-            len = path_append(buf, PATH_SEPSTR, filename, bufsz);
-        } /* buf => /filename */
-        else
-        {
-            len = path_append(buf, root_realpath(), filename, bufsz);
-        } /* buf => /<drive>/filename */
-    }
-#else
-    /* Other devices might need a specific drive/dir prepended but its usually '/' */
-    if (*cd != '\0') /* Not in / */
-    {
-        len = path_append(buf, root_realpath(), cd, bufsz);/* /currdir */
-        if(len < bufsz)
-            len += path_append(buf + len, PA_SEP_HARD, filename, bufsz - len);
-    } /* buf => /currdir/filename */
-    else /* In / */
-    {
-        len = path_append(buf, root_realpath(), filename, bufsz);
-    }  /* buf => /filename */
+}    
 #endif
-
-    if (len > bufsz)
-        splash(HZ, ID2P(LANG_PLAYLIST_DIRECTORY_ACCESS_ERROR));
-    return (int)len;
-}
 
 int ft_enter(struct tree_context* c)
 {
     int rc = GO_TO_PREVIOUS;
     char buf[MAX_PATH];
-
     struct entry* file = tree_get_entry_at(c, c->selected_item);
     if (!file)
     {
@@ -557,7 +443,17 @@ int ft_enter(struct tree_context* c)
     }
 
     int file_attr = file->attr;
-    ft_assemble_path(buf, sizeof(buf), c->currdir, file->name);
+    int len;
+
+    if (c->currdir[1])
+    {
+        len = snprintf(buf,sizeof(buf),"%s/%s",c->currdir, file->name);
+        if ((unsigned) len > sizeof(buf))
+            splash(HZ, ID2P(LANG_PLAYLIST_ACCESS_ERROR));
+    }
+    else
+        snprintf(buf,sizeof(buf),"/%s",file->name);
+
     if (file_attr & ATTR_DIRECTORY) {
         memcpy(c->currdir, buf, sizeof(c->currdir));
         if ( c->dirlevel < MAX_DIR_LEVELS )
@@ -582,9 +478,7 @@ int ft_enter(struct tree_context* c)
                 break;
 
             case FILE_ATTR_AUDIO:
-            {
-                int res = bookmark_autoload(c->currdir);
-                if (res == BOOKMARK_CANCEL || res == BOOKMARK_DO_RESUME)
+                if (bookmark_autoload(c->currdir))
                     break;
 
                 splash(0, ID2P(LANG_WAIT));
@@ -600,30 +494,25 @@ int ft_enter(struct tree_context* c)
                                           PLAYLIST_INSERT_LAST, true, true);
                     splash(HZ, ID2P(LANG_QUEUE_LAST));
                 }
-                else
+                else if (playlist_create(c->currdir, NULL) != -1)
                 {
-                    /* use the assembled path sans filename */
-                    char * fp = strrchr(buf, PATH_SEPCH);
-                    if (fp)
-                        *fp = '\0';
-                    if (playlist_create(buf, NULL) != -1)
+                    start_index = ft_build_playlist(c, c->selected_item);
+                    if (global_settings.playlist_shuffle)
                     {
-                        start_index = ft_build_playlist(c, c->selected_item);
-                        if (global_settings.playlist_shuffle)
-                        {
-                            start_index = playlist_shuffle(seed, start_index);
-                            /* when shuffling dir.: play all files
-                               even if the file selected by user is
-                               not the first one */
-                            if (!global_settings.play_selected)
-                                start_index = 0;
-                        }
-                        playlist_start(start_index, 0, 0);
-                        play = true;
+                        start_index = playlist_shuffle(seed, start_index);
+
+                        /* when shuffling dir.: play all files
+                           even if the file selected by user is
+                           not the first one */
+                        if (!global_settings.play_selected)
+                            start_index = 0;
                     }
+
+                    playlist_start(start_index, 0, 0);
+                    play = true;
                 }
                 break;
-            }
+
 #if CONFIG_TUNER
                 /* fmr preset file */
             case FILE_ATTR_FMR:
@@ -648,32 +537,51 @@ int ft_enter(struct tree_context* c)
 
                 break;
             case FILE_ATTR_FMS:
-                ft_apply_skin_file(buf, global_settings.fms_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.fms_file, MAX_FILENAME);
+                settings_apply_skins();
                 break;
 #ifdef HAVE_REMOTE_LCD
             case FILE_ATTR_RFMS:
-                ft_apply_skin_file(buf, global_settings.rfms_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.rfms_file, MAX_FILENAME);
+                settings_apply_skins();
                 break;
 #endif
 #endif
+
+#ifdef HAVE_LCD_BITMAP
             case FILE_ATTR_SBS:
-                ft_apply_skin_file(buf, global_settings.sbs_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.sbs_file, MAX_FILENAME);
+                settings_apply_skins();
                 break;
+#endif
 #ifdef HAVE_REMOTE_LCD
             case FILE_ATTR_RSBS:
-                ft_apply_skin_file(buf, global_settings.rsbs_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.rsbs_file, MAX_FILENAME);
+                settings_apply_skins();
                 break;
 #endif
                 /* wps config file */
             case FILE_ATTR_WPS:
-                ft_apply_skin_file(buf, global_settings.wps_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.wps_file,
+                         MAX_FILENAME);
+                settings_apply_skins();
                 break;
+
 #if defined(HAVE_REMOTE_LCD) && (NB_SCREENS > 1)
                 /* remote-wps config file */
             case FILE_ATTR_RWPS:
-                ft_apply_skin_file(buf, global_settings.rwps_file, MAX_FILENAME);
+                splash(0, ID2P(LANG_WAIT));
+                set_file(buf, (char *)global_settings.rwps_file,
+                         MAX_FILENAME);
+                settings_apply_skins();
                 break;
 #endif
+
             case FILE_ATTR_CFG:
                 splash(0, ID2P(LANG_WAIT));
                 if (!settings_load_config(buf,true))
@@ -702,6 +610,7 @@ int ft_enter(struct tree_context* c)
                 splash(HZ, ID2P(LANG_LANGUAGE_LOADED));
                 break;
 
+#ifdef HAVE_LCD_BITMAP
             case FILE_ATTR_FONT:
                 ft_load_font(buf);
                 break;
@@ -712,8 +621,9 @@ int ft_enter(struct tree_context* c)
                     splash(HZ, ID2P(LANG_KEYBOARD_LOADED));
                 set_file(buf, (char *)global_settings.kbd_file, MAX_FILENAME);
                 break;
+#endif
 
-#if defined(HAVE_ROLO)
+#if (CONFIG_PLATFORM & PLATFORM_NATIVE)
                 /* firmware file */
             case FILE_ATTR_MOD:
                 splash(0, ID2P(LANG_WAIT));
@@ -721,27 +631,29 @@ int ft_enter(struct tree_context* c)
                 rolo_load(buf);
                 break;
 #endif
-            case FILE_ATTR_CUE:
-                display_cuesheet_content(buf);
-                break;
 
                 /* plugin file */
             case FILE_ATTR_ROCK:
+            case FILE_ATTR_LUA:
             {
-                char *plugin = buf, *argument = NULL;
+                char *plugin = buf, *argument = NULL, lua_path[MAX_PATH];
+                int ret;
+
+                if ((file_attr & FILE_ATTR_MASK) == FILE_ATTR_LUA) {
+                    snprintf(lua_path, sizeof(lua_path)-1, "%s/lua.rock", VIEWERS_DIR); /* Use a #define here ? */
+                    plugin = lua_path;
+                    argument = buf;
+                }
+
                 if (global_settings.party_mode && audio_status()) {
                     splash(HZ, ID2P(LANG_PARTY_MODE));
                     break;
                 }
-
-#ifdef PLUGINS_RUN_IN_BROWSER /* Stay in the filetree to run a plugin */
-                switch (plugin_load(plugin, argument))
+                ret = plugin_load(plugin, argument);
+                switch (ret)
                 {
                     case PLUGIN_GOTO_WPS:
                         play = true;
-                        break;
-                    case PLUGIN_GOTO_PLUGIN:
-                        rc = GO_TO_PLUGIN;
                         break;
                     case PLUGIN_USB_CONNECTED:
                         if(*c->dirfilter > NUM_FILTER_MODES)
@@ -758,41 +670,35 @@ int ft_enter(struct tree_context* c)
                     default:
                         break;
                 }
-#else /* Exit the filetree to run a plugin */
-                plugin_open(plugin, argument);
-                rc = GO_TO_PLUGIN;
-#endif
                 break;
             }
+            case FILE_ATTR_CUE:
+                display_cuesheet_content(buf);
+                break;
 
             default:
             {
                 const char* plugin;
-                char plugin_path[MAX_PATH];
-                const char *argument = buf;
+
                 if (global_settings.party_mode && audio_status()) {
                     splash(HZ, ID2P(LANG_PARTY_MODE));
                     break;
                 }
 
-                file = tree_get_entry_at(c, c->selected_item);
+                struct entry* file = tree_get_entry_at(c, c->selected_item);
                 if (!file)
                 {
                     splashf(HZ, str(LANG_READ_FAILED), str(LANG_UNKNOWN));
                     return rc;
                 }
 
-                plugin = filetype_get_plugin(file->attr, plugin_path, sizeof(plugin_path));
+                plugin = filetype_get_plugin(file);
                 if (plugin)
                 {
-#ifdef PLUGINS_RUN_IN_BROWSER /* Stay in the filetree to run a plugin */
-                    switch (plugin_load(plugin, argument))
+                    switch (plugin_load(plugin,buf))
                     {
                         case PLUGIN_USB_CONNECTED:
                             rc = GO_TO_FILEBROWSER;
-                            break;
-                        case PLUGIN_GOTO_PLUGIN:
-                            rc = GO_TO_PLUGIN;
                             break;
                         case PLUGIN_GOTO_WPS:
                             rc = GO_TO_WPS;
@@ -804,10 +710,6 @@ int ft_enter(struct tree_context* c)
                         default:
                             break;
                     }
-#else /* Exit the filetree to run a plugin */
-                    plugin_open(plugin, argument);
-                    rc = GO_TO_PLUGIN;
-#endif
                 }
                 break;
             }
@@ -834,7 +736,6 @@ int ft_enter(struct tree_context* c)
             }
         }
     }
-
     return rc;
 }
 
@@ -843,44 +744,17 @@ int ft_exit(struct tree_context* c)
     extern char lastfile[]; /* from tree.c */
     char buf[MAX_PATH];
     int rc = 0;
-    bool exit_func = false; 
+    bool exit_func = false;
+
     int i = strlen(c->currdir);
-
-    /* strip trailing slashes */
-    while (c->currdir[i-1] == PATH_SEPCH)
-        i--;
-
     if (i>1) {
-        while (c->currdir[i-1]!=PATH_SEPCH)
+        while (c->currdir[i-1]!='/')
             i--;
         strcpy(buf,&c->currdir[i]);
         if (i==1)
-            c->currdir[i]='\0';
+            c->currdir[i]=0;
         else
-            c->currdir[i-1]='\0';
-
-#ifdef HAVE_MULTIVOLUME /* un-redirect the realpath */
-        if ((unsigned)c->dirlevel<=2) /* only expect redirect two levels max */
-        {
-            char *currdir = c->currdir;
-            const char *root = root_realpath();
-            int len = i-1;
-            /* compare to the root path bail if they don't match except single '/' */
-            for (; len > 0 && *root != '\0' && *root == *currdir; len--)
-            {
-                root++;
-                currdir++;
-            }
-            if (*root == PATH_SEPCH) /* root may have trailing slash */
-                root++;
-            if (*root == '\0' &&
-                (len == 0 || (len == 1 && *currdir == PATH_SEPCH)))
-            {
-                strcpy(c->currdir, PATH_ROOTSTR);
-                c->dirlevel=1;
-            }
-        }
-#endif
+            c->currdir[i-1]=0;
 
         if (*c->dirfilter > NUM_FILTER_MODES && c->dirlevel < 1)
             exit_func = true;
@@ -903,8 +777,6 @@ int ft_exit(struct tree_context* c)
 
     if (exit_func)
         rc = 3;
-
-    c->out_of_tree = 0;
 
     return rc;
 }

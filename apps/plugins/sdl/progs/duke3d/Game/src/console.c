@@ -23,8 +23,8 @@ typedef struct console_element
 
 // Private member functions
 void CONSOLE_InsertUsedCommand(const char * szUsedCommand);
-void CONSOLE_ClearUsedCommandList(void);
-void CONSOLE_RecalculateDirtyBuffer(void);
+void CONSOLE_ClearUsedCommandList();
+void CONSOLE_RecalculateDirtyBuffer();
 
 // console argument tracker
 int argc;
@@ -50,7 +50,7 @@ int nConsole_Active = 0;
 
 void CVAR_RegisterDefaultCvarBindings(void);
 // Initialize the console
-void CONSOLE_Init(void)
+void CONSOLE_Init()
 {
     CONSOLE_Reset();
 
@@ -63,7 +63,7 @@ void CONSOLE_Init(void)
     CONSOLE_Printf("Type \'HELP\' for help with console Commands.");
 }
 
-void CONSOLE_Reset(void)
+void CONSOLE_Reset()
 {
     CONSOLEELEMENT *pElement;
     CONSOLEELEMENT *pDelElement;
@@ -144,7 +144,7 @@ void CONSOLE_HandleInput()
 				{
 					ud.pause_on = 0;
 				}
-			}
+			}			
 		}
 		else
         // Bug fix: make sure the frag bar displays after console
@@ -153,7 +153,7 @@ void CONSOLE_HandleInput()
         {
             if ( ud.multimode > 1 && ud.coop != 1 )
             {
-                displayfragbar();
+                displayfragbar(); 
             }
 			if(numplayers<2)
 				ud.pause_on = 0;
@@ -169,7 +169,7 @@ void CONSOLE_HandleInput()
         return;
     }
 
-    switch(KB_GetLastScanCode())
+    switch(KB_GetLastScanCode()) 
     {
     case sc_Space:
         {
@@ -221,10 +221,10 @@ void CONSOLE_HandleInput()
     case sc_kpad_Enter:
     case sc_Enter:
         {
-            //If console_buffer[0] strlen() != 0
+            //If console_buffer[0] strlen() != 0            
             //1. Push the dirty_buffer unto the console_buffer
             //2. parse the text
-            rb->kbd_input(dirty_buffer, sizeof(dirty_buffer), NULL);
+            rb->kbd_input(dirty_buffer, sizeof(dirty_buffer));
 
             CONSOLE_Printf("%s", dirty_buffer);
             console_cursor_pos = 0;
@@ -278,7 +278,7 @@ void CONSOLE_HandleInput()
                 if(p_console_current_view->next != NULL)
                 {
                     p_console_current_view = p_console_current_view->next;
-                }
+                } 
                 else
                 {
                     break;
@@ -351,10 +351,10 @@ void CONSOLE_HandleInput()
     }
 
 
-    KB_ClearLastScanCode();
+    KB_ClearLastScanCode(); 
 }
 
-void CONSOLE_Render(void)
+void CONSOLE_Render()
 {
     if(g_CV_classic)
     {
@@ -371,7 +371,7 @@ void CONSOLE_Render(void)
         int iYOffset = 3; //offset for the console text
         CONSOLEELEMENT *pElement;
 
-        y1 = 0;
+        y1 = 0; 
         y2 = (ydim / 2) - ((ydim / 2)/12);
 
         // Draw console background
@@ -418,9 +418,9 @@ void CONSOLE_Render(void)
         minitext(283, iCurHeight, BUILD_NUMBER, 17,10+16);
 
         // Draw the cursor //Change the color every second
-        minitext(iCurWidth, iCurHeight,"_",(time(NULL)%2)+1,10+16);
+        minitext(iCurWidth, iCurHeight,"_",(time(NULL)%2)+1,10+16);        
     }
-    else
+    else 
     if(g_CV_num_console_lines > 0)
     {
         int i, iYOffset = 3; //offset for the console text
@@ -517,7 +517,7 @@ void CONSOLE_InsertUsedCommand(const char * szUsedCommand)
     }
 }
 
-void CONSOLE_ClearUsedCommandList(void)
+void CONSOLE_ClearUsedCommandList()
 {
     CONSOLEELEMENT *pElement;
     CONSOLEELEMENT *pDelElement;
@@ -537,7 +537,7 @@ void CONSOLE_ClearUsedCommandList(void)
 }
 
 
-void CONSOLE_RecalculateDirtyBuffer(void)
+void CONSOLE_RecalculateDirtyBuffer()
 {
 	int len;
 	int l;
@@ -605,7 +605,7 @@ void CONSOLE_Printf(const char  *newmsg, ...)
 }
 
 // Get the current number of args for this keyword
-int CONSOLE_GetArgc(void)
+int CONSOLE_GetArgc()
 {
     return argc;
 }
@@ -617,9 +617,9 @@ char * CONSOLE_GetArgv(unsigned int var)
 }
 
 // Is our console showing?
-int CONSOLE_IsActive(void)
+int CONSOLE_IsActive()
 {
-
+	
     return nConsole_Active;
 }
 

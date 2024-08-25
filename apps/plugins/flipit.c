@@ -23,7 +23,53 @@
 
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define FLIPIT_LEFT         BUTTON_LEFT
+#define FLIPIT_RIGHT        BUTTON_RIGHT
+#define FLIPIT_UP           BUTTON_UP
+#define FLIPIT_DOWN         BUTTON_DOWN
+#define FLIPIT_QUIT         BUTTON_OFF
+#define FLIPIT_SHUFFLE      BUTTON_F1
+#define FLIPIT_SOLVE        BUTTON_F2
+#define FLIPIT_STEP_BY_STEP BUTTON_F3
+#define FLIPIT_TOGGLE       BUTTON_PLAY
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define FLIPIT_LEFT         BUTTON_LEFT
+#define FLIPIT_RIGHT        BUTTON_RIGHT
+#define FLIPIT_UP           BUTTON_UP
+#define FLIPIT_DOWN         BUTTON_DOWN
+#define FLIPIT_QUIT         BUTTON_OFF
+#define FLIPIT_SHUFFLE      BUTTON_F1
+#define FLIPIT_SOLVE        BUTTON_F2
+#define FLIPIT_STEP_BY_STEP BUTTON_F3
+#define FLIPIT_TOGGLE       BUTTON_SELECT
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+#define FLIPIT_LEFT         BUTTON_LEFT
+#define FLIPIT_RIGHT        BUTTON_RIGHT
+#define FLIPIT_UP_PRE       BUTTON_ON
+#define FLIPIT_UP           (BUTTON_ON | BUTTON_REL)
+#define FLIPIT_DOWN         BUTTON_MENU
+#define FLIPIT_QUIT         BUTTON_STOP
+#define FLIPIT_SHUFFLE      (BUTTON_ON | BUTTON_LEFT)
+#define FLIPIT_SOLVE        (BUTTON_ON | BUTTON_RIGHT)
+#define FLIPIT_STEP_BY_STEP (BUTTON_ON | BUTTON_PLAY)
+#define FLIPIT_TOGGLE       BUTTON_PLAY
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define FLIPIT_LEFT         BUTTON_LEFT
+#define FLIPIT_RIGHT        BUTTON_RIGHT
+#define FLIPIT_UP           BUTTON_UP
+#define FLIPIT_DOWN         BUTTON_DOWN
+#define FLIPIT_QUIT         BUTTON_OFF
+#define FLIPIT_SHUFFLE      (BUTTON_MENU | BUTTON_LEFT)
+#define FLIPIT_SOLVE        (BUTTON_MENU | BUTTON_UP)
+#define FLIPIT_STEP_BY_STEP (BUTTON_MENU | BUTTON_RIGHT)
+#define FLIPIT_TOGGLE_PRE   BUTTON_MENU
+#define FLIPIT_TOGGLE       (BUTTON_MENU | BUTTON_REL)
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define FLIPIT_LEFT         BUTTON_LEFT
 #define FLIPIT_RIGHT        BUTTON_RIGHT
@@ -49,7 +95,7 @@
 #define FLIPIT_DOWN         BUTTON_PLAY
 #define FLIPIT_NEXT         BUTTON_SCROLL_FWD
 #define FLIPIT_PREV         BUTTON_SCROLL_BACK
-#define FLIPIT_QUIT         (BUTTON_SELECT | BUTTON_REPEAT)
+#define FLIPIT_QUIT         (BUTTON_SELECT | BUTTON_MENU)
 #define FLIPIT_SHUFFLE      (BUTTON_SELECT | BUTTON_LEFT)
 #define FLIPIT_SOLVE        (BUTTON_SELECT | BUTTON_PLAY)
 #define FLIPIT_STEP_BY_STEP (BUTTON_SELECT | BUTTON_RIGHT)
@@ -436,7 +482,7 @@
 #define FLIPIT_STEP_BY_STEP (BUTTON_LEFT|BUTTON_VOLUP)
 #define FLIPIT_TOGGLE       BUTTON_SELECT
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD ||  CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 
 #define FLIPIT_LEFT         BUTTON_PREV
 #define FLIPIT_RIGHT        BUTTON_NEXT
@@ -448,19 +494,7 @@
 #define FLIPIT_STEP_BY_STEP (BUTTON_HOME | BUTTON_PLAY)
 #define FLIPIT_TOGGLE       BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-
-#define FLIPIT_LEFT         BUTTON_PREV
-#define FLIPIT_RIGHT        BUTTON_NEXT
-#define FLIPIT_UP           BUTTON_HOME
-#define FLIPIT_DOWN         BUTTON_OPTION
-#define FLIPIT_QUIT         BUTTON_POWER
-#define FLIPIT_SHUFFLE      (BUTTON_HOME | BUTTON_PREV)
-#define FLIPIT_SOLVE        (BUTTON_HOME | BUTTON_NEXT)
-#define FLIPIT_STEP_BY_STEP (BUTTON_HOME | BUTTON_PLAY)
-#define FLIPIT_TOGGLE       BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 
 #define FLIPIT_LEFT         BUTTON_HOME
 #define FLIPIT_RIGHT        BUTTON_VOL_DOWN
@@ -472,32 +506,17 @@
 #define FLIPIT_STEP_BY_STEP (BUTTON_POWER | BUTTON_PLAY)
 #define FLIPIT_TOGGLE       BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 
-#define FLIPIT_LEFT         BUTTON_SCROLL_BACK
-#define FLIPIT_RIGHT        BUTTON_SCROLL_FWD
+#define FLIPIT_LEFT         BUTTON_HOME
+#define FLIPIT_RIGHT        BUTTON_VOL_DOWN
 #define FLIPIT_UP           BUTTON_PREV
 #define FLIPIT_DOWN         BUTTON_NEXT
 #define FLIPIT_QUIT         BUTTON_POWER
-#define FLIPIT_SHUFFLE      BUTTON_MENU
-#define FLIPIT_SOLVE        BUTTON_VOL_DOWN
-#define FLIPIT_STEP_BY_STEP BUTTON_VOL_UP
+#define FLIPIT_SHUFFLE      (BUTTON_POWER | BUTTON_PREV)
+#define FLIPIT_SOLVE        (BUTTON_POWER | BUTTON_NEXT)
+#define FLIPIT_STEP_BY_STEP (BUTTON_POWER | BUTTON_PLAY)
 #define FLIPIT_TOGGLE       BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-
-#define FLIPIT_LEFT         BUTTON_LEFT
-#define FLIPIT_RIGHT        BUTTON_RIGHT
-#define FLIPIT_UP           BUTTON_UP
-#define FLIPIT_DOWN         BUTTON_DOWN
-#define FLIPIT_QUIT         BUTTON_POWER
-#define FLIPIT_SHUFFLE      BUTTON_PLAY
-#define FLIPIT_SOLVE        BUTTON_VOL_DOWN
-#define FLIPIT_STEP_BY_STEP BUTTON_VOL_UP
-#define FLIPIT_TOGGLE       BUTTON_SELECT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -537,6 +556,8 @@ static int spots[20];
 static int toggle[20];
 static int cursor_pos, moves;
 
+#ifdef HAVE_LCD_BITMAP
+
 #include "pluginbitmaps/flipit_cursor.h"
 #include "pluginbitmaps/flipit_tokens.h"
 
@@ -553,8 +574,8 @@ static int cursor_pos, moves;
 /* draw a spot at the coordinates (x,y), range of p is 0-19 */
 static void draw_spot(int p)
 {
-    rb->lcd_bitmap_part( flipit_tokens, 0, spots[p] * TK_HEIGHT,
-                         STRIDE(SCREEN_MAIN, BMPWIDTH_flipit_tokens,
+    rb->lcd_bitmap_part( flipit_tokens, 0, spots[p] * TK_HEIGHT, 
+                         STRIDE(SCREEN_MAIN, BMPWIDTH_flipit_tokens, 
                             BMPHEIGHT_flipit_tokens),
                          GRID_LEFT + (p%5) * (TK_WIDTH+TK_SPACE),
                          GRID_TOP + (p/5) * (TK_HEIGHT+TK_SPACE),
@@ -562,7 +583,7 @@ static void draw_spot(int p)
 }
 
 /* draw the cursor at the current cursor position */
-static void draw_cursor(void)
+static void draw_cursor(void) 
 {
 #ifdef HAVE_LCD_COLOR
     rb->lcd_bitmap_transparent( flipit_cursor,
@@ -596,6 +617,77 @@ static void draw_info_panel(void)
                     GRID_TOP + 4*(TK_HEIGHT+TK_SPACE) + 2, s );
 }
 
+#else /* HAVE_LCD_CHARCELLS */
+
+static const unsigned char tk_pat[4][7] = {
+    { 0x0e, 0x11, 0x0e, 0x00, 0x0e, 0x11, 0x0e }, /* white - white */
+    { 0x0e, 0x11, 0x0e, 0x00, 0x0e, 0x1f, 0x0e }, /* white - black */
+    { 0x0e, 0x1f, 0x0e, 0x00, 0x0e, 0x11, 0x0e }, /* black - white */
+    { 0x0e, 0x1f, 0x0e, 0x00, 0x0e, 0x1f, 0x0e }  /* black - black */
+};
+
+static unsigned char cur_pat[7];
+static unsigned long gfx_chars[5];
+
+static void release_gfx(void)
+{
+    int i;
+    
+    for (i = 0; i < 5; i++)
+        if (gfx_chars[i])
+            rb->lcd_unlock_pattern(gfx_chars[i]);
+}
+
+static bool init_gfx(void)
+{
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if ((gfx_chars[i] = rb->lcd_get_locked_pattern()) == 0) {
+            release_gfx();
+            return false;
+        }
+    }
+    for (i = 0; i < 4; i++)
+        rb->lcd_define_pattern(gfx_chars[i], tk_pat[i]);
+    return true;
+}
+
+/* draw a spot at the coordinates (x,y), range of p is 0-19 */
+static void draw_spot(int p)
+{
+    if ((p/5) & 1)
+        p -= 5;
+
+    rb->lcd_putc (p%5, p/10, gfx_chars[2*spots[p]+spots[p+5]]);
+}
+
+/* draw the cursor at the current cursor position */
+static void draw_cursor(void) 
+{
+    if ((cursor_pos/5) & 1) {
+        rb->memcpy( cur_pat, tk_pat[2*spots[cursor_pos-5]+spots[cursor_pos]], 7 );
+        cur_pat[4] ^= 0x15;
+        cur_pat[6] ^= 0x11;
+    }
+    else {
+        rb->memcpy( cur_pat, tk_pat[2*spots[cursor_pos]+spots[cursor_pos+5]], 7 );
+        cur_pat[0] ^= 0x15;
+        cur_pat[2] ^= 0x11;
+    }
+    rb->lcd_define_pattern(gfx_chars[4], cur_pat);
+    rb->lcd_putc( cursor_pos%5, cursor_pos/10, gfx_chars[4] );
+}
+
+/* draw the info panel ... duh */
+static void draw_info_panel(void)
+{
+    rb->lcd_puts( 6, 0, "Flips" );
+    rb->lcd_putsf( 6, 1, "%d", moves );
+}
+
+#endif /* LCD */
+
 /* clear the cursor where it is */
 static inline void clear_cursor(void)
 {
@@ -603,7 +695,7 @@ static inline void clear_cursor(void)
 }
 
 /* check if the puzzle is finished */
-static bool flipit_finished(void)
+static bool flipit_finished(void) 
 {
     int i;
     for (i=0; i<20; i++)
@@ -644,7 +736,7 @@ static void flipit_toggle(void)
 }
 
 /* move the cursor in any direction */
-static void move_cursor(int x, int y)
+static void move_cursor(int x, int y) 
 {
     if (!(flipit_finished())) {
         clear_cursor();
@@ -656,7 +748,7 @@ static void move_cursor(int x, int y)
 }
 
 /* initialize the board */
-static void flipit_init(void)
+static void flipit_init(void) 
 {
     int i;
 
@@ -681,7 +773,7 @@ static void flipit_init(void)
 }
 
 /* the main game loop */
-static bool flipit_loop(void)
+static bool flipit_loop(void) 
 {
     int i;
     int button;
@@ -766,7 +858,7 @@ static bool flipit_loop(void)
             /*move cursor though the entire field*/
 #ifdef FLIPIT_SCROLLWHEEL
             case FLIPIT_PREV:
-            case FLIPIT_PREV|BUTTON_REPEAT:
+            case FLIPIT_PREV|BUTTON_REPEAT:    
                 if ((cursor_pos)%5 == 0) {
                     move_cursor(-1, -1);
                 }
@@ -828,11 +920,24 @@ enum plugin_status plugin_start(const void* parameter)
 
     rb->splash(HZ, "FlipIt!");
 
+#ifdef HAVE_LCD_BITMAP
     /* print instructions */
     rb->lcd_clear_display();
     rb->lcd_setfont(FONT_SYSFIXED);
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+    rb->lcd_putsxy(2, 8, "[OFF] to stop");
+    rb->lcd_putsxy(2, 18, "[PLAY] toggle");
+    rb->lcd_putsxy(2, 28, "[F1] shuffle");
+    rb->lcd_putsxy(2, 38, "[F2] solution");
+    rb->lcd_putsxy(2, 48, "[F3] step by step");
+#elif CONFIG_KEYPAD == ONDIO_PAD
+    rb->lcd_putsxy(2, 8, "[OFF] to stop");
+    rb->lcd_putsxy(2, 18, "[MODE] toggle");
+    rb->lcd_putsxy(2, 28, "[M-LEFT] shuffle");
+    rb->lcd_putsxy(2, 38, "[M-UP] solution");
+    rb->lcd_putsxy(2, 48, "[M-RIGHT] step by step");
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
     rb->lcd_putsxy(2, 8, "[STOP] to stop");
     rb->lcd_putsxy(2, 18, "[SELECT] toggle");
     rb->lcd_putsxy(2, 28, "[MODE] shuffle");
@@ -841,7 +946,7 @@ enum plugin_status plugin_start(const void* parameter)
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-    rb->lcd_putsxy(2, 8, "Long [SELECT] to stop");
+    rb->lcd_putsxy(2, 8, "[S-MENU] to stop");
     rb->lcd_putsxy(2, 18, "[SELECT] toggle");
     rb->lcd_putsxy(2, 28, "[S-LEFT] shuffle");
     rb->lcd_putsxy(2, 38, "[S-PLAY] solution");
@@ -907,7 +1012,10 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     rb->lcd_update();
-
+#else /* HAVE_LCD_CHARCELLS */
+    if (!init_gfx())
+        return PLUGIN_ERROR;
+#endif
     rb->button_get_w_tmo(HZ*3);
 
     rb->lcd_clear_display();
@@ -921,5 +1029,8 @@ enum plugin_status plugin_start(const void* parameter)
     rb->srand(*rb->current_tick);
 
     rc = flipit_loop();
+#ifdef HAVE_LCD_CHARCELLS
+    release_gfx();
+#endif
     return rc;
 }

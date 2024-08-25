@@ -67,12 +67,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
@@ -290,8 +285,6 @@ static const char *validate_params(const game_params *params, bool full)
 {
     if (params->w < 1 || params->h < 1)
 	return "Width and height must both be positive";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
 
     if (params->ncols > 9)
 	return "Maximum of 9 colours";
@@ -865,8 +858,6 @@ static void gen_grid(int w, int h, int nc, int *grid, random_state *rs)
 
 #if defined GENERATION_DIAGNOSTICS || defined COUNT_FAILURES
     printf("%d failures\n", failures);
-#else
-    (void)failures;
 #endif
 #ifdef GENERATION_DIAGNOSTICS
     {
@@ -1022,6 +1013,12 @@ static void free_game(game_state *state)
     sfree(state);
 }
 
+static char *solve_game(const game_state *state, const game_state *currstate,
+                        const char *aux, const char **error)
+{
+    return NULL;
+}
+
 static bool game_can_format_as_text_now(const game_params *params)
 {
     return true;
@@ -1068,7 +1065,7 @@ static game_ui *new_ui(const game_state *state)
     ui->nselected = 0;
 
     ui->xsel = ui->ysel = 0;
-    ui->displaysel = getenv_bool("PUZZLES_SHOW_CURSOR", false);
+    ui->displaysel = false;
 
     return ui;
 }
@@ -1077,6 +1074,15 @@ static void free_ui(game_ui *ui)
 {
     sfree(ui->tiles);
     sfree(ui);
+}
+
+static char *encode_ui(const game_ui *ui)
+{
+    return NULL;
+}
+
+static void decode_ui(game_ui *ui, const char *encoding)
+{
 }
 
 static void sel_clear(game_ui *ui, const game_state *state)
@@ -1093,25 +1099,14 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
                                const game_state *newstate)
 {
     sel_clear(ui, newstate);
-}
 
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    if (IS_CURSOR_SELECT(button)) {
-        int x = ui->xsel, y = ui->ysel, c = COL(state,x,y);
-        if (c == 0) return "";
-        if (ISSEL(ui, x, y))
-            return button == CURSOR_SELECT2 ? "Unselect" : "Remove";
-        if ((x > 0 && COL(state,x-1,y) == c) ||
-            (x+1 < state->params.w && COL(state,x+1,y) == c) ||
-            (y > 0 && COL(state,x,y-1) == c) ||
-            (y+1 < state->params.h && COL(state,x,y+1) == c))
-            return "Select";
-        /* Cursor is over a lone square, so we can't select it. */
-        if (ui->nselected) return "Unselect";
-    }
-    return "";
+    /*
+     * If the game state has just changed into an unplayable one
+     * (either completed or impossible), we vanish the keyboard-
+     * control cursor.
+     */
+    if (newstate->complete || newstate->impossible)
+	ui->displaysel = false;
 }
 
 static char *sel_movedesc(game_ui *ui, const game_state *state)
@@ -1279,25 +1274,30 @@ static char *interpret_move(const game_state *state, game_ui *ui,
                             int x, int y, int button)
 {
     int tx, ty;
-    char *ret = MOVE_UI_UPDATE;
+    char *ret = UI_UPDATE;
+
+    ui->displaysel = false;
 
     if (button == RIGHT_BUTTON || button == LEFT_BUTTON) {
-        ui->displaysel = false;
 	tx = FROMCOORD(x); ty= FROMCOORD(y);
     } else if (IS_CURSOR_MOVE(button)) {
-        return move_cursor(button, &ui->xsel, &ui->ysel,
-                           state->params.w, state->params.h,
-                           true, &ui->displaysel);
+	int dx = 0, dy = 0;
+	ui->displaysel = true;
+	dx = (button == CURSOR_LEFT) ? -1 : ((button == CURSOR_RIGHT) ? +1 : 0);
+	dy = (button == CURSOR_DOWN) ? +1 : ((button == CURSOR_UP)    ? -1 : 0);
+	ui->xsel = (ui->xsel + state->params.w + dx) % state->params.w;
+	ui->ysel = (ui->ysel + state->params.h + dy) % state->params.h;
+	return ret;
     } else if (IS_CURSOR_SELECT(button)) {
 	ui->displaysel = true;
 	tx = ui->xsel;
 	ty = ui->ysel;
     } else
-	return MOVE_UNUSED;
+	return NULL;
 
     if (tx < 0 || tx >= state->params.w || ty < 0 || ty >= state->params.h)
-	return MOVE_UNUSED;
-    if (COL(state, tx, ty) == 0) return MOVE_NO_EFFECT;
+	return NULL;
+    if (COL(state, tx, ty) == 0) return NULL;
 
     if (ISSEL(ui,tx,ty)) {
 	if (button == RIGHT_BUTTON || button == CURSOR_SELECT2)
@@ -1324,10 +1324,6 @@ static game_state *execute_move(const game_state *from, const char *move)
 	move++;
 
 	while (*move) {
-            if (!isdigit((unsigned char)*move)) {
-                free_game(ret);
-                return NULL;
-            }
 	    i = atoi(move);
 	    if (i < 0 || i >= ret->n) {
 		free_game(ret);
@@ -1357,12 +1353,12 @@ static game_state *execute_move(const game_state *from, const char *move)
 static void game_set_size(drawing *dr, game_drawstate *ds,
                           const game_params *params, int tilesize)
 {
-    ds->tilegap = (tilesize + 8) / 16;
+    ds->tilegap = 2;
     ds->tileinner = tilesize - ds->tilegap;
 }
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up tile size variables for macro expansion purposes */
     game_drawstate ads, *ds = &ads;
@@ -1376,7 +1372,7 @@ static float *game_colours(frontend *fe, int *ncolours)
 {
     float *ret = snewn(3 * NCOLOURS, float);
 
-    game_mkhighlight(fe, ret, COL_BACKGROUND, COL_HIGHLIGHT, COL_LOWLIGHT);
+    frontend_default_colour(fe, &ret[COL_BACKGROUND * 3]);
 
     ret[COL_1 * 3 + 0] = 0.0F;
     ret[COL_1 * 3 + 1] = 0.0F;
@@ -1390,8 +1386,8 @@ static float *game_colours(frontend *fe, int *ncolours)
     ret[COL_3 * 3 + 1] = 0.0F;
     ret[COL_3 * 3 + 2] = 0.0F;
 
-    ret[COL_4 * 3 + 0] = 0.7F;
-    ret[COL_4 * 3 + 1] = 0.7F;
+    ret[COL_4 * 3 + 0] = 1.0F;
+    ret[COL_4 * 3 + 1] = 1.0F;
     ret[COL_4 * 3 + 2] = 0.0F;
 
     ret[COL_5 * 3 + 0] = 1.0F;
@@ -1399,16 +1395,16 @@ static float *game_colours(frontend *fe, int *ncolours)
     ret[COL_5 * 3 + 2] = 1.0F;
 
     ret[COL_6 * 3 + 0] = 0.0F;
-    ret[COL_6 * 3 + 1] = 0.8F;
-    ret[COL_6 * 3 + 2] = 0.8F;
+    ret[COL_6 * 3 + 1] = 1.0F;
+    ret[COL_6 * 3 + 2] = 1.0F;
 
     ret[COL_7 * 3 + 0] = 0.5F;
     ret[COL_7 * 3 + 1] = 0.5F;
     ret[COL_7 * 3 + 2] = 1.0F;
 
-    ret[COL_8 * 3 + 0] = 0.2F;
-    ret[COL_8 * 3 + 1] = 0.8F;
-    ret[COL_8 * 3 + 2] = 0.2F;
+    ret[COL_8 * 3 + 0] = 0.5F;
+    ret[COL_8 * 3 + 1] = 1.0F;
+    ret[COL_8 * 3 + 2] = 0.5F;
 
     ret[COL_9 * 3 + 0] = 1.0F;
     ret[COL_9 * 3 + 1] = 0.5F;
@@ -1421,6 +1417,14 @@ static float *game_colours(frontend *fe, int *ncolours)
     ret[COL_SEL * 3 + 0] = 1.0F;
     ret[COL_SEL * 3 + 1] = 1.0F;
     ret[COL_SEL * 3 + 2] = 1.0F;
+
+    ret[COL_HIGHLIGHT * 3 + 0] = 1.0F;
+    ret[COL_HIGHLIGHT * 3 + 1] = 1.0F;
+    ret[COL_HIGHLIGHT * 3 + 2] = 1.0F;
+
+    ret[COL_LOWLIGHT * 3 + 0] = ret[COL_BACKGROUND * 3 + 0] * 2.0F / 3.0F;
+    ret[COL_LOWLIGHT * 3 + 1] = ret[COL_BACKGROUND * 3 + 1] * 2.0F / 3.0F;
+    ret[COL_LOWLIGHT * 3 + 2] = ret[COL_BACKGROUND * 3 + 2] * 2.0F / 3.0F;
 
     *ncolours = NCOLOURS;
     return ret;
@@ -1458,7 +1462,6 @@ static void tile_redraw(drawing *dr, game_drawstate *ds,
                         int tile, int bgcolour)
 {
     int outer = bgcolour, inner = outer, col = tile & TILE_COLMASK;
-    int tile_w, tile_h, outer_w, outer_h;
 
     if (col) {
 	if (tile & TILE_IMPOSSIBLE) {
@@ -1471,25 +1474,19 @@ static void tile_redraw(drawing *dr, game_drawstate *ds,
 	    outer = inner = col;
 	}
     }
-    tile_w = dright ? TILE_SIZE : TILE_INNER;
-    tile_h = dbelow ? TILE_SIZE : TILE_INNER;
-    outer_w = (tile & TILE_JOINRIGHT) ? tile_w : TILE_INNER;
-    outer_h = (tile & TILE_JOINDOWN)  ? tile_h : TILE_INNER;
-    /* Draw the background if any of it will be visible. */
-    if (outer_w != tile_w || outer_h != tile_h || outer == bgcolour)
-        draw_rect(dr, COORD(x), COORD(y), tile_w, tile_h, bgcolour);
-    /* Draw the piece. */
-    if (outer != bgcolour)
-        draw_rect(dr, COORD(x), COORD(y), outer_w, outer_h, outer);
-    if (inner != outer)
-        draw_rect(dr, COORD(x)+TILE_INNER/4, COORD(y)+TILE_INNER/4,
-                  TILE_INNER/2, TILE_INNER/2, inner);
-    /* Reset bottom-right corner if necessary. */
-    if ((tile & (TILE_JOINRIGHT | TILE_JOINDOWN | TILE_JOINDIAG)) ==
-        (TILE_JOINRIGHT | TILE_JOINDOWN) && outer != bgcolour &&
-        TILE_GAP != 0)
-	draw_rect(dr, COORD(x)+TILE_INNER, COORD(y)+TILE_INNER,
-                  TILE_GAP, TILE_GAP, bgcolour);
+    draw_rect(dr, COORD(x), COORD(y), TILE_INNER, TILE_INNER, outer);
+    draw_rect(dr, COORD(x)+TILE_INNER/4, COORD(y)+TILE_INNER/4,
+	      TILE_INNER/2, TILE_INNER/2, inner);
+
+    if (dright)
+	draw_rect(dr, COORD(x)+TILE_INNER, COORD(y), TILE_GAP, TILE_INNER,
+		  (tile & TILE_JOINRIGHT) ? outer : bgcolour);
+    if (dbelow)
+	draw_rect(dr, COORD(x), COORD(y)+TILE_INNER, TILE_INNER, TILE_GAP,
+		  (tile & TILE_JOINDOWN) ? outer : bgcolour);
+    if (dright && dbelow)
+	draw_rect(dr, COORD(x)+TILE_INNER, COORD(y)+TILE_INNER, TILE_GAP, TILE_GAP,
+		  (tile & TILE_JOINDIAG) ? outer : bgcolour);
 
     if (tile & TILE_HASSEL) {
 	int sx = COORD(x)+2, sy = COORD(y)+2, ssz = TILE_INNER-5;
@@ -1515,6 +1512,13 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     if (!ds->started) {
 	int coords[10];
 
+	draw_rect(dr, 0, 0,
+		  TILE_SIZE * state->params.w + 2 * BORDER,
+		  TILE_SIZE * state->params.h + 2 * BORDER, COL_BACKGROUND);
+	draw_update(dr, 0, 0,
+		    TILE_SIZE * state->params.w + 2 * BORDER,
+		    TILE_SIZE * state->params.h + 2 * BORDER);
+
 	/*
 	 * Recessed area containing the whole puzzle.
 	 */
@@ -1537,7 +1541,7 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
 	ds->started = true;
     }
 
-    if (flashtime > 0.0F) {
+    if (flashtime > 0.0) {
 	int frame = (int)(flashtime / FLASH_FRAME);
 	bgcolour = (frame % 2 ? COL_LOWLIGHT : COL_HIGHLIGHT);
     } else
@@ -1560,13 +1564,8 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
 	    if ((tile & TILE_JOINRIGHT) && (tile & TILE_JOINDOWN) &&
 		COL(state,x+1,y+1) == col)
 		tile |= TILE_JOINDIAG;
-            /*
-             * If the game state is an unplayable one (either
-             * completed or impossible), we hide the keyboard-control
-             * cursor.
-             */
-	    if (ui->displaysel && ui->xsel == x && ui->ysel == y &&
-                !(state->complete || state->impossible))
+
+	    if (ui->displaysel && ui->xsel == x && ui->ysel == y)
 		tile |= TILE_HASSEL;
 
 	    /* For now we're never expecting oldstate at all (because we have
@@ -1616,19 +1615,6 @@ static float game_flash_length(const game_state *oldstate,
 	return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->displaysel) {
-        *x = COORD(ui->xsel);
-        *y = COORD(ui->ysel);
-        *w = *h = TILE_SIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     /*
@@ -1636,6 +1622,19 @@ static int game_status(const game_state *state)
      * don't bother to identify them and return -1.
      */
     return state->complete ? +1 : 0;
+}
+
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
+{
+}
+
+static void game_print(drawing *dr, const game_state *state, int tilesize)
+{
 }
 
 #ifdef COMBINED
@@ -1657,16 +1656,14 @@ const struct game thegame = {
     new_game,
     dup_game,
     free_game,
-    false, NULL, /* solve */
+    false, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    NULL, NULL, /* get_prefs, set_prefs */
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
@@ -1676,10 +1673,9 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
-    false, false, NULL, NULL,          /* print_size, print */
+    false, false, game_print_size, game_print,
     true,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     0,				       /* flags */
 };

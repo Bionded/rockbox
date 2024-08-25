@@ -20,24 +20,8 @@
  ****************************************************************************/
 #ifndef _DIRCACHE_REDIRECT_H_
 
-#include "rbpaths.h"
-#include "pathfuncs.h"
 #include "dir.h"
-#include "dircache.h"
-#include "file.h"
 
-#if defined(HAVE_MULTIBOOT) && !defined(SIMULATOR) && !defined(BOOTLOADER)
-#include "rb-loader.h"
-#include "multiboot.h"
-#include "bootdata.h"
-#endif
-
-#ifndef RB_ROOT_VOL_HIDDEN
-#define RB_ROOT_VOL_HIDDEN(v)   (0 == 0)
-#endif
-#ifndef RB_ROOT_CONTENTS_DIR
-#define RB_ROOT_CONTENTS_DIR    "/"
-#endif
 /***
  ** Internal redirects that depend upon whether or not dircache is made
  **
@@ -137,105 +121,12 @@ static inline void fileop_onsync_internal(struct filestr_base *stream)
 #endif
 }
 
-#if defined(HAVE_MULTIBOOT) && !defined(SIMULATOR) && !defined(BOOTLOADER)
-static inline bool multiboot_is_boot_volume(int volume)
-{
-    if (boot_data.version == 0)
-    {
-        /*
-         * Version 0 bootloaders just pass the volume number, but that's
-         * dynamically assigned and sometimes differs by the time we get
-         * into the firmware. So we can't rely on the volume passed by
-         * the bootloader.
-         */
-#if CONFIG_CPU == X1000
-        /* The affected X1000 players only have one drive to begin with */
-        return volume_drive(volume) == 0;
-#else
-        /* FIXME: Anything else that can get here is a Sansa. */
-        return volume_drive(volume) == boot_data._boot_volume ||
-               volume == boot_data._boot_volume;
-#endif
-    }
-
-    if (boot_data.version == 1)
-    {
-        /*
-         * Since version 1 the bootloader passes drive and partition
-         * number which unambiguously identifies the boot volume.
-         */
-        return volume_drive(volume) == boot_data.boot_drive &&
-               volume_partition(volume) == boot_data.boot_partition;
-    }
-
-    return false;
-}
-#endif
-
 static inline void volume_onmount_internal(IF_MV_NONVOID(int volume))
 {
-#if defined(HAVE_MULTIBOOT) && !defined(SIMULATOR) && !defined(BOOTLOADER)
-    char path[VOL_MAX_LEN+2];
-    char rtpath[MAX_PATH / 2];
-    make_volume_root(volume, path);
-
-    if (boot_data_valid)
-    {
-        /* we need to mount the drive before we can access it */
-        root_mount_path(path, 0); /* root could be different folder don't hide */
-
-        if (multiboot_is_boot_volume(IF_MV_VOL(volume)))
-        {
-            /* get the full path to the BOOTFILE
-               ie. /<0>/redirectdir/.rockbox/rockbox.ext */
-            int rtlen = get_redirect_dir(rtpath, sizeof(rtpath),
-                                         volume, BOOTDIR, BOOTFILE);
-
-            if (rtlen <= 0 || rtlen >= (int) sizeof(rtpath))
-                rtlen = 0; /* path too long or sprintf error */
-            else if (file_exists(rtpath))
-            {
-                rtlen = get_redirect_dir(rtpath, sizeof(rtpath), volume, "", "");
-                while (rtlen > 0 && rtpath[--rtlen] == PATH_SEPCH)
-                    rtpath[rtlen] = '\0'; /* remove separators */
-            }
-            else
-                rtlen = 0; /* No BOOTFILE found */
-
-#if 0 /*removed, causes issues with playback for now?*/
-            if (rtlen <= 0 || rtpath[rtlen] == VOL_END_TOK)
-                root_unmount_volume(volume); /* unmount so root can be hidden*/
-#endif
-            if (rtlen <= 0 || root_mount_path(rtpath, NSITEM_CONTENTS) != 0)
-            {   /* Error occurred, card removed? Set root to default */
-                boot_data_valid = false;
-                root_unmount_volume(volume); /* unmount so root can be hidden*/
-                goto standard_redirect;
-            }
-        }
-    }
-    else
-    {
-standard_redirect:
-        root_mount_path(path, RB_ROOT_VOL_HIDDEN(volume) ? NSITEM_HIDDEN : 0);
-        if (volume == path_strip_volume(RB_ROOT_CONTENTS_DIR, NULL, false))
-            root_mount_path(RB_ROOT_CONTENTS_DIR, NSITEM_CONTENTS);
-    }
-#elif defined(HAVE_MULTIVOLUME)
-    char path[VOL_MAX_LEN+2];
-    make_volume_root(volume, path);
-    root_mount_path(path, RB_ROOT_VOL_HIDDEN(volume) ? NSITEM_HIDDEN : 0);
-    if (volume == path_strip_volume(RB_ROOT_CONTENTS_DIR, NULL, false))
-        root_mount_path(RB_ROOT_CONTENTS_DIR, NSITEM_CONTENTS);
-#else
-    const char *path = PATH_ROOTSTR;
-    root_mount_path(path, RB_ROOT_VOL_HIDDEN(volume) ? NSITEM_HIDDEN : 0);
-    root_mount_path(RB_ROOT_CONTENTS_DIR, NSITEM_CONTENTS);
-#endif /* HAVE_MULTIBOOT */
-
 #ifdef HAVE_DIRCACHE
     dircache_mount();
 #endif
+    IF_MV( (void)volume; )
 }
 
 static inline void volume_onunmount_internal(IF_MV_NONVOID(int volume))
@@ -244,7 +135,6 @@ static inline void volume_onunmount_internal(IF_MV_NONVOID(int volume))
     /* First, to avoid update of something about to be destroyed anyway */
     dircache_unmount(IF_MV(volume));
 #endif
-    root_unmount_volume(IF_MV(volume));
     fileobj_mgr_unmount(IF_MV(volume));
 }
 
@@ -262,7 +152,7 @@ static inline void fileop_onunmount_internal(struct filestr_base *stream)
 
 static inline int readdir_dirent(struct filestr_base *stream,
                                  struct dirscan_info *scanp,
-                                 struct DIRENT *entry)
+                                 struct dirent *entry)
 {
 #ifdef HAVE_DIRCACHE
     return dircache_readdir_dirent(stream, scanp, entry);

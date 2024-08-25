@@ -64,7 +64,11 @@
 #endif
 
 /* size of code+bss */
+#if CONFIG_CPU == SH7034
+#define CODE_SIZE 0x3000 /* 12k */
+#else
 #define CODE_SIZE 0x5000 /* 20k */
+#endif
 
 #define CODE_AND_UNDO_SIZE (CODE_SIZE+0x1000) /* + 4k */
 
@@ -100,8 +104,40 @@
 #define SOKOBAN_MOVE_MIN     SOKOBAN_MOVE_DOWN
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if (CONFIG_KEYPAD == RECORDER_PAD) || \
+    (CONFIG_KEYPAD == ARCHOS_AV300_PAD)
+#define SOKOBAN_LEFT BUTTON_LEFT
+#define SOKOBAN_RIGHT BUTTON_RIGHT
+#define SOKOBAN_UP BUTTON_UP
+#define SOKOBAN_DOWN BUTTON_DOWN
+#define SOKOBAN_MENU BUTTON_OFF
+#define SOKOBAN_UNDO BUTTON_ON
+#define SOKOBAN_REDO BUTTON_PLAY
+#define SOKOBAN_LEVEL_DOWN BUTTON_F1
+#define SOKOBAN_LEVEL_REPEAT BUTTON_F2
+#define SOKOBAN_LEVEL_UP BUTTON_F3
+#define SOKOBAN_PAUSE BUTTON_PLAY
+#define BUTTON_SAVE BUTTON_ON
+#define BUTTON_SAVE_NAME "ON"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define SOKOBAN_LEFT BUTTON_LEFT
+#define SOKOBAN_RIGHT BUTTON_RIGHT
+#define SOKOBAN_UP BUTTON_UP
+#define SOKOBAN_DOWN BUTTON_DOWN
+#define SOKOBAN_MENU BUTTON_OFF
+#define SOKOBAN_UNDO_PRE BUTTON_MENU
+#define SOKOBAN_UNDO (BUTTON_MENU | BUTTON_REL)
+#define SOKOBAN_REDO (BUTTON_MENU | BUTTON_DOWN)
+#define SOKOBAN_LEVEL_DOWN (BUTTON_MENU | BUTTON_LEFT)
+#define SOKOBAN_LEVEL_REPEAT (BUTTON_MENU | BUTTON_UP)
+#define SOKOBAN_LEVEL_UP (BUTTON_MENU | BUTTON_RIGHT)
+#define SOKOBAN_PAUSE BUTTON_MENU
+#define BUTTON_SAVE BUTTON_MENU
+#define BUTTON_SAVE_NAME "MENU"
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define SOKOBAN_LEFT BUTTON_LEFT
 #define SOKOBAN_RIGHT BUTTON_RIGHT
 #define SOKOBAN_UP BUTTON_UP
@@ -125,7 +161,7 @@
 #define SOKOBAN_RIGHT BUTTON_RIGHT
 #define SOKOBAN_UP BUTTON_MENU
 #define SOKOBAN_DOWN BUTTON_PLAY
-#define SOKOBAN_MENU (BUTTON_SELECT | BUTTON_REPEAT)
+#define SOKOBAN_MENU (BUTTON_SELECT | BUTTON_MENU)
 #define SOKOBAN_UNDO_PRE BUTTON_SELECT
 #define SOKOBAN_UNDO (BUTTON_SELECT | BUTTON_REL)
 #define SOKOBAN_REDO (BUTTON_SELECT | BUTTON_PLAY)
@@ -311,6 +347,20 @@
 #define SOKOBAN_LEVEL_DOWN BUTTON_MINUS
 #define SOKOBAN_LEVEL_UP BUTTON_PLUS
 #define SOKOBAN_MENU_NAME "[MENU]"
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define SOKOBAN_LEFT BUTTON_LEFT
+#define SOKOBAN_RIGHT BUTTON_RIGHT
+#define SOKOBAN_UP BUTTON_STOP
+#define SOKOBAN_DOWN BUTTON_PLAY
+#define SOKOBAN_MENU BUTTON_MENU
+#define SOKOBAN_UNDO BUTTON_VOLDOWN
+#define SOKOBAN_REDO BUTTON_VOLUP
+#define SOKOBAN_PAUSE (BUTTON_MENU|BUTTON_LEFT)
+#define BUTTON_SAVE (BUTTON_MENU|BUTTON_PLAY)
+#define BUTTON_SAVE_NAME "MENU+PLAY"
+
+#define SOKOBAN_RC_MENU (BUTTON_MENU|BUTTON_STOP)
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define SOKOBAN_LEFT BUTTON_LEFT
@@ -609,22 +659,6 @@
 #define SOKOBAN_MENU BUTTON_POWER
 #define SOKOBAN_UNDO_PRE BUTTON_PLAY
 #define SOKOBAN_UNDO (BUTTON_PLAY | BUTTON_REL)
-#define SOKOBAN_REDO (BUTTON_PWRALT | BUTTON_PLAY)
-#define SOKOBAN_LEVEL_DOWN BUTTON_VOL_DOWN
-#define SOKOBAN_LEVEL_REPEAT (BUTTON_PLAY | BUTTON_NEXT)
-#define SOKOBAN_LEVEL_UP BUTTON_VOL_UP
-#define SOKOBAN_PAUSE BUTTON_PLAY
-#define BUTTON_SAVE BUTTON_PLAY
-#define BUTTON_SAVE_NAME "PLAY"
-
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define SOKOBAN_LEFT BUTTON_PREV
-#define SOKOBAN_RIGHT BUTTON_NEXT
-#define SOKOBAN_UP BUTTON_HOME
-#define SOKOBAN_DOWN BUTTON_OPTION
-#define SOKOBAN_MENU BUTTON_POWER
-#define SOKOBAN_UNDO_PRE BUTTON_PLAY
-#define SOKOBAN_UNDO (BUTTON_PLAY | BUTTON_REL)
 #define SOKOBAN_REDO (BUTTON_POWER | BUTTON_PLAY)
 #define SOKOBAN_LEVEL_DOWN BUTTON_VOL_DOWN
 #define SOKOBAN_LEVEL_REPEAT (BUTTON_PLAY | BUTTON_NEXT)
@@ -633,23 +667,7 @@
 #define BUTTON_SAVE BUTTON_PLAY
 #define BUTTON_SAVE_NAME "PLAY"
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define SOKOBAN_LEFT BUTTON_PREV
-#define SOKOBAN_RIGHT BUTTON_NEXT
-#define SOKOBAN_UP BUTTON_HOME
-#define SOKOBAN_DOWN BUTTON_OPTION
-#define SOKOBAN_MENU BUTTON_POWER
-#define SOKOBAN_UNDO_PRE BUTTON_PLAY
-#define SOKOBAN_UNDO (BUTTON_PLAY | BUTTON_REL)
-#define SOKOBAN_REDO (BUTTON_POWER | BUTTON_PLAY)
-#define SOKOBAN_LEVEL_DOWN BUTTON_VOL_DOWN
-#define SOKOBAN_LEVEL_REPEAT (BUTTON_PLAY | BUTTON_NEXT)
-#define SOKOBAN_LEVEL_UP BUTTON_VOL_UP
-#define SOKOBAN_PAUSE BUTTON_PLAY
-#define BUTTON_SAVE BUTTON_PLAY
-#define BUTTON_SAVE_NAME "PLAY"
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define SOKOBAN_LEFT BUTTON_HOME
 #define SOKOBAN_RIGHT BUTTON_VOL_DOWN
 #define SOKOBAN_UP BUTTON_PREV
@@ -665,39 +683,21 @@
 #define BUTTON_SAVE BUTTON_PLAY
 #define BUTTON_SAVE_NAME "PLAY"
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
-#define SOKOBAN_LEFT BUTTON_SCROLL_BACK
-#define SOKOBAN_RIGHT BUTTON_SCROLL_FWD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+#define SOKOBAN_LEFT BUTTON_HOME
+#define SOKOBAN_RIGHT BUTTON_VOL_DOWN
 #define SOKOBAN_UP BUTTON_PREV
 #define SOKOBAN_DOWN BUTTON_NEXT
-#define SOKOBAN_MENU BUTTON_MENU
+#define SOKOBAN_MENU BUTTON_POWER
 #define SOKOBAN_UNDO_PRE BUTTON_PLAY
 #define SOKOBAN_UNDO (BUTTON_PLAY | BUTTON_REL)
 #define SOKOBAN_REDO (BUTTON_POWER | BUTTON_PLAY)
-#define SOKOBAN_LEVEL_DOWN BUTTON_VOL_DOWN
-#define SOKOBAN_LEVEL_REPEAT BUTTON_BACK
-#define SOKOBAN_LEVEL_UP BUTTON_VOL_UP
+#define SOKOBAN_LEVEL_DOWN (BUTTON_POWER | BUTTON_VOL_DOWN)
+#define SOKOBAN_LEVEL_REPEAT (BUTTON_POWER | BUTTON_HOME)
+#define SOKOBAN_LEVEL_UP (BUTTON_POWER | BUTTON_VOL_UP)
 #define SOKOBAN_PAUSE BUTTON_PLAY
 #define BUTTON_SAVE BUTTON_PLAY
 #define BUTTON_SAVE_NAME "PLAY"
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define SOKOBAN_LEFT        BUTTON_LEFT
-#define SOKOBAN_RIGHT       BUTTON_RIGHT
-#define SOKOBAN_UP          BUTTON_UP
-#define SOKOBAN_DOWN        BUTTON_DOWN
-#define SOKOBAN_MENU        BUTTON_MENU
-#define SOKOBAN_UNDO        BUTTON_VOL_DOWN
-#define SOKOBAN_REDO        BUTTON_VOL_UP
-#define SOKOBAN_LEVEL_DOWN   (BUTTON_PLAY|BUTTON_VOL_DOWN)
-#define SOKOBAN_LEVEL_UP     (BUTTON_PLAY|BUTTON_VOL_UP)
-#define SOKOBAN_LEVEL_REPEAT (BUTTON_PLAY|BUTTON_POWER)
-#define SOKOBAN_PAUSE       BUTTON_SELECT
-#define BUTTON_SAVE        BUTTON_BACK
-#define BUTTON_SAVE_NAME   "BACK"
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -1274,56 +1274,56 @@ static void update_screen(void)
 
                 case ' ': /* floor */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 0*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
+                        STRIDE( SCREEN_MAIN, 
                                 BMPWIDTH_sokoban_tiles,
-                                BMPHEIGHT_sokoban_tiles),
+                                BMPHEIGHT_sokoban_tiles), 
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
 
                 case '#': /* wall */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 1*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
 
                 case '$': /* box */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 2*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE,SOKOBAN_TILESIZE);
                     break;
 
                 case '*': /* box on goal */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 3*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
 
                 case '.': /* goal */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 4*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
 
                 case '@': /* player */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 5*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
 
                 case '+': /* player on goal */
                     rb->lcd_bitmap_part(sokoban_tiles, 0, 6*SOKOBAN_TILESIZE,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_sokoban_tiles,
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_sokoban_tiles, 
                                 BMPHEIGHT_sokoban_tiles),
                         c, r, SOKOBAN_TILESIZE, SOKOBAN_TILESIZE);
                     break;
@@ -1611,8 +1611,23 @@ static int sokoban_menu(void)
                     rb->screens[i]->clear_display();
                 rb->lcd_setfont(SOKOBAN_FONT);
 
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if (CONFIG_KEYPAD == RECORDER_PAD) || \
+    (CONFIG_KEYPAD == ARCHOS_AV300_PAD)
+                rb->lcd_putsxy(3,  6, "[OFF] Menu");
+                rb->lcd_putsxy(3, 16, "[ON] Undo");
+                rb->lcd_putsxy(3, 26, "[PLAY] Redo");
+                rb->lcd_putsxy(3, 36, "[F1] Down a Level");
+                rb->lcd_putsxy(3, 46, "[F2] Restart Level");
+                rb->lcd_putsxy(3, 56, "[F3] Up a Level");
+#elif CONFIG_KEYPAD == ONDIO_PAD
+                rb->lcd_putsxy(3,  6, "[OFF] Menu");
+                rb->lcd_putsxy(3, 16, "[MODE] Undo");
+                rb->lcd_putsxy(3, 26, "[MODE+DOWN] Redo");
+                rb->lcd_putsxy(3, 36, "[MODE+LEFT] Previous Level");
+                rb->lcd_putsxy(3, 46, "[MODE+UP] Restart Level");
+                rb->lcd_putsxy(3, 56, "[MODE+RIGHT] Up Level");
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
                 rb->lcd_putsxy(3,  6, "[STOP] Menu");
                 rb->lcd_putsxy(3, 16, "[REC] Undo");
                 rb->lcd_putsxy(3, 26, "[MODE] Redo");
@@ -1918,7 +1933,7 @@ static bool sokoban_loop(void)
                                 *loc = '.';
                         }
 
-                        if (!rb->kbd_input(buf, MAX_PATH, NULL))
+                        if (!rb->kbd_input(buf, MAX_PATH))
                             save(buf, true);
                     } else
                         rb->splash(HZ*2, "Solution too long to save");

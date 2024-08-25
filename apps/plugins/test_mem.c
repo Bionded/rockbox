@@ -79,17 +79,21 @@ static void write_test(volatile int *buf, int buf_size, int loop_cnt)
 {
 #if defined(CPU_ARM)
     asm volatile (
-            "mov r6, %[loops]      \n"
-        ".outer_loop_write:        \n"
-            "mov r4, %[buf_p]      \n"
-            "mov r5, %[size]       \n"
-        ".inner_loop_write:        \n"
-            "ldmia r4!, {r0-r3}    \n"
-            "subs r5, r5, #8       \n"
-            "ldmia r4!, {r0-r3}    \n"
-            "bgt .inner_loop_write \n"
-            "subs r6, r6, #1       \n"
-            "bgt .outer_loop_write \n"
+            "mov r0, #0           \n"
+            "mov r1, #1           \n"
+            "mov r2, #2           \n"
+            "mov r3, #3           \n"
+            "mov r6, %[loops]     \n"
+        ".outer_loop_read:        \n"
+            "mov r4, %[buf_p]     \n"
+            "mov r5, %[size]      \n"
+        ".inner_loop_read:        \n"
+            "stmia r4!, {r0-r3}   \n"
+            "stmia r4!, {r0-r3}   \n"
+            "subs r5, r5, #8      \n"
+            "bgt .inner_loop_read \n"
+            "subs r6, r6, #1      \n"
+            "bgt .outer_loop_read \n"
             :
             : [loops] "r" (loop_cnt), [size] "r" (buf_size), [buf_p] "r" (buf)
             : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "memory", "cc"
@@ -112,21 +116,17 @@ static void read_test(volatile int *buf, int buf_size, int loop_cnt)
 {
 #if defined(CPU_ARM)
     asm volatile (
-            "mov r0, #0           \n"
-            "mov r1, #1           \n"
-            "mov r2, #2           \n"
-            "mov r3, #3           \n"
-            "mov r6, %[loops]     \n"
-        ".outer_loop_read:        \n"
-            "mov r4, %[buf_p]     \n"
-            "mov r5, %[size]      \n"
-        ".inner_loop_read:        \n"
-            "stmia r4!, {r0-r3}   \n"
-            "stmia r4!, {r0-r3}   \n"
-            "subs r5, r5, #8      \n"
-            "bgt .inner_loop_read \n"
-            "subs r6, r6, #1      \n"
-            "bgt .outer_loop_read \n"
+            "mov r6, %[loops]      \n"
+        ".outer_loop_write:        \n"
+            "mov r4, %[buf_p]      \n"
+            "mov r5, %[size]       \n"
+        ".inner_loop_write:        \n"
+            "ldmia r4!, {r0-r3}    \n"
+            "subs r5, r5, #8       \n"
+            "ldmia r4!, {r0-r3}    \n"
+            "bgt .inner_loop_write \n"
+            "subs r6, r6, #1       \n"
+            "bgt .outer_loop_write \n"
             :
             : [loops] "r" (loop_cnt), [size] "r" (buf_size), [buf_p] "r" (buf)
             : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "memory", "cc"
@@ -206,8 +206,10 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
     int count = 0;
 
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_setfont(FONT_SYSFIXED);
-
+#endif
+    
     rb->screens[0]->clear_display();
     TEST_MEM_PRINTF("patience, may take some seconds...");
     rb->screens[0]->update();

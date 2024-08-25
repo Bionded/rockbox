@@ -26,8 +26,6 @@ static const unsigned char graylevels[16] = {
     0, 1, 1, 1, 2, 2, 3, 3
 };
 
-static fb_data *lcd_fb = NULL;
-
 void init_spect_scr(void)
 {
     int i;
@@ -43,11 +41,6 @@ void init_spect_scr(void)
 }
 void update_screen(void)
 {
-    if (!lcd_fb)
-    {
-        struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-        lcd_fb = vp_main->buffer->fb_ptr;
-    }
     fb_data *frameb;
     int y=0;
     int x=0;
@@ -58,7 +51,7 @@ void update_screen(void)
 #if LCD_PIXELFORMAT == HORIZONTAL_PACKING
     for(y = 0; y < LCD_HEIGHT; y++)
     {
-        frameb = lcd_fb + (y) * FB_WIDTH;
+        frameb = rb->lcd_framebuffer + (y) * FB_WIDTH;
         srcx = 0;           /* reset our x counter before each row... */
         for(x = 0; x < LCD_WIDTH; x++)
         {
@@ -74,7 +67,7 @@ void update_screen(void)
     int shift;
     for(y = 0; y < LCD_HEIGHT; y++)
     {
-        frameb = lcd_fb + (y/4) * LCD_WIDTH;
+        frameb = rb->lcd_framebuffer + (y/4) * LCD_WIDTH;
         srcx = 0;           /* reset our x counter before each row... */
         shift = ((y & 3 ) * 2 );
         mask = ~pixmask[y & 3];
@@ -91,7 +84,7 @@ void update_screen(void)
     int shift;
     for(y = 0; y < LCD_HEIGHT; y++)
     {
-        frameb = lcd_fb + (y/8) * LCD_WIDTH;
+        frameb = rb->lcd_framebuffer + (y/8) * LCD_WIDTH;
         srcx = 0;           /* reset our x counter before each row... */
         shift = (y & 7);
         mask = ~pixmask[y & 7];

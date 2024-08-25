@@ -23,13 +23,6 @@
 #include <inttypes.h>
 #include "m4a.h"
 
-#undef DEBUGF
-#if defined(DEBUG)
-#define DEBUGF stream->ci->debugf
-#else
-#define DEBUGF(...)
-#endif
-
 /* Implementation of the stream.h functions used by libalac */
 
 #define _Swap32(v) do { \
@@ -114,145 +107,96 @@ void stream_create(stream_t *stream,struct codec_api* ci)
 
 /* Check if there is a dedicated byte position contained for the given frame.
  * Return this byte position in case of success or return -1. This allows to
- * skip empty samples.
- * During standard playback the search result (index i) will always increase.
+ * skip empty samples. 
+ * During standard playback the search result (index i) will always increase. 
  * Therefor we save this index and let the caller set this value again as start
- * index when calling m4a_check_sample_offset() for the next frame. This
+ * index when calling m4a_check_sample_offset() for the next frame. This 
  * reduces the overall loop count significantly. */
 int m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame, uint32_t *start)
 {
     uint32_t i = *start;
-    for (;i < demux_res->num_lookup_table; ++i)
+    for (i=0; i<demux_res->num_lookup_table; ++i)
     {
-        if (demux_res->lookup_table[i].sample > frame)
-            break;
-
+        if (demux_res->lookup_table[i].sample > frame ||
+            demux_res->lookup_table[i].offset == 0)
+            return -1;
         if (demux_res->lookup_table[i].sample == frame)
-        {
-            *start = i;
-            return demux_res->lookup_table[i].offset;
-        }
+            break;
     }
     *start = i;
-    return -1;
+    return demux_res->lookup_table[i].offset;
+}
+
+/* Find the exact or preceding frame in lookup_table[]. Return both frame
+ * and byte position of this match. */
+static void gather_offset(demux_res_t *demux_res, uint32_t *frame, uint32_t *offset)
+{
+    uint32_t i = 0;
+    for (i=0; i<demux_res->num_lookup_table; ++i)
+    {
+        if (demux_res->lookup_table[i].offset == 0)
+            break;
+        if (demux_res->lookup_table[i].sample > *frame)
+            break;
+    }
+    i = (i>0) ? i-1 : 0; /* We want the last chunk _before_ *frame. */
+    *frame  = demux_res->lookup_table[i].sample;
+    *offset = demux_res->lookup_table[i].offset;
 }
 
 /* Seek to desired sound sample location. Return 1 on success (and modify
- * sound_samples_done and current_sample), 0 if failed. */
-unsigned int m4a_seek(demux_res_t* demux_res, stream_t* stream,
-    uint64_t sound_sample_loc, uint64_t* sound_samples_done,
-    uint32_t* current_sample, uint32_t* lookup_table_idx)
+ * sound_samples_done and current_sample), 0 if failed.
+ *
+ * Find the sample (=frame) that contains the given sound sample, find a best
+ * fit for this sample in the lookup_table[], seek to the byte position. */
+unsigned int m4a_seek(demux_res_t* demux_res, stream_t* stream, 
+    uint32_t sound_sample_loc, uint32_t* sound_samples_done, 
+    int* current_sample)
 {
-    uint32_t i, sample_i;
-    uint32_t time, time_cnt = 0, time_dur = 0;
-    uint32_t chunk, chunk_first_sample;
-    uint32_t offset;
-    uint64_t sound_sample_i;
-    time_to_sample_t *tts_tab = demux_res->time_to_sample;
-    sample_offset_t *tco_tab = demux_res->lookup_table;
-    uint32_t *tsz_tab = demux_res->sample_byte_sizes;
+    uint32_t i = 0;
+    uint32_t tmp_var, tmp_cnt, tmp_dur;
+    uint32_t new_sample = 0;       /* Holds the amount of chunks/frames. */
+    uint32_t new_sound_sample = 0; /* Sums up total amount of samples. */
+    uint32_t new_pos;              /* Holds the desired chunk/frame index. */
 
-    /* First check we have the required metadata - we should always have it. */
+    /* First check we have the appropriate metadata - we should always
+     * have it.
+     */
     if (!demux_res->num_time_to_samples || !demux_res->num_sample_byte_sizes)
-    {
-        return 0;
+    { 
+        return 0; 
     }
 
-    /* The 'sound_sample_loc' we have is PCM-based and not directly usable.
-     * We need to convert it to an MP4 sample number 'sample_i' first. */
-    sample_i = sound_sample_i = 0;
-    for (time = 0; time < demux_res->num_time_to_samples; ++time)
+    /* Find the destination block from time_to_sample array */
+    time_to_sample_t *tab = demux_res->time_to_sample;
+    while (i < demux_res->num_time_to_samples)
     {
-        time_cnt = tts_tab[time].sample_count;
-        time_dur = tts_tab[time].sample_duration;
-        uint32_t time_var = time_cnt * time_dur;
-
-        if (sound_sample_loc < sound_sample_i + time_var)
+        tmp_cnt = tab[i].sample_count;
+        tmp_dur = tab[i].sample_duration;
+        tmp_var = tmp_cnt * tmp_dur;
+        if (sound_sample_loc <= new_sound_sample + tmp_var)
         {
-            time_var = sound_sample_loc - sound_sample_i;
-            sample_i += time_var / time_dur;
+            tmp_var = (sound_sample_loc - new_sound_sample);
+            new_sample       += tmp_var / tmp_dur;
+            new_sound_sample += tmp_var;
             break;
         }
-
-        sample_i       += time_cnt;
-        sound_sample_i += time_var;
+        new_sample       += tmp_cnt;
+        new_sound_sample += tmp_var;
+        ++i;
     }
 
-    /* Find the chunk after 'sample_i'. */
-    for (chunk = 1; chunk < demux_res->num_lookup_table; ++chunk)
+    /* We know the new sample (=frame), now calculate the file position. */
+    gather_offset(demux_res, &new_sample, &new_pos);
+
+    /* We know the new file position, so let's try to seek to it */
+    if (stream->ci->seek_buffer(new_pos))
     {
-        if (tco_tab[chunk].sample > sample_i)
-            break;
-    }
-
-    /* The preceding chunk is the one that contains 'sample_i'. */
-    chunk--;
-    *lookup_table_idx = chunk;
-    chunk_first_sample = tco_tab[chunk].sample;
-    offset = tco_tab[chunk].offset;
-
-    /* Compute the PCM sample number of the chunk's first sample
-     * to get an accurate base for sound_sample_i. */
-    i = sound_sample_i = 0;
-    for (time = 0; time < demux_res->num_time_to_samples; ++time)
-    {
-        time_cnt = tts_tab[time].sample_count;
-        time_dur = tts_tab[time].sample_duration;
-
-        if (chunk_first_sample < i + time_cnt)
-        {
-            sound_sample_i += (chunk_first_sample - i) * time_dur;
-            break;
-        }
-
-        i += time_cnt;
-        sound_sample_i += time_cnt * time_dur;
-    }
-
-    if (demux_res->sample_byte_sizes_offset)
-    {
-        stream->ci->seek_buffer(demux_res->sample_byte_sizes_offset + chunk_first_sample * 4);
-    }
-
-    if (tsz_tab || demux_res->sample_byte_sizes_offset)
-    {
-        /* We have a sample-to-bytes table available so we can do accurate
-         * seeking. Move one sample at a time and update the file offset and
-         * PCM sample offset as we go. */
-        for (i = chunk_first_sample;
-             i < sample_i && i < demux_res->num_sample_byte_sizes; ++i)
-        {
-            /* this could be unnecessary */
-            if (time_cnt == 0 && ++time < demux_res->num_time_to_samples)
-            {
-                time_cnt = tts_tab[time].sample_count;
-                time_dur = tts_tab[time].sample_duration;
-            }
-
-            offset += tsz_tab ? tsz_tab[i] : stream_read_uint32(stream);
-            sound_sample_i += time_dur;
-            time_cnt--;
-        }
-    } else {
-        /* No sample-to-bytes table available so we can only seek to the
-         * start of a chunk, which is often much lower resolution. */
-        sample_i = chunk_first_sample;
-    }
-
-    DEBUGF("seek chunk=%lu, chunk_first_sample=%lu, sample_i=%u, soundsample=%lu, offset=%lu\n",
-           (unsigned long)chunk,
-           (unsigned long)chunk_first_sample,
-           sample_i,
-           (unsigned long)sound_sample_i,
-           (unsigned long)offset);
-
-    if (stream->ci->seek_buffer(offset))
-    {
-        *sound_samples_done = sound_sample_i;
-        *current_sample = sample_i;
+        *sound_samples_done = new_sound_sample;
+        *current_sample = new_sample;
         return 1;
     }
-
+    
     return 0;
 }
 
@@ -264,7 +208,7 @@ unsigned int m4a_seek(demux_res_t* demux_res, stream_t* stream,
  * 1) the lookup_table array contains the file offset for the first sample
  *    of each chunk.
  *
- * 2) the time_to_sample array contains the duration (in sound samples)
+ * 2) the time_to_sample array contains the duration (in sound samples) 
  *    of each sample of data.
  *
  * Locate the chunk containing location (using lookup_table), find the first
@@ -272,29 +216,28 @@ unsigned int m4a_seek(demux_res_t* demux_res, stream_t* stream,
  * calculate the sound_samples_done value.
  */
 unsigned int m4a_seek_raw(demux_res_t* demux_res, stream_t* stream,
-    uint32_t file_loc, uint64_t* sound_samples_done,
-    uint32_t* current_sample, uint32_t* lookup_table_idx)
+    uint32_t file_loc, uint32_t* sound_samples_done, 
+    int* current_sample)
 {
     uint32_t i;
     uint32_t chunk_sample     = 0;
     uint32_t total_samples    = 0;
-    uint64_t new_sound_sample = 0;
+    uint32_t new_sound_sample = 0;
     uint32_t tmp_dur;
     uint32_t tmp_cnt;
     uint32_t new_pos;
 
-    /* We know the desired byte offset, search for the chunk right before.
+    /* We know the desired byte offset, search for the chunk right before. 
      * Return the associated sample to this chunk as chunk_sample. */
-    for (i = 1; i < demux_res->num_lookup_table; ++i)
+    for (i=0; i < demux_res->num_lookup_table; ++i)
     {
         if (demux_res->lookup_table[i].offset > file_loc)
             break;
     }
-    --i; /* We want the last chunk _before_ file_loc. */
-    *lookup_table_idx = i;
+    i = (i>0) ? i-1 : 0; /* We want the last chunk _before_ file_loc. */
     chunk_sample = demux_res->lookup_table[i].sample;
     new_pos      = demux_res->lookup_table[i].offset;
-
+    
     /* Get sound sample offset. */
     i = 0;
     time_to_sample_t *tab2 = demux_res->time_to_sample;
@@ -306,19 +249,19 @@ unsigned int m4a_seek_raw(demux_res_t* demux_res, stream_t* stream,
         new_sound_sample += tmp_cnt * tmp_dur;
         if (chunk_sample <= total_samples)
         {
-            new_sound_sample -= (total_samples - chunk_sample) * tmp_dur;
+            new_sound_sample += (chunk_sample - total_samples) * tmp_dur;
             break;
         }
         ++i;
     }
 
     /* Go to the new file position. */
-    if (stream->ci->seek_buffer(new_pos))
+    if (stream->ci->seek_buffer(new_pos)) 
     {
         *sound_samples_done = new_sound_sample;
         *current_sample = chunk_sample;
         return 1;
-    }
+    } 
 
     return 0;
 }

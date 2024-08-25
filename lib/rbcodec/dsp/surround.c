@@ -30,16 +30,13 @@
 static int surround_balance = 0;
 static bool surround_side_only = false;
 static int surround_mix = 100;
-static int surround_delay_ms = 0;
+static int surround_strength = 0;
 /*1 sample ~ 11ns */
-#define DLY_1US  90900
-#define DLY_5MS  ((DLY_1US * 5)/1000) /*(454)*/
-/* No longer needed but kept for reference */
-/*#define DLY_8MS  727*/
-/*#define DLY_10MS 909*/
-/*#define DLY_15MS 1363*/
-#define DLY_30MS ((DLY_1US * 30)/1000) /*(2727)*/
-#define MIN_DLY DLY_5MS
+#define DLY_5MS  454
+#define DLY_8MS  727
+#define DLY_10MS 909
+#define DLY_15MS 1363
+#define DLY_30MS 2727
 #define MAX_DLY DLY_30MS
 
 #define B0_DLY  (MAX_DLY/8 + 1)
@@ -66,7 +63,7 @@ static int handle = -1;
 
 static int surround_buffer_alloc(void)
 {
-    handle = core_alloc(SURROUND_BUFSIZE);
+    handle = core_alloc("dsp_surround_buffer", SURROUND_BUFSIZE);
     return handle;
 }
 
@@ -81,8 +78,7 @@ static void surround_buffer_free(void)
 
 static void dsp_surround_flush(void)
 {
-    if (handle >= 0)
-        memset(core_get_data(handle), 0, SURROUND_BUFSIZE);
+    memset(core_get_data(handle), 0, SURROUND_BUFSIZE);
 }
 
 static void surround_update_filter(unsigned int fout)
@@ -123,35 +119,47 @@ void dsp_surround_set_cutoff(int frq_l, int frq_h)
     surround_update_filter(dsp_get_output_frequency(dsp));
 }
 
-static void surround_set_delay(int surround_delay_ms)
+static void surround_set_stepsize(int surround_strength)
 {
-    if (handle >= 0)
+    if (handle > 0)
         dsp_surround_flush();
 
-    dly_size =  ((DLY_1US * surround_delay_ms) /1000);
-
-    if (dly_size < MIN_DLY)
-        dly_size = MIN_DLY;
-    else if (dly_size > MAX_DLY)
-        dly_size = MAX_DLY;
+    switch(surround_strength)
+    {
+    case 1:
+        dly_size =  DLY_5MS;
+        break;
+    case 2:
+        dly_size =  DLY_8MS;
+        break;
+    case 3:
+        dly_size =  DLY_10MS;
+        break;
+    case 4:
+        dly_size =  DLY_15MS;
+        break;
+    case 5:
+        dly_size =  DLY_30MS;
+        break;
+    }
 }
 
-void dsp_surround_enable(int delay_ms)
+void dsp_surround_enable(int var)
 {
-    if (delay_ms == surround_delay_ms)
+    if (var == surround_strength)
         return; /* No setting change */
 
-    surround_delay_ms = delay_ms;
+    surround_strength = var;
 
     struct dsp_config *dsp = dsp_get_config(CODEC_IDX_AUDIO);
     bool was_enabled = dsp_proc_enabled(dsp, DSP_PROC_SURROUND);
-    bool now_enabled = delay_ms > 0;
-
-    if (now_enabled)
-        surround_set_delay(delay_ms);
+    bool now_enabled = var > 0;
 
     if (was_enabled == now_enabled)
         return; /* No change in enabled status */
+
+    if (now_enabled)
+        surround_set_stepsize(var);
 
     /* If changing status, enable or disable it; if already enabled push
        additional DSP_PROC_INIT messages with value = 1 to force-update the

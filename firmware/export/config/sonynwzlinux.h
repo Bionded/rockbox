@@ -4,8 +4,10 @@
 
 #ifndef SIMULATOR
 #define CONFIG_PLATFORM (PLATFORM_HOSTED)
-#define PIVOT_ROOT "/contents"
 #endif
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -57,6 +59,9 @@
 /* The number of bytes reserved for loadable plugins */
 #define PLUGIN_BUFFER_SIZE 0x100000
 
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
+
 #define CONFIG_TUNER SI4700
 
 /* There is no hardware tone control */
@@ -67,7 +72,7 @@
 /* The A15 and A25 support more sampling rates, in fact they support crazy high bit-rates such
  * as 176.4 and 192 kHz but Rockbox does not support those */
 #if defined(SONY_NWZA10) || defined(SONY_NWA20)
-#define HW_SAMPR_CAPS   (SAMPR_CAP_44 | SAMPR_CAP_48 | SAMPR_CAP_88 | SAMPR_CAP_96 | SAMPR_CAP_176 | SAMPR_CAP_192)
+#define HW_SAMPR_CAPS   (SAMPR_CAP_44 | SAMPR_CAP_48 | SAMPR_CAP_88 | SAMPR_CAP_96)
 #endif
 
 /* KeyPad configuration for plugins */
@@ -82,7 +87,6 @@
 
 /* Audio codec */
 #define HAVE_NWZ_LINUX_CODEC
-#define HAVE_ALSA_32BIT
 
 #endif /* SIMULATOR */
 
@@ -103,18 +107,8 @@
 /* Define this to the CPU frequency */
 #define CPU_FREQ            532000000
 
-#ifdef NWZ_HAS_SD
-/* External SD card can be mounted */
-#define CONFIG_STORAGE (STORAGE_HOSTFS|STORAGE_SD)
-#define HAVE_MULTIDRIVE  /* But _not_ CONFIG_STORAGE_MULTI */
-#define NUM_DRIVES 2
-#define HAVE_HOTSWAP
-#define MULTIDRIVE_DIR "/mnt/media"
-#define MULTIDRIVE_DEV "/sys/block/mmcblk1"
-#else
 /* No special storage */
 #define CONFIG_STORAGE STORAGE_HOSTFS
-#endif
 #define HAVE_STORAGE_FLUSH
 
 /* Battery */

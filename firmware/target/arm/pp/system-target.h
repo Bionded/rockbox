@@ -175,7 +175,13 @@ extern unsigned char probed_ramsize;
 int battery_default_capacity(void);
 #endif
 
+
 #ifdef BOOTLOADER
+#if defined(TATUNG_TPJ1022)
+    /* Some targets don't like yielding in the bootloader - force
+     * yield() to return without a context switch. */
+#define YIELD_KERNEL_HOOK() true
+#endif
 
 #ifdef HAVE_BOOTLOADER_USB_MODE
 void tick_stop(void);

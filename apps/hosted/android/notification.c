@@ -29,7 +29,6 @@
 #include "misc.h"
 #include "thread.h"
 #include "debug.h"
-#include "audio.h"
 
 extern JNIEnv *env_ptr;
 extern jclass RockboxService_class;

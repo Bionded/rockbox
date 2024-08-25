@@ -41,7 +41,11 @@
 #endif
 
 
+#ifdef HAVE_LCD_CHARCELLS
+#define style_line(d, x, y, l)
+#else
 static void style_line(struct screen *display, int x, int y, struct line_desc *line);
+#endif
 
 static void put_text(struct screen *display, int x, int y, struct line_desc *line,
                       const char *text, bool prevent_scroll, int text_skip_pixels);
@@ -264,7 +268,8 @@ next:
                     else
                     {
                         /* any other character here is an erroneous format string */
-                        display->putsxyf(xpos, y, "<E:%c>", ch);
+                        snprintf(tempbuf, sizeof(tempbuf), "<E:%c>", ch);
+                        display->putsxy(xpos, y, tempbuf);
                         /* Don't consider going forward, fix the caller */
                         return;
                     }
@@ -293,6 +298,7 @@ next:
     }
 }
 
+#ifdef HAVE_LCD_BITMAP
 static void style_line(struct screen *display,
                        int x, int y, struct line_desc *line)
 {
@@ -378,6 +384,7 @@ static void style_line(struct screen *display,
     }
 #endif
 }
+#endif /* HAVE_LCD_BITMAP */
 
 void vput_line(struct screen *display,
               int x, int y, struct line_desc *line,

@@ -21,12 +21,7 @@
 #ifndef _ONPLAY_H_
 #define _ONPLAY_H_
 
-#ifdef HAVE_HOTKEY
-#include "menu.h"
-#endif
-
-int onplay(char* file, int attr, int from_context, bool hotkey);
-int get_onplay_context(void);
+int onplay(char* file, int attr, int from_screen, bool hotkey);
 
 enum {
     ONPLAY_MAINMENU = -1,
@@ -34,50 +29,28 @@ enum {
     ONPLAY_RELOAD_DIR,
     ONPLAY_START_PLAY,
     ONPLAY_PLAYLIST,
-    ONPLAY_PLUGIN,
-#ifdef HAVE_HOTKEY
-    ONPLAY_FUNC_RETURN, /* for use in hotkey_assignment only */
-#endif
+    ONPLAY_PICTUREFLOW,
 };
 
 #ifdef HAVE_HOTKEY
+int get_hotkey_lang_id(int action);
 
 enum hotkey_action {
     HOTKEY_OFF = 0,
     HOTKEY_VIEW_PLAYLIST,
-    HOTKEY_PROPERTIES,
-    HOTKEY_PICTUREFLOW,
     HOTKEY_SHOW_TRACK_INFO,
     HOTKEY_PITCHSCREEN,
     HOTKEY_OPEN_WITH,
     HOTKEY_DELETE,
-    HOTKEY_BOOKMARK,
-    HOTKEY_PLUGIN,
     HOTKEY_INSERT,
     HOTKEY_INSERT_SHUFFLED,
-    HOTKEY_BOOKMARK_LIST,
+    HOTKEY_PICTUREFLOW,
+    HOTKEY_BOOKMARK,
 };
-enum hotkey_flags {
-    HOTKEY_FLAG_NONE = 0x0,
-    HOTKEY_FLAG_WPS = 0x1,
-    HOTKEY_FLAG_TREE = 0x2,
-    HOTKEY_FLAG_NOSBS = 0x4,
-};
-
-struct hotkey_assignment {
-    int action;             /* hotkey_action */
-    int lang_id;            /* Language ID */
-    struct menu_func_param func;  /* Function to run if this entry is selected */
-    int16_t return_code;    /* What to return after the function is run. */
-    uint16_t flags;         /* Flags what context, display options */
-};                          /* (Pick ONPLAY_FUNC_RETURN to use function's return value) */
-
-const struct hotkey_assignment *get_hotkey(int action);
 #endif
 
 /* needed for the playlist viewer.. eventually clean this up */
-void onplay_show_playlist_cat_menu(const char* track_name, int attr,
-                                   void (*add_to_pl_cb));
-void onplay_show_playlist_menu(const char* path, int attr, void (*playlist_insert_cb));
+void onplay_show_playlist_cat_menu(char* track_name);
+void onplay_show_playlist_menu(char* path);
 
 #endif

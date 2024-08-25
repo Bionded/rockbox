@@ -33,69 +33,49 @@
 /**
  * read unsigned golomb rice code (jpegls).
  */
-static inline int get_ur_golomb_jpegls(GetBitContext *gb, int k, int limit,
-                                       int esc_len)
-{
+static inline int get_ur_golomb_jpegls(GetBitContext *gb, int k, int limit, int esc_len){
     unsigned int buf;
     int log;
-
+    
     OPEN_READER(re, gb);
     UPDATE_CACHE(re, gb);
-    buf = GET_CACHE(re, gb);
+    buf=GET_CACHE(re, gb);
 
-    log = av_log2(buf);
-
-    if (log - k >= 32 - MIN_CACHE_BITS + (MIN_CACHE_BITS == 32) &&
-        32 - log < limit) {
+    log= av_log2(buf);
+    
+    if(log - k >= 32-MIN_CACHE_BITS+(MIN_CACHE_BITS==32) && 32-log < limit){
         buf >>= log - k;
-        buf  += (30U - log) << k;
+        buf += (30-log)<<k;
         LAST_SKIP_BITS(re, gb, 32 + k - log);
         CLOSE_READER(re, gb);
-
+    
         return buf;
-    } else {
+    }else{
         int i;
-        for (i = 0; i + MIN_CACHE_BITS <= limit && SHOW_UBITS(re, gb, MIN_CACHE_BITS) == 0; i += MIN_CACHE_BITS) {
-            if (gb->size_in_bits <= (signed) re_index) {
-                CLOSE_READER(re, gb);
-                return -1;
-            }
-            LAST_SKIP_BITS(re, gb, MIN_CACHE_BITS);
+        for(i=0; SHOW_UBITS(re, gb, 1) == 0; i++){
+            LAST_SKIP_BITS(re, gb, 1);
             UPDATE_CACHE(re, gb);
         }
-        for (; i < limit && SHOW_UBITS(re, gb, 1) == 0; i++) {
-            SKIP_BITS(re, gb, 1);
-        }
-        LAST_SKIP_BITS(re, gb, 1);
-        UPDATE_CACHE(re, gb);
+        SKIP_BITS(re, gb, 1);
 
-        if (i < limit - 1) {
-            if (k) {
-                if (k > MIN_CACHE_BITS - 1) {
-                    buf = SHOW_UBITS(re, gb, 16) << (k-16);
-                    LAST_SKIP_BITS(re, gb, 16);
-                    UPDATE_CACHE(re, gb);
-                    buf |= SHOW_UBITS(re, gb, k-16);
-                    LAST_SKIP_BITS(re, gb, k-16);
-                } else {
-                    buf = SHOW_UBITS(re, gb, k);
-                    LAST_SKIP_BITS(re, gb, k);
-                }
-            } else {
-                buf = 0;
+        if(i < limit - 1){
+            if(k){
+                buf = SHOW_UBITS(re, gb, k);
+                LAST_SKIP_BITS(re, gb, k);
+            }else{
+                buf=0;
             }
 
-            buf += ((int32_t)i << k);
-        } else if (i == limit - 1) {
+            CLOSE_READER(re, gb);
+            return buf + (i<<k);
+        }else if(i == limit - 1){
             buf = SHOW_UBITS(re, gb, esc_len);
             LAST_SKIP_BITS(re, gb, esc_len);
-
-            buf ++;
-        } else {
-            buf = -1;
-        }
-        CLOSE_READER(re, gb);
-        return buf;
+            CLOSE_READER(re, gb);
+    
+            return buf + 1;
+        }else
+            return -1;
     }
 }
 
@@ -123,5 +103,8 @@ static inline unsigned int get_ur_golomb_shorten(GetBitContext *gb, int k){
 static inline int get_sr_golomb_shorten(GetBitContext* gb, int k)
 {
     int uvar = get_ur_golomb_jpegls(gb, k + 1, INT_MAX, 0);
-    return (uvar >> 1) ^ -(uvar & 1);
+    if (uvar & 1)
+        return ~(uvar >> 1);
+    else
+        return uvar >> 1;
 }

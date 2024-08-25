@@ -39,7 +39,31 @@
 #define MOVE_STEP LCD_HEIGHT / 32 /* move pad this many steps up/down each move */
 
 /* variable button definitions */
-#if CONFIG_KEYPAD == IRIVER_H100_PAD
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define PONG_QUIT BUTTON_OFF
+#define PONG_PAUSE BUTTON_ON
+#define PONG_LEFT_UP BUTTON_F1
+#define PONG_LEFT_DOWN BUTTON_LEFT
+#define PONG_RIGHT_UP BUTTON_F3
+#define PONG_RIGHT_DOWN BUTTON_RIGHT
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define PONG_QUIT BUTTON_OFF
+#define PONG_PAUSE BUTTON_ON
+#define PONG_LEFT_UP BUTTON_F1
+#define PONG_LEFT_DOWN BUTTON_LEFT
+#define PONG_RIGHT_UP BUTTON_F3
+#define PONG_RIGHT_DOWN BUTTON_RIGHT
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define PONG_QUIT BUTTON_OFF
+#define PONG_PAUSE BUTTON_RIGHT
+#define PONG_LEFT_UP BUTTON_LEFT
+#define PONG_LEFT_DOWN BUTTON_MENU
+#define PONG_RIGHT_UP BUTTON_UP
+#define PONG_RIGHT_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == IRIVER_H100_PAD
 #define PONG_QUIT BUTTON_OFF
 #define PONG_LEFT_UP BUTTON_UP
 #define PONG_LEFT_DOWN BUTTON_DOWN
@@ -138,6 +162,14 @@
 
 #elif (CONFIG_KEYPAD == COWON_D2_PAD)
 #define PONG_QUIT BUTTON_POWER
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define PONG_QUIT BUTTON_POWER
+#define PONG_PAUSE BUTTON_MENU
+#define PONG_LEFT_UP BUTTON_VOLUP
+#define PONG_LEFT_DOWN BUTTON_VOLDOWN
+#define PONG_RIGHT_UP BUTTON_RIGHT
+#define PONG_RIGHT_DOWN BUTTON_LEFT
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define PONG_QUIT BUTTON_BACK
@@ -285,23 +317,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define PONG_RIGHT_UP    BUTTON_HOME
 #define PONG_RIGHT_DOWN  BUTTON_NEXT
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define PONG_QUIT        BUTTON_POWER
-#define PONG_PAUSE       BUTTON_PLAY
-#define PONG_LEFT_UP     BUTTON_PREV
-#define PONG_LEFT_DOWN   BUTTON_OPTION
-#define PONG_RIGHT_UP    BUTTON_HOME
-#define PONG_RIGHT_DOWN  BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define PONG_QUIT        BUTTON_POWER
-#define PONG_PAUSE       BUTTON_PLAY
-#define PONG_LEFT_UP     BUTTON_PREV
-#define PONG_LEFT_DOWN   BUTTON_OPTION
-#define PONG_RIGHT_UP    BUTTON_HOME
-#define PONG_RIGHT_DOWN  BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define PONG_QUIT        BUTTON_POWER
 #define PONG_PAUSE       BUTTON_PREV
 #define PONG_LEFT_UP     BUTTON_PLAY
@@ -309,24 +325,13 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define PONG_RIGHT_UP    BUTTON_VOL_UP
 #define PONG_RIGHT_DOWN  BUTTON_VOL_DOWN
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define PONG_QUIT        BUTTON_POWER
-#define PONG_PAUSE       BUTTON_PLAY
-#define PONG_LEFT_UP     BUTTON_SCROLL_BACK
-#define PONG_LEFT_DOWN   BUTTON_SCROLL_FWD
-#define PONG_RIGHT_UP    BUTTON_PREV
-#define PONG_RIGHT_DOWN  BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define PONG_QUIT       BUTTON_POWER
-#define PONG_PAUSE      BUTTON_PLAY
-#define PONG_LEFT_UP    BUTTON_MENU
-#define PONG_LEFT_DOWN  BUTTON_LEFT
-#define PONG_RIGHT_UP   BUTTON_BACK
-#define PONG_RIGHT_DOWN BUTTON_RIGHT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define PONG_PAUSE       BUTTON_PREV
+#define PONG_LEFT_UP     BUTTON_PLAY
+#define PONG_LEFT_DOWN   BUTTON_HOME
+#define PONG_RIGHT_UP    BUTTON_VOL_UP
+#define PONG_RIGHT_DOWN  BUTTON_VOL_DOWN
 
 #else
 #error No keymap defined!
@@ -535,7 +540,7 @@ static void ball(struct pong *p)
     p->ball.x += p->ball.speedx;
     p->ball.y += p->ball.speedy;
 
-    /*newx = p->ball.x/RES;*/
+    newx = p->ball.x/RES;
     newy = p->ball.y/RES;
 
     /* detect if ball hits a wall */
@@ -752,7 +757,6 @@ enum plugin_status plugin_start(const void* parameter)
 
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
-
     /* Clear screen */
     rb->lcd_clear_display();
 
@@ -794,6 +798,5 @@ enum plugin_status plugin_start(const void* parameter)
 
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
     return (game == 0) ? PLUGIN_OK : PLUGIN_USB_CONNECTED;
 }

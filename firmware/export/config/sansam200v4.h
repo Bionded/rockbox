@@ -10,7 +10,7 @@
 /* Enable FAT16 support */
 #define HAVE_FAT16SUPPORT
 
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_96
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
@@ -28,8 +28,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 #define HAVE_LCD_FLIP
@@ -75,6 +75,9 @@
 #define CONFIG_RTC RTC_AS3514
 #endif
 
+/* define this if you have RTC RAM available for settings */
+//#define HAVE_RTC_RAM
+
 /* Define this if you have a software controlled poweroff */
 #define HAVE_SW_POWEROFF
 
@@ -89,8 +92,8 @@
 #define CONFIG_TUNER TEA5767
 #define CONFIG_TUNER_XTAL 32768
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* Define this if you have the TLV320 audio codec */
 /*#define HAVE_TLV320*/
@@ -130,6 +133,12 @@
 
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define CONFIG_USBOTG USBOTG_AS3525
 

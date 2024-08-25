@@ -7,7 +7,7 @@
  *                     \/            \/     \/    \/            \/
  * $Id$
  *
- * Copyright (C) 2016-2024 Franklin Wei
+ * Copyright (C) 2018 Franklin Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,201 +19,15 @@
  *
  ***************************************************************************/
 
-/* ================================
- * Rockbox frontend for sgt-puzzles
- * ================================
- *
- * This file contains the majority of the rockbox-specific code for
- * the sgt-puzzles port. It implements an API for the backend to call
- * to run the games, as well as the rockbox UI code (menus, input,
- * etc). For a good overview of the rest of the puzzles code, see:
+/* rockbox frontend for puzzles */
+
+/* This file contains the majority of the rockbox-specific code for
+ * the sgt-puzzles port. It implements a set of functions for the
+ * backend to call to actually run the games, as well as rockbox UI
+ * code (menus, input, etc). For a good overview of the rest of the
+ * puzzles code, see:
  *
  * <https://www.chiark.greenend.org.uk/~sgtatham/puzzles/devel/>.
- *
- * For documentation of the contents of this file, read on.
- *
- * ---------------------
- * Contents of this file
- * ---------------------
- *
- * By rough order of appearance in this file:
- *
- *  1) "Zoom" feature
- *
- *     This file contains re-implementations of drawing primitives
- *     (lines, fills, text drawing, etc.) adapted to draw into a
- *     custom `zoom_fb' framebuffer at a magnification of ZOOM_FACTOR
- *     (compile-time constant, currently 3x). These are used if the
- *     global `zoom_enabled' switch is true.
- *
- *     The zoom feature uses a modal interface with two modes: viewing
- *     mode, and interaction mode.
- *
- *     Viewing mode is entered by default and is used to pan around the
- *     game viewport without interacting with the backend game at
- *     all. Pressing "select" while in viewing mode activates
- *     interaction mode. Instead of panning around, interaction mode
- *     sends keystrokes directly to the backend game.
- *
- *     It used to be that the zoomed viewport would remain entirely
- *     static while the user was in interaction mode. This made the
- *     zoom feature rather klunky to use because it required frequent
- *     mode switching. In commit 5094aaa, this behavior was changed so
- *     that the frontend can now query the backend for the on-screen
- *     cursor location and move the viewport accordingly through the
- *     new midend_get_cursor_location() API.
- *
- *  2) Font management
- *
- *     Rockbox's bitmap fonts don't allow for easy rendering of text
- *     of arbitrary size. We work around this by shipping a "font
- *     pack" of pre-rendered fonts in a continuous size range spanning
- *     10px to 36px. The code here facilitates dynamic
- *     loading/unloading of fonts from this font pack.
- *
- *     Font loading efficiency is enhanced by a feature called the
- *     "font table" which remembers the set of fonts used by each
- *     individual puzzle to allow for pre-loading during subsequent
- *     runs. On targets with physical hard drives, this enhances
- *     startup time by loading the fonts while the disk is already
- *     spinning (from loading the plugin).
- *
- *  3) Drawing API
- *
- *     The sgt-puzzles backend wants a set of function pointers to
- *     typical drawing primitives. [1] If the `zoom_enabled' switch is
- *     on, these call upon the "zoomed" drawing routines in (1).
- *
- *     In the normal un-zoomed case, these functions generally rely on
- *     the usual lcd_* or the pluginlib's xlcd_* API, with some
- *     exceptions: we implement a fixed-point antialiased line
- *     algorithm function and a hacky approximation of a polygon fill
- *     using triangles. [2]
- *
- *     Some things to note: "blitters" are used to save and restore a
- *     rectangular region of the screen; "clipping" refers to
- *     temporarily bounding draw operations to a rectangular region
- *     (this is implemented with rockbox viewports).
- *
- *  4) Input tuning and game-specific modes
- *
- *     The input schemes of most of the games in the sgt-puzzles
- *     collection are able to be played fairly well with only
- *     directional keys and a "select" button. Other games, however,
- *     need some special accommodations. These are enabled by
- *     `tune_input()' based on the game name and are listed below:
- *
- *     a) Mouse mode
- *
- *        This mode is designed to accommodate puzzles without a
- *        keyboard or cursor interface (currently only Loopyx). We
- *        remap the cursor keys to move an on-screen cursor rather
- *        than sending arrow keys to the game.
- *
- *        We also have the option of sending a right-click event when
- *        the "select" key is held; unfortunately, this conflicts with
- *        being able to drag the cursor while the virtual "mouse
- *        button" is depressed. This restriction is enforced by
- *        `tune_input()'.
- *
- *     b) Numerical chooser spinbox
- *
- *        Games that require keyboard input beyond the arrow keys and
- *        "select" (currently Filling, Keen, Solo, Towers, Undead, and
- *        Unequal) are accommodated via a spinbox-like interface.
- *
- *        In these games, the user first uses the directional keys to
- *        position the cursor, and then presses "select" to activate
- *        the spinbox mode. Then, the left and right keys are remapped
- *        to scroll through the list of possible keystrokes accepted
- *        by the game (retrieved through the midend_request_keys() API
- *        call). Once the user is happy with their selection, they
- *        press "select" again to deactivate the chooser, and the
- *        arrow keys regain their original function.
- *
- *     c) Force centering while zoomed
- *
- *        (This isn't an input adaptation but it doesn't quite fit
- *        anywhere else.)
- *
- *        In Inertia, we want to keep the ball centered on screen so
- *        that the user can see everything in all directions.
- *
- *     d) Long-press maps to spacebar; chording; falling edge events
- *
- *        These are grouped because the first features two are
- *        dependent on the last. This dependency is enforced with an
- *        `assert()'.
- *
- *        Some games want a spacebar event -- so we send one on a
- *        long-press of "select". However, we usually send key events
- *        to the game immediately after the key is depressed, so we
- *        can't distinguish a hold vs. a short click.
- *
- *        A similar issue arises when we want to allow chording of
- *        multiple keypresses (this is only used for Untangle, which
- *        allows diagonal movements by chording two arrow keys) -- if
- *        we detect that a key has just been pressed, we don't know if
- *        the user is going to press more keys later on to form a
- *        chorded input.
- *
- *        In both of these scenarios we disambiguate the possible
- *        cases by waiting until a key has been released before we
- *        send the input keystroke(s) to the game.
- *
- *     e) Key repeat
- *
- *        In some games, we would like to send repeated key events to
- *        allow long drags. Currently, this is only used in Untangle.
- *
- *  5) Game configuration and preset management
- *
- *     The backend games specify a hierarchy of user-adjustable game
- *     configuration parameters that control aspects of puzzle
- *     generation, etc. Also supplied are a set of "presets" that
- *     specify a predetermined set of configuration parameters.
- *
- *     In 2023, Simon introduced a User Preferences system that allows
- *     further customization of the game UI (e.g., "snap to grid" in
- *     Untangle). Rockbox support for this was added in July 2024.
- *
- *  6) In-game help
- *
- *     The sgt-puzzles manual (src/puzzles.but) contains a chapter
- *     describing each game. To aid the user in learning each puzzle,
- *     each game plugin contains a compiled-in version of each
- *     puzzle's corresponding manual chapter.
- *
- *     The compiled-in help text is automatically generated from the
- *     puzzles.but file with a system of shell scripts (genhelp.sh),
- *     which also performs LZ4 compression on the text to conserve
- *     memory on smaller targets. The output of this script is found
- *     in the help/ directory. On-target LZ4 decompression is handled
- *     by lz4tiny.c.
- *
- *  7) Debug menu
- *
- *     The debug menu is activated by clicking "Quick help" five times
- *     in a row. Sorry, Android. This is helpful for benchmarking
- *     optimizations and selecting the activating the input
- *     accommodations described in (4).
- *
- * --------------------
- * Building and linking
- * --------------------
- *
- * Each sgt-*.rock executable is produced by statically compiling the
- * backend (i.e. game-specific) source file and help file (see (6)
- * above) against a set of common source files.
- *
- * The backend source files are listed in SOURCES.games; the common
- * source files are in SOURCES.
- *
- * ----------
- * References
- * ----------
- *  [1]: https://www.chiark.greenend.org.uk/~sgtatham/puzzles/devel/drawing.html#drawing
- *  [2]: https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm
  */
 
 #include "plugin.h"
@@ -223,7 +37,6 @@
 
 #include "src/puzzles.h"
 
-#include "lib/helper.h"
 #include "lib/keymaps.h"
 #include "lib/playback_control.h"
 #include "lib/simple_viewer.h"
@@ -236,7 +49,7 @@
 /* how many ticks between timer callbacks */
 #define TIMER_INTERVAL (HZ / 50)
 
-/* Disable some features if we're memory constrained (c200v2) */
+/* no c200v2 */
 #if PLUGIN_BUFFER_SIZE > 0x14000
 #define DEBUG_MENU
 #define FONT_CACHING
@@ -248,14 +61,12 @@
 #define BG_B .9f
 #define BG_COLOR LCD_RGBPACK((int)(255*BG_R), (int)(255*BG_G), (int)(255*BG_B))
 
-/* used for invalid config value message */
 #define ERROR_COLOR LCD_RGBPACK(255, 0, 0)
 
-/* subtract two to allow for the fixed and UI fonts */
 #define MAX_FONTS (MAXUSERFONTS - 2)
 #define FONT_TABLE PLUGIN_GAMES_DATA_DIR "/.sgt-puzzles.fnttab"
 
-/* font bundle size range (in pixels) */
+/* font bundle size range */
 #define BUNDLE_MIN 7
 #define BUNDLE_MAX 36
 #define BUNDLE_COUNT (BUNDLE_MAX - BUNDLE_MIN + 1)
@@ -263,7 +74,7 @@
 /* max length of C_STRING config vals */
 #define MAX_STRLEN 128
 
-/* attempt to increment a numeric config value up to this much */
+/* try to increment a numeric config value up to this much */
 #define CHOOSER_MAX_INCR 2
 
 /* max font table line */
@@ -279,19 +90,15 @@
 #define midend_colors midend_colours
 #endif
 
-/* magnification factor */
+/* zoom stuff */
 #define ZOOM_FACTOR 3
-
-/* distance to pan per click (in pixels) */
 #define PAN_X (MIN(LCD_HEIGHT, LCD_WIDTH) / 4)
 #define PAN_Y (MIN(LCD_HEIGHT, LCD_WIDTH) / 4)
 
 /* utility macros */
 #undef ABS
 #define ABS(a) ((a)<0?-(a):(a))
-#define SWAP(a, b, t) do { t = a; a = b; b = t; } while(0)
-
-/* fixed-point stuff (for antialiased lines) */
+#define SWAP(a, b, t) do { t = a; a = b; b = t; } while(0);
 #define fp_fpart(f, bits) ((f) & ((1 << (bits)) - 1))
 #define fp_rfpart(f, bits) ((1 << (bits)) - fp_fpart(f, bits))
 #define FRACBITS 16
@@ -302,7 +109,6 @@ static inline void plot(fb_data *fb, int w, int h,
                         unsigned x, unsigned y, unsigned long a,
                         unsigned long r1, unsigned long g1, unsigned long b1,
                         unsigned cl, unsigned cr, unsigned cu, unsigned cd);
-static void zoom_clamp_panning(void);
 
 static midend *me = NULL;
 static unsigned *colors = NULL;
@@ -317,7 +123,6 @@ static int help_times = 0;
 #endif
 
 /* clipping stuff */
-static fb_data *lcd_fb;
 static struct viewport clip_rect;
 static bool clipped = false, zoom_enabled = false, view_mode = true, mouse_mode = false;
 
@@ -326,8 +131,7 @@ static int mouse_x, mouse_y;
 extern bool audiobuf_available; /* defined in rbmalloc.c */
 
 static fb_data *zoom_fb; /* dynamically allocated */
-static int zoom_x = -1, zoom_y = -1, zoom_w, zoom_h, zoom_clipu, zoom_clipd, zoom_clipl, zoom_clipr;
-static bool zoom_force_center;
+static int zoom_x, zoom_y, zoom_w, zoom_h, zoom_clipu, zoom_clipd, zoom_clipl, zoom_clipr;
 static int cur_font = FONT_UI;
 
 static bool need_draw_update = false;
@@ -360,17 +164,11 @@ static bool load_success;
 /* ...did I mention there's a secret debug menu? */
 static struct {
     int slowmo_factor;
-    bool timerflash, clipoff, shortcuts, no_aa, polyanim, highlight_cursor;
+    bool timerflash, clipoff, shortcuts, no_aa, polyanim;
 } debug_settings;
 
-// used in menu titles - make sure to initialize!
-static char menu_desc[32];
-
-/*
- * These are re-implementations of many rockbox drawing functions, adapted to
- * draw into a custom framebuffer (used for the zoom feature):
- */
-
+/* These are re-implementations of many rockbox drawing functions, adapted to
+ * draw into a custom framebuffer (used for the zoom feature). */
 static void zoom_drawpixel(int x, int y)
 {
     if(y < zoom_clipu || y >= zoom_clipd)
@@ -518,15 +316,13 @@ static void zoom_mono_bitmap(const unsigned char *bits, int x, int y, int w, int
     }
 }
 
-/*
- * Rockbox's alpha format is actually pretty sane: each byte holds
+/* Rockbox's alpha format is actually pretty sane: each byte holds
  * alpha values for two horizontally adjacent pixels. Low half is
- * leftmost pixel. See lcd-16bit-common.c for more info.
- */
+ * leftmost pixel. See lcd-16bit-common.c for more info. */
 static void zoom_alpha_bitmap(const unsigned char *bits, int x, int y, int w, int h)
 {
     const unsigned char *ptr = bits;
-    unsigned char buf = 0;
+    unsigned char buf;
     int n_read = 0; /* how many 4-bit nibbles we've read (read new when even) */
 
     unsigned int pix = rb->lcd_get_foreground();
@@ -552,36 +348,10 @@ static void zoom_alpha_bitmap(const unsigned char *bits, int x, int y, int w, in
     }
 }
 
-/*
- * Font management routines
- *
- * Many puzzles need a dynamic font size, especially when zooming
- * in. Rockbox's default font set does not provide the consistency we
- * need across different sizes, so instead we ship a custom font pack
- * for sgt-puzzles, available from [1] or through Rockbox Utility.
- *
- * The font pack consists of 3 small-size fonts, and the Deja Vu
- * Sans/Mono fonts, rasterized in sizes from 10px to BUNDLE_MAX
- * (currently 36).
- *
- * The font loading code below tries to be smart about loading fonts:
- * when games are saved, the set of fonts that were loaded during
- * execution is written to a "font table" on disk. On subsequent
- * loads, the fonts in this table are precached while the game is
- * loaded (and the disk is spinning, on hard drive devices). We also
- * have a form of LRU caching implemented to dynamically evict fonts
- * from Rockbox's in-memory cache, which is of limited size.
- *
- * [1]: http://download.rockbox.org/useful/sgt-fonts.zip
- */
+/* font management routines */
 
 static struct bundled_font {
-     /*
-      * -3 = never tried loading, or unloaded,
-      * -2 = failed to load,
-      * [-1,): loaded successfully (FONT_SYSFIXED = -1)
-      */
-    int status;
+    int status; /* -3 = never tried loading, or unloaded, -2 = failed to load, >= -1: loaded successfully */
     int last_use;
 } *loaded_fonts = NULL; /* monospace are first, then proportional */
 
@@ -638,12 +408,8 @@ static void font_path(char *buf, int type, int size)
 
 static void rb_setfont(int type, int size)
 {
-    LOGF("rb_setfont(type=%d, size=%d)", type, size);
-
-    /*
-     * First, clamp to range. No puzzle should ever need this large of
-     * a font, anyways.
-     */
+    /* out of range (besides, no puzzle should ever need this large
+       of a font, anyways) */
     if(size > BUNDLE_MAX)
         size = BUNDLE_MAX;
 
@@ -651,33 +417,21 @@ static void rb_setfont(int type, int size)
     {
         if(size < 7) /* no teeny-tiny fonts */
             size = 7;
-        /* assume monospace for 7-9px fonts */
+        /* assume monospace for these */
         type = FONT_FIXED;
     }
 
-    LOGF("target font type, size: %d, %d", type, size);
-
     int font_idx = (type == FONT_FIXED ? 0 : BUNDLE_COUNT) + size - BUNDLE_MIN;
-
-    LOGF("font index: %d, status=%d", font_idx, loaded_fonts[font_idx].status);
-
     switch(loaded_fonts[font_idx].status)
     {
     case -3:
     {
         /* never loaded */
-        LOGF("font %d is not resident, trying to load", font_idx);
-
         char buf[MAX_PATH];
         font_path(buf, type, size);
-
-        LOGF("font should be at: %s", buf);
-
-        if(n_fonts >= MAX_FONTS)
+        if(n_fonts >= MAX_FONTS) /* safety margin, FIXME */
         {
             /* unload an old font */
-            LOGF("too many resident fonts, evicting LRU");
-
             int oldest_use = -1, oldest_idx = -1;
             for(int i = 0; i < 2 * BUNDLE_COUNT; ++i)
             {
@@ -688,8 +442,6 @@ static void rb_setfont(int type, int size)
                 }
             }
             assert(oldest_idx >= 0);
-
-            LOGF("evicting %d", oldest_idx);
             rb->font_unload(loaded_fonts[oldest_idx].status);
             loaded_fonts[oldest_idx].status = -3;
             n_fonts--;
@@ -697,10 +449,7 @@ static void rb_setfont(int type, int size)
 
         loaded_fonts[font_idx].status = rb->font_load(buf);
         if(loaded_fonts[font_idx].status < 0)
-        {
-            LOGF("failed to load font %s", buf);
             goto fallback;
-        }
         loaded_fonts[font_idx].last_use = access_counter++;
         n_fonts++;
         cur_font = loaded_fonts[font_idx].status;
@@ -720,12 +469,8 @@ static void rb_setfont(int type, int size)
     return;
 
 fallback:
-    LOGF("could not load font of desired size; falling back to system font");
-
-    cur_font = (type == FONT_FIXED) ? FONT_SYSFIXED : FONT_UI;
+    cur_font = type == FONT_FIXED ? FONT_SYSFIXED : FONT_UI;
     rb->lcd_setfont(cur_font);
-
-    LOGF("set font to %d", cur_font);
 
     return;
 }
@@ -753,7 +498,7 @@ static void rb_color(int n)
 
 /* clipping is implemented through viewports and offsetting
  * coordinates */
-static void rb_clip(drawing *dr, int x, int y, int w, int h)
+static void rb_clip(void *handle, int x, int y, int w, int h)
 {
     if(!zoom_enabled)
     {
@@ -783,7 +528,7 @@ static void rb_clip(drawing *dr, int x, int y, int w, int h)
     }
 }
 
-static void rb_unclip(drawing *dr)
+static void rb_unclip(void *handle)
 {
     if(!zoom_enabled)
     {
@@ -800,20 +545,16 @@ static void rb_unclip(drawing *dr)
     }
 }
 
-static void rb_draw_text(drawing *dr, int x, int y, int fonttype,
+static void rb_draw_text(void *handle, int x, int y, int fonttype,
                          int fontsize, int align, int color, const char *text)
 {
     (void) fontsize;
-
-    LOGF("rb_draw_text(%d %d \"%s\" size=%d)", x, y, text, fontsize);
 
     rb_color(color);
     rb_setfont(fonttype, fontsize); /* size will be clamped if too large */
 
     int w, h;
-    rb->font_getstringsize(text, &w, &h, cur_font);
-
-    LOGF("getting string size of font %d: %dx%d\n", cur_font, w, h);
+    rb->lcd_getstringsize(text, &w, &h);
 
     if(align & ALIGN_VNORMAL)
         y -= h;
@@ -825,10 +566,10 @@ static void rb_draw_text(drawing *dr, int x, int y, int fonttype,
     else if(align & ALIGN_HRIGHT)
         x -= w;
 
-    LOGF("calculated origin: (%d, %d) size: (%d, %d)", x, y, w, h);
-
     if(!zoom_enabled)
     {
+        LOGF("rb_draw_text(%d %d %s)", x, y, text);
+
         offset_coords(&x, &y);
 
         rb->lcd_set_drawmode(DRMODE_FG);
@@ -865,7 +606,7 @@ static void rb_draw_text(drawing *dr, int x, int y, int fonttype,
     }
 }
 
-static void rb_draw_rect(drawing *dr, int x, int y, int w, int h, int color)
+static void rb_draw_rect(void *handle, int x, int y, int w, int h, int color)
 {
     rb_color(color);
     if(!zoom_enabled)
@@ -970,7 +711,7 @@ static void draw_antialiased_line(fb_data *fb, int w, int h, int x0, int y0, int
     dx = x1 - x0;
     dy = y1 - y0;
 
-    if((dx << FRACBITS) == 0)
+    if(!(dx << FRACBITS))
         return; /* bail out */
 
     long gradient = fp_div(dy << FRACBITS, dx << FRACBITS, FRACBITS);
@@ -1007,7 +748,7 @@ static void draw_antialiased_line(fb_data *fb, int w, int h, int x0, int y0, int
     }
 }
 
-static void rb_draw_line(drawing *dr, int x1, int y1, int x2, int y2,
+static void rb_draw_line(void *handle, int x1, int y1, int x2, int y2,
                          int color)
 {
     rb_color(color);
@@ -1024,7 +765,7 @@ static void rb_draw_line(drawing *dr, int x1, int y1, int x2, int y2,
         }
         else
 #endif
-            draw_antialiased_line(lcd_fb, LCD_WIDTH, LCD_HEIGHT, x1, y1, x2, y2);
+            draw_antialiased_line(rb->lcd_framebuffer, LCD_WIDTH, LCD_HEIGHT, x1, y1, x2, y2);
     }
     else
     {
@@ -1035,7 +776,349 @@ static void rb_draw_line(drawing *dr, int x1, int y1, int x2, int y2,
     }
 }
 
-static void rb_draw_circle(drawing *dr, int cx, int cy, int radius,
+#if 0
+/*
+ * draw filled polygon
+ * originally by Sebastian Leonhardt (ulmutul)
+ * 'count' : number of coordinate pairs
+ * 'pxy': array of coordinates. pxy[0]=x0,pxy[1]=y0,...
+ * note: provide space for one extra coordinate, because the starting point
+ * will automatically be inserted as end point.
+ */
+
+/*
+ * helper function:
+ * find points of intersection between polygon and scanline
+ */
+
+#define MAX_INTERSECTION 32
+
+static void fill_poly_line(int scanline, int count, int *pxy)
+{
+    int i;
+    int j;
+    int num_of_intersects;
+    int direct, old_direct;
+    //intersections of every line with scanline (y-coord)
+    int intersection[MAX_INTERSECTION];
+    /* add starting point as ending point */
+    pxy[count*2] = pxy[0];
+    pxy[count*2+1] = pxy[1];
+
+    old_direct=0;
+    num_of_intersects=0;
+    for (i=0; i<count*2; i+=2) {
+        int x1=pxy[i];
+        int y1=pxy[i+1];
+        int x2=pxy[i+2];
+        int y2=pxy[i+3];
+        // skip if line is outside of scanline
+        if (y1 < y2) {
+            if (scanline < y1 || scanline > y2)
+                continue;
+        }
+        else {
+            if (scanline < y2 || scanline > y1)
+                continue;
+        }
+        // calculate x-coord of intersection
+        if (y1==y2) {
+            direct=0;
+        }
+        else {
+            direct = y1>y2 ? 1 : -1;
+            // omit double intersections, if both lines lead in the same direction
+            intersection[num_of_intersects] =
+                x1+((scanline-y1)*(x2-x1))/(y2-y1);
+            if ( (direct!=old_direct)
+                 || (intersection[num_of_intersects] != intersection[num_of_intersects-1])
+                )
+                ++num_of_intersects;
+        }
+        old_direct = direct;
+    }
+
+    // sort points of intersection
+    for (i=0; i<num_of_intersects-1; ++i) {
+        for (j=i+1; j<num_of_intersects; ++j) {
+            if (intersection[j]<intersection[i]) {
+                int temp=intersection[i];
+                intersection[i]=intersection[j];
+                intersection[j]=temp;
+            }
+        }
+    }
+    // draw
+    for (i=0; i<num_of_intersects; i+=2) {
+        rb->lcd_hline(intersection[i], intersection[i+1], scanline);
+    }
+}
+
+/* two extra elements at end of pxy needed */
+static void v_fillarea(int count, int *pxy)
+{
+    int i;
+    int y1, y2;
+
+    // find min and max y coords
+    y1=y2=pxy[1];
+    for (i=3; i<count*2; i+=2) {
+        if (pxy[i] < y1) y1 = pxy[i];
+        else if (pxy[i] > y2) y2 = pxy[i];
+    }
+
+    for (i=y1; i<=y2; ++i) {
+        fill_poly_line(i, count, pxy);
+    }
+}
+#endif
+
+/* I'm a horrible person: this was copy-pasta'd straight from
+ * xlcd_draw.c */
+
+/* sort the given coordinates by increasing x value */
+static void sort_points_by_increasing_x(int* x1, int* y1,
+                                        int* x2, int* y2,
+                                        int* x3, int* y3)
+{
+    int x, y;
+    if (*x1 > *x3)
+    {
+        if (*x2 < *x3)       /* x2 < x3 < x1 */
+        {
+            x = *x1; *x1 = *x2; *x2 = *x3; *x3 = x;
+            y = *y1; *y1 = *y2; *y2 = *y3; *y3 = y;
+        }
+        else if (*x2 > *x1)  /* x3 < x1 < x2 */
+        {
+            x = *x1; *x1 = *x3; *x3 = *x2; *x2 = x;
+            y = *y1; *y1 = *y3; *y3 = *y2; *y2 = y;
+        }
+        else               /* x3 <= x2 <= x1 */
+        {
+            x = *x1; *x1 = *x3; *x3 = x;
+            y = *y1; *y1 = *y3; *y3 = y;
+        }
+    }
+    else
+    {
+        if (*x2 < *x1)       /* x2 < x1 <= x3 */
+        {
+            x = *x1; *x1 = *x2; *x2 = x;
+            y = *y1; *y1 = *y2; *y2 = y;
+        }
+        else if (*x2 > *x3)  /* x1 <= x3 < x2 */
+        {
+            x = *x2; *x2 = *x3; *x3 = x;
+            y = *y2; *y2 = *y3; *y3 = y;
+        }
+        /* else already sorted */
+    }
+}
+
+#define sort_points_by_increasing_y(x1, y1, x2, y2, x3, y3)     \
+    sort_points_by_increasing_x(y1, x1, y2, x2, y3, x3)
+
+/* draw a filled triangle, using horizontal lines for speed */
+static void zoom_filltriangle(int x1, int y1,
+                              int x2, int y2,
+                              int x3, int y3)
+{
+    long fp_x1, fp_x2, fp_dx1, fp_dx2;
+    int y;
+    sort_points_by_increasing_y(&x1, &y1, &x2, &y2, &x3, &y3);
+
+    if (y1 < y3)  /* draw */
+    {
+        fp_dx1 = ((x3 - x1) << 16) / (y3 - y1);
+        fp_x1  = (x1 << 16) + (1<<15) + (fp_dx1 >> 1);
+
+        if (y1 < y2)  /* first part */
+        {
+            fp_dx2 = ((x2 - x1) << 16) / (y2 - y1);
+            fp_x2  = (x1 << 16) + (1<<15) + (fp_dx2 >> 1);
+            for (y = y1; y < y2; y++)
+            {
+                zoom_hline(fp_x1 >> 16, fp_x2 >> 16, y);
+                fp_x1 += fp_dx1;
+                fp_x2 += fp_dx2;
+            }
+        }
+        if (y2 < y3)  /* second part */
+        {
+            fp_dx2 = ((x3 - x2) << 16) / (y3 - y2);
+            fp_x2 = (x2 << 16) + (1<<15) + (fp_dx2 >> 1);
+            for (y = y2; y < y3; y++)
+            {
+                zoom_hline(fp_x1 >> 16, fp_x2 >> 16, y);
+                fp_x1 += fp_dx1;
+                fp_x2 += fp_dx2;
+            }
+        }
+    }
+}
+
+/* Should probably refactor this */
+static void rb_draw_poly(void *handle, int *coords, int npoints,
+                         int fillcolor, int outlinecolor)
+{
+    if(!zoom_enabled)
+    {
+        LOGF("rb_draw_poly");
+
+        if(fillcolor >= 0)
+        {
+            rb_color(fillcolor);
+#if 1
+            /* serious hack: draw a bunch of triangles between adjacent points */
+            /* this generally works, even with some concave polygons */
+            for(int i = 2; i < npoints; ++i)
+            {
+                int x1, y1, x2, y2, x3, y3;
+                x1 = coords[0];
+                y1 = coords[1];
+                x2 = coords[(i - 1) * 2];
+                y2 = coords[(i - 1) * 2 + 1];
+                x3 = coords[i * 2];
+                y3 = coords[i * 2 + 1];
+                offset_coords(&x1, &y1);
+                offset_coords(&x2, &y2);
+                offset_coords(&x3, &y3);
+                xlcd_filltriangle(x1, y1,
+                                  x2, y2,
+                                  x3, y3);
+
+#ifdef DEBUG_MENU
+                if(debug_settings.polyanim)
+                {
+                    rb->lcd_update();
+                    rb->sleep(HZ/4);
+                }
+#endif
+#if 0
+                /* debug code */
+                rb->lcd_set_foreground(LCD_RGBPACK(255,0,0));
+                rb->lcd_drawpixel(x1, y1);
+                rb->lcd_drawpixel(x2, y2);
+                rb->lcd_drawpixel(x3, y3);
+                rb->lcd_update();
+                rb->sleep(HZ);
+                rb_color(fillcolor);
+                rb->lcd_drawpixel(x1, y1);
+                rb->lcd_drawpixel(x2, y2);
+                rb->lcd_drawpixel(x3, y3);
+                rb->lcd_update();
+#endif
+            }
+#else
+            int *pxy = smalloc(sizeof(int) * 2 * npoints + 2);
+            /* copy points, offsetted */
+            for(int i = 0; i < npoints; ++i)
+            {
+                pxy[2 * i + 0] = coords[2 * i + 0];
+                pxy[2 * i + 1] = coords[2 * i + 1];
+                offset_coords(&pxy[2*i+0], &pxy[2*i+1]);
+            }
+            v_fillarea(npoints, pxy);
+            sfree(pxy);
+#endif
+        }
+
+        /* draw outlines last so they're not covered by the fill */
+        assert(outlinecolor >= 0);
+        rb_color(outlinecolor);
+
+        for(int i = 1; i < npoints; ++i)
+        {
+            int x1, y1, x2, y2;
+            x1 = coords[2 * (i - 1)];
+            y1 = coords[2 * (i - 1) + 1];
+            x2 = coords[2 * i];
+            y2 = coords[2 * i + 1];
+            if(debug_settings.no_aa)
+            {
+                offset_coords(&x1, &y1);
+                offset_coords(&x2, &y2);
+                rb->lcd_drawline(x1, y1,
+                                 x2, y2);
+            }
+            else
+                draw_antialiased_line(rb->lcd_framebuffer, LCD_WIDTH, LCD_HEIGHT, x1, y1, x2, y2);
+
+#ifdef DEBUG_MENU
+            if(debug_settings.polyanim)
+            {
+                rb->lcd_update();
+                rb->sleep(HZ/4);
+            }
+#endif
+        }
+
+        int x1, y1, x2, y2;
+        x1 = coords[0];
+        y1 = coords[1];
+        x2 = coords[2 * (npoints - 1)];
+        y2 = coords[2 * (npoints - 1) + 1];
+        if(debug_settings.no_aa)
+        {
+            offset_coords(&x1, &y1);
+            offset_coords(&x2, &y2);
+
+            rb->lcd_drawline(x1, y1,
+                             x2, y2);
+        }
+        else
+            draw_antialiased_line(rb->lcd_framebuffer, LCD_WIDTH, LCD_HEIGHT, x1, y1, x2, y2);
+    }
+    else
+    {
+        LOGF("rb_draw_poly");
+
+        if(fillcolor >= 0)
+        {
+            rb_color(fillcolor);
+
+            /* serious hack: draw a bunch of triangles between adjacent points */
+            /* this generally works, even with some concave polygons */
+            for(int i = 2; i < npoints; ++i)
+            {
+                int x1, y1, x2, y2, x3, y3;
+                x1 = coords[0];
+                y1 = coords[1];
+                x2 = coords[(i - 1) * 2];
+                y2 = coords[(i - 1) * 2 + 1];
+                x3 = coords[i * 2];
+                y3 = coords[i * 2 + 1];
+                zoom_filltriangle(x1, y1,
+                                  x2, y2,
+                                  x3, y3);
+            }
+        }
+
+        /* draw outlines last so they're not covered by the fill */
+        assert(outlinecolor >= 0);
+        rb_color(outlinecolor);
+
+        for(int i = 1; i < npoints; ++i)
+        {
+            int x1, y1, x2, y2;
+            x1 = coords[2 * (i - 1)];
+            y1 = coords[2 * (i - 1) + 1];
+            x2 = coords[2 * i];
+            y2 = coords[2 * i + 1];
+            draw_antialiased_line(zoom_fb, zoom_w, zoom_h, x1, y1, x2, y2);
+        }
+
+        int x1, y1, x2, y2;
+        x1 = coords[0];
+        y1 = coords[1];
+        x2 = coords[2 * (npoints - 1)];
+        y2 = coords[2 * (npoints - 1) + 1];
+        draw_antialiased_line(zoom_fb, zoom_w, zoom_h, x1, y1, x2, y2);
+    }
+}
+
+static void rb_draw_circle(void *handle, int cx, int cy, int radius,
                            int fillcolor, int outlinecolor)
 {
     if(!zoom_enabled)
@@ -1107,7 +1190,7 @@ static void trim_rect(int *x, int *y, int *w, int *h)
     *h = y1 - y0;
 }
 
-static blitter *rb_blitter_new(drawing *dr, int w, int h)
+static blitter *rb_blitter_new(void *handle, int w, int h)
 {
     LOGF("rb_blitter_new");
     blitter *b = snew(blitter);
@@ -1118,7 +1201,7 @@ static blitter *rb_blitter_new(drawing *dr, int w, int h)
     return b;
 }
 
-static void rb_blitter_free(drawing *dr, blitter *bl)
+static void rb_blitter_free(void *handle, blitter *bl)
 {
     LOGF("rb_blitter_free");
     sfree(bl->bmp.data);
@@ -1127,10 +1210,10 @@ static void rb_blitter_free(drawing *dr, blitter *bl)
 }
 
 /* copy a section of the framebuffer */
-static void rb_blitter_save(drawing *dr, blitter *bl, int x, int y)
+static void rb_blitter_save(void *handle, blitter *bl, int x, int y)
 {
     /* no viewport offset */
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
 #error no vertical stride
 #else
     if(bl && bl->bmp.data)
@@ -1140,7 +1223,7 @@ static void rb_blitter_save(drawing *dr, blitter *bl, int x, int y)
 
         trim_rect(&x, &y, &w, &h);
 
-        fb_data *fb = zoom_enabled ? zoom_fb : lcd_fb;
+        fb_data *fb = zoom_enabled ? zoom_fb : rb->lcd_framebuffer;
         LOGF("rb_blitter_save(%d, %d, %d, %d)", x, y, w, h);
         for(int i = 0; i < h; ++i)
         {
@@ -1156,7 +1239,7 @@ static void rb_blitter_save(drawing *dr, blitter *bl, int x, int y)
 #endif
 }
 
-static void rb_blitter_load(drawing *dr, blitter *bl, int x, int y)
+static void rb_blitter_load(void *handle, blitter *bl, int x, int y)
 {
     LOGF("rb_blitter_load");
     if(!bl->have_data)
@@ -1186,20 +1269,16 @@ static void rb_blitter_load(drawing *dr, blitter *bl, int x, int y)
     }
 }
 
-static void rb_draw_update(drawing *dr, int x, int y, int w, int h)
+static void rb_draw_update(void *handle, int x, int y, int w, int h)
 {
     LOGF("rb_draw_update(%d, %d, %d, %d)", x, y, w, h);
 
-    /*
-     * It seems that the puzzles use a different definition of
+    /* It seems that the puzzles use a different definition of
      * "updating" the display than Rockbox does; by calling this
      * function, it tells us that it has either already drawn to the
      * updated area (as rockbox assumes), or that it WILL draw to the
-     * said area in the future (in which case we will draw
-     * nothing). Because we don't know which of these is the case, we
-     * simply remember a rectangle that contains all the updated
-     * regions and update it at the very end.
-     */
+     * said area. Thus we simply remember a rectangle that contains
+     * all the updated regions and update it at the very end. */
 
     /* adapted from gtk.c */
     if (!need_draw_update || ud_l > x  ) ud_l = x;
@@ -1210,9 +1289,9 @@ static void rb_draw_update(drawing *dr, int x, int y, int w, int h)
     need_draw_update = true;
 }
 
-static void rb_start_draw(drawing *dr)
+static void rb_start_draw(void *handle)
 {
-    (void) dr;
+    (void) handle;
 
     /* ... mumble mumble ... not ... reentrant ... mumble mumble ... */
 
@@ -1223,20 +1302,10 @@ static void rb_start_draw(drawing *dr)
     ud_d = LCD_HEIGHT;
 }
 
-static void rb_end_draw(drawing *dr)
+static void rb_end_draw(void *handle)
 {
-    (void) dr;
-
-    if(debug_settings.highlight_cursor)
-    {
-        rb->lcd_set_foreground(LCD_RGBPACK(255,0,255));
-        int x, y, w, h;
-        if(midend_get_cursor_location(me, &x, &y, &w, &h))
-            rb->lcd_drawrect(x, y, w, h);
-    }
-
-    /* we ignore the backend's redraw requests and just
-     * unconditionally update everything */
+    (void) handle;
+    /* we ignore the backend's redraw requests and just unconditionally update everything */
 #if 0
     if(!zoom_enabled)
     {
@@ -1252,7 +1321,7 @@ static void rb_end_draw(drawing *dr)
 #endif
 }
 
-static void rb_status_bar(drawing *dr, const char *text)
+static void rb_status_bar(void *handle, const char *text)
 {
     if(titlebar)
         sfree(titlebar);
@@ -1346,48 +1415,17 @@ static void draw_mouse(void)
     }
 }
 
-/* doesn't work, disabled (can't find a good mechanism to check if a
- * glyph exists in a font) */
-#if 0
-/* See: https://www.chiark.greenend.org.uk/~sgtatham/puzzles/devel/drawing.html#drawing-text-fallback */
-static char *rb_text_fallback(drawing *dr, const char *const *strings,
+static char *rb_text_fallback(void *handle, const char *const *strings,
                               int nstrings)
 {
-    struct font *pf = rb->font_get(cur_font);
-
-    for(int i = 0; i < nstrings; i++)
-    {
-        LOGF("checking alternative \"%s\"", strings[i]);
-        const unsigned char *ptr = strings[i];
-        unsigned short code;
-        bool valid = true;
-
-        while(*ptr)
-        {
-            ptr = rb->utf8decode(ptr, &code);
-
-            if(!rb->font_get_bits(pf, code))
-            {
-                valid = false;
-                break;
-            }
-        }
-
-        if(valid)
-            return dupstr(strings[i]);
-    }
-
-    /* shouldn't get here */
-    return dupstr(strings[nstrings - 1]);
+    return dupstr(strings[0]);
 }
-#endif
 
 const drawing_api rb_drawing = {
-    1,
     rb_draw_text,
     rb_draw_rect,
     rb_draw_line,
-    draw_polygon_fallback,
+    rb_draw_poly,
     rb_draw_circle,
     rb_draw_update,
     rb_clip,
@@ -1399,10 +1437,9 @@ const drawing_api rb_drawing = {
     rb_blitter_free,
     rb_blitter_save,
     rb_blitter_load,
-    /* printing functions */
     NULL, NULL, NULL, NULL, NULL, NULL, /* {begin,end}_{doc,page,puzzle} */
-    NULL, NULL,                         /* line_width, line_dotted */
-    NULL, /* fall back to ASCII */
+    NULL, NULL,                        /* line_width, line_dotted */
+    rb_text_fallback,
     NULL,
 };
 
@@ -1411,16 +1448,14 @@ const drawing_api rb_drawing = {
 void fatal(const char *fmt, ...)
 {
     va_list ap;
-    char buf[256];
 
     rb->splash(HZ, "FATAL");
 
     va_start(ap, fmt);
-    rb->vsnprintf(buf, sizeof(buf), fmt, ap);
-    va_end(ap);
-
-    LOGF("%s", buf);
+    char buf[80];
+    rb->vsnprintf(buf, 80, fmt, ap);
     rb->splash(HZ * 2, buf);
+    va_end(ap);
 
     if(rb->thread_self() == thread)
         rb->thread_exit();
@@ -1444,9 +1479,9 @@ static void timer_cb(void)
         static bool what = false;
         what = !what;
         if(what)
-            lcd_fb[0] = LCD_BLACK;
+            rb->lcd_framebuffer[0] = LCD_BLACK;
         else
-            lcd_fb[0] = LCD_WHITE;
+            rb->lcd_framebuffer[0] = LCD_WHITE;
         rb->lcd_update();
     }
 #endif
@@ -1488,12 +1523,6 @@ static void send_click(int button, bool release)
         midend_process_key(me, x, y, button + 6);
 }
 
-/*
- * Numerical chooser ("spinbox")
- *
- * Let the user scroll through the options for the keys they can
- * press.
- */
 static int choose_key(void)
 {
     int options = 0;
@@ -1510,12 +1539,7 @@ static int choose_key(void)
         if(timer_on)
             timer_cb();
         midend_process_key(me, 0, 0, game_keys[sel].button);
-        midend_force_redraw(me);
-
-        if(zoom_enabled)
-            rb->lcd_bitmap_part(zoom_fb, zoom_x, zoom_y, STRIDE(SCREEN_MAIN, zoom_w, zoom_h),
-                                0, 0, LCD_WIDTH, LCD_HEIGHT);
-
+        midend_redraw(me);
         rb->lcd_update();
         rb->yield();
 
@@ -1591,9 +1615,6 @@ static int process_input(int tmo, bool do_pausemenu)
 
     if(button == BTN_PAUSE)
     {
-        last_keystate = 0;
-        accept_input = true;
-
         if(do_pausemenu)
         {
             /* quick hack to preserve the clipping state */
@@ -1606,6 +1627,9 @@ static int process_input(int tmo, bool do_pausemenu)
             if(orig_clipped)
                 rb_clip(NULL, clip_rect.x, clip_rect.y, clip_rect.width, clip_rect.height);
 
+            last_keystate = 0;
+            accept_input = true;
+
             return rc;
         }
         else
@@ -1616,34 +1640,30 @@ static int process_input(int tmo, bool do_pausemenu)
      * following code is needed for mouse mode. */
     if(mouse_mode)
     {
-        static int held_count = 0, v = 2;
-
-        int dx = 0, dy = 0;
+        static int last_mousedir = 0, held_count = 0, v = 1;
 
         if(button & BTN_UP)
-            dy -= 1;
-        if(button & BTN_DOWN)
-            dy += 1;
-        if(button & BTN_LEFT)
-            dx -= 1;
-        if(button & BTN_RIGHT)
-            dx += 1;
+            state = CURSOR_UP;
+        else if(button & BTN_DOWN)
+            state = CURSOR_DOWN;
+        else if(button & BTN_LEFT)
+            state = CURSOR_LEFT;
+        else if(button & BTN_RIGHT)
+            state = CURSOR_RIGHT;
 
         unsigned released = ~button & last_keystate,
-                  pressed =  button & ~last_keystate;
+            pressed = button & ~last_keystate;
 
-        /* acceleration */
-        if(button && button == last_keystate)
-        {
-            if(++held_count % 4 == 0 && v < 15)
-                v++;
-        }
-        else
-        {
-            LOGF("no buttons pressed, or state changed");
-            v = 1;
-            held_count = 0;
-        }
+        last_keystate = button;
+
+        /* move */
+        /* get the direction vector the cursor is moving in. */
+        int new_x = mouse_x, new_y = mouse_y;
+
+        /* in src/misc.c */
+        move_cursor(state, &new_x, &new_y, LCD_WIDTH, LCD_HEIGHT, false);
+
+        int dx = new_x - mouse_x, dy = new_y - mouse_y;
 
         mouse_x += dx * v;
         mouse_y += dy * v;
@@ -1651,25 +1671,15 @@ static int process_input(int tmo, bool do_pausemenu)
         /* clamp */
         /* The % operator with negative operands is messy; this is much
          * simpler. */
-        bool clamped_x = false, clamped_y = false;
-
         if(mouse_x < 0)
-            mouse_x = 0, clamped_x = true;
+            mouse_x = 0;
         if(mouse_y < 0)
-            mouse_y = 0, clamped_y = true;
+            mouse_y = 0;
 
         if(mouse_x >= LCD_WIDTH)
-            mouse_x = LCD_WIDTH - 1, clamped_x = true;
+            mouse_x = LCD_WIDTH - 1;
         if(mouse_y >= LCD_HEIGHT)
-            mouse_y = LCD_HEIGHT - 1, clamped_y = true;
-
-        if((clamped_x || clamped_y) && zoom_enabled) {
-            if(clamped_x)
-                zoom_x += dx * v;
-            if(clamped_y)
-                zoom_y += dy * v;
-            zoom_clamp_panning();
-        }
+            mouse_y = LCD_HEIGHT - 1;
 
         /* clicking/dragging */
         /* rclick on hold requires that we fire left-click on a
@@ -1685,23 +1695,31 @@ static int process_input(int tmo, bool do_pausemenu)
         }
         else
         {
-            if(pressed & BTN_FIRE) {
+            if(pressed & BTN_FIRE)
                 send_click(LEFT_BUTTON, false);
-                accept_input = false;
-            }
             else if(released & BTN_FIRE)
                 send_click(LEFT_RELEASE, false);
             else if(button & BTN_FIRE)
                 send_click(LEFT_DRAG, false);
         }
 
-        if(!button)
+        /* acceleration */
+        if(state && state == last_mousedir)
         {
-            LOGF("all keys released, accepting further input");
-            accept_input = true;
+            if(++held_count % 5 == 0 && v < 15)
+                v++;
         }
-
-        last_keystate = button;
+        else
+        {
+            if(!button)
+            {
+                LOGF("all keys released, accepting further input");
+                accept_input = true;
+            }
+            last_mousedir = state;
+            v = 1;
+            held_count = 0;
+        }
 
         /* no buttons are sent to the midend in mouse mode */
         return 0;
@@ -1872,56 +1890,6 @@ static int process_input(int tmo, bool do_pausemenu)
     return state;
 }
 
-static void zoom_clamp_panning(void) {
-    if(zoom_y < 0)
-        zoom_y = 0;
-    if(zoom_x < 0)
-        zoom_x = 0;
-
-    if(zoom_y + LCD_HEIGHT >= zoom_h)
-        zoom_y = zoom_h - LCD_HEIGHT;
-    if(zoom_x + LCD_WIDTH >= zoom_w)
-        zoom_x = zoom_w - LCD_WIDTH;
-}
-
-static bool point_in_rect(int px, int py,
-                          int rx, int ry,
-                          int rw, int rh) {
-    return (rx <= px && px < rx + rw) && (ry <= py && py < ry + rh);
-}
-
-
-static void zoom_center_on_cursor(void) {
-    /* get cursor bounding rectangle */
-    int x, y, w, h;
-
-    if(!midend_get_cursor_location(me, &x, &y, &w, &h))
-        return;
-
-    /* check if either of the top-left and bottom-right corners are
-     * off-screen */
-    bool off_screen = (!point_in_rect(x, y,         zoom_x, zoom_y, LCD_WIDTH, LCD_HEIGHT) ||
-                       !point_in_rect(x + w, y + h, zoom_x, zoom_y, LCD_WIDTH, LCD_HEIGHT));
-
-    if(off_screen || zoom_force_center)
-    {
-        /* if so, recenter */
-        int cx, cy;
-        cx = x + w / 2;
-        cy = y + h / 2;
-
-        bool x_pan = x < zoom_x || zoom_x + LCD_WIDTH <= x + w;
-        if(x_pan || zoom_force_center)
-            zoom_x = cx - LCD_WIDTH / 2;
-
-        bool y_pan = y < zoom_y || zoom_y + LCD_HEIGHT <= y + h;
-        if(y_pan || zoom_force_center)
-            zoom_y = cy - LCD_HEIGHT / 2;
-
-        zoom_clamp_panning();
-    }
-}
-
 /* This function handles zoom mode, where the user can either pan
  * around a zoomed-in image or play a zoomed-in version of the game. */
 static void zoom(void)
@@ -1934,7 +1902,7 @@ static void zoom(void)
     zoom_clipl = 0;
     zoom_clipr = zoom_w;
 
-    midend_size(me, &zoom_w, &zoom_h, true, 1.0);
+    midend_size(me, &zoom_w, &zoom_h, true);
 
     /* Allocating the framebuffer will mostly likely grab the
      * audiobuffer, which will make impossible to load new fonts, and
@@ -1951,20 +1919,12 @@ static void zoom(void)
         return;
     }
 
-    /* set position */
-
-    if(zoom_x < 0) {
-        /* first run */
-        zoom_x = zoom_w / 2 - LCD_WIDTH / 2;
-        zoom_y = zoom_h / 2 - LCD_HEIGHT / 2;
-    }
-
-    zoom_clamp_panning();
-
     zoom_enabled = true;
 
     /* draws go to the zoom framebuffer */
     midend_force_redraw(me);
+
+    zoom_x = zoom_y = 0;
 
     rb->lcd_bitmap_part(zoom_fb, zoom_x, zoom_y, STRIDE(SCREEN_MAIN, zoom_w, zoom_h),
                         0, 0, LCD_WIDTH, LCD_HEIGHT);
@@ -1989,25 +1949,18 @@ static void zoom(void)
         if(view_mode)
         {
             int button = rb->button_get_w_tmo(timer_on ? TIMER_INTERVAL : -1);
-
-            exit_on_usb(button);
-
             switch(button)
             {
             case BTN_UP:
-            case BTN_UP | BUTTON_REPEAT:
                 zoom_y -= PAN_Y; /* clamped later */
                 break;
             case BTN_DOWN:
-            case BTN_DOWN | BUTTON_REPEAT:
                 zoom_y += PAN_Y; /* clamped later */
                 break;
             case BTN_LEFT:
-            case BTN_LEFT | BUTTON_REPEAT:
                 zoom_x -= PAN_X; /* clamped later */
                 break;
             case BTN_RIGHT:
-            case BTN_RIGHT | BUTTON_REPEAT:
                 zoom_x += PAN_X; /* clamped later */
                 break;
             case BTN_PAUSE:
@@ -2015,15 +1968,22 @@ static void zoom(void)
                 sfree(zoom_fb);
                 fix_size();
                 return;
-            case BTN_FIRE | BUTTON_REL:
-                /* state change to interaction mode */
+            case BTN_FIRE:
                 view_mode = false;
-                break;
+                continue;
             default:
                 break;
             }
 
-            zoom_clamp_panning();
+            if(zoom_y < 0)
+                zoom_y = 0;
+            if(zoom_x < 0)
+                zoom_x = 0;
+
+            if(zoom_y + LCD_HEIGHT >= zoom_h)
+                zoom_y = zoom_h - LCD_HEIGHT;
+            if(zoom_x + LCD_WIDTH >= zoom_w)
+                zoom_x = zoom_w - LCD_WIDTH;
 
             if(timer_on)
                 timer_cb();
@@ -2039,22 +1999,8 @@ static void zoom(void)
         }
         else
         {
-            /* The cursor is always in screenspace coordinates; when
-             * zoomed, this means the mouse is always restricted to
-             * the bounds of the physical display, not the virtual
-             * zoom framebuffer. */
-            if(mouse_mode)
-                draw_mouse();
-
-            rb->lcd_update();
-
-            if(mouse_mode)
-                clear_mouse();
-
             /* basically a copy-pasta'd main loop */
             int button = process_input(timer_on ? TIMER_INTERVAL : -1, false);
-
-            exit_on_usb(button);
 
             if(button < 0)
             {
@@ -2068,8 +2014,6 @@ static void zoom(void)
             if(timer_on)
                 timer_cb();
 
-            zoom_center_on_cursor();
-
             midend_redraw(me);
 
             /* blit */
@@ -2077,6 +2021,18 @@ static void zoom(void)
                                 0, 0, LCD_WIDTH, LCD_HEIGHT);
 
             draw_title(false);
+
+            /* The cursor is always in screenspace coordinates; when
+             * zoomed, this means the mouse is always restricted to
+             * the bounds of the physical display, not the virtual
+             * zoom framebuffer. */
+            if(mouse_mode)
+                draw_mouse();
+
+            rb->lcd_update();
+
+            if(mouse_mode)
+                clear_mouse();
 
             rb->yield();
         }
@@ -2114,7 +2070,9 @@ static int list_choose(const char *list_str, const char *title, int sel)
     struct gui_synclist list;
 
     rb->gui_synclist_init(&list, &config_choices_formatter, (void*)list_str, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(&list, NULL);
     rb->gui_synclist_set_nb_items(&list, n);
+    rb->gui_synclist_limit_scroll(&list, false);
 
     rb->gui_synclist_select_item(&list, sel);
 
@@ -2123,7 +2081,7 @@ static int list_choose(const char *list_str, const char *title, int sel)
     {
         rb->gui_synclist_draw(&list);
         int button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-        if(rb->gui_synclist_do_button(&list, &button))
+        if(rb->gui_synclist_do_button(&list, &button, LIST_WRAP_ON))
             continue;
         switch(button)
         {
@@ -2257,7 +2215,7 @@ static bool do_configure_item(config_item *cfgs, int idx)
         }
 
         rb->strlcpy(newstr, cfg->u.string.sval, MAX_STRLEN);
-        if(rb->kbd_input(newstr, MAX_STRLEN, NULL) < 0)
+        if(rb->kbd_input(newstr, MAX_STRLEN) < 0)
         {
             sfree(newstr);
             return false;
@@ -2299,10 +2257,10 @@ const char *config_formatter(int sel, void *data, char *buf, size_t len)
     return buf;
 }
 
-static bool config_menu_core(int which)
+static bool config_menu(void)
 {
     char *title;
-    config_item *config = midend_get_config(me, which, &title);
+    config_item *config = midend_get_config(me, CFG_SETTINGS, &title);
 
     rb->lcd_setfont(cur_font = FONT_UI);
 
@@ -2326,7 +2284,9 @@ static bool config_menu_core(int which)
     struct gui_synclist list;
 
     rb->gui_synclist_init(&list, &config_formatter, config, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(&list, NULL);
     rb->gui_synclist_set_nb_items(&list, n);
+    rb->gui_synclist_limit_scroll(&list, false);
 
     rb->gui_synclist_select_item(&list, 0);
 
@@ -2336,7 +2296,7 @@ static bool config_menu_core(int which)
     {
         rb->gui_synclist_draw(&list);
         int button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-        if(rb->gui_synclist_do_button(&list, &button))
+        if(rb->gui_synclist_do_button(&list, &button, LIST_WRAP_ON))
             continue;
         switch(button)
         {
@@ -2353,7 +2313,7 @@ static bool config_menu_core(int which)
                 old_str = dupstr(old.u.string.sval);
 
             bool freed_str = do_configure_item(config, pos);
-            const char *err = midend_set_config(me, which, config);
+            const char *err = midend_set_config(me, CFG_SETTINGS, config);
 
             if(err)
             {
@@ -2392,16 +2352,6 @@ done:
     return success;
 }
 
-static bool config_menu(void)
-{
-    return config_menu_core(CFG_SETTINGS);
-}
-
-static bool preferences_menu(void)
-{
-    return config_menu_core(CFG_PREFS);
-}
-
 static const char *preset_formatter(int sel, void *data, char *buf, size_t len)
 {
     struct preset_menu *menu = data;
@@ -2420,7 +2370,9 @@ static int do_preset_menu(struct preset_menu *menu, char *title, int selected)
     struct gui_synclist list;
 
     rb->gui_synclist_init(&list, &preset_formatter, menu, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(&list, NULL);
     rb->gui_synclist_set_nb_items(&list, menu->n_entries);
+    rb->gui_synclist_limit_scroll(&list, false);
 
     rb->gui_synclist_select_item(&list, selected);
 
@@ -2430,7 +2382,7 @@ static int do_preset_menu(struct preset_menu *menu, char *title, int selected)
     {
         rb->gui_synclist_draw(&list);
         int button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-        if(rb->gui_synclist_do_button(&list, &button))
+        if(rb->gui_synclist_do_button(&list, &button, LIST_WRAP_ON))
             continue;
         switch(button)
         {
@@ -2561,7 +2513,6 @@ static void init_default_settings(void)
     debug_settings.shortcuts = false;
     debug_settings.no_aa = false;
     debug_settings.polyanim = false;
-    debug_settings.highlight_cursor = false;
 }
 
 #ifdef DEBUG_MENU
@@ -2576,7 +2527,7 @@ static void bench_aa(void)
     int i = 0;
     while(*rb->current_tick < next)
     {
-        draw_antialiased_line(lcd_fb, LCD_WIDTH, LCD_HEIGHT, 0, 0, 20, 31);
+        draw_antialiased_line(rb->lcd_framebuffer, LCD_WIDTH, LCD_HEIGHT, 0, 0, 20, 31);
         ++i;
     }
     rb->splashf(HZ, "%d AA lines/sec", i);
@@ -2610,8 +2561,6 @@ static void debug_menu(void)
                         "Toggle send keys on release",
                         "Toggle ignore repeats",
                         "Toggle right-click on hold vs. dragging",
-                        "Toggle highlight cursor region",
-                        "Toggle force zoom on center",
                         "Back");
     bool quit = false;
     int sel = 0;
@@ -2633,43 +2582,37 @@ static void debug_menu(void)
             break;
         }
         case 2:
-            debug_settings.timerflash ^= true;
+            debug_settings.timerflash = !debug_settings.timerflash;
             break;
         case 3:
-            debug_settings.clipoff ^= true;
+            debug_settings.clipoff = !debug_settings.clipoff;
             break;
         case 4:
-            debug_settings.shortcuts ^= true;
+            debug_settings.shortcuts = !debug_settings.shortcuts;
             break;
         case 5:
-            debug_settings.no_aa ^= true;
+            debug_settings.no_aa = !debug_settings.no_aa;
             break;
         case 6:
             bench_aa();
             break;
         case 7:
-            debug_settings.polyanim ^= true;
+            debug_settings.polyanim = !debug_settings.polyanim;
             break;
         case 8:
-            mouse_mode ^= true;
+            mouse_mode = !mouse_mode;
             break;
         case 9:
-            input_settings.want_spacebar ^= true;
+            input_settings.want_spacebar = !input_settings.want_spacebar;
             break;
         case 10:
-            input_settings.falling_edge ^= true;
+            input_settings.falling_edge = !input_settings.falling_edge;
             break;
         case 11:
-            input_settings.ignore_repeats ^= true;
+            input_settings.ignore_repeats = !input_settings.ignore_repeats;
             break;
         case 12:
-            input_settings.rclick_on_hold ^= true;
-            break;
-        case 13:
-            debug_settings.highlight_cursor ^= true;
-            break;
-        case 14:
-            zoom_force_center ^= true;
+            input_settings.rclick_on_hold = !input_settings.rclick_on_hold;
             break;
         default:
             quit = true;
@@ -2679,11 +2622,8 @@ static void debug_menu(void)
 }
 #endif
 
-static int pausemenu_cb(int action,
-                        const struct menu_item_ex *this_item,
-                        struct gui_synclist *this_list)
+static int pausemenu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = (intptr_t) this_item;
     if(action == ACTION_REQUEST_MENUITEM)
     {
@@ -2767,7 +2707,9 @@ static void new_game_notify(void)
 
 static int pause_menu(void)
 {
-    MENUITEM_STRINGLIST(menu, menu_desc, pausemenu_cb,
+#define static auto
+#define const
+    MENUITEM_STRINGLIST(menu, NULL, pausemenu_cb,
                         "Resume Game",         // 0
                         "New Game",            // 1
                         "Restart Game",        // 2
@@ -2781,9 +2723,14 @@ static int pause_menu(void)
                         "Game Type",           // 10
                         "Debug Menu",          // 11
                         "Configure Game",      // 12
-			"Preferences",         // 13
-                        "Quit without Saving", // 14
-                        "Quit");               // 15
+                        "Quit without Saving", // 13
+                        "Quit");               // 14
+#undef static
+#undef const
+    /* HACK ALERT */
+    char title[32] = { 0 };
+    rb->snprintf(title, sizeof(title), "%s Menu", midend_which_game(me)->name);
+    menu__.desc = title;
 
 #if defined(FOR_REAL) && defined(DEBUG_MENU)
     help_times = 0;
@@ -2864,13 +2811,9 @@ static int pause_menu(void)
                 quit = true;
             }
             break;
-	case 13:
-	    preferences_menu();
-	    // do not go straight into game.
-	    break;
-        case 14:
+        case 13:
             return -2;
-        case 15:
+        case 14:
             return -3;
         default:
             break;
@@ -2895,7 +2838,7 @@ static void fix_size(void)
     rb->lcd_setfont(cur_font = FONT_UI);
     rb->lcd_getstringsize("X", NULL, &h_x);
     h -= h_x;
-    midend_size(me, &w, &h, true, 1.0);
+    midend_size(me, &w, &h, true);
 }
 
 static void init_tlsf(void)
@@ -2906,10 +2849,10 @@ static void init_tlsf(void)
     init_memory_pool(giant_buffer_len, giant_buffer);
 }
 
-static bool read_wrapper(void *ptr, void *buf, int len)
+static int read_wrapper(void *ptr, void *buf, int len)
 {
     int fd = (int) ptr;
-    return rb->read(fd, buf, len) == len;
+    return rb->read(fd, buf, len);
 }
 
 static void write_wrapper(void *ptr, const void *buf, int len)
@@ -2955,63 +2898,45 @@ static bool string_in_list(const char *target, const char **list)
 static void tune_input(const char *name)
 {
     static const char *want_spacebar[] = {
-	"Black Box",
-	"Bridges",
-	"Galaxies",
-	"Keen",
         "Magnets",
-        "Map",
         "Mines",
         "Palisade",
-	"Pattern",
-        "Rectangles",
-	"Signpost",
-	"Singles",
-	"Solo",
-	"Tents",
-	"Towers",
-	"Unequal",
-	"Group",
         NULL
     };
 
-    /* these get a spacebar on long click - this implicitly enables
-     * falling-edge button events (see below)! */
+    /* these get a spacebar on long click */
     input_settings.want_spacebar = string_in_list(name, want_spacebar);
 
     static const char *falling_edge[] = {
         "Inertia",
+        "Magnets",
+        "Map",
+        "Mines",
+        "Palisade",
         NULL
     };
 
-    /* wait until a key is released to send an action (useful for
-     * chording in Inertia; must be enabled if the game needs a
-     * spacebar) */
-    input_settings.falling_edge = string_in_list(name, falling_edge) || input_settings.want_spacebar;
-
-    /* For want_spacebar to work, events must be sent on the falling
-     * edge */
-    assert(!(input_settings.want_spacebar && !input_settings.falling_edge));
+    /* wait until a key is released to send an action */
+    input_settings.falling_edge = string_in_list(name, falling_edge);
 
     /* ignore repeated keypresses in all games but untangle (mouse
      * mode overrides this no matter what) */
-    static const char *allow_repeats[] = {
+    static const char *ignore_repeats[] = {
         "Untangle",
         NULL
     };
 
-    input_settings.ignore_repeats = !string_in_list(name, allow_repeats);
+    input_settings.ignore_repeats = !string_in_list(name, ignore_repeats);
 
-    /* disable right-click on hold if you want dragging in mouse
-     * mode */
-    static const char *no_rclick_on_hold[] = {
+    /* set to false if you want dragging to be possible */
+    static const char *rclick_on_hold[] = {
         "Map",
         "Signpost",
         "Untangle",
         NULL
     };
 
-    input_settings.rclick_on_hold = !string_in_list(name, no_rclick_on_hold);
+    input_settings.rclick_on_hold = !string_in_list(name, rclick_on_hold);
 
     static const char *mouse_games[] = {
         "Loopy",
@@ -3031,12 +2956,6 @@ static void tune_input(const char *name)
     };
 
     input_settings.numerical_chooser = string_in_list(name, number_chooser_games);
-
-    static const char *force_center_games[] = {
-        "Inertia",
-        NULL
-    };
-    zoom_force_center = string_in_list(name, force_center_games);
 }
 
 static const char *init_for_game(const game *gm, int load_fd)
@@ -3053,8 +2972,6 @@ static const char *init_for_game(const game *gm, int load_fd)
         if(ret)
             return ret;
     }
-
-    fix_size();
 
     tune_input(gm->name);
 
@@ -3075,8 +2992,6 @@ static void shutdown_tlsf(void)
 
 static void exit_handler(void)
 {
-    sw_poweroff_restore();
-
     unload_fonts();
     shutdown_tlsf();
 
@@ -3089,7 +3004,6 @@ static void exit_handler(void)
 /* try loading the fonts indicated in the on-disk font table */
 static void load_fonts(void)
 {
-    LOGF("loading cached fonts from disk");
     int fd = rb->open(FONT_TABLE, O_RDONLY);
     if(fd < 0)
         return;
@@ -3108,7 +3022,6 @@ static void load_fonts(void)
 
         if(!strcmp(tok, midend_which_game(me)->name))
         {
-            LOGF("successfully found game in table");
             uint32_t left, right;
             tok = rb->strtok_r(ptr, ":", &save);
             left = atoi(tok);
@@ -3134,9 +3047,6 @@ static void load_fonts(void)
         {
             int size = (i > BUNDLE_COUNT  ? i - BUNDLE_COUNT : i) + BUNDLE_MIN;
             int type = i > BUNDLE_COUNT ? FONT_VARIABLE : FONT_FIXED;
-
-            LOGF("loading font type %d, size %d", type, size);
-
             rb_setfont(type, size);
         }
     }
@@ -3214,7 +3124,7 @@ static void save_fonts(void)
             final |= oldmask;
         uint32_t left = final >> 31;
         uint32_t right = final & 0x7fffffff;
-        rb->fdprintf(outfd, "%s:%u:%u\n", midend_which_game(me)->name, (unsigned)left, (unsigned)right);
+        rb->fdprintf(outfd, "%s:%lu:%lu\n", midend_which_game(me)->name, left, right);
         rb->close(outfd);
         rb->rename(FONT_TABLE ".tmp", FONT_TABLE);
     }
@@ -3241,8 +3151,9 @@ static bool load_game(void)
     char *game;
     const char *ret = identify_game(&game, read_wrapper, (void*)fd);
 
-    if(!game && ret)
+    if(!*game && ret)
     {
+        sfree(game);
         rb->splash(HZ, ret);
         rb->close(fd);
         return false;
@@ -3264,6 +3175,10 @@ static bool load_game(void)
             }
             rb->close(fd);
             rb->remove(fname);
+
+#ifdef FONT_CACHING
+            load_fonts();
+#endif
 
             /* success */
             return true;
@@ -3297,11 +3212,8 @@ static void save_game(void)
     rb->lcd_update();
 }
 
-static int mainmenu_cb(int action,
-                       const struct menu_item_ex *this_item,
-                       struct gui_synclist *this_list)
+static int mainmenu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = (intptr_t) this_item;
     if(action == ACTION_REQUEST_MENUITEM)
     {
@@ -3338,9 +3250,8 @@ static void puzzles_main(void)
 {
     rb_atexit(exit_handler);
 
-    sw_poweroff_disable();
-
     init_default_settings();
+
     init_fonttab();
 
     load_success = load_game();
@@ -3351,14 +3262,6 @@ static void puzzles_main(void)
         init_for_game(&thegame, -1);
     }
 
-#ifdef FONT_CACHING
-    LOGF("loading fonts");
-    load_fonts();
-#endif
-
-    /* must be done before any menu needs to be displayed */
-    rb->snprintf(menu_desc, sizeof(menu_desc), "%s Menu", midend_which_game(me)->name);
-
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     /* about to go to menu or button block */
     rb->cpu_boost(false);
@@ -3368,7 +3271,9 @@ static void puzzles_main(void)
     help_times = 0;
 #endif
 
-    MENUITEM_STRINGLIST(menu, menu_desc, mainmenu_cb,
+#define static auto
+#define const
+    MENUITEM_STRINGLIST(menu, NULL, mainmenu_cb,
                         "Resume Game",         // 0
                         "New Game",            // 1
                         "Quick Help",          // 2
@@ -3376,9 +3281,15 @@ static void puzzles_main(void)
                         "Playback Control",    // 4
                         "Game Type",           // 5
                         "Configure Game",      // 6
-			"Preferences",         // 7
-                        "Quit without Saving", // 8
-                        "Quit");               // 9
+                        "Quit without Saving", // 7
+                        "Quit");               // 8
+#undef static
+#undef const
+
+    /* HACK ALERT */
+    char title[32] = { 0 };
+    rb->snprintf(title, sizeof(title), "%s Menu", midend_which_game(me)->name);
+    menu__.desc = title;
 
     bool quit = false;
     int sel = 0;
@@ -3424,14 +3335,11 @@ static void puzzles_main(void)
                 goto game_loop;
             }
             break;
-	case 7:
-	    preferences_menu();
-	    break;
-        case 9:
+        case 8:
             if(load_success)
                 save_game();
             /* fall through */
-        case 8:
+        case 7:
             /* we don't care about freeing anything because tlsf will
              * be wiped out the next time around */
             return;
@@ -3525,8 +3433,6 @@ enum plugin_status plugin_start(const void *param)
 
     giant_buffer = rb->plugin_get_buffer(&giant_buffer_len);
     init_tlsf();
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
 
     if(!strcmp(thegame.name, "Solo"))
     {

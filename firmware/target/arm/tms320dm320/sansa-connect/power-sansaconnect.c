@@ -31,29 +31,6 @@
 #include "i2c-dm320.h"
 #include "logf.h"
 
-
-const unsigned short battery_level_dangerous[BATTERY_TYPES_COUNT] =
-{
-    3450
-};
-
-const unsigned short battery_level_shutoff[BATTERY_TYPES_COUNT] =
-{
-    3400
-};
-
-/* voltages (millivolt) of 0%, 10%, ... 100% when charging disabled */
-const unsigned short percent_to_volt_discharge[BATTERY_TYPES_COUNT][11] =
-{
-    { 3400, 3508, 3630, 3703, 3727, 3750, 3803, 3870, 3941, 4026, 4142 }
-};
-
-/* voltages (millivolt) of 0%, 10%, ... 100% when charging enabled */
-const unsigned short percent_to_volt_charge[11] =
-{
-    3540, 3788, 3860, 3890, 3916, 3956, 4016, 4085, 4164, 4180, 4190
-};
-
 /* (7-bit) address is 0x48, the LSB is read/write flag */
 #define TPS65021_ADDR (0x48 << 1)
 
@@ -77,7 +54,7 @@ void power_init(void)
 
     /* PWM mode */
     tps65021_write_reg(0x04, 0xB2);
-
+ 
     /* Set core voltage to 1.5V */
     tps65021_write_reg(0x06, 0x1C);
 
@@ -93,10 +70,25 @@ void power_off(void)
     /* Disable GIO0 and GIO2 interrupts */
     IO_INTC_EINT1 &= ~(INTR_EINT1_EXT2 | INTR_EINT1_EXT0);
 
+    avr_hid_reset_codec();
     avr_hid_power_off();
 }
+
+#if CONFIG_CHARGING
+unsigned int power_input_status(void)
+{
+    return POWER_INPUT_NONE;
+}
+
+/* Returns true if the unit is charging the batteries. */
+bool charging_state(void)
+{
+    return false;
+}
+#endif
 
 void ide_power_enable(bool on)
 {
   (void)on;
 }
+

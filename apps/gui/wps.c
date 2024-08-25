@@ -33,13 +33,16 @@
 #include "filetypes.h"
 #include "settings.h"
 #include "skin_engine/skin_engine.h"
+#include "mp3_playback.h"
 #include "audio.h"
 #include "usb.h"
 #include "status.h"
 #include "storage.h"
 #include "screens.h"
 #include "playlist.h"
+#ifdef HAVE_LCD_BITMAP
 #include "icons.h"
+#endif
 #include "lang.h"
 #include "bookmark.h"
 #include "misc.h"
@@ -53,7 +56,6 @@
 #include "root_menu.h"
 #include "backdrop.h"
 #include "quickscreen.h"
-#include "shortcuts.h"
 #include "pitchscreen.h"
 #include "appevents.h"
 #include "viewport.h"
@@ -62,14 +64,13 @@
 #include "playlist_viewer.h"
 #include "wps.h"
 #include "statusbar-skinned.h"
-#include "skin_engine/wps_internals.h"
-#include "open_plugin.h"
+
+#define RESTORE_WPS_INSTANTLY       0l
+#define RESTORE_WPS_NEXT_SECOND     ((long)(HZ+current_tick))
 
 #define FF_REWIND_MAX_PERCENT 3 /* cap ff/rewind step size at max % of file */
                                 /* 3% of 30min file == 54s step size */
 #define MIN_FF_REWIND_STEP 500
-
-static struct wps_state wps_state;
 
 /* initial setup of wps_data  */
 static void wps_state_init(void);
@@ -87,6 +88,7 @@ static void track_info_callback(unsigned short id, void *param);
 char* wps_default_skin(enum screen_type screen)
 {
     static char *skin_buf[NB_SCREENS] = {
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH > 1
             "%X(d)\n"
 #endif
@@ -96,6 +98,10 @@ char* wps_default_skin(enum screen_type screen)
             "%al%pc/%pt%ar[%pp:%pe]\n"
             "%fbkBit %?fv<avg|> %?iv<%(id3v%iv%)|%(no id3%)>\n"
             "%pb\n%pm\n",
+#else
+            "%s%pp/%pe: %?it<%it|%fn> - %?ia<%ia|%d(2)> - %?id<%id|%d(1)>\n"
+            "%pc%?ps<*|/>%pt\n",
+#endif
 #ifdef HAVE_REMOTE_LCD
 #if LCD_REMOTE_DEPTH > 1
             "%X(d)\n"
@@ -116,42 +122,131 @@ static void update_non_static(void)
         skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
 }
 
-void pause_action(bool updatewps)
+void pause_action(bool may_fade, bool updatewps)
 {
+#if CONFIG_CODEC == SWCODEC
     /* Do audio first, then update, unless skin were to use its local
        status in which case, reverse it */
     audio_pause();
 
     if (updatewps)
         update_non_static();
+#else
+    if (may_fade && global_settings.fade_on_stop)
+        fade(false, updatewps);
+    else
+        audio_pause();
+#endif
 
     if (global_settings.pause_rewind) {
         long newpos;
 
+#if (CONFIG_CODEC == SWCODEC)
         audio_pre_ff_rewind();
+#endif
         newpos = audio_current_track()->elapsed
             - global_settings.pause_rewind * 1000;
         audio_ff_rewind(newpos > 0 ? newpos : 0);
     }
+
+    (void)may_fade;
 }
 
-void unpause_action(bool updatewps)
+void unpause_action(bool may_fade, bool updatewps)
 {
+#if CONFIG_CODEC == SWCODEC
     /* Do audio first, then update, unless skin were to use its local
        status in which case, reverse it */
     audio_resume();
 
     if (updatewps)
         update_non_static();
+#else
+    if (may_fade && global_settings.fade_on_stop)
+        fade(true, updatewps);
+    else
+        audio_resume();
+#endif
+
+    (void)may_fade;
 }
 
+#if CONFIG_CODEC != SWCODEC
+void fade(bool fade_in, bool updatewps)
+{
+    int fp_global_vol = global_settings.volume << 8;
+    int fp_min_vol = sound_min(SOUND_VOLUME) << 8;
+    int fp_step = (fp_global_vol - fp_min_vol) / 10;
+
+    skin_get_global_state()->is_fading = !fade_in;
+    if (fade_in) {
+        /* fade in */
+        int fp_volume = fp_min_vol;
+
+        /* zero out the sound */
+        sound_set_volume(fp_min_vol >> 8);
+
+        sleep(HZ/10); /* let audio thread run */
+        audio_resume();
+
+        if (updatewps)
+            update_non_static();
+
+        while (fp_volume < fp_global_vol - fp_step) {
+            fp_volume += fp_step;
+            sound_set_volume(fp_volume >> 8);
+            sleep(1);
+        }
+        sound_set_volume(global_settings.volume);
+    }
+    else {
+        /* fade out */
+        int fp_volume = fp_global_vol;
+
+        if (updatewps)
+            update_non_static();
+
+        while (fp_volume > fp_min_vol + fp_step) {
+            fp_volume -= fp_step;
+            sound_set_volume(fp_volume >> 8);
+            sleep(1);
+        }
+        audio_pause();
+
+        skin_get_global_state()->is_fading = false;
+#if CONFIG_CODEC != SWCODEC
+#ifndef SIMULATOR
+        /* let audio thread run and wait for the mas to run out of data */
+        while (!mp3_pause_done())
+#endif
+            sleep(HZ/10);
+#endif
+
+        /* reset volume to what it was before the fade */
+        sound_set_volume(global_settings.volume);
+    }
+}
+#endif /* SWCODEC */
+
+static bool update_onvol_change(enum screen_type screen)
+{
+    skin_update(WPS, screen, SKIN_REFRESH_NON_STATIC);
+
+#ifdef HAVE_LCD_CHARCELLS
+    splashf(0, "Vol: %3d dB",
+               sound_val2phys(SOUND_VOLUME, global_settings.volume));
+    return true;
+#endif
+    return false;
+}
+
+
 #ifdef HAVE_TOUCHSCREEN
-static int skintouch_to_wps(void)
+static int skintouch_to_wps(struct wps_data *data)
 {
     int offset = 0;
-    struct wps_state *gstate = get_wps_state();
-    struct gui_wps *gwps = skin_get_gwps(WPS, SCREEN_MAIN);
-    int button = skin_get_touchaction(gwps, &offset);
+    struct touchregion *region;
+    int button = skin_get_touchaction(data, &offset, &region);
     switch (button)
     {
         case ACTION_STD_PREV:
@@ -173,18 +268,25 @@ static int skintouch_to_wps(void)
             return ACTION_WPS_HOTKEY;
 #endif
         case ACTION_TOUCH_SCROLLBAR:
-            gstate->id3->elapsed = gstate->id3->length*offset/1000;
+            skin_get_global_state()->id3->elapsed = skin_get_global_state()->id3->length*offset/100;
+#if (CONFIG_CODEC == SWCODEC)
             audio_pre_ff_rewind();
-            audio_ff_rewind(gstate->id3->elapsed);
+#else
+            if (!skin_get_global_state()->paused)
+                audio_pause();
+#endif
+            audio_ff_rewind(skin_get_global_state()->id3->elapsed);
+#if (CONFIG_CODEC != SWCODEC)
+            if (!skin_get_global_state()->paused)
+                audio_resume();
+#endif
             return ACTION_TOUCHSCREEN;
         case ACTION_TOUCH_VOLUME:
         {
             const int min_vol = sound_min(SOUND_VOLUME);
             const int max_vol = sound_max(SOUND_VOLUME);
-            const int step_vol = sound_steps(SOUND_VOLUME);
-
-            global_settings.volume = from_normalized_volume(offset, min_vol, max_vol, 1000);
-            global_settings.volume -= (global_settings.volume % step_vol);
+            global_settings.volume = (offset * (max_vol - min_vol)) / 100;
+            global_settings.volume += min_vol;
             setvol();
         }
         return ACTION_TOUCHSCREEN;
@@ -193,7 +295,7 @@ static int skintouch_to_wps(void)
 }
 #endif /* HAVE_TOUCHSCREEN */
 
-static bool ffwd_rew(int button, bool seek_from_end)
+bool ffwd_rew(int button)
 {
     unsigned int step = 0;     /* current ff/rewind step */
     unsigned int max_step = 0; /* maximum ff/rewind step */
@@ -201,10 +303,7 @@ static bool ffwd_rew(int button, bool seek_from_end)
     int direction = -1;         /* forward=1 or backward=-1 */
     bool exit = false;
     bool usb = false;
-    bool ff_rewind = false;
     const long ff_rw_accel = (global_settings.ff_rewind_accel + 3);
-    struct wps_state *gstate = get_wps_state();
-    struct mp3entry *old_id3 = gstate->id3;
 
     if (button == ACTION_NONE)
     {
@@ -213,37 +312,26 @@ static bool ffwd_rew(int button, bool seek_from_end)
     }
     while (!exit)
     {
-        struct mp3entry *id3 = gstate->id3;
-        if (id3 != old_id3)
-        {
-            ff_rewind = false;
-            ff_rewind_count = 0;
-            old_id3 = id3;
-        }
-        if (id3 && seek_from_end)
-            id3->elapsed = id3->length;
-
         switch ( button )
         {
             case ACTION_WPS_SEEKFWD:
                  direction = 1;
-                 /* Fallthrough */
             case ACTION_WPS_SEEKBACK:
-                if (ff_rewind)
+                if (skin_get_global_state()->ff_rewind)
                 {
                     if (direction == 1)
                     {
                         /* fast forwarding, calc max step relative to end */
-                        max_step = (id3->length -
-                                    (id3->elapsed +
+                        max_step = (skin_get_global_state()->id3->length -
+                                    (skin_get_global_state()->id3->elapsed +
                                      ff_rewind_count)) *
                                      FF_REWIND_MAX_PERCENT / 100;
                     }
                     else
                     {
                         /* rewinding, calc max step relative to start */
-                        max_step = (id3->elapsed + ff_rewind_count) *
-                                   FF_REWIND_MAX_PERCENT / 100;
+                        max_step = (skin_get_global_state()->id3->elapsed + ff_rewind_count) *
+                                    FF_REWIND_MAX_PERCENT / 100;
                     }
 
                     max_step = MAX(max_step, MIN_FF_REWIND_STEP);
@@ -258,15 +346,25 @@ static bool ffwd_rew(int button, bool seek_from_end)
                 }
                 else
                 {
-                    if ((audio_status() & AUDIO_STATUS_PLAY) && id3 && id3->length )
+                    if ( (audio_status() & AUDIO_STATUS_PLAY) &&
+                          skin_get_global_state()->id3 && skin_get_global_state()->id3->length )
                     {
+#if (CONFIG_CODEC == SWCODEC)
                         audio_pre_ff_rewind();
+#else
+                        if (!skin_get_global_state()->paused)
+                            audio_pause();
+#endif
+#if CONFIG_KEYPAD == PLAYER_PAD
+                        FOR_NB_SCREENS(i)
+                            skin_get_gwps(WPS, i)->display->scroll_stop();
+#endif
                         if (direction > 0)
                             status_set_ffmode(STATUS_FASTFORWARD);
                         else
                             status_set_ffmode(STATUS_FASTBACKWARD);
 
-                        ff_rewind = true;
+                        skin_get_global_state()->ff_rewind = true;
 
                         step = 1000 * global_settings.ff_rewind_min_step;
                     }
@@ -275,17 +373,19 @@ static bool ffwd_rew(int button, bool seek_from_end)
                 }
 
                 if (direction > 0) {
-                    if ((id3->elapsed + ff_rewind_count) > id3->length)
-                        ff_rewind_count = id3->length - id3->elapsed;
+                    if ((skin_get_global_state()->id3->elapsed + ff_rewind_count) >
+                        skin_get_global_state()->id3->length)
+                        ff_rewind_count = skin_get_global_state()->id3->length -
+                            skin_get_global_state()->id3->elapsed;
                 }
                 else {
-                    if ((int)(id3->elapsed + ff_rewind_count) < 0)
-                        ff_rewind_count = -id3->elapsed;
+                    if ((int)(skin_get_global_state()->id3->elapsed + ff_rewind_count) < 0)
+                        ff_rewind_count = -skin_get_global_state()->id3->elapsed;
                 }
 
                 /* set the wps state ff_rewind_count so the progess info
                    displays corectly */
-                gstate->ff_rewind_count = ff_rewind_count;
+                skin_get_global_state()->ff_rewind_count = ff_rewind_count;
 
                 FOR_NB_SCREENS(i)
                 {
@@ -297,11 +397,19 @@ static bool ffwd_rew(int button, bool seek_from_end)
                 break;
 
             case ACTION_WPS_STOPSEEK:
-                id3->elapsed = id3->elapsed + ff_rewind_count;
-                audio_ff_rewind(id3->elapsed);
-                gstate->ff_rewind_count = 0;
-                ff_rewind = false;
+                skin_get_global_state()->id3->elapsed = skin_get_global_state()->id3->elapsed+ff_rewind_count;
+                audio_ff_rewind(skin_get_global_state()->id3->elapsed);
+                skin_get_global_state()->ff_rewind_count = 0;
+                skin_get_global_state()->ff_rewind = false;
                 status_set_ffmode(0);
+#if (CONFIG_CODEC != SWCODEC)
+                if (!skin_get_global_state()->paused)
+                    audio_resume();
+#endif
+#ifdef HAVE_LCD_CHARCELLS
+                FOR_NB_SCREENS(i)
+                    skin_update(WPS, i, SKIN_REFRESH_ALL);
+#endif
                 exit = true;
                 break;
 
@@ -318,21 +426,20 @@ static bool ffwd_rew(int button, bool seek_from_end)
             button = get_action(CONTEXT_WPS|ALLOW_SOFTLOCK,TIMEOUT_BLOCK);
 #ifdef HAVE_TOUCHSCREEN
             if (button == ACTION_TOUCHSCREEN)
-                button = skintouch_to_wps();
+                button = skintouch_to_wps(skin_get_gwps(WPS, SCREEN_MAIN)->data);
 #endif
-            if (button != ACTION_WPS_SEEKFWD
-                && button != ACTION_WPS_SEEKBACK
-                && button != 0 && !IS_SYSEVENT(button))
+            if (button != ACTION_WPS_SEEKFWD &&
+                button != ACTION_WPS_SEEKBACK)
                 button = ACTION_WPS_STOPSEEK;
         }
     }
     return usb;
 }
 
+#if defined(HAVE_BACKLIGHT) || defined(HAVE_REMOTE_LCD)
 static void gwps_caption_backlight(struct wps_state *state)
 {
-#if defined(HAVE_BACKLIGHT) || defined(HAVE_REMOTE_LCD)
-    if (state->id3)
+    if (state && state->id3)
     {
 #ifdef HAVE_BACKLIGHT
         if (global_settings.caption_backlight)
@@ -368,10 +475,9 @@ static void gwps_caption_backlight(struct wps_state *state)
         }
 #endif
     }
-#else
-    (void) state;
-#endif /* def HAVE_BACKLIGHT || def HAVE_REMOTE_LCD */
 }
+#endif
+
 
 static void change_dir(int direction)
 {
@@ -388,7 +494,7 @@ static void change_dir(int direction)
 
 static void prev_track(unsigned long skip_thresh)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
     if (state->id3->elapsed < skip_thresh)
     {
         audio_prev();
@@ -402,14 +508,25 @@ static void prev_track(unsigned long skip_thresh)
             return;
         }
 
+#if (CONFIG_CODEC == SWCODEC)
         audio_pre_ff_rewind();
+#else
+        if (!state->paused)
+            audio_pause();
+#endif
+
         audio_ff_rewind(0);
+
+#if (CONFIG_CODEC != SWCODEC)
+        if (!state->paused)
+            audio_resume();
+#endif
     }
 }
 
 static void next_track(void)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
     /* take care of if we're playing a cuesheet */
     if (state->id3->cuesheet)
     {
@@ -426,7 +543,7 @@ static void next_track(void)
 
 static void play_hop(int direction)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
     struct cuesheet *cue = state->id3->cuesheet;
     long step = global_settings.skip_length*1000;
     long elapsed = state->id3->elapsed;
@@ -445,45 +562,33 @@ static void play_hop(int direction)
     {
         if (direction < 0)
         {
-            prev_track(DEFAULT_SKIP_THRESH);
+            prev_track(DEFAULT_SKIP_TRESH);
             return;
         }
-        else if (remaining < DEFAULT_SKIP_THRESH*2)
+        else if (remaining < DEFAULT_SKIP_TRESH*2)
         {
             next_track();
             return;
         }
         else
-            elapsed += (remaining - DEFAULT_SKIP_THRESH*2);
+            elapsed += (remaining - DEFAULT_SKIP_TRESH*2);
     }
     else if (!global_settings.prevent_skip &&
            (!step ||
             (direction > 0 && step >= remaining) ||
-            (direction < 0 && elapsed < DEFAULT_SKIP_THRESH)))
+            (direction < 0 && elapsed < DEFAULT_SKIP_TRESH)))
     {   /* Do normal track skipping */
         if (direction > 0)
             next_track();
         else if (direction < 0)
-        {
-            if (step > 0 && global_settings.rewind_across_tracks && elapsed < DEFAULT_SKIP_THRESH && playlist_check(-1))
-            {
-                bool audio_paused = (audio_status() & AUDIO_STATUS_PAUSE)?true:false;
-                if (!audio_paused)
-                    audio_pause();
-                audio_prev();
-                audio_ff_rewind(-step);
-                if (!audio_paused)
-                    audio_resume();
-                return;
-            }
-
-            prev_track(DEFAULT_SKIP_THRESH);
-        }
+            prev_track(DEFAULT_SKIP_TRESH);
         return;
     }
     else if (direction == 1 && step >= remaining)
     {
+#if CONFIG_CODEC == SWCODEC
         system_sound_play(SOUND_TRACK_NO_MORE);
+#endif
         return;
     }
     else if (direction == -1 && elapsed < step)
@@ -496,11 +601,23 @@ static void play_hop(int direction)
     }
     if(audio_status() & AUDIO_STATUS_PLAY)
     {
+#if (CONFIG_CODEC == SWCODEC)
         audio_pre_ff_rewind();
+#else
+        if (!state->paused)
+            audio_pause();
+#endif
     }
 
+#if (CONFIG_CODEC == SWCODEC)
     audio_ff_rewind(elapsed);
+#else
+    audio_ff_rewind(state->id3->elapsed = elapsed);
+    if (!state->paused)
+        audio_resume();
+#endif
 }
+
 
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
 /*
@@ -518,19 +635,16 @@ static void wps_lcd_activation_hook(unsigned short id, void *param)
 }
 #endif
 
-static void gwps_leave_wps(bool theme_enabled)
+static void gwps_leave_wps(void)
 {
     FOR_NB_SCREENS(i)
     {
-        struct gui_wps *gwps = skin_get_gwps(WPS, i);
-        gwps->display->scroll_stop();
-        if (theme_enabled)
-        {
+        skin_get_gwps(WPS, i)->display->scroll_stop();
 #ifdef HAVE_BACKDROP_IMAGE
-            skin_backdrop_show(sb_get_backdrop(i));
+        skin_backdrop_show(sb_get_backdrop(i));
 #endif
-            viewportmanager_theme_undo(i, skin_has_sbs(gwps));
-        }
+        viewportmanager_theme_undo(i, skin_has_sbs(i, skin_get_gwps(WPS, i)->data));
+
     }
 
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
@@ -544,30 +658,19 @@ static void gwps_leave_wps(bool theme_enabled)
 #endif
 }
 
-static void restore_theme(void)
-{
-    FOR_NB_SCREENS(i)
-    {
-        struct gui_wps *gwps = skin_get_gwps(WPS, i);
-        struct screen *display = gwps->display;
-        display->scroll_stop();
-        viewportmanager_theme_enable(i, skin_has_sbs(gwps), NULL);
-    }
-}
-
 /*
  * display the wps on entering or restoring */
-static void gwps_enter_wps(bool theme_enabled)
+static void gwps_enter_wps(void)
 {
     struct gui_wps *gwps;
     struct screen *display;
-    if (theme_enabled)
-        restore_theme();
     FOR_NB_SCREENS(i)
     {
         gwps = skin_get_gwps(WPS, i);
         display = gwps->display;
         display->scroll_stop();
+        viewportmanager_theme_enable(i, skin_has_sbs(i, skin_get_gwps(WPS, i)->data), NULL);
+
         /* Update the values in the first (default) viewport - in case the user
            has modified the statusbar or colour settings */
 #if LCD_DEPTH > 1
@@ -593,7 +696,7 @@ static void gwps_enter_wps(bool theme_enabled)
     }
 #ifdef HAVE_TOUCHSCREEN
     gwps = skin_get_gwps(WPS, SCREEN_MAIN);
-    skin_disarm_touchregions(gwps);
+    skin_disarm_touchregions(gwps->data);
     if (gwps->data->touchregions < 0)
         touchscreen_set_mode(TOUCHSCREEN_BUTTON);
 #endif
@@ -603,74 +706,23 @@ static void gwps_enter_wps(bool theme_enabled)
 
 void wps_do_playpause(bool updatewps)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
     if ( state->paused )
     {
         state->paused = false;
-        unpause_action(updatewps);
+        unpause_action(true, updatewps);
     }
     else
     {
         state->paused = true;
-        pause_action(updatewps);
+        pause_action(true, updatewps);
         settings_save();
-#if !defined(HAVE_SW_POWEROFF)
+#if !defined(HAVE_RTC_RAM) && !defined(HAVE_SW_POWEROFF)
         call_storage_idle_notifys(true);   /* make sure resume info is saved */
 #endif
     }
 }
 
-static long do_wps_exit(long action, bool bookmark)
-{
-    audio_pause();
-    update_non_static();
-    if (bookmark)
-        bookmark_autobookmark(true);
-    audio_stop();
-
-    ab_reset_markers();
-
-    gwps_leave_wps(true);
-#ifdef HAVE_RECORDING
-    if (action == ACTION_WPS_REC)
-        return GO_TO_RECSCREEN;
-#else
-    (void)action;
-#endif
-    if (global_settings.browse_current)
-        return GO_TO_PREVIOUS_BROWSER;
-    return GO_TO_PREVIOUS;
-}
-
-static long do_party_mode(long action)
-{
-    if (global_settings.party_mode)
-    {
-        switch (action)
-        {
-#ifdef ACTION_WPSAB_SINGLE
-            case ACTION_WPSAB_SINGLE:
-                if (!ab_repeat_mode_enabled())
-                    break;
-                /* Note: currently all targets use ACTION_WPS_BROWSE
-                 * if mapped to any of below actions this will cause problems */
-#endif
-            case ACTION_WPS_PLAY:
-            case ACTION_WPS_SEEKFWD:
-            case ACTION_WPS_SEEKBACK:
-            case ACTION_WPS_SKIPPREV:
-            case ACTION_WPS_SKIPNEXT:
-            case ACTION_WPS_ABSETB_NEXTDIR:
-            case ACTION_WPS_ABSETA_PREVDIR:
-            case ACTION_WPS_STOP:
-                return ACTION_NONE;
-                break;
-            default:
-                break;
-        }
-    }
-    return action;
-}
 
 /* The WPS can be left in two ways:
  *      a)  call a function, which draws over the wps. In this case, the wps
@@ -678,27 +730,36 @@ static long do_party_mode(long action)
  *      b)  return with a value evaluated by root_menu.c, in this case the wps
  *          is really left, and root_menu will handle the next screen
  *
- * In either way, call gwps_leave_wps(true), in order to restore the correct
+ * In either way, call gwps_leave_wps(), in order to restore the correct
  * "main screen" backdrops and statusbars
  */
 long gui_wps_show(void)
 {
     long button = 0;
     bool restore = true;
+    long restoretimer = RESTORE_WPS_INSTANTLY; /* timer to delay screen redraw temporarily */
     bool exit = false;
     bool bookmark = false;
     bool update = false;
-    bool theme_enabled = true;
+    bool vol_changed = false;
     long last_left = 0, last_right = 0;
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
 
+#ifdef HAVE_LCD_CHARCELLS
+    status_set_audio(true);
+    status_set_param(false);
+#endif
+
+#ifdef AB_REPEAT_ENABLE
+    ab_repeat_init();
     ab_reset_markers();
-
+#endif
     wps_state_init();
+
     while ( 1 )
     {
-        bool hotkey = false;
         bool audio_paused = (audio_status() & AUDIO_STATUS_PAUSE)?true:false;
+
         /* did someone else (i.e power thread) change audio pause mode? */
         if (state->paused != audio_paused) {
             state->paused = audio_paused;
@@ -707,15 +768,353 @@ long gui_wps_show(void)
                about to shut down. lets save the settings. */
             if (state->paused) {
                 settings_save();
-#if !defined(HAVE_SW_POWEROFF)
+#if !defined(HAVE_RTC_RAM) && !defined(HAVE_SW_POWEROFF)
                 call_storage_idle_notifys(true);
 #endif
             }
         }
+        button = skin_wait_for_action(WPS, CONTEXT_WPS|ALLOW_SOFTLOCK,
+                                      restore ? 1 : HZ/5);
 
-        if (restore)
+        /* Exit if audio has stopped playing. This happens e.g. at end of
+           playlist or if using the sleep timer. */
+        if (!(audio_status() & AUDIO_STATUS_PLAY))
+            exit = true;
+#ifdef HAVE_TOUCHSCREEN
+        if (button == ACTION_TOUCHSCREEN)
+            button = skintouch_to_wps(skin_get_gwps(WPS, SCREEN_MAIN)->data);
+#endif
+/* The iPods/X5/M5 use a single button for the A-B mode markers,
+   defined as ACTION_WPSAB_SINGLE in their config files. */
+#ifdef ACTION_WPSAB_SINGLE
+        if (!global_settings.party_mode && ab_repeat_mode_enabled())
+        {
+            static int wps_ab_state = 0;
+            if (button == ACTION_WPSAB_SINGLE)
+            {
+                switch (wps_ab_state)
+                {
+                    case 0: /* set the A spot */
+                        button = ACTION_WPS_ABSETA_PREVDIR;
+                        break;
+                    case 1: /* set the B spot */
+                        button = ACTION_WPS_ABSETB_NEXTDIR;
+                        break;
+                    case 2:
+                        button = ACTION_WPS_ABRESET;
+                        break;
+                }
+                wps_ab_state = (wps_ab_state+1) % 3;
+            }
+        }
+#endif
+        switch(button)
+        {
+#ifdef HAVE_HOTKEY
+            case ACTION_WPS_HOTKEY:
+                if (!global_settings.hotkey_wps)
+                    break;
+                /* fall through */
+#endif
+            case ACTION_WPS_CONTEXT:
+            {
+                bool hotkey = button == ACTION_WPS_HOTKEY;
+                gwps_leave_wps();
+                int retval = onplay(state->id3->path,
+                           FILE_ATTR_AUDIO, CONTEXT_WPS, hotkey);
+                /* if music is stopped in the context menu we want to exit the wps */
+                if (retval == ONPLAY_MAINMENU
+                    || !audio_status())
+                    return GO_TO_ROOT;
+                else if (retval == ONPLAY_PLAYLIST)
+                    return GO_TO_PLAYLIST_VIEWER;
+#ifdef HAVE_PICTUREFLOW_INTEGRATION
+                else if (retval == ONPLAY_PICTUREFLOW)
+                    return GO_TO_PICTUREFLOW;
+#endif
+                restore = true;
+            }
+            break;
+
+            case ACTION_WPS_BROWSE:
+#ifdef HAVE_LCD_CHARCELLS
+                status_set_record(false);
+                status_set_audio(false);
+#endif
+                gwps_leave_wps();
+                return GO_TO_PREVIOUS_BROWSER;
+                break;
+
+                /* play/pause */
+            case ACTION_WPS_PLAY:
+                if (global_settings.party_mode)
+                    break;
+                wps_do_playpause(true);
+                break;
+
+            case ACTION_WPS_VOLUP:
+                global_settings.volume += sound_steps(SOUND_VOLUME);
+                vol_changed = true;
+                break;
+            case ACTION_WPS_VOLDOWN:
+                global_settings.volume -= sound_steps(SOUND_VOLUME);
+                vol_changed = true;
+                break;
+            /* fast forward
+                OR next dir if this is straight after ACTION_WPS_SKIPNEXT */
+            case ACTION_WPS_SEEKFWD:
+                if (global_settings.party_mode)
+                    break;
+                if (current_tick -last_right < HZ)
+                {
+                    if (state->id3->cuesheet)
+                    {
+                        audio_next();
+                    }
+                    else
+                    {
+                        change_dir(1);
+                    }
+                }
+                else
+                    ffwd_rew(ACTION_WPS_SEEKFWD);
+                last_right = last_left = 0;
+                break;
+            /* fast rewind
+                OR prev dir if this is straight after ACTION_WPS_SKIPPREV,*/
+            case ACTION_WPS_SEEKBACK:
+                if (global_settings.party_mode)
+                    break;
+                if (current_tick -last_left < HZ)
+                {
+                    if (state->id3->cuesheet)
+                    {
+#if (CONFIG_CODEC == SWCODEC)
+                        audio_pre_ff_rewind();
+#else
+                        if (!state->paused)
+                            audio_pause();
+#endif
+                        audio_ff_rewind(0);
+                    }
+                    else
+                    {
+                        change_dir(-1);
+                    }
+                }
+                else
+                    ffwd_rew(ACTION_WPS_SEEKBACK);
+                last_left = last_right = 0;
+                break;
+
+                /* prev / restart */
+            case ACTION_WPS_SKIPPREV:
+                if (global_settings.party_mode)
+                    break;
+                last_left = current_tick;
+#ifdef AB_REPEAT_ENABLE
+                /* if we're in A/B repeat mode and the current position
+                   is past the A marker, jump back to the A marker... */
+                if ( ab_repeat_mode_enabled() && ab_after_A_marker(state->id3->elapsed) )
+                {
+                    ab_jump_to_A_marker();
+                    break;
+                }
+                else
+                /* ...otherwise, do it normally */
+#endif
+                    play_hop(-1);
+                break;
+
+                /* next
+                   OR if skip length set, hop by predetermined amount. */
+            case ACTION_WPS_SKIPNEXT:
+                if (global_settings.party_mode)
+                    break;
+                last_right = current_tick;
+#ifdef AB_REPEAT_ENABLE
+                /* if we're in A/B repeat mode and the current position is
+                   before the A marker, jump to the A marker... */
+                if ( ab_repeat_mode_enabled() )
+                {
+                    if ( ab_before_A_marker(state->id3->elapsed) )
+                    {
+                        ab_jump_to_A_marker();
+                        break;
+                    }
+                }
+                else
+                /* ...otherwise, do it normally */
+#endif
+                    play_hop(1);
+                break;
+                /* next / prev directories */
+                /* and set A-B markers if in a-b mode */
+            case ACTION_WPS_ABSETB_NEXTDIR:
+                if (global_settings.party_mode)
+                    break;
+#if defined(AB_REPEAT_ENABLE)
+                if (ab_repeat_mode_enabled())
+                {
+                    ab_set_B_marker(state->id3->elapsed);
+                    ab_jump_to_A_marker();
+                }
+                else
+#endif
+                {
+                    change_dir(1);
+                }
+                break;
+            case ACTION_WPS_ABSETA_PREVDIR:
+                if (global_settings.party_mode)
+                    break;
+#if defined(AB_REPEAT_ENABLE)
+                if (ab_repeat_mode_enabled())
+                    ab_set_A_marker(state->id3->elapsed);
+                else
+#endif
+                {
+                    change_dir(-1);
+                }
+                break;
+            /* menu key functions */
+            case ACTION_WPS_MENU:
+                gwps_leave_wps();
+                return GO_TO_ROOT;
+                break;
+
+
+#ifdef HAVE_QUICKSCREEN
+            case ACTION_WPS_QUICKSCREEN:
+            {
+                gwps_leave_wps();
+                if (quick_screen_quick(button))
+                    return GO_TO_ROOT;
+                restore = true;
+            }
+            break;
+#endif /* HAVE_QUICKSCREEN */
+
+                /* screen settings */
+#ifdef BUTTON_F3
+            case ACTION_F3:
+            {
+                gwps_leave_wps();
+                if (quick_screen_f3(BUTTON_F3))
+                    return GO_TO_ROOT;
+                restore = true;
+            }
+            break;
+#endif /* BUTTON_F3 */
+
+                /* pitch screen */
+#ifdef HAVE_PITCHCONTROL
+            case ACTION_WPS_PITCHSCREEN:
+            {
+                gwps_leave_wps();
+                if (1 == gui_syncpitchscreen_run())
+                    return GO_TO_ROOT;
+                restore = true;
+            }
+            break;
+#endif /* HAVE_PITCHCONTROL */
+
+#ifdef AB_REPEAT_ENABLE
+            /* reset A&B markers */
+            case ACTION_WPS_ABRESET:
+                if (ab_repeat_mode_enabled())
+                {
+                    ab_reset_markers();
+                    update = true;
+                }
+                break;
+#endif /* AB_REPEAT_ENABLE */
+
+                /* stop and exit wps */
+            case ACTION_WPS_STOP:
+                if (global_settings.party_mode)
+                    break;
+                bookmark = true;
+                exit = true;
+                break;
+
+            case ACTION_WPS_LIST_BOOKMARKS:
+                gwps_leave_wps();
+                if (bookmark_load_menu() == BOOKMARK_USB_CONNECTED)
+                {
+                    return GO_TO_ROOT;
+                }
+                restore = true;
+                break;
+
+            case ACTION_WPS_CREATE_BOOKMARK:
+                gwps_leave_wps();
+                bookmark_create_menu();
+                restore = true;
+                break;
+
+            case ACTION_WPS_ID3SCREEN:
+            {
+                gwps_leave_wps();
+                if (browse_id3())
+                    return GO_TO_ROOT;
+                restore = true;
+            }
+            break;
+             /* this case is used by the softlock feature
+              * it requests a full update here */
+            case ACTION_REDRAW:
+                skin_request_full_update(WPS);
+                break;
+            case ACTION_NONE: /* Timeout, do a partial update */
+                update = true;
+                ffwd_rew(button); /* hopefully fix the ffw/rwd bug */
+                break;
+#ifdef HAVE_RECORDING
+            case ACTION_WPS_REC:
+                exit = true;
+                break;
+#endif
+            case ACTION_WPS_VIEW_PLAYLIST:
+                gwps_leave_wps();
+                return GO_TO_PLAYLIST_VIEWER;
+                break;
+            default:
+                switch(default_event_handler(button))
+                {   /* music has been stopped by the default handler */
+                    case SYS_USB_CONNECTED:
+                    case SYS_CALL_INCOMING:
+                    case BUTTON_MULTIMEDIA_STOP:
+                        gwps_leave_wps();
+                        return GO_TO_ROOT;
+                }
+                update = true;
+                break;
+        }
+
+        if (vol_changed)
+        {
+            bool res = false;
+            vol_changed = false;
+            setvol();
+            FOR_NB_SCREENS(i)
+            {
+                if(update_onvol_change(i))
+                    res = true;
+            }
+            if (res) {
+                restore = true;
+                restoretimer = RESTORE_WPS_NEXT_SECOND;
+            }
+        }
+
+
+        if (restore &&
+            ((restoretimer == RESTORE_WPS_INSTANTLY) ||
+             TIME_AFTER(current_tick, restoretimer)))
         {
             restore = false;
+            restoretimer = RESTORE_WPS_INSTANTLY;
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
             add_event(LCD_EVENT_ACTIVATION, wps_lcd_activation_hook);
 #endif
@@ -724,13 +1123,13 @@ long gui_wps_show(void)
             sb_skin_set_update_delay(0);
             skin_request_full_update(WPS);
             update = true;
-            gwps_enter_wps(theme_enabled);
-            theme_enabled = true;
+            gwps_enter_wps();
         }
         else
         {
+#if defined(HAVE_BACKLIGHT) || defined(HAVE_REMOTE_LCD)
             gwps_caption_backlight(state);
-
+#endif
             FOR_NB_SCREENS(i)
             {
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
@@ -750,352 +1149,44 @@ long gui_wps_show(void)
             update = false;
         }
 
-        if (exit)
-        {
-            return do_wps_exit(button, bookmark);
+        if (exit) {
+#ifdef HAVE_LCD_CHARCELLS
+            status_set_record(false);
+            status_set_audio(false);
+#endif
+#if CONFIG_CODEC != SWCODEC
+            if (global_settings.fade_on_stop)
+                fade(false, true);
+#else
+            audio_pause();
+            update_non_static();
+#endif
+            if (bookmark)
+                bookmark_autobookmark(true);
+            audio_stop();
+#ifdef AB_REPEAT_ENABLE
+            ab_reset_markers();
+#endif
+            gwps_leave_wps();
+#ifdef HAVE_RECORDING
+            if (button == ACTION_WPS_REC)
+                return GO_TO_RECSCREEN;
+#endif
+            if (global_settings.browse_current)
+                return GO_TO_PREVIOUS_BROWSER;
+            return GO_TO_PREVIOUS;
         }
 
         if (button && !IS_SYSEVENT(button) )
             storage_spin();
-
-        button = skin_wait_for_action(WPS, CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
-
-        /* Exit if audio has stopped playing. This happens e.g. at end of
-           playlist or if using the sleep timer. */
-        if (!(audio_status() & AUDIO_STATUS_PLAY))
-            exit = true;
-#ifdef HAVE_TOUCHSCREEN
-        if (button == ACTION_TOUCHSCREEN)
-            button = skintouch_to_wps();
-#endif
-        button = do_party_mode(button); /* block select actions in party mode */
-
-/* The iPods/X5/M5 use a single button for the A-B mode markers,
-   defined as ACTION_WPSAB_SINGLE in their config files. */
-#ifdef ACTION_WPSAB_SINGLE
-        static int wps_ab_state = 0;
-        if (button == ACTION_WPSAB_SINGLE && ab_repeat_mode_enabled())
-        {
-            switch (wps_ab_state)
-            {
-                case 0: /* set the A spot */
-                    button = ACTION_WPS_ABSETA_PREVDIR;
-                    break;
-                case 1: /* set the B spot */
-                    button = ACTION_WPS_ABSETB_NEXTDIR;
-                    break;
-                case 2:
-                    button = ACTION_WPS_ABRESET;
-                    break;
-            }
-            wps_ab_state = (wps_ab_state+1) % 3;
-        }
-#endif /* def ACTION_WPSAB_SINGLE */
-
-        switch(button)
-        {
-#ifdef HAVE_HOTKEY
-            case ACTION_WPS_HOTKEY:
-            {
-                hotkey = true;
-                if (!global_settings.hotkey_wps)
-                    break;
-                if (get_hotkey(global_settings.hotkey_wps)->flags & HOTKEY_FLAG_NOSBS)
-                {
-                    /* leave WPS without re-enabling theme */
-                    theme_enabled = false;
-                    gwps_leave_wps(theme_enabled);
-                    onplay(state->id3->path,
-                           FILE_ATTR_AUDIO, CONTEXT_WPS, hotkey);
-                    if (!audio_status())
-                    {
-                        /* re-enable theme since we're returning to SBS */
-                        gwps_leave_wps(true);
-                        return GO_TO_ROOT;
-                    }
-                    restore = true;
-                    break;
-                }
-            }
-            /* fall through */
-#endif /* def HAVE_HOTKEY */
-            case ACTION_WPS_CONTEXT:
-            {
-                gwps_leave_wps(true);
-                int retval = onplay(state->id3->path,
-                       FILE_ATTR_AUDIO, CONTEXT_WPS, hotkey);
-                /* if music is stopped in the context menu we want to exit the wps */
-                if (retval == ONPLAY_MAINMENU
-                    || !audio_status())
-                    return GO_TO_ROOT;
-                else if (retval == ONPLAY_PLAYLIST)
-                    return GO_TO_PLAYLIST_VIEWER;
-                else if (retval == ONPLAY_PLUGIN)
-                {
-                    restore_theme();
-                    theme_enabled = false;
-                    open_plugin_run(ID2P(LANG_OPEN_PLUGIN_SET_WPS_CONTEXT_PLUGIN));
-                }
-
-                restore = true;
-            }
-            break;
-
-            case ACTION_WPS_BROWSE:
-                gwps_leave_wps(true);
-                return GO_TO_PREVIOUS_BROWSER;
-                break;
-
-                /* play/pause */
-            case ACTION_WPS_PLAY:
-                wps_do_playpause(true);
-                break;
-
-            case ACTION_WPS_VOLUP: /* fall through */
-            case ACTION_WPS_VOLDOWN:
-                if (button == ACTION_WPS_VOLUP)
-                    adjust_volume(1);
-                else
-                    adjust_volume(-1);
-
-                setvol();
-                FOR_NB_SCREENS(i)
-                {
-                    skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
-                }
-                update = false;
-                break;
-            /* fast forward
-                OR next dir if this is straight after ACTION_WPS_SKIPNEXT */
-            case ACTION_WPS_SEEKFWD:
-                if (current_tick -last_right < HZ)
-                {
-                    if (state->id3->cuesheet && playlist_check(1))
-                    {
-                        audio_next();
-                    }
-                    else
-                    {
-                        change_dir(1);
-                    }
-                }
-                else
-                    ffwd_rew(ACTION_WPS_SEEKFWD, false);
-                last_right = last_left = 0;
-                break;
-            /* fast rewind
-                OR prev dir if this is straight after ACTION_WPS_SKIPPREV,*/
-            case ACTION_WPS_SEEKBACK:
-                if (current_tick - last_left < HZ)
-                {
-                    if (state->id3->cuesheet && playlist_check(-1))
-                    {
-                        audio_prev();
-                    }
-                    else
-                    {
-                        change_dir(-1);
-                    }
-                } else if (global_settings.rewind_across_tracks
-                           && get_wps_state()->id3->elapsed < DEFAULT_SKIP_THRESH
-                           && playlist_check(-1))
-                {
-                    if (!audio_paused)
-                        audio_pause();
-                    audio_prev();
-                    ffwd_rew(ACTION_WPS_SEEKBACK, true);
-                    if (!audio_paused)
-                        audio_resume();
-                }
-                else
-                    ffwd_rew(ACTION_WPS_SEEKBACK, false);
-                last_left = last_right = 0;
-                break;
-
-                /* prev / restart */
-            case ACTION_WPS_SKIPPREV:
-                last_left = current_tick;
-
-                /* if we're in A/B repeat mode and the current position
-                   is past the A marker, jump back to the A marker... */
-                if ( ab_repeat_mode_enabled() && ab_after_A_marker(state->id3->elapsed) )
-                {
-                    ab_jump_to_A_marker();
-                    break;
-                }
-                else /* ...otherwise, do it normally */
-                    play_hop(-1);
-                break;
-
-                /* next
-                   OR if skip length set, hop by predetermined amount. */
-            case ACTION_WPS_SKIPNEXT:
-                last_right = current_tick;
-
-                /* if we're in A/B repeat mode and the current position is
-                   before the A marker, jump to the A marker... */
-                if ( ab_repeat_mode_enabled() )
-                {
-                    if ( ab_before_A_marker(state->id3->elapsed) )
-                    {
-                        ab_jump_to_A_marker();
-                        break;
-                    }
-                }
-                else /* ...otherwise, do it normally */
-                    play_hop(1);
-                break;
-                /* next / prev directories */
-                /* and set A-B markers if in a-b mode */
-            case ACTION_WPS_ABSETB_NEXTDIR:
-                if (ab_repeat_mode_enabled())
-                {
-                    ab_set_B_marker(state->id3->elapsed);
-                    ab_jump_to_A_marker();
-                }
-                else
-                {
-                    change_dir(1);
-                }
-                break;
-            case ACTION_WPS_ABSETA_PREVDIR:
-                if (ab_repeat_mode_enabled())
-                    ab_set_A_marker(state->id3->elapsed);
-                else
-                {
-                    change_dir(-1);
-                }
-                break;
-            /* menu key functions */
-            case ACTION_WPS_MENU:
-                gwps_leave_wps(true);
-                return GO_TO_ROOT;
-                break;
-
-
-#ifdef HAVE_QUICKSCREEN
-            case ACTION_WPS_QUICKSCREEN:
-            {
-                gwps_leave_wps(true);
-                bool enter_shortcuts_menu = global_settings.shortcuts_replaces_qs;
-                if (!enter_shortcuts_menu)
-                {
-                    int ret = quick_screen_quick(button);
-                    if (ret == QUICKSCREEN_IN_USB)
-                        return GO_TO_ROOT;
-                    else if (ret == QUICKSCREEN_GOTO_SHORTCUTS_MENU)
-                        enter_shortcuts_menu = true;
-                    else
-                        restore = true;
-                }
-
-                if (enter_shortcuts_menu) /* enter_shortcuts_menu */
-                {
-                    global_status.last_screen = GO_TO_SHORTCUTMENU;
-                    int ret = do_shortcut_menu(NULL);
-                    return (ret == GO_TO_PREVIOUS ? GO_TO_WPS : ret);
-                }
-            }
-            break;
-#endif /* HAVE_QUICKSCREEN */
-
-                /* screen settings */
-
-                /* pitch screen */
-#ifdef HAVE_PITCHCONTROL
-            case ACTION_WPS_PITCHSCREEN:
-            {
-                gwps_leave_wps(true);
-                if (1 == gui_syncpitchscreen_run())
-                    return GO_TO_ROOT;
-                restore = true;
-            }
-            break;
-#endif /* HAVE_PITCHCONTROL */
-
-            /* reset A&B markers */
-            case ACTION_WPS_ABRESET:
-                if (ab_repeat_mode_enabled())
-                {
-                    ab_reset_markers();
-                    update = true;
-                }
-                break;
-
-                /* stop and exit wps */
-            case ACTION_WPS_STOP:
-                bookmark = true;
-                exit = true;
-                break;
-
-            case ACTION_WPS_LIST_BOOKMARKS:
-                gwps_leave_wps(true);
-                if (bookmark_load_menu() == BOOKMARK_USB_CONNECTED)
-                {
-                    return GO_TO_ROOT;
-                }
-                restore = true;
-                break;
-
-            case ACTION_WPS_CREATE_BOOKMARK:
-                gwps_leave_wps(true);
-                bookmark_create_menu();
-                restore = true;
-                break;
-
-            case ACTION_WPS_ID3SCREEN:
-            {
-                gwps_leave_wps(true);
-                if (browse_id3(audio_current_track(),
-                        playlist_get_display_index(),
-                        playlist_amount(), NULL, 1))
-                    return GO_TO_ROOT;
-                restore = true;
-            }
-            break;
-             /* this case is used by the softlock feature
-              * it requests a full update here */
-            case ACTION_REDRAW:
-                skin_request_full_update(WPS);
-                break;
-            case ACTION_NONE: /* Timeout, do a partial update */
-                update = true;
-                ffwd_rew(button, false); /* hopefully fix the ffw/rwd bug */
-                break;
-#ifdef HAVE_RECORDING
-            case ACTION_WPS_REC:
-                exit = true;
-                break;
-#endif
-            case ACTION_WPS_VIEW_PLAYLIST:
-                gwps_leave_wps(true);
-                return GO_TO_PLAYLIST_VIEWER;
-                break;
-            default:
-                switch(default_event_handler(button))
-                {   /* music has been stopped by the default handler */
-                    case SYS_USB_CONNECTED:
-                    case SYS_CALL_INCOMING:
-                    case BUTTON_MULTIMEDIA_STOP:
-                        gwps_leave_wps(true);
-                        return GO_TO_ROOT;
-                }
-                update = true;
-                break;
-        }
     }
     return GO_TO_ROOT; /* unreachable - just to reduce compiler warnings */
-}
-
-struct wps_state *get_wps_state(void)
-{
-    return &wps_state;
 }
 
 /* this is called from the playback thread so NO DRAWING! */
 static void track_info_callback(unsigned short id, void *param)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
 
     if (id == PLAYBACK_EVENT_TRACK_CHANGE || id == PLAYBACK_EVENT_CUR_TRACK_READY)
     {
@@ -1111,13 +1202,14 @@ static void track_info_callback(unsigned short id, void *param)
         state->id3 = audio_current_track();
     }
 #endif
-    state->nid3 = audio_next_track();
+    skin_get_global_state()->nid3 = audio_next_track();
     skin_request_full_update(WPS);
 }
 
 static void wps_state_init(void)
 {
-    struct wps_state *state = get_wps_state();
+    struct wps_state *state = skin_get_global_state();
+    state->ff_rewind = false;
     state->paused = false;
     if(audio_status() & AUDIO_STATUS_PLAY)
     {
@@ -1134,10 +1226,25 @@ static void wps_state_init(void)
     /* add the WPS track event callbacks */
     add_event(PLAYBACK_EVENT_TRACK_CHANGE, track_info_callback);
     add_event(PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, track_info_callback);
+#if CONFIG_CODEC == SWCODEC
     /* Use the same callback as ..._TRACK_CHANGE for when remaining handles have
        finished */
     add_event(PLAYBACK_EVENT_CUR_TRACK_READY, track_info_callback);
+#endif
 #ifdef AUDIO_FAST_SKIP_PREVIEW
     add_event(PLAYBACK_EVENT_TRACK_SKIP, track_info_callback);
 #endif
 }
+
+
+#ifdef IPOD_ACCESSORY_PROTOCOL
+bool is_wps_fading(void)
+{
+    return skin_get_global_state()->is_fading;
+}
+
+int wps_get_ff_rewind_count(void)
+{
+    return skin_get_global_state()->ff_rewind_count;
+}
+#endif

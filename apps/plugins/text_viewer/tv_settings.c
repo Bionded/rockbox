@@ -75,7 +75,7 @@
  * file count                 2
  * [1st file]
  *   file path                MAX_PATH
- *   next file pos            2 (preferences size + bookmark count * bookmark size + 1)
+ *   next file pos            2 (prefences size + bookmark count * bookmark size + 1)
  *   [preferences]
  *     word_mode              1
  *     line_mode              1
@@ -219,9 +219,11 @@ static bool tv_read_preferences(int pfd, int version, struct tv_preferences *pre
     if (version > 6)
         prefs->night_mode = (*p++ != 0);
 
+#ifdef HAVE_LCD_BITMAP
     rb->strlcpy(prefs->font_name, buf + read_size - MAX_PATH, MAX_PATH);
 
     prefs->font_id = rb->global_status->font_id[SCREEN_MAIN];
+#endif
 
     return true;
 }
@@ -251,7 +253,9 @@ static void tv_serialize_preferences(unsigned char *buf, const struct tv_prefere
     *p++ = prefs->statusbar;
     *p++ = prefs->night_mode;
 
+#ifdef HAVE_LCD_BITMAP
     rb->strlcpy(buf + 28, prefs->font_name, MAX_PATH);
+#endif
 }
 
 static bool tv_write_preferences(int pfd, const struct tv_preferences *prefs)

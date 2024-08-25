@@ -22,40 +22,15 @@
 #define __mg_h__
 
 #include <stdint.h>
-#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Compute the MD5 digest of a buffer */
-void MD5_CalculateDigest(void *digest, const void *input, size_t length);
-/* Compute MD5 in more than one step */
-void *md5_start(); /* return an opaque pointer */
-void md5_update(void *md5_obj, const void *input, size_t length);
-void md5_final(void *md5_obj, void *digest); /* destroys the MD5 object */
-
-/* size must be a multiple of 8, this function is thread-safe */
-void mg_decrypt_fw(void *in, int size, void *out, uint8_t key[8]);
-
-/* for simplicity, these function use some global variables, this could be
- * change if necessary in the future */
-
-/* DES: sizes must be a multiple of 8 */
-void des_ecb_dec_set_key(const uint8_t key[8]);
-void des_ecb_dec(void *in, int size, void *out);
-void des_ecb_enc_set_key(const uint8_t key[8]);
-void des_ecb_enc(void *in, int size, void *out);
-
-/* AES: size must be a multiple of 16 */
-void aes_ecb_dec_set_key(const uint8_t key[16]);
-void aes_ecb_dec(void *in, int size, void *out);
-void aes_ecb_enc_set_key(const uint8_t key[16]);
-void aes_ecb_enc(void *in, int size, void *out);
-void aes_cbc_dec_set_key_iv(const uint8_t key[16], const uint8_t iv[16]);
-void aes_cbc_dec(void *in, int size, void *out);
-void aes_cbc_enc_set_key_iv(const uint8_t key[16], const uint8_t iv[16]);
-void aes_cbc_enc(void *in, int size, void *out);
+/* size must be a multiple of 8 */
+void mg_decrypt_fw(void *in, int size, void *out, uint8_t *key);
+void mg_encrypt_fw(void *in, int size, void *out, uint8_t *key);
+void mg_decrypt_pass(void *in, int size, void *out, uint8_t *key);
+void mg_encrypt_pass(void *in, int size, void *out, uint8_t *key);
 #ifdef __cplusplus
 }
 #endif

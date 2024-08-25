@@ -30,10 +30,13 @@
 
 #ifndef BOOTLOADER
 
-/* Turn everything on if we have enough RAM. */
-#if MEMORYSIZE >= 8
-# define FMT_LENMOD (0xffffffff)
-# define FMT_RADIX  (0xffffffff)
+/* Only the Quake plugin needs float formatting */
+#if defined(HAVE_LCD_COLOR)  && \
+    (!defined(LCD_STRIDEFORMAT) || (LCD_STRIDEFORMAT != VERTICAL_STRIDE)) && \
+    (PLUGIN_BUFFER_SIZE > 0x14000) && (CONFIG_PLATFORM & PLATFORM_NATIVE) && defined(CPU_ARM)
+/* turn everything on */
+#define FMT_LENMOD      (0xffffffff)
+#define FMT_RADIX       (0xffffffff)
 #endif
 
 #endif
@@ -511,7 +514,7 @@ static inline const char * format_s(const void *str,
         return NULL; /* wchar_t support for now */
     }
 
-    const char *s = str ? str : "(null)";
+    const char *s = str;
     size_t len;
     /* string length may be specified by precision instead of \0-
        terminated; however, don't go past a \0 if one is there */
@@ -730,8 +733,7 @@ static int format_double_radix(double f,
                                vuprintf_push_cb push,
                                void *userp)
 {
-    struct ap_int ia ={0};
-    struct ap_int fa ={0};
+    struct ap_int ia, fa;
     long rc = parse_double(f, &ia, &fa, fmt_buf);
 
     if (UNLIKELY(rc < 0)) {
@@ -754,7 +756,6 @@ static int format_double_radix(double f,
         if (prec_rem) {
             prec_rem--;
         }
-        /* fallthrough */
     case 1: /* %e, %E */
         explen = 2;
         break;

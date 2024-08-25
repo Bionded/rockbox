@@ -39,12 +39,6 @@
 #define USE_JPEG_COVER
 #endif
 
-#ifdef PLUGIN
-    #define strmemccpy strlcpy
-    /* Note we don't use the return value so this works */
-    /* FIXME if strmemccpy gets added to the rb->plugin struct */
-#endif
-
 /* Strip filename from a full path
  *
  * buf      - buffer to extract directory to.
@@ -73,12 +67,38 @@ static char* strip_filename(char* buf, int buf_size, const char* fullpath)
     }
 
     len = MIN(sep - fullpath + 1, buf_size - 1);
-    strmemccpy(buf, fullpath, len + 1);
+    strlcpy(buf, fullpath, len + 1);
     return (sep + 1);
 }
 
+/* Make sure part of path only contain chars valid for a FAT32 long name.
+ * Double quotes are replaced with single quotes, other unsupported chars 
+ * are replaced with an underscore.
+ *
+ * path   - path to modify.
+ * offset - where in path to start checking.
+ * count  - number of chars to check.
+ */
+static void fix_path_part(char* path, int offset, int count)
+{
+    static const char invalid_chars[] = "*/:<>?\\|";
+    int i;
+    
+    path += offset;
+    
+    for (i = 0; i <= count; i++, path++)
+    {
+        if (*path == 0)
+            return;
+        if (*path == '"')
+            *path = '\'';
+        else if (strchr(invalid_chars, *path))
+            *path = '_';
+    }
+}
+
 #ifdef USE_JPEG_COVER
-static const char * const extensions[] = { "jpeg", "jpg", "bmp" };
+static const char * extensions[] = { "jpeg", "jpg", "bmp" };
 static const unsigned char extension_lens[] = { 4, 3, 3 };
 /* Try checking for several file extensions, return true if a file is found and
  * leaving the path modified to include the matching extension.
@@ -246,7 +266,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
     if (!found)
         return false;
 
-    strmemccpy(buf, path, buflen);
+    strlcpy(buf, path, buflen);
     logf("Album art found: %s", path);
     return true;
 }
@@ -275,6 +295,76 @@ bool find_albumart(const struct mp3entry *id3, char *buf, int buflen,
     /* Then we look for generic bitmaps */
     *size_string = 0;
     return search_albumart_files(id3, size_string, buf, buflen);
+}
+
+/* Draw the album art bitmap from the given handle ID onto the given WPS.
+   Call with clear = true to clear the bitmap instead of drawing it. */
+void draw_album_art(struct gui_wps *gwps, int handle_id, bool clear)
+{
+    if (!gwps || !gwps->data || !gwps->display || handle_id < 0)
+        return;
+
+    struct wps_data *data = gwps->data;
+    struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
+
+    if (!aa)
+        return;
+        
+    struct bitmap *bmp;
+    if (bufgetdata(handle_id, 0, (void *)&bmp) <= 0)
+        return;
+
+    short x = aa->x;
+    short y = aa->y;
+    short width = bmp->width;
+    short height = bmp->height;
+
+    if (aa->width > 0)
+    {
+        /* Crop if the bitmap is too wide */
+        width = MIN(bmp->width, aa->width);
+
+        /* Align */
+        if (aa->xalign & WPS_ALBUMART_ALIGN_RIGHT)
+            x += aa->width - width;
+        else if (aa->xalign & WPS_ALBUMART_ALIGN_CENTER)
+            x += (aa->width - width) / 2;
+    }
+
+    if (aa->height > 0)
+    {
+        /* Crop if the bitmap is too high */
+        height = MIN(bmp->height, aa->height);
+
+        /* Align */
+        if (aa->yalign & WPS_ALBUMART_ALIGN_BOTTOM)
+            y += aa->height - height;
+        else if (aa->yalign & WPS_ALBUMART_ALIGN_CENTER)
+            y += (aa->height - height) / 2;
+    }
+
+    if (!clear)
+    {
+        /* Draw the bitmap */
+        gwps->display->bitmap_part((fb_data*)bmp->data, 0, 0, 
+                                    STRIDE(gwps->display->screen_type, 
+                                        bmp->width, bmp->height),
+                                   x, y, width, height);
+#ifdef HAVE_LCD_INVERT
+        if (global_settings.invert) {
+            gwps->display->set_drawmode(DRMODE_COMPLEMENT);
+            gwps->display->fillrect(x, y, width, height);
+            gwps->display->set_drawmode(DRMODE_SOLID);
+        }
+#endif
+    }
+    else
+    {
+        /* Clear the bitmap */
+        gwps->display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
+        gwps->display->fillrect(x, y, width, height);
+        gwps->display->set_drawmode(DRMODE_SOLID);
+    }
 }
 
 #endif /* PLUGIN */

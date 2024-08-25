@@ -50,7 +50,6 @@
 #include "root_menu.h"
 #include "misc.h"
 #include "list.h"
-#include "wps.h"
 
 
 #define MAX_LINE 1024
@@ -61,28 +60,29 @@ struct skin_draw_info {
     int line_number;
     unsigned long refresh_type;
     struct line_desc line_desc;
-
+    
     char* cur_align_start;
     struct align_pos align;
     bool no_line_break;
     bool line_scrolls;
     bool force_redraw;
-
+    bool viewport_change;
+    
     char *buf;
     size_t buf_size;
-
+    
     int offset; /* used by the playlist viewer */
 };
-
-extern void sb_set_info_vp(enum screen_type screen, OFFSETTYPE(char*) label);
 
 typedef bool (*skin_render_func)(struct skin_element* alternator, struct skin_draw_info *info);
 bool skin_render_alternator(struct skin_element* alternator, struct skin_draw_info *info);
 
+#ifdef HAVE_LCD_BITMAP
 static void skin_render_playlistviewer(struct playlistviewer* viewer,
                                        struct gui_wps *gwps,
                                        struct skin_viewport* skin_viewport,
                                        unsigned long refresh_type);
+#endif
 
 static char* skin_buffer;
 
@@ -95,30 +95,35 @@ get_child(OFFSETTYPE(struct skin_element**) children, int child)
 
 
 static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
-                             struct skin_element *element)
+                             struct skin_element *element, struct skin_viewport* skin_vp)
 {
+#ifndef HAVE_LCD_BITMAP
+    (void)skin_vp; /* silence warnings */
+    (void)info;
+#endif
     struct wps_token *token = (struct wps_token *)SKINOFFSETTOPTR(skin_buffer, element->data);
-    if (!token) return false;
-    struct skin_viewport *skin_vp = info->skin_vp;
+
+#ifdef HAVE_LCD_BITMAP
+    struct viewport *vp = &skin_vp->vp;
     struct wps_data *data = gwps->data;
     bool do_refresh = (element->tag->flags & info->refresh_type) > 0;
-
+#endif
     switch (token->type)
-    {
+    {   
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
         case SKIN_TOKEN_VIEWPORT_FGCOLOUR:
         {
             struct viewport_colour *col = SKINOFFSETTOPTR(skin_buffer, token->value.data);
-            if (!col) return false;
-            skin_vp->vp.fg_pattern = col->colour;
+            struct viewport *vp = SKINOFFSETTOPTR(skin_buffer, col->vp);
+            vp->fg_pattern = col->colour;
             skin_vp->fgbg_changed = true;
         }
         break;
         case SKIN_TOKEN_VIEWPORT_BGCOLOUR:
         {
             struct viewport_colour *col = SKINOFFSETTOPTR(skin_buffer, token->value.data);
-            if (!col) return false;
-            skin_vp->vp.bg_pattern = col->colour;
+            struct viewport *vp = SKINOFFSETTOPTR(skin_buffer, col->vp);
+            vp->bg_pattern = col->colour;
             skin_vp->fgbg_changed = true;
         }
         break;
@@ -126,7 +131,6 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         {
             struct line_desc *data = SKINOFFSETTOPTR(skin_buffer, token->value.data);
             struct line_desc *linedes = &info->line_desc;
-            if (!data || !linedes) return false;
             /* gradient colors are handled with a separate tag
              * (SKIN_TOKEN_VIEWPORT_GRADIENT_SETUP, see below). since it may
              * come before the text style tag color fields need to be preserved */
@@ -150,7 +154,6 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         {
             struct gradient_config *cfg = SKINOFFSETTOPTR(skin_buffer, token->value.data);
             struct line_desc *linedes = &info->line_desc;
-            if (!cfg || !linedes) return false;
             linedes->text_color     = cfg->text;
             linedes->line_color     = cfg->start;
             linedes->line_end_color = cfg->end;
@@ -165,25 +168,24 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
             while (viewport)
             {
                 struct skin_viewport *skinvp = SKINOFFSETTOPTR(skin_buffer, viewport->data);
-
-                if (skinvp) {
-                    char *vplabel = SKINOFFSETTOPTR(skin_buffer, skinvp->label);
-                    if (skinvp->label == VP_DEFAULT_LABEL)
-                        vplabel = VP_DEFAULT_LABEL_STRING;
-                    if (vplabel && !skinvp->is_infovp &&
-                        !strcmp(vplabel, label))
+                
+                char *vplabel = SKINOFFSETTOPTR(skin_buffer, skinvp->label);
+                if (skinvp->label == VP_DEFAULT_LABEL)
+                    vplabel = VP_DEFAULT_LABEL_STRING;
+                if (vplabel && !skinvp->is_infovp &&
+                    !strcmp(vplabel, label))
+                {
+                    if (skinvp->hidden_flags&VP_DRAW_HIDDEN)
                     {
-                        if (skinvp->hidden_flags&VP_DRAW_HIDDEN)
-                        {
-                            temp |= VP_DRAW_WASHIDDEN;
-                        }
-                        skinvp->hidden_flags = temp;
-                    }
+                        temp |= VP_DRAW_WASHIDDEN;
+                    }    
+                    skinvp->hidden_flags = temp;
                 }
                 viewport = SKINOFFSETTOPTR(skin_buffer, viewport->next);
             }
         }
         break;
+#ifdef HAVE_LCD_BITMAP
         case SKIN_TOKEN_LIST_ITEM_CFG:
             skinlist_set_cfg(gwps->display->screen_type,
                                 SKINOFFSETTOPTR(skin_buffer, token->value.data));
@@ -194,32 +196,31 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         case SKIN_TOKEN_PEAKMETER:
             data->peak_meter_enabled = true;
             if (do_refresh)
-                draw_peakmeters(gwps, info->line_number, &skin_vp->vp);
+                draw_peakmeters(gwps, info->line_number, vp);
             break;
         case SKIN_TOKEN_DRAWRECTANGLE:
             if (do_refresh)
             {
                 struct draw_rectangle *rect =
                         SKINOFFSETTOPTR(skin_buffer, token->value.data);
-                if (!rect) break;
 #ifdef HAVE_LCD_COLOR
                 if (rect->start_colour != rect->end_colour &&
-                    gwps->display->screen_type == SCREEN_MAIN)
+                        gwps->display->screen_type == SCREEN_MAIN)
                 {
                     gwps->display->gradient_fillrect(rect->x, rect->y, rect->width,
-                        rect->height, rect->start_colour, rect->end_colour);
+                            rect->height, rect->start_colour, rect->end_colour);
                 }
                 else
 #endif
                 {
 #if LCD_DEPTH > 1
-                    unsigned backup = skin_vp->vp.fg_pattern;
-                    skin_vp->vp.fg_pattern = rect->start_colour;
+                    unsigned backup = vp->fg_pattern;
+                    vp->fg_pattern = rect->start_colour;
 #endif
                     gwps->display->fillrect(rect->x, rect->y, rect->width,
-                        rect->height);
+                            rect->height);
 #if LCD_DEPTH > 1
-                    skin_vp->vp.fg_pattern = backup;
+                    vp->fg_pattern = backup;
 #endif
                 }
             }
@@ -228,18 +229,22 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         case SKIN_TOKEN_PEAKMETER_RIGHTBAR:
             data->peak_meter_enabled = true;
             /* fall through to the progressbar code */
+#endif
         case SKIN_TOKEN_VOLUMEBAR:
         case SKIN_TOKEN_BATTERY_PERCENTBAR:
         case SKIN_TOKEN_SETTINGBAR:
+#ifdef HAVE_LCD_BITMAP
         case SKIN_TOKEN_PROGRESSBAR:
         case SKIN_TOKEN_TUNER_RSSI_BAR:
         case SKIN_TOKEN_LIST_SCROLLBAR:
         {
             struct progressbar *bar = (struct progressbar*)SKINOFFSETTOPTR(skin_buffer, token->value.data);
             if (do_refresh)
-                draw_progressbar(gwps, info->skin_vp, info->line_number, bar);
+                draw_progressbar(gwps, info->line_number, bar);
         }
+#endif
         break;
+#ifdef HAVE_LCD_BITMAP
         case SKIN_TOKEN_IMAGE_DISPLAY:
         {
             struct gui_img *img = SKINOFFSETTOPTR(skin_buffer, token->value.data);
@@ -252,7 +257,6 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         case SKIN_TOKEN_IMAGE_DISPLAY_9SEGMENT:
         {
             struct image_display *id = SKINOFFSETTOPTR(skin_buffer, token->value.data);
-            if (!id) break;
             const char* label = SKINOFFSETTOPTR(skin_buffer, id->label);
             struct gui_img *img = skin_find_item(label,SKIN_FIND_IMAGE, data);
             if (img && img->loaded)
@@ -321,6 +325,8 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
                 skin_render_playlistviewer(SKINOFFSETTOPTR(skin_buffer, token->value.data), gwps,
                                            info->skin_vp, info->refresh_type);
             break;
+        
+#endif /* HAVE_LCD_BITMAP */
 #ifdef HAVE_SKIN_VARIABLES
         case SKIN_TOKEN_VAR_SET:
             {
@@ -350,14 +356,17 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
     }
     return true;
 }
+                
+
 
 static void do_tags_in_hidden_conditional(struct skin_element* branch,
                                           struct skin_draw_info *info)
 {
+#ifdef HAVE_LCD_BITMAP
     struct gui_wps *gwps = info->gwps;
     struct wps_data *data = gwps->data;
-
-    /* Tags here are ones which need to be "turned off" or cleared
+#endif
+    /* Tags here are ones which need to be "turned off" or cleared 
      * if they are in a conditional branch which isnt being used */
     if (branch->type == LINE_ALTERNATOR)
     {
@@ -370,7 +379,9 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
     else if (branch->type == LINE && branch->children_count)
     {
         struct skin_element *child = get_child(branch->children, 0);
+#if defined(HAVE_LCD_BITMAP) || defined(HAVE_ALBUMART)
         struct wps_token *token;
+#endif
         while (child)
         {
             if (child->type == CONDITIONAL)
@@ -380,22 +391,23 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
                 {
                     do_tags_in_hidden_conditional(get_child(child->children, i), info);
                 }
-                goto skip;
+                child = SKINOFFSETTOPTR(skin_buffer, child->next);
+                continue;
             }
             else if (child->type != TAG || !SKINOFFSETTOPTR(skin_buffer, child->data))
             {
-                goto skip;
+                child = SKINOFFSETTOPTR(skin_buffer, child->next);
+                continue;
             }
-
+#if defined(HAVE_LCD_BITMAP) || defined(HAVE_ALBUMART)
             token = (struct wps_token *)SKINOFFSETTOPTR(skin_buffer, child->data);
-
+#endif
+#ifdef HAVE_LCD_BITMAP
             /* clear all pictures in the conditional and nested ones */
             if (token->type == SKIN_TOKEN_IMAGE_PRELOAD_DISPLAY)
             {
                 struct image_display *id = SKINOFFSETTOPTR(skin_buffer, token->value.data);
-                if (!id) goto skip;
-
-                struct gui_img *img = skin_find_item(SKINOFFSETTOPTR(skin_buffer, id->label),
+                struct gui_img *img = skin_find_item(SKINOFFSETTOPTR(skin_buffer, id->label), 
                                                      SKIN_FIND_IMAGE, data);
                 clear_image_pos(gwps, img);
             }
@@ -412,7 +424,7 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
                      viewport = SKINOFFSETTOPTR(skin_buffer, viewport->next))
                 {
                     struct skin_viewport *skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
-                    if (!skin_viewport) continue;
+                    
                     char *vplabel = SKINOFFSETTOPTR(skin_buffer, skin_viewport->label);
                     if (skin_viewport->label == VP_DEFAULT_LABEL)
                         vplabel = VP_DEFAULT_LABEL_STRING;
@@ -431,26 +443,28 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
                             if (skin_viewport->output_to_backdrop_buffer)
                             {
-                                skin_backdrop_set_buffer(data->backdrop_id, skin_viewport);
+                                void *backdrop = skin_backdrop_get_buffer(data->backdrop_id);
+                                gwps->display->set_framebuffer(backdrop);
                                 skin_backdrop_show(-1);
-                                gwps->display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);
-                                gwps->display->clear_viewport();
-                                gwps->display->set_viewport_ex(&info->skin_vp->vp, VP_FLAG_VP_SET_CLEAN);
-                                skin_backdrop_set_buffer(-1, skin_viewport);
+                            }
+#endif
+                            gwps->display->set_viewport(&skin_viewport->vp);
+                            gwps->display->clear_viewport();
+                            gwps->display->set_viewport(&info->skin_vp->vp);
+                            skin_viewport->hidden_flags |= VP_DRAW_HIDDEN;
+
+#if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
+                            if (skin_viewport->output_to_backdrop_buffer)
+                            {
+                                gwps->display->set_framebuffer(NULL);
                                 skin_backdrop_show(data->backdrop_id);
                             }
-                            else
 #endif
-                            {
-                                gwps->display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);
-                                gwps->display->clear_viewport();
-                                gwps->display->set_viewport_ex(&info->skin_vp->vp, VP_FLAG_VP_SET_CLEAN);
-                            }
-                            skin_viewport->hidden_flags |= VP_DRAW_HIDDEN;
                         }
                     }
                 }
             }
+#endif
 #ifdef HAVE_ALBUMART
             else if (data->albumart && token->type == SKIN_TOKEN_ALBUMART_DISPLAY)
             {
@@ -458,62 +472,62 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
                         playback_current_aa_hid(data->playback_aa_slot), true);
             }
 #endif
-        skip:
             child = SKINOFFSETTOPTR(skin_buffer, child->next);
         }
     }
 }
-
+    
 static void fix_line_alignment(struct skin_draw_info *info, struct skin_element *element)
 {
     struct align_pos *align = &info->align;
     char *cur_pos = info->cur_align_start + strlen(info->cur_align_start);
-    char *next_pos = cur_pos + 1;
     switch (element->tag->type)
     {
         case SKIN_TOKEN_ALIGN_LEFT:
-            align->left = next_pos;
-            info->cur_align_start = next_pos;
+            *cur_pos = '\0'; cur_pos++; *cur_pos = '\0';
+            align->left = cur_pos;
+            info->cur_align_start = cur_pos;
             break;
         case SKIN_TOKEN_ALIGN_LEFT_RTL:
-            if (UNLIKELY(lang_is_rtl()))
-                align->right = next_pos;
+            *cur_pos = '\0'; cur_pos++; *cur_pos = '\0';
+            if (lang_is_rtl())
+                align->right = cur_pos;
             else
-                align->left = next_pos;
-            info->cur_align_start = next_pos;
+                align->left = cur_pos;
+            info->cur_align_start = cur_pos;
             break;
         case SKIN_TOKEN_ALIGN_CENTER:
-            align->center = next_pos;
-            info->cur_align_start = next_pos;
+            *cur_pos = '\0'; cur_pos++; *cur_pos = '\0';
+            align->center = cur_pos;
+            info->cur_align_start = cur_pos;
             break;
         case SKIN_TOKEN_ALIGN_RIGHT:
-            align->right = next_pos;
-            info->cur_align_start = next_pos;
+            *cur_pos = '\0'; cur_pos++; *cur_pos = '\0';
+            align->right = cur_pos;
+            info->cur_align_start = cur_pos;
             break;
         case SKIN_TOKEN_ALIGN_RIGHT_RTL:
-            if (UNLIKELY(lang_is_rtl()))
-                align->left = next_pos;
+            *cur_pos = '\0'; cur_pos++; *cur_pos = '\0';
+            if (lang_is_rtl())
+                align->left = cur_pos;
             else
-                align->right = next_pos;
-            info->cur_align_start = next_pos;
+                align->right = cur_pos;
+            info->cur_align_start = cur_pos;
             break;
         default:
-            return;
+            break;
     }
-    *cur_pos = '\0';
-    *next_pos = '\0';
 }
-
+    
 /* Draw a LINE element onto the display */
 static bool skin_render_line(struct skin_element* line, struct skin_draw_info *info)
 {
     bool needs_update = false;
-
     int last_value, value;
-
+    
     if (line->children_count == 0)
         return false; /* empty line, do nothing */
-
+        
     struct skin_element *child = get_child(line->children, 0);
     struct conditional *conditional;
     skin_render_func func = skin_render_line;
@@ -524,16 +538,15 @@ static bool skin_render_line(struct skin_element* line, struct skin_draw_info *i
         {
             case CONDITIONAL:
                 conditional = SKINOFFSETTOPTR(skin_buffer, child->data);
-                if (!conditional) break;
                 last_value = conditional->last_value;
-                value = evaluate_conditional(info->gwps, info->offset,
+                value = evaluate_conditional(info->gwps, info->offset, 
                                              conditional, child->children_count);
                 conditional->last_value = value;
                 if (child->children_count == 1)
                 {
-                    /* special handling so
+                    /* special handling so 
                      * %?aa<true> and %?<true|false> need special handlng here */
-
+                    
                     if (value == -1) /* tag is false */
                     {
                         /* we are in a false branch of a %?aa<true> conditional */
@@ -553,34 +566,33 @@ static bool skin_render_line(struct skin_element* line, struct skin_draw_info *i
                 }
                 else if (get_child(child->children, value)->type == LINE)
                     func = skin_render_line;
-
+                
                 if (value != last_value)
                 {
                     info->refresh_type = SKIN_REFRESH_ALL;
                     info->force_redraw = true;
                 }
-
+                    
                 if (func(get_child(child->children, value), info))
                     needs_update = true;
                 else
                     needs_update = needs_update || (last_value != value);
-
+                    
                 info->refresh_type = old_refresh_mode;
                 break;
             case TAG:
-
                 if (child->tag->flags & NOBREAK)
                     info->no_line_break = true;
                 if (child->tag->type == SKIN_TOKEN_SUBLINE_SCROLL)
                     info->line_scrolls = true;
-
+                
                 fix_line_alignment(info, child);
-
+                
                 if (!SKINOFFSETTOPTR(skin_buffer, child->data))
                 {
                     break;
                 }
-                if (!do_non_text_tags(info->gwps, info, child))
+                if (!do_non_text_tags(info->gwps, info, child, info->skin_vp))
                 {
                     static char tempbuf[128];
                     const char *valuestr = get_token_value(info->gwps, SKINOFFSETTOPTR(skin_buffer, child->data),
@@ -592,17 +604,17 @@ static bool skin_render_line(struct skin_element* line, struct skin_draw_info *i
                         if (child->tag->flags&SKIN_RTC_REFRESH)
                             needs_update = needs_update || info->refresh_type&SKIN_REFRESH_DYNAMIC;
 #endif
-                        needs_update = needs_update ||
+                        needs_update = needs_update || 
                                 ((child->tag->flags&info->refresh_type)!=0);
-                        strlcat(info->cur_align_start, valuestr,
+                        strlcat(info->cur_align_start, valuestr, 
                                 info->buf_size - (info->cur_align_start-info->buf));
                     }
                 }
                 break;
             case TEXT:
-                strlcat(info->cur_align_start, SKINOFFSETTOPTR(skin_buffer, child->data),
+                strlcat(info->cur_align_start, SKINOFFSETTOPTR(skin_buffer, child->data), 
                         info->buf_size - (info->cur_align_start-info->buf));
-                needs_update = needs_update ||
+                needs_update = needs_update || 
                                 (info->refresh_type&SKIN_REFRESH_STATIC) != 0;
                 break;
             case COMMENT:
@@ -632,8 +644,7 @@ static int get_subline_timeout(struct gui_wps *gwps, struct skin_element* line)
             element->tag->type == SKIN_TOKEN_SUBLINE_TIMEOUT )
         {
             token = SKINOFFSETTOPTR(skin_buffer, element->data);
-            if (token)
-                return token->value.i;
+            return token->value.i;
         }
         else if (element->type == CONDITIONAL)
         {
@@ -674,7 +685,7 @@ bool skin_render_alternator(struct skin_element* element, struct skin_draw_info 
         int try_line = start;
         bool suitable = false;
         int rettimeout = DEFAULT_SUBLINE_TIME_MULTIPLIER*TIMEOUT_UNIT;
-
+        
         /* find a subline which has at least one token in it,
          * and that line doesnt have a timeout set to 0 through conditionals */
         do {
@@ -684,7 +695,7 @@ bool skin_render_alternator(struct skin_element* element, struct skin_draw_info 
             if (get_child(element->children, try_line)->children_count != 0)
             {
                 current_line = get_child(element->children, try_line);
-                rettimeout = get_subline_timeout(info->gwps,
+                rettimeout = get_subline_timeout(info->gwps, 
                                     get_child(current_line->children, 0));
                 if (rettimeout > 0)
                 {
@@ -693,7 +704,7 @@ bool skin_render_alternator(struct skin_element* element, struct skin_draw_info 
             }
         }
         while (try_line != start && !suitable);
-
+        
         if (suitable)
         {
             alternator->current_line = try_line;
@@ -727,27 +738,28 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
         .offset = 0,
         .line_desc = LINE_DESC_DEFINIT,
     };
-
+    
     struct align_pos * align = &info.align;
     bool needs_update, update_all = false;
     skin_buffer = get_skin_buffer(gwps->data);
+#ifdef HAVE_LCD_BITMAP
     /* Set images to not to be displayed */
     struct skin_token_list *imglist = SKINOFFSETTOPTR(skin_buffer, gwps->data->images);
     while (imglist)
     {
         struct wps_token *token = SKINOFFSETTOPTR(skin_buffer, imglist->token);
-        if (token) {
-            struct gui_img *img = (struct gui_img *)SKINOFFSETTOPTR(skin_buffer, token->value.data);
-        if (img)
-                img->display = -1;
-        }
+        struct gui_img *img = (struct gui_img *)SKINOFFSETTOPTR(skin_buffer, token->value.data);
+        img->display = -1;
         imglist = SKINOFFSETTOPTR(skin_buffer, imglist->next);
     }
 
     /* fix font ID's */
     if (skin_viewport->parsed_fontid == 1)
         skin_viewport->vp.font = display->getuifont();
+#endif
 
+
+    
     while (line)
     {
         linebuf[0] = '\0';
@@ -762,13 +774,14 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
             if (++info.line_desc.line > info.line_desc.nlines)
                 info.line_desc.style = STYLE_DEFAULT;
         }
-#endif
+#endif    
 #endif
         info.cur_align_start = info.buf;
         align->left = info.buf;
         align->center = NULL;
         align->right = NULL;
-
+        
+        
         if (line->type == LINE_ALTERNATOR)
             func = skin_render_alternator;
         else if (line->type == LINE)
@@ -802,67 +815,61 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
             info.line_number++;
         line = SKINOFFSETTOPTR(skin_buffer, line->next);
     }
+#ifdef HAVE_LCD_BITMAP
     wps_display_images(gwps, &skin_viewport->vp);
+#endif
 }
 
 void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
 {
-    const int vp_is_appearing = (VP_DRAW_WASHIDDEN|VP_DRAW_HIDEABLE);
     struct wps_data *data = gwps->data;
     struct screen *display = gwps->display;
-
+    
     struct skin_element* viewport;
     struct skin_viewport* skin_viewport;
     char *label;
-
+    
     int old_refresh_mode = refresh_mode;
     skin_buffer = get_skin_buffer(gwps->data);
-
-    /* Framebuffer is likely dirty */
-    if ((refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
+    
+#ifdef HAVE_LCD_CHARCELLS
+    int i;
+    for (i = 0; i < 8; i++)
     {
-        /* should already be the default buffer */
-        struct viewport * first_vp = display->set_viewport_ex(NULL, 0);
-        if ((first_vp->flags & VP_FLAG_VP_SET_CLEAN) == VP_FLAG_VP_DIRTY &&
-            get_current_activity() == ACTIVITY_WPS) /* only clear if in WPS */
-        {
-            display->clear_viewport();
-        }
+        if (data->wps_progress_pat[i] == 0)
+            data->wps_progress_pat[i] = display->get_locked_pattern();
     }
+#endif
 
     viewport = SKINOFFSETTOPTR(skin_buffer, data->tree);
-    if (!viewport) return;
     skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
-    if (!skin_viewport) return;
     label = SKINOFFSETTOPTR(skin_buffer, skin_viewport->label);
     if (skin_viewport->label == VP_DEFAULT_LABEL)
         label = VP_DEFAULT_LABEL_STRING;
     if (label && SKINOFFSETTOPTR(skin_buffer, viewport->next) &&
         !strcmp(label,VP_DEFAULT_LABEL_STRING))
         refresh_mode = 0;
-
+    
     for (viewport = SKINOFFSETTOPTR(skin_buffer, data->tree);
          viewport;
          viewport = SKINOFFSETTOPTR(skin_buffer, viewport->next))
     {
-
         /* SETUP */
         skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
-        if (!skin_viewport) continue;
         unsigned vp_refresh_mode = refresh_mode;
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && LCD_REMOTE_DEPTH > 1)
         if (skin_viewport->output_to_backdrop_buffer)
         {
-            skin_backdrop_set_buffer(data->backdrop_id, skin_viewport);
+            display->set_framebuffer(skin_backdrop_get_buffer(data->backdrop_id));
             skin_backdrop_show(-1);
         }
         else
         {
-            skin_backdrop_set_buffer(-1, skin_viewport);
+            display->set_framebuffer(NULL);
             skin_backdrop_show(data->backdrop_id);
         }
 #endif
-
+        
         /* dont redraw the viewport if its disabled */
         if (skin_viewport->hidden_flags&VP_NEVER_VISIBLE)
         {   /* don't draw anything into this one */
@@ -873,14 +880,15 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
             skin_viewport->hidden_flags |= VP_DRAW_WASHIDDEN;
             continue;
         }
-        else if ((skin_viewport->hidden_flags & vp_is_appearing) == vp_is_appearing)
+        else if (((skin_viewport->hidden_flags&
+                   (VP_DRAW_WASHIDDEN|VP_DRAW_HIDEABLE))
+                    == (VP_DRAW_WASHIDDEN|VP_DRAW_HIDEABLE)))
         {
             vp_refresh_mode = SKIN_REFRESH_ALL;
             skin_viewport->hidden_flags = VP_DRAW_HIDEABLE;
         }
-
-        display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);
-
+        
+        display->set_viewport(&skin_viewport->vp);
         if ((vp_refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
         {
             display->clear_viewport();
@@ -892,7 +900,7 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         refresh_mode = old_refresh_mode;
     }
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
-    skin_backdrop_set_buffer(-1, skin_viewport);
+    display->set_framebuffer(NULL);
     skin_backdrop_show(data->backdrop_id);
 #endif
 
@@ -903,11 +911,12 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         send_event(GUI_EVENT_NEED_UI_UPDATE, NULL);
     }
     /* Restore the default viewport */
-    display->set_viewport_ex(NULL, VP_FLAG_VP_SET_CLEAN);
+    display->set_viewport(NULL);
     display->update();
 }
 
-static __attribute__((noinline))
+#ifdef HAVE_LCD_BITMAP
+static __attribute__((noinline)) 
 void skin_render_playlistviewer(struct playlistviewer* viewer,
                                 struct gui_wps *gwps,
                                 struct skin_viewport* skin_viewport,
@@ -929,11 +938,11 @@ void skin_render_playlistviewer(struct playlistviewer* viewer,
         .offset = viewer->start_offset,
         .line_desc = LINE_DESC_DEFINIT,
     };
-
+    
     struct align_pos * align = &info.align;
     bool needs_update;
     int cur_pos, start_item, max;
-    int nb_lines = viewport_get_nb_lines(&skin_viewport->vp);
+    int nb_lines = viewport_get_nb_lines(SKINOFFSETTOPTR(skin_buffer, viewer->vp));
 #if CONFIG_TUNER
     if (get_current_activity() == ACTIVITY_FM)
     {
@@ -944,17 +953,17 @@ void skin_render_playlistviewer(struct playlistviewer* viewer,
     else
 #endif
     {
-        struct wps_state *state = get_wps_state();
-        struct cuesheet *cue = state->id3 ? state->id3->cuesheet : NULL;
+        struct cuesheet *cue = skin_get_global_state()->id3 ? 
+                               skin_get_global_state()->id3->cuesheet : NULL;
         cur_pos = playlist_get_display_index();
         max = playlist_amount()+1;
         if (cue)
             max += cue->track_count;
-        start_item = MAX(0, cur_pos + viewer->start_offset);
+        start_item = MAX(0, cur_pos + viewer->start_offset); 
     }
     if (max-start_item > nb_lines)
         max = start_item + nb_lines;
-
+    
     line = SKINOFFSETTOPTR(skin_buffer, viewer->line);
     while (start_item < max)
     {
@@ -962,24 +971,24 @@ void skin_render_playlistviewer(struct playlistviewer* viewer,
         info.no_line_break = false;
         info.line_scrolls = false;
         info.force_redraw = false;
-
+    
         info.cur_align_start = info.buf;
         align->left = info.buf;
         align->center = NULL;
         align->right = NULL;
-
-
+        
+        
         if (line->type == LINE_ALTERNATOR)
             func = skin_render_alternator;
         else if (line->type == LINE)
             func = skin_render_line;
-
+        
         needs_update = func(line, &info);
-
+        
         /* only update if the line needs to be, and there is something to write */
         if (refresh_type && needs_update)
         {
-            struct viewport *vp = &skin_viewport->vp;
+            struct viewport *vp = SKINOFFSETTOPTR(skin_buffer, viewer->vp);
             if (!info.force_redraw)
                 display->scroll_stop_viewport_rect(vp,
                     0, info.line_number*display->getcharheight(),
@@ -992,3 +1001,4 @@ void skin_render_playlistviewer(struct playlistviewer* viewer,
         start_item++;
     }
 }
+#endif

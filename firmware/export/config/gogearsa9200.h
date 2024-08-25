@@ -8,8 +8,8 @@
 
 #define HW_SAMPR_CAPS       (SAMPR_CAP_44)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -68,8 +68,8 @@
 /* define this if the target has volume keys which can be used in the lists */
 #define HAVE_VOLUME_IN_LIST
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* There is no hardware tone control */
 #define HAVE_SW_TONE_CONTROLS
@@ -184,6 +184,10 @@
 #define BOOTFILE_EXT    "mi4"
 #define BOOTFILE        "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
+
+/* These values are unused, but need to be defined */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
 
 #define ICODE_ATTR_TREMOR_NOT_MDCT
 

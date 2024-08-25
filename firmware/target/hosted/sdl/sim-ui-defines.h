@@ -28,7 +28,35 @@
 
 /* colour definitions are R, G, B */
 
-#if defined(IRIVER_H120) || defined(IRIVER_H100)
+#if defined(ARCHOS_RECORDER)
+#define UI_TITLE                    "Jukebox Recorder"
+#define UI_WIDTH                    270 /* width of GUI window */
+#define UI_HEIGHT                   406 /* height of GUI window */
+#define UI_LCD_POSX                 80 /* x position of lcd */
+#define UI_LCD_POSY                 104 /* y position of lcd */
+
+#elif defined(ARCHOS_PLAYER)
+#define UI_TITLE                    "Jukebox Player"
+#define UI_WIDTH                    284 /* width of GUI window */
+#define UI_HEIGHT                   420 /* height of GUI window */
+#define UI_LCD_POSX                 75 /* x position of lcd */
+#define UI_LCD_POSY                 116 /* y position of lcd */
+
+#elif defined(ARCHOS_FMRECORDER) || defined(ARCHOS_RECORDERV2)
+#define UI_TITLE                    "Jukebox FM Recorder"
+#define UI_WIDTH                    285 /* width of GUI window */
+#define UI_HEIGHT                   414 /* height of GUI window */
+#define UI_LCD_POSX                 87 /* x position of lcd */
+#define UI_LCD_POSY                 77 /* y position of lcd */
+
+#elif defined(ARCHOS_ONDIOSP) || defined(ARCHOS_ONDIOFM)
+#define UI_TITLE                    "Ondio"
+#define UI_WIDTH                    155 /* width of GUI window */
+#define UI_HEIGHT                   334 /* height of GUI window */
+#define UI_LCD_POSX                 21 /* x position of lcd */
+#define UI_LCD_POSY                 82 /* y position of lcd */
+
+#elif defined(IRIVER_H120) || defined(IRIVER_H100)
 #define UI_TITLE                    "iriver H1x0"
 #define UI_WIDTH                    379 /* width of GUI window */
 #define UI_HEIGHT                   508 /* height of GUI window */
@@ -203,6 +231,21 @@
 #define UI_LCD_POSX                 42 /* x position of lcd */
 #define UI_LCD_POSY                 35  /* y position of lcd */
 
+#elif defined(IRIVER_IFP7XX)
+#define UI_TITLE                    "iriver iFP7xx"
+#define UI_WIDTH                    425 /* width of GUI window */
+#define UI_HEIGHT                   183 /* height of GUI window */
+#define UI_LCD_POSX                 115 /* x position of lcd */
+#define UI_LCD_POSY                 54 /* y position of lcd */
+
+#elif defined(ARCHOS_AV300)
+#define UI_TITLE                    "Archos AV300"
+/* We are temporarily using a 2bpp LCD driver and dummy bitmap */
+#define UI_WIDTH                    420 /* width of GUI window */
+#define UI_HEIGHT                   340 /* height of GUI window */
+#define UI_LCD_POSX                 50 /* x position of lcd */
+#define UI_LCD_POSY                 50 /* y position of lcd */
+
 #elif defined(MROBE_100)
 #define UI_TITLE                    "Olympus M:Robe 100"
 #define UI_WIDTH                    247 /* width of GUI window */
@@ -218,6 +261,13 @@
 #define UI_HEIGHT                   368 /* height of GUI window */
 #define UI_LCD_POSX                 58 /* x position of lcd */
 #define UI_LCD_POSY                 67 /* y position of lcd */
+
+#elif defined(IAUDIO_7)
+#define UI_TITLE                    "iAudio7"
+#define UI_WIDTH                    494 /* width of GUI window */
+#define UI_HEIGHT                   214 /* height of GUI window */
+#define UI_LCD_POSX                 131 /* x position of lcd */
+#define UI_LCD_POSY                 38 /* y position of lcd */
 
 #elif defined(CREATIVE_ZVM) || defined(CREATIVE_ZVM60GB)
 #ifdef CREATIVE_ZVM
@@ -471,27 +521,12 @@
 #define UI_HEIGHT                   380
 #define UI_LCD_POSX                 29
 #define UI_LCD_POSY                 25
-
 #elif defined(XDUOO_X3)
 #define UI_TITLE                    "xDuoo X3"
 #define UI_WIDTH                    192 /* width of GUI window */
 #define UI_HEIGHT                   457 /* height of GUI window */
 #define UI_LCD_POSX                 34
 #define UI_LCD_POSY                 73
-
-#elif defined(XDUOO_X3II)
-#define UI_TITLE                    "xDuoo X3ii"
-#define UI_WIDTH                    299 /* width of GUI window */
-#define UI_HEIGHT                   600 /* height of GUI window */
-#define UI_LCD_POSX                 28
-#define UI_LCD_POSY                 56
-
-#elif defined(XDUOO_X20)
-#define UI_TITLE                    "xDuoo X20"
-#define UI_WIDTH                    299 /* width of GUI window */
-#define UI_HEIGHT                   602 /* height of GUI window */
-#define UI_LCD_POSX                 32
-#define UI_LCD_POSY                 60
 
 #elif defined(IHIFI770)
 #define UI_TITLE                    "iHiFi 770"
@@ -514,31 +549,9 @@
 #define UI_LCD_POSX                 26
 #define UI_LCD_POSY                 40
 
-#elif defined(EROS_Q) || defined(EROS_QN)
-#define UI_TITLE                    "AIGO EROS Q"
-#define UI_WIDTH                    400 /* width of GUI window */
-#define UI_HEIGHT                   653 /* height of GUI window */
-#define UI_LCD_POSX                 45
-#define UI_LCD_POSY                 50
-
-#elif defined(FIIO_M3K) || defined(FIIO_M3K_LINUX)
-#define UI_TITLE                    "FiiO M3K"
-#define UI_WIDTH                    334 /* width of GUI window */
-#define UI_HEIGHT                   684 /* height of GUI window */
-#define UI_LCD_POSX                 49
-#define UI_LCD_POSY                 37
-
-
-#elif defined(SHANLING_Q1)
-#define UI_TITLE                    "Shanling Q1"
-#define UI_WIDTH                    466
-#define UI_HEIGHT                   526
-#define UI_LCD_POSX                 46
-#define UI_LCD_POSY                 61
-
-
 #elif defined(SIMULATOR)
 #error no UI defines
 #endif
 
 #endif /* #ifndef __UISDL_H__ */
+

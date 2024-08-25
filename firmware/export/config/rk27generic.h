@@ -25,8 +25,8 @@
                        | SAMPR_CAP_48 | SAMPR_CAP_24 | SAMPR_CAP_12 \
                        | SAMPR_CAP_32 | SAMPR_CAP_16 | SAMPR_CAP_8)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 /* #define HAVE_LCD_FLIP */
@@ -56,7 +56,6 @@
 #define HAVE_FLASH_STORAGE
 
 #define CONFIG_STORAGE (STORAGE_SD | STORAGE_NAND)
-#define NUM_DRIVES 1  /* NAND doesn't work yet */
 
 #define CONFIG_NAND NAND_RK27XX
 #define HAVE_SW_TONE_CONTROLS
@@ -64,6 +63,7 @@
 /* commented for now */
 /* #define HAVE_HOTSWAP */
 
+#define NUM_DRIVES 1
 #define SECTOR_SIZE 512
 
 /* for small(ish) SD cards */
@@ -95,8 +95,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 /* #define CONFIG_RTC RTC_NANO2G */
@@ -175,6 +175,12 @@
 
 /* define this if the hardware can be powered off while charging */
 /* #define HAVE_POWEROFF_WHILE_CHARGING */
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ

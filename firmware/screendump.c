@@ -102,7 +102,7 @@ static void (*screen_dump_hook)(int fh) = NULL;
 void screen_dump(void)
 {
     int fd, y;
-    char filename[MAX_PATH];
+    char filename[32];
 
     fb_data *src;
 #if LCD_DEPTH == 1
@@ -306,7 +306,7 @@ static const unsigned char rbmpheader[] =
 void remote_screen_dump(void)
 {
     int fd, y;
-    char filename[MAX_PATH];
+    char filename[32];
 
     fb_remote_data *src;
 #if LCD_REMOTE_DEPTH == 1

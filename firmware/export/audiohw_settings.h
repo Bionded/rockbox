@@ -84,6 +84,16 @@ AUDIOHW_SETTINGS(
     AUDIOHW_SETTING_ENT(BALANCE,            sound_set_balance)
     AUDIOHW_SETTING_ENT(CHANNELS,           sound_set_channels)
     AUDIOHW_SETTING_ENT(STEREO_WIDTH,       sound_set_stereo_width)
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    AUDIOHW_SETTING_ENT(LOUDNESS,           sound_set_loudness)
+    AUDIOHW_SETTING_ENT(AVC,                sound_set_avc)
+    AUDIOHW_SETTING_ENT(MDB_STRENGTH,       sound_set_mdb_strength)
+    AUDIOHW_SETTING_ENT(MDB_HARMONICS,      sound_set_mdb_harmonics)
+    AUDIOHW_SETTING_ENT(MDB_CENTER,         sound_set_mdb_center)
+    AUDIOHW_SETTING_ENT(MDB_SHAPE,          sound_set_mdb_shape)
+    AUDIOHW_SETTING_ENT(MDB_ENABLE,         sound_set_mdb_enable)
+    AUDIOHW_SETTING_ENT(SUPERBASS,          sound_set_superbass)
+#endif /* (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) */
 #if defined(AUDIOHW_HAVE_LIN_GAIN)
     AUDIOHW_SETTING_ENT(LEFT_GAIN,          NULL)
     AUDIOHW_SETTING_ENT(RIGHT_GAIN,         NULL)
@@ -102,9 +112,6 @@ AUDIOHW_SETTINGS(
 #endif
 #if defined(AUDIOHW_HAVE_FILTER_ROLL_OFF)
     AUDIOHW_SETTING_ENT(FILTER_ROLL_OFF,    sound_set_filter_roll_off)
-#endif
-#if defined(AUDIOHW_HAVE_POWER_MODE)
-    AUDIOHW_SETTING_ENT(POWER_MODE,         sound_set_power_mode)
 #endif
 /* Hardware EQ tone controls */
 #if defined(AUDIOHW_HAVE_EQ)

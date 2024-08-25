@@ -40,6 +40,7 @@
 
 #include "loader_strerror.h"
 #if defined(MI4_FORMAT)
+#include "crc32-mi4.h"
 #include "mi4-loader.h"
 #define LOAD_FIRMWARE(a,b,c) load_mi4(a,b,c)
 #elif defined(RKW_FORMAT)
@@ -50,19 +51,12 @@
 #define LOAD_FIRMWARE(a,b,c) load_firmware(a,b,c)
 #endif
 
-#if defined(HAVE_BOOTDATA) && !defined(SIMULATOR)
-#include "multiboot.h"
-#include "bootdata.h"
-#include "crc32.h"
-#endif
-
 #if CONFIG_CPU == AS3525v2
 #include "ascodec.h"
 #endif
 
-#if defined(FIIO_M3K)
-#include "backlight-target.h"
-#endif
+#if !defined(IRIVER_IFP7XX_SERIES)
+/* FIX: this doesn't work on iFP */
 
 #define IRQ0_EDGE_TRIGGER 0x80
 
@@ -94,7 +88,7 @@ void rolo_restart_cop(void)
 
     /* Invalidate cache */
     commit_discard_idcache();
-
+    
     /* Disable cache */
     CACHE_CTL = CACHE_CTL_DISABLE;
 
@@ -129,10 +123,12 @@ static void rolo_error(const char *text)
     lcd_scroll_stop();
 }
 
-#if CONFIG_CPU == IMX31L || CONFIG_CPU == RK27XX || CONFIG_CPU == X1000
+#if CONFIG_CPU == SH7034 || CONFIG_CPU == IMX31L || CONFIG_CPU == RK27XX
+/* these are in assembler file "descramble.S" for SH7034 */
+extern unsigned short descramble(const unsigned char* source,
+                                 unsigned char* dest, int length);
 /* this is in firmware/target/arm/imx31/rolo_restart.c for IMX31 */
 /* this is in firmware/target/arm/rk27xx/rolo_restart.c for rk27xx */
-/* this is in firmware/target/mips/ingenic_x1000/boot-x1000.c for X1000 */
 extern void rolo_restart(const unsigned char* source, unsigned char* dest,
                          int length);
 #else
@@ -198,10 +194,9 @@ void rolo_restart(const unsigned char* source, unsigned char* dest,
         : : "r"(dest)
     );
 #elif defined(CPU_MIPS)
-    commit_discard_idcache();
+    __dcache_writeback_all();
     asm volatile(
         "jr     %0               \n"
-        "nop\n"
         : : "r"(dest)
     );
 #endif
@@ -217,6 +212,7 @@ extern unsigned long loadaddress;
  * Filename must be a fully defined filename including the path and extension
  *
  ***************************************************************************/
+#if defined(CPU_COLDFIRE) || defined(CPU_ARM) || defined(CPU_MIPS)
 int rolo_load(const char* filename)
 {
     unsigned char* ramstart = (void*)&loadaddress;
@@ -235,45 +231,14 @@ int rolo_load(const char* filename)
     lcd_remote_update();
 #endif
 
-    audio_hard_stop();
+    audio_stop();
 
     /* get the system buffer. release only in case of error, otherwise
      * we don't return anyway */
-    rolo_handle = core_alloc_maximum(&filebuf_size, &buflib_ops_locked);
-    if (rolo_handle < 0)
-    {
-        rolo_error("OOM");
-        return -1;
-    }
-
+    rolo_handle = core_alloc_maximum("rolo", &filebuf_size, NULL);
     filebuf = core_get_data(rolo_handle);
 
     err = LOAD_FIRMWARE(filebuf, filename, filebuf_size);
-#if defined(HAVE_BOOTDATA) && !defined(SIMULATOR)
-    /* write the bootdata as if rolo were the bootloader
-     * FIXME: this won't work for root redirect... */
-    if (!strcmp(filename, BOOTDIR "/" BOOTFILE) && boot_data_valid)
-    {
-        int volume = 0;
-
-        if (boot_data.version == 0)
-            volume = boot_data._boot_volume;
-        else if (boot_data.version == 1)
-        {
-            for (int i = 0; i < NUM_VOLUMES; ++i)
-            {
-                if (volume_drive(i) == boot_data.boot_drive &&
-                    volume_partition(i) == boot_data.boot_partition)
-                {
-                    volume = i;
-                    break;
-                }
-            }
-        }
-
-        write_bootdata(filebuf, filebuf_size, volume);
-    }
-#endif
 
     if (err <= 0)
     {
@@ -305,12 +270,6 @@ int rolo_load(const char* filename)
     lcd_remote_puts(0, 1, "Executing");
     lcd_remote_update();
 #endif
-
-#if defined(FIIO_M3K)
-    /* Avoids the LCD backlight ramping down & up weirdly */
-    backlight_hw_off();
-#endif
-
     adc_close();
 #if CONFIG_CPU == AS3525v2
     /* Set CVDD1 power supply to default*/
@@ -340,3 +299,119 @@ int rolo_load(const char* filename)
     /* never reached */
     return 0;
 }
+#else /* defined(CPU_SH) */
+int rolo_load(const char* filename)
+{
+    int fd;
+    long length;
+    long file_length;
+    unsigned short checksum,file_checksum;
+    unsigned char* ramstart = (void*)&loadaddress;
+    unsigned char* filebuf;
+    size_t filebuf_size;
+
+    lcd_clear_display();
+    lcd_puts(0, 0, "ROLO...");
+    lcd_puts(0, 1, "Loading");
+    lcd_update();
+#ifdef HAVE_REMOTE_LCD
+    lcd_remote_clear_display();
+    lcd_remote_puts(0, 0, "ROLO...");
+    lcd_remote_puts(0, 1, "Loading");
+    lcd_remote_update();
+#endif
+
+    audio_stop();
+
+    fd = open(filename, O_RDONLY);
+    if(-1 == fd) {
+        rolo_error("File not found");
+        return -1;
+    }
+
+    length = filesize(fd) - FIRMWARE_OFFSET_FILE_DATA;
+
+    /* get the system buffer. release only in case of error, otherwise
+     * we don't return anyway */
+    rolo_handle = core_alloc_maximum("rolo", &filebuf_size, NULL);
+    filebuf = core_get_data(rolo_handle);
+
+    /* Read file length from header and compare to real file length */
+    lseek(fd, FIRMWARE_OFFSET_FILE_LENGTH, SEEK_SET);
+    if(read(fd, &file_length, 4) != 4) {
+        rolo_error("Error Reading File Length");
+        return -1;
+    }
+    if (length != file_length) {
+        rolo_error("File length mismatch");
+        return -1;
+    }
+
+    /* Read and save checksum */
+    lseek(fd, FIRMWARE_OFFSET_FILE_CRC, SEEK_SET);
+    if (read(fd, &file_checksum, 2) != 2) {
+        rolo_error("Error Reading checksum");
+        return -1;
+    }
+    lseek(fd, FIRMWARE_OFFSET_FILE_DATA, SEEK_SET);
+
+    /* verify that file can be read and descrambled */
+    if ((size_t)((2*length)+4) >= filebuf_size) {
+        rolo_error("Not enough room to load file");
+        return -1;
+    }
+
+    if (read(fd, &filebuf[length], length) != (int)length) {
+        rolo_error("Error Reading File");
+        return -1;
+    }
+
+    lcd_puts(0, 1, "Descramble");
+    lcd_update();
+
+    checksum = descramble(filebuf + length, filebuf, length);
+
+    /* Verify checksum against file header */
+    if (checksum != file_checksum) {
+        rolo_error("Checksum Error");
+        return -1;
+    }
+
+#ifdef HAVE_STORAGE_FLUSH
+    lcd_puts(0, 1, "Flushing      ");
+    lcd_update();
+    storage_flush();
+#endif
+
+    lcd_puts(0, 1, "Executing     ");
+    lcd_update();
+
+    set_irq_level(HIGHEST_IRQ_LEVEL);
+
+    /* Calling these 2 initialization routines was necessary to get the
+       the origional Archos version of the firmware to load and execute. */
+    system_init();           /* Initialize system for restart */
+    i2c_init();              /* Init i2c bus - it seems like a good idea */
+    ICR = IRQ0_EDGE_TRIGGER; /* Make IRQ0 edge triggered */
+    TSTR = 0xE0;             /* disable all timers */
+    /* model-specific de-init, needed when flashed */
+    /* Especially the Archos software is picky about this */
+#if defined(ARCHOS_RECORDER) || defined(ARCHOS_RECORDERV2) || \
+    defined(ARCHOS_FMRECORDER)
+    PAIOR = 0x0FA0;
+#endif
+    rolo_restart(filebuf, ramstart, length);
+
+    return 0; /* this is never reached */
+    (void)checksum; (void)file_checksum;
+}
+#endif /*  */
+#else  /* !defined(IRIVER_IFP7XX_SERIES) */
+int rolo_load(const char* filename)
+{
+    /* dummy */
+    (void)filename;
+    return 0;
+}
+
+#endif /* !defined(IRIVER_IFP7XX_SERIES) */

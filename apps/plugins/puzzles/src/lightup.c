@@ -47,12 +47,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
@@ -63,7 +58,7 @@
  */
 #if defined STANDALONE_SOLVER
 #define SOLVER_DIAGNOSTICS
-static int verbose = 0;
+int verbose = 0;
 #undef debug
 #define debug(x) printf x
 #elif defined SOLVER_DIAGNOSTICS
@@ -351,8 +346,6 @@ static const char *validate_params(const game_params *params, bool full)
 {
     if (params->w < 2 || params->h < 2)
         return "Width and height must be at least 2";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
     if (full) {
         if (params->blackpc < 5 || params->blackpc > 100)
             return "Percentage of black squares must be between 5% and 100%";
@@ -360,8 +353,6 @@ static const char *validate_params(const game_params *params, bool full)
             if (params->symm == SYMM_ROT4)
                 return "4-fold symmetry is only available with square grids";
         }
-        if ((params->symm == SYMM_ROT4 || params->symm == SYMM_REF4) && params->w < 3 && params->h < 3)
-            return "Width or height must be at least 3 for 4-way symmetry";
         if (params->symm < 0 || params->symm >= SYMM_MAX)
             return "Unknown symmetry type";
         if (params->difficulty < 0 || params->difficulty > DIFFCOUNT)
@@ -419,8 +410,6 @@ static void debug_state(game_state *state)
 {
     int x, y;
     char c = '?';
-
-    (void)c; /* placate -Wunused-but-set-variable if debug() does nothing */
 
     for (y = 0; y < state->h; y++) {
         for (x = 0; x < state->w; x++) {
@@ -1833,60 +1822,14 @@ static char *game_text_format(const game_state *state)
 struct game_ui {
     int cur_x, cur_y;
     bool cur_visible;
-
-    /*
-     * User preference: when a square contains both a black blob for
-     * 'user is convinced this isn't a light' and a yellow highlight
-     * for 'this square is lit by a light', both of which rule out it
-     * being a light, should we still bother to show the blob?
-     */
-    bool draw_blobs_when_lit;
 };
-
-static void legacy_prefs_override(struct game_ui *ui_out)
-{
-    static bool initialised = false;
-    static int draw_blobs_when_lit = -1;
-
-    if (!initialised) {
-        initialised = true;
-        draw_blobs_when_lit = getenv_bool("LIGHTUP_LIT_BLOBS", -1);
-    }
-
-    if (draw_blobs_when_lit != -1)
-        ui_out->draw_blobs_when_lit = draw_blobs_when_lit;
-}
 
 static game_ui *new_ui(const game_state *state)
 {
     game_ui *ui = snew(game_ui);
     ui->cur_x = ui->cur_y = 0;
-    ui->cur_visible = getenv_bool("PUZZLES_SHOW_CURSOR", false);
-    ui->draw_blobs_when_lit = true;
-    legacy_prefs_override(ui);
+    ui->cur_visible = false;
     return ui;
-}
-
-static config_item *get_prefs(game_ui *ui)
-{
-    config_item *ret;
-
-    ret = snewn(2, config_item);
-
-    ret[0].name = "Draw non-light marks even when lit";
-    ret[0].kw = "show-lit-blobs";
-    ret[0].type = C_BOOLEAN;
-    ret[0].u.boolean.bval = ui->draw_blobs_when_lit;
-
-    ret[1].name = NULL;
-    ret[1].type = C_END;
-
-    return ret;
-}
-
-static void set_prefs(game_ui *ui, const config_item *cfg)
-{
-    ui->draw_blobs_when_lit = cfg[0].u.boolean.bval;
 }
 
 static void free_ui(game_ui *ui)
@@ -1894,31 +1837,22 @@ static void free_ui(game_ui *ui)
     sfree(ui);
 }
 
+static char *encode_ui(const game_ui *ui)
+{
+    /* nothing to encode. */
+    return NULL;
+}
+
+static void decode_ui(game_ui *ui, const char *encoding)
+{
+    /* nothing to decode. */
+}
+
 static void game_changed_state(game_ui *ui, const game_state *oldstate,
                                const game_state *newstate)
 {
     if (newstate->completed)
         ui->cur_visible = false;
-}
-
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    int cx = ui->cur_x, cy = ui->cur_y;
-    unsigned int flags = GRID(state, flags, cx, cy);
-
-    if (!ui->cur_visible) return "";
-    if (button == CURSOR_SELECT) {
-        if (flags & (F_BLACK | F_IMPOSSIBLE)) return "";
-        if (flags & F_LIGHT) return "Clear";
-        return "Light";
-    }
-    if (button == CURSOR_SELECT2) {
-        if (flags & (F_BLACK | F_LIGHT)) return "";
-        if (flags & F_IMPOSSIBLE) return "Clear";
-        return "Mark";
-    }
-    return "";
 }
 
 #define DF_BLACK        1       /* black square */
@@ -1954,7 +1888,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     enum { NONE, FLIP_LIGHT, FLIP_IMPOSSIBLE } action = NONE;
     int cx = -1, cy = -1;
     unsigned int flags;
-    char buf[80], *nullret = MOVE_NO_EFFECT, *empty = MOVE_UI_UPDATE, c;
+    char buf[80], *nullret = UI_UPDATE, *empty = UI_UPDATE, c;
 
     if (button == LEFT_BUTTON || button == RIGHT_BUTTON) {
         if (ui->cur_visible)
@@ -1964,7 +1898,8 @@ static char *interpret_move(const game_state *state, game_ui *ui,
         cy = FROMCOORD(y);
         action = (button == LEFT_BUTTON) ? FLIP_LIGHT : FLIP_IMPOSSIBLE;
     } else if (IS_CURSOR_SELECT(button) ||
-               button == 'i' || button == 'I') {
+               button == 'i' || button == 'I' ||
+               button == ' ' || button == '\r' || button == '\n') {
         if (ui->cur_visible) {
             /* Only allow cursor-effect operations if the cursor is visible
              * (otherwise you have no idea which square it might be affecting) */
@@ -1975,10 +1910,11 @@ static char *interpret_move(const game_state *state, game_ui *ui,
         }
         ui->cur_visible = true;
     } else if (IS_CURSOR_MOVE(button)) {
-        nullret = move_cursor(button, &ui->cur_x, &ui->cur_y,
-                              state->w, state->h, false, &ui->cur_visible);
+        move_cursor(button, &ui->cur_x, &ui->cur_y, state->w, state->h, false);
+        ui->cur_visible = true;
+        nullret = empty;
     } else
-        return MOVE_UNUSED;
+        return NULL;
 
     switch (action) {
     case FLIP_LIGHT:
@@ -2066,7 +2002,7 @@ badmove:
 
 /* XXX entirely cloned from fifteen.c; separate out? */
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int tilesize; } ads, *ds = &ads;
@@ -2175,7 +2111,7 @@ static unsigned int tile_flags(game_drawstate *ds, const game_state *state,
     return ret;
 }
 
-static void tile_redraw(drawing *dr, game_drawstate *ds, const game_ui *ui,
+static void tile_redraw(drawing *dr, game_drawstate *ds,
                         const game_state *state, int x, int y)
 {
     unsigned int ds_flags = GRID(ds, flags, x, y);
@@ -2205,7 +2141,13 @@ static void tile_redraw(drawing *dr, game_drawstate *ds, const game_ui *ui,
             draw_circle(dr, dx + TILE_SIZE/2, dy + TILE_SIZE/2, TILE_RADIUS,
                         lcol, COL_BLACK);
         } else if ((ds_flags & DF_IMPOSSIBLE)) {
-            if (!(ds_flags & DF_LIT) || ui->draw_blobs_when_lit) {
+            static int draw_blobs_when_lit = -1;
+            if (draw_blobs_when_lit < 0) {
+		char *env = getenv("LIGHTUP_LIT_BLOBS");
+		draw_blobs_when_lit = (!env || (env[0] == 'y' ||
+                                                env[0] == 'Y'));
+            }
+            if (!(ds_flags & DF_LIT) || draw_blobs_when_lit) {
                 int rlen = TILE_SIZE / 4;
                 draw_rect(dr, dx + TILE_SIZE/2 - rlen/2,
                           dy + TILE_SIZE/2 - rlen/2,
@@ -2234,6 +2176,10 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     if (flashtime) flashing = (int)(flashtime * 3 / FLASH_TIME) != 1;
 
     if (!ds->started) {
+        draw_rect(dr, 0, 0,
+                  TILE_SIZE * ds->w + 2 * BORDER,
+                  TILE_SIZE * ds->h + 2 * BORDER, COL_BACKGROUND);
+
         draw_rect_outline(dr, COORD(0)-1, COORD(0)-1,
                           TILE_SIZE * ds->w + 2,
                           TILE_SIZE * ds->h + 2,
@@ -2250,7 +2196,7 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
             unsigned int ds_flags = tile_flags(ds, state, ui, x, y, flashing);
             if (ds_flags != GRID(ds, flags, x, y)) {
                 GRID(ds, flags, x, y) = ds_flags;
-                tile_redraw(dr, ds, ui, state, x, y);
+                tile_redraw(dr, ds, state, x, y);
             }
         }
     }
@@ -2271,39 +2217,29 @@ static float game_flash_length(const game_state *oldstate,
     return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->cur_visible) {
-        *x = COORD(ui->cur_x);
-        *y = COORD(ui->cur_y);
-        *w = *h = TILE_SIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     return state->completed ? +1 : 0;
 }
 
-static void game_print_size(const game_params *params, const game_ui *ui,
-                            float *x, float *y)
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
 {
     int pw, ph;
 
     /*
      * I'll use 6mm squares by default.
      */
-    game_compute_size(params, 600, ui, &pw, &ph);
+    game_compute_size(params, 600, &pw, &ph);
     *x = pw / 100.0F;
     *y = ph / 100.0F;
 }
 
-static void game_print(drawing *dr, const game_state *state, const game_ui *ui,
-                       int tilesize)
+static void game_print(drawing *dr, const game_state *state, int tilesize)
 {
     int w = state->w, h = state->h;
     int ink = print_mono_colour(dr, 0);
@@ -2374,14 +2310,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    get_prefs, set_prefs,
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
@@ -2391,11 +2325,10 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
     true, false, game_print_size, game_print,
     false,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     0,				       /* flags */
 };
 

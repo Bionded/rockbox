@@ -545,7 +545,7 @@ void lcd_set_invert_display(bool yesno)
 #ifdef HAVE_LCD_FLIP
 void lcd_set_flip(bool yesno)
 {
-    lcd_reg_3_val = yesno ? 0x1080 : 0x1030;
+    lcd_reg_3_val = yesno ? 0x1000 : 0x1030;
     #ifdef HAVE_LCD_ENABLE
     if(!lcd_on)
         return;
@@ -587,36 +587,13 @@ void lcd_update_rect(int x, int y, int w, int h)
     if (h <= 0)
         return; /* nothing left to do */
 
-
     imx233_lcdif_wait_ready();
-#ifdef HAVE_LCD_FLIP
-    if(!(lcd_reg_3_val&0x10))
-    {
-        int xr = LCD_WIDTH - x;
-        lcd_write_reg(0x50, xr-w);
-        lcd_write_reg(0x51, xr-1);
-        lcd_write_reg(0x20, xr-w);
-    }else
-#endif
-    {
-        lcd_write_reg(0x50, x);
-        lcd_write_reg(0x51, x + w - 1);
-        lcd_write_reg(0x20, x);
-    }
-#ifdef HAVE_LCD_FLIP
-    if(!(lcd_reg_3_val&0x20))
-    {
-        int yr = LCD_HEIGHT - y;
-        lcd_write_reg(0x52, yr-h);
-        lcd_write_reg(0x53, yr-1);
-        lcd_write_reg(0x21, yr-h);
-    }else
-#endif
-    {
-        lcd_write_reg(0x52, y);
-        lcd_write_reg(0x53, y + h - 1);
-        lcd_write_reg(0x21, y);
-    }
+    lcd_write_reg(0x50, x);
+    lcd_write_reg(0x51, x + w - 1);
+    lcd_write_reg(0x52, y);
+    lcd_write_reg(0x53, y + h - 1);
+    lcd_write_reg(0x20, x);
+    lcd_write_reg(0x21, y);
     lcd_write_reg(0x22, 0);
     imx233_lcdif_wait_ready();
     imx233_lcdif_set_word_length(16);
@@ -637,9 +614,8 @@ void lcd_update_rect(int x, int y, int w, int h)
     }
     else
     {
-        void* (*fbaddr)(int x, int y) = FB_CURRENTVP_BUFFER->get_address_fn;
         for(int i = 0; i < h; i++)
-            memcpy((fb_data *)FRAME + i * w, fbaddr(x,y + i), w * sizeof(fb_data));
+            memcpy((fb_data *)FRAME + i * w, FBADDR(x,y + i), w * sizeof(fb_data));
     }
     /* WARNING The LCDIF has a limitation on the vertical count ! In 16-bit packed mode
      * (which we used, ie 16-bit per pixel, 2 pixels per 32-bit words), the v_count

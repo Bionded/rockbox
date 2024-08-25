@@ -2,35 +2,35 @@
 \subsection{Pegbox}
 \screenshot{plugins/images/ss-pegbox}{pegbox}{img:pegbox}
 To beat each level, you must destroy all of the pegs. If two like pegs are
-pushed into each other they disappear except for triangles which form a solid
+pushed into each other they disappear except for triangles which form a solid 
 block and crosses which allow you to choose a replacement block.
 
 \begin{btnmap}
     \nopt{IPOD_4G_PAD,IPOD_3G_PAD,IRIVER_H10_PAD,touchscreen,IAUDIO_M3_PAD%
-        ,MPIO_HD200_PAD,MPIO_HD300_PAD,XDUOO_X3_PAD}{%
+        ,MPIO_HD200_PAD,MPIO_HD300_PAD}{%
         \ButtonUp, \ButtonDown, }%
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonMenu, \ButtonPlay, }%
     \opt{IRIVER_H10_PAD,MPIO_HD300_PAD}{\ButtonScrollUp, \ButtonScrollDown, }%
     \opt{MPIO_HD200_PAD}{\ButtonRew, \ButtonFF, }%
     \opt{touchscreen}{\TouchTopMiddle, \TouchBottomMiddle, }%
-    \opt{XDUOO_X3_PAD}{\ButtonPrev, \ButtonNext,}%
     %
-    \nopt{touchscreen,MPIO_HD200_PAD,MPIO_HD300_PAD,IAUDIO_M3_PAD,XDUOO_X3_PAD}{\ButtonLeft, \ButtonRight}
+    \nopt{touchscreen,MPIO_HD200_PAD,MPIO_HD300_PAD,IAUDIO_M3_PAD}{\ButtonLeft, \ButtonRight}
     \opt{MPIO_HD200_PAD}{\ButtonVolDown, \ButtonVolUp}
     \opt{MPIO_HD300_PAD}{\ButtonRew, \ButtonFF}
     \opt{touchscreen}{\TouchMidLeft, \TouchMidRight}
-    \opt{XDUOO_X3_PAD}{\ButtonHome, \ButtonOption}
         &
     \opt{HAVEREMOTEKEYMAP}{
         &}
     to move around
         \\
 
-    \nopt{IPOD_4G_PAD,IPOD_3G_PAD,IRIVER_H10_PAD%
+    \nopt{RECORDER_PAD,ONDIO_PAD,IPOD_4G_PAD,IPOD_3G_PAD,IRIVER_H10_PAD%
         ,PBELL_VIBE500_PAD,touchscreen,IAUDIO_M3_PAD,MPIO_HD200_PAD%
-        ,MPIO_HD300_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD,XDUOO_X3_PAD}{\ButtonSelect}
+        ,MPIO_HD300_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonSelect}
+    \opt{RECORDER_PAD}{\ButtonOn}
+    \opt{ONDIO_PAD}{\ButtonOff}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect{} + \ButtonRight}
-    \opt{IRIVER_H10_PAD,PBELL_VIBE500_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD,XDUOO_X3_PAD}{\ButtonPlay}
+    \opt{IRIVER_H10_PAD,PBELL_VIBE500_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
     \opt{MPIO_HD200_PAD}{\ButtonFunc}
     \opt{MPIO_HD300_PAD}{\ButtonEnter}
     \opt{touchscreen}{\TouchCenter}
@@ -40,6 +40,8 @@ block and crosses which allow you to choose a replacement block.
     to choose peg
         \\
 
+    \opt{RECORDER_PAD}{\ButtonFTwo}
+    \opt{ONDIO_PAD}{\ButtonMenu{} + \ButtonRight}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOn}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD,SANSA_FUZE_PAD}
         {\ButtonSelect{} + \ButtonLeft}
@@ -54,13 +56,14 @@ block and crosses which allow you to choose a replacement block.
     \opt{SANSA_FUZEPLUS_PAD}{\ButtonBack}
     \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonFF}
     \opt{touchscreen}{\TouchTopRight}
-    \opt{XDUOO_X3_PAD}{\ButtonPower + \ButtonHome}
         &
     \opt{HAVEREMOTEKEYMAP}{
         &}
     to restart level
         \\
 
+    \opt{RECORDER_PAD}{\ButtonFOne}
+    \opt{ONDIO_PAD}{\ButtonMenu{} + \ButtonUp}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonMode}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect{} + \ButtonMenu}
     \opt{IAUDIO_X5_PAD,MPIO_HD300_PAD}{\ButtonPlay}
@@ -73,7 +76,6 @@ block and crosses which allow you to choose a replacement block.
     \opt{MPIO_HD200_PAD}{\ButtonPlay + \ButtonFF}
     \opt{SAMSUNG_YH92X_PAD}{\ButtonPlay+\ButtonUp}
     \opt{SAMSUNG_YH820_PAD}{\ButtonRec+\ButtonUp}
-    \opt{XDUOO_X3_PAD}{\ButtonVolUp}
         &
     \opt{HAVEREMOTEKEYMAP}{
         &}
@@ -81,6 +83,8 @@ block and crosses which allow you to choose a replacement block.
         \\
 
     \nopt{IPOD_4G_PAD,IPOD_3G_PAD,IAUDIO_X5_PAD}{
+        \opt{RECORDER_PAD}{\ButtonFThree}
+        \opt{ONDIO_PAD}{\ButtonMenu{} + \ButtonDown}
         \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,MPIO_HD300_PAD}{\ButtonRec}
         \opt{IRIVER_H10_PAD}{\ButtonFF{} + \ButtonScrollDown}
         \opt{SANSA_E200_PAD}{\ButtonScrollFwd}
@@ -92,7 +96,6 @@ block and crosses which allow you to choose a replacement block.
         \opt{MPIO_HD200_PAD}{\ButtonPlay{} + \ButtonRew}
         \opt{SAMSUNG_YH92X_PAD}{\ButtonPlay+\ButtonDown}
         \opt{SAMSUNG_YH820_PAD}{\ButtonRec+\ButtonDown}
-        \opt{XDUOO_X3_PAD}{\ButtonVolDown}
             &
         \opt{HAVEREMOTEKEYMAP}{
             &}
@@ -100,8 +103,9 @@ block and crosses which allow you to choose a replacement block.
             \\
     }
 
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{Long \ButtonSelect}
+    \opt{RECORDER_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
+    \opt{ONDIO_PAD}{\ButtonMenu{} + \ButtonOff}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect{} + \ButtonPlay}
     \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,SANSA_E200_PAD,GIGABEAT_PAD,MROBE100_PAD%
         ,SANSA_C200_PAD,SANSA_CLIP_PAD,COWON_D2_PAD,SANSA_FUZEPLUS_PAD}{\ButtonPower}
     \opt{SANSA_FUZE_PAD}{Long \ButtonHome}
@@ -110,7 +114,6 @@ block and crosses which allow you to choose a replacement block.
     \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonRew}
     \opt{MPIO_HD200_PAD}{\ButtonRec + \ButtonPlay}
     \opt{MPIO_HD300_PAD}{Long \ButtonMenu}
-    \opt{XDUOO_X3_PAD}{\ButtonPower}
         &
     \opt{HAVEREMOTEKEYMAP}{
         &}

@@ -24,7 +24,6 @@
 #include "filetree.h"
 #include "wps.h"
 #include "playback.h"
-#include "string-extra.h"
 
 /*
  * This macro is meant to be used inside an IAP mode message handler.
@@ -88,7 +87,7 @@ static void get_playlist_name(unsigned char *dest,
         }
     }
     if (playlist_file != NULL) {
-        strmemccpy(dest, playlist_file->d_name, max_length);
+        strlcpy(dest, playlist_file->d_name, max_length);
     }
     closedir(dp);
 }
@@ -110,8 +109,9 @@ static void seek_to_playlist(unsigned long index)
                     ft_play_playlist(selected_playlist,
                                      global_settings.playlist_catalog_dir,
                                      strrchr(selected_playlist, '/') + 1);
-}
 
+}
+ 
 static unsigned long nbr_total_playlists(void)
 {
     DIR* dp;
@@ -161,7 +161,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
     switch (cmd)
     {
         case 0x0001: /* CmdAck. See above cmd_ack() */
-            /*
+            /* 
              * The following is the description for the Apple Firmware
              * The iPod sends this telegram to acknowledge the receipt of a
              * command and return the command status. The command ID field
@@ -1218,7 +1218,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
         {
             memcpy(cur_dbrecord, buf + 3, 5);
 
-            int paused = !!(audio_status() & AUDIO_STATUS_PAUSE);
+            int paused = (is_wps_fading() || (audio_status() & AUDIO_STATUS_PAUSE));
             uint32_t index;
             uint32_t trackcount;
             index = get_u32(&cur_dbrecord[1]);
@@ -1430,6 +1430,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
             unsigned int number_of_playlists = nbr_total_playlists();
             uint32_t trackcount;
             trackcount = playlist_amount();
+            size_t len;
 
             if ((buf[3] == 0x05) && ((start_index + read_count ) > trackcount))
             {
@@ -1456,7 +1457,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
                     case 0x05: /* Tracks   */
                     case 0x02: /* Artists  */
                     case 0x03: /* Albums   */
-                    case 0x04: /* Genre    */
+                    case 0x04: /* Genre    */ 
                     case 0x06: /* Composer */
                         playlist_get_track_info(NULL, start_index + counter,
                                                 &track);
@@ -1464,17 +1465,17 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
                         switch(buf[3])
                         {
                             case 0x05:
-                                strmemccpy((char *)&data[7], id3.title,64);
+                                len = strlcpy((char *)&data[7], id3.title,64);
                                 break;
                             case 0x02:
-                                strmemccpy((char *)&data[7], id3.artist,64);
+                                len = strlcpy((char *)&data[7], id3.artist,64);
                                 break;
                             case 0x03:
-                                strmemccpy((char *)&data[7], id3.album,64);
+                                len = strlcpy((char *)&data[7], id3.album,64);
                                 break;
                             case 0x04:
                             case 0x06:
-                                strmemccpy((char *)&data[7], "Not Supported",14);
+                                len = strlcpy((char *)&data[7], "Not Supported",14);
                                 break;
                         }
                         break;
@@ -1787,6 +1788,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
         {
             unsigned char data[70] = {0x04, 0x00, 0xFF};
             struct mp3entry id3;
+            int fd;
             size_t len;
             long tracknum = get_u32(&buf[3]);
 
@@ -1801,8 +1803,10 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
             {
                 struct playlist_track_info info;
                 playlist_get_track_info(NULL, tracknum, &info);
-                /* memset(&id3, 0, sizeof(struct mp3entry)); --get_metadata does this for us */
-                get_metadata(&id3, -1, info.filename);
+                fd = open(info.filename, O_RDONLY);
+                memset(&id3, 0, sizeof(struct mp3entry));
+                get_metadata(&id3, fd, info.filename);
+                close(fd);
             }
             /* Return the requested track data */
             switch(cmd)
@@ -1998,7 +2002,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
              *
              */
         {
-            int paused = !!(audio_status() & AUDIO_STATUS_PAUSE);
+            int paused = (is_wps_fading() || (audio_status() & AUDIO_STATUS_PAUSE));
             uint32_t index;
             uint32_t trackcount;
             index = get_u32(&buf[3]);
@@ -2014,8 +2018,8 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
                 playlist_randomise(NULL, current_tick, true);
             }
             else
-            {
-                playlist_sort(NULL, true);
+	          {
+	              playlist_sort(NULL, true);
             }
             audio_skip(index - playlist_next(0));
             if (!paused)
@@ -2816,7 +2820,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
              *
              */
         {
-            int paused = !!(audio_status() & AUDIO_STATUS_PAUSE);
+            int paused = (is_wps_fading() || (audio_status() & AUDIO_STATUS_PAUSE));
             long tracknum = get_u32(&buf[3]);
 
             audio_pause();
@@ -2972,7 +2976,7 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
         {
             memcpy(cur_dbrecord, buf + 3, 5);
 
-            int paused = !!(audio_status() & AUDIO_STATUS_PAUSE);
+            int paused = (is_wps_fading() || (audio_status() & AUDIO_STATUS_PAUSE));
             unsigned int number_of_playlists = nbr_total_playlists();
             uint32_t index;
             uint32_t trackcount;

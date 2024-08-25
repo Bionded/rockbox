@@ -30,8 +30,8 @@
 /* define the bitmask of recording sample rates */
 #define REC_SAMPR_CAPS  HW_SAMPR_CAPS
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -70,8 +70,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_PCF50605
@@ -144,8 +144,7 @@
 #define BATTERY_CAPACITY_DEFAULT_THICK 600 /* default battery capacity for the
                                               60/80GB model */
 #define BATTERY_CAPACITY_MIN      300 /* min. capacity selectable */
-#define BATTERY_CAPACITY_MAX     3000 /* max. capacity selectable --
-                                         3rd party batteries go this high */
+#define BATTERY_CAPACITY_MAX     1400 /* max. capacity selectable */
 #define BATTERY_CAPACITY_INC       50 /* capacity increment */
 #define BATTERY_TYPES_COUNT         1 /* only one type */
 
@@ -195,6 +194,15 @@
 #define CPU_FREQ      11289600
 
 #define CONFIG_LCD LCD_IPODVIDEO
+
+/* Offset ( in the firmware file's header ) to the file length */
+#define FIRMWARE_OFFSET_FILE_LENGTH 0
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

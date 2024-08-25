@@ -47,7 +47,7 @@
 #endif
 
 #ifndef USBSTOR_WRITE_SECTORS_FILTER
-#define USBSTOR_WRITE_SECTORS_FILTER() ({ 0; })
+#define USBSTOR_WRITE_SECTORS_FILTER() ({ 0; }) 
 #endif
 
 /* the ARC driver currently supports up to 64k USB transfers. This is
@@ -71,7 +71,7 @@
 #endif /* USB_READ_BUFFER_SIZE */
 
 /* We don't use sizeof() here, because we *need* a multiple of 32 */
-#define MAX_CBW_SIZE 512
+#define MAX_CBW_SIZE 32
 
 #ifdef USB_WRITE_BUFFER_SIZE
 #define WRITE_BUFFER_SIZE USB_WRITE_BUFFER_SIZE
@@ -113,9 +113,6 @@
 #define SCSI_START_STOP_UNIT      0x1b
 #define SCSI_REPORT_LUNS          0xa0
 #define SCSI_WRITE_BUFFER         0x3b
-
-#define SCSI_READ_16              0x88
-#define SCSI_WRITE_16             0x8a
 
 #define UMS_STATUS_GOOD            0x00
 #define UMS_STATUS_FAIL            0x01
@@ -276,7 +273,7 @@ static union {
 static char *cbw_buffer;
 
 static struct {
-    sector_t sector;
+    unsigned int sector;
     unsigned int count;
     unsigned int orig_count;
     unsigned int cur_cmd;
@@ -428,20 +425,17 @@ int usb_storage_get_config_descriptor(unsigned char *dest,int max_packet_size)
 
     return (dest - orig_dest);
 }
-#if (CONFIG_CPU == IMX31L || defined(CPU_TCC780X) || \
-     CONFIG_CPU == S5L8702 || CONFIG_CPU == S5L8701 || CONFIG_CPU == AS3525v2 || \
-     defined(BOOTLOADER) || CONFIG_CPU == DM320) && !defined(CPU_PP502x)
-#define USB_STATIC_ALLOC
-#else
-static int usb_handle = 0;
-#endif
+
+static int usb_handle;
 void usb_storage_init_connection(void)
 {
     logf("ums: set config");
     /* prime rx endpoint. We only need room for commands */
     state = WAITING_FOR_COMMAND;
 
-#ifdef USB_STATIC_ALLOC
+#if (CONFIG_CPU == IMX31L || defined(CPU_TCC77X) || defined(CPU_TCC780X) || \
+     CONFIG_CPU == S5L8702 || CONFIG_CPU == S5L8701 || CONFIG_CPU == AS3525v2 || \
+     defined(BOOTLOADER) || CONFIG_CPU == DM320) && !defined(CPU_PP502x)
     static unsigned char _cbw_buffer[MAX_CBW_SIZE]
         USB_DEVBSS_ATTR __attribute__((aligned(32)));
     cbw_buffer = (void *)_cbw_buffer;
@@ -455,10 +449,12 @@ void usb_storage_init_connection(void)
 #endif
 #else
     unsigned char * buffer;
+    /* dummy ops with no callbacks, needed because by
+     * default buflib buffers can be moved around which must be avoided */
+    static struct buflib_callbacks dummy_ops;
 
     // Add 31 to handle worst-case misalignment
-    usb_handle = core_alloc_ex(ALLOCATE_BUFFER_SIZE + MAX_CBW_SIZE + 31,
-                               &buflib_ops_locked);
+    usb_handle = core_alloc_ex("usb storage", ALLOCATE_BUFFER_SIZE + MAX_CBW_SIZE + 31, &dummy_ops);
     if (usb_handle < 0)
         panicf("%s(): OOM", __func__);
 
@@ -474,7 +470,7 @@ void usb_storage_init_connection(void)
     ramdisk_buffer = tb.transfer_buffer + ALLOCATE_BUFFER_SIZE;
 #endif
 #endif
-    usb_drv_recv_nonblocking(ep_out, cbw_buffer, MAX_CBW_SIZE);
+    usb_drv_recv(ep_out, cbw_buffer, MAX_CBW_SIZE);
 
     int i;
     for(i=0;i<storage_num_drives();i++) {
@@ -486,9 +482,8 @@ void usb_storage_init_connection(void)
 
 void usb_storage_disconnect(void)
 {
-#ifndef USB_STATIC_ALLOC
-    usb_handle = core_free(usb_handle);
-#endif
+    if (usb_handle > 0)
+        usb_handle = core_free(usb_handle);
 }
 
 /* called by usb_core_transfer_complete() */
@@ -506,7 +501,7 @@ void usb_storage_transfer_complete(int ep,int dir,int status,int length)
             if(dir==USB_DIR_IN) {
                 logf("IN received in RECEIVING");
             }
-            logf("scsi write %llu %d", cur_cmd.sector, cur_cmd.count);
+            logf("scsi write %d %d", cur_cmd.sector, cur_cmd.count);
             if(status==0) {
                 if((unsigned int)length!=(SECTOR_SIZE* cur_cmd.count)
                   && (unsigned int)length!=WRITE_BUFFER_SIZE) {
@@ -514,7 +509,7 @@ void usb_storage_transfer_complete(int ep,int dir,int status,int length)
                     break;
                 }
 
-                sector_t next_sector = cur_cmd.sector +
+                unsigned int next_sector = cur_cmd.sector +
                              (WRITE_BUFFER_SIZE/SECTOR_SIZE);
                 unsigned int next_count = cur_cmd.count -
                              MIN(cur_cmd.count,WRITE_BUFFER_SIZE/SECTOR_SIZE);
@@ -594,6 +589,17 @@ void usb_storage_transfer_complete(int ep,int dir,int status,int length)
             }
             handle_scsi(cbw);
             break;
+#if 0
+            if(cur_cmd.cur_cmd == SCSI_WRITE_10)
+            {
+                queue_broadcast(SYS_USB_WRITE_DATA, (cur_cmd.lun<<16)+cur_cmd.orig_count);
+            }
+            else if(cur_cmd.cur_cmd == SCSI_READ_10)
+            {
+                queue_broadcast(SYS_USB_READ_DATA, (cur_cmd.lun<<16)+cur_cmd.orig_count);
+            }
+#endif
+            break;
         case SENDING_RESULT:
             if(dir==USB_DIR_OUT) {
                 logf("OUT received in SENDING");
@@ -667,13 +673,11 @@ void usb_storage_transfer_complete(int ep,int dir,int status,int length)
 }
 
 /* called by usb_core_control_request() */
-bool usb_storage_control_request(struct usb_ctrlrequest* req, void* reqdata, unsigned char* dest)
+bool usb_storage_control_request(struct usb_ctrlrequest* req, unsigned char* dest)
 {
     bool handled = false;
 
     (void)dest;
-    (void)reqdata;
-
     switch (req->bRequest) {
         case USB_BULK_GET_MAX_LUN: {
             *tb.max_lun = storage_num_drives() - 1;
@@ -681,7 +685,8 @@ bool usb_storage_control_request(struct usb_ctrlrequest* req, void* reqdata, uns
             if(skip_first) (*tb.max_lun) --;
 #endif
             logf("ums: getmaxlun");
-            usb_drv_control_response(USB_CONTROL_ACK, tb.max_lun, 1);
+            usb_drv_recv(EP_CONTROL, NULL, 0); /* ack */
+            usb_drv_send(EP_CONTROL, tb.max_lun, 1);
             handled = true;
             break;
         }
@@ -696,7 +701,7 @@ bool usb_storage_control_request(struct usb_ctrlrequest* req, void* reqdata, uns
             usb_drv_reset_endpoint(ep_in, false);
             usb_drv_reset_endpoint(ep_out, true);
 #endif
-            usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
+            usb_drv_send(EP_CONTROL, NULL, 0);  /* ack */
             handled = true;
             break;
     }
@@ -742,10 +747,12 @@ static void send_and_read_next(void)
 
 static void handle_scsi(struct command_block_wrapper* cbw)
 {
+    /* USB Mass Storage assumes LBA capability.
+       TODO: support 48-bit LBA */
+
     struct storage_info info;
     unsigned int length = cbw->data_transfer_length;
-    sector_t block_count;
-    unsigned int block_size;
+    unsigned int block_size, block_count;
     bool lun_present=true;
     unsigned char lun = cbw->lun;
     unsigned int block_size_mult = 1;
@@ -889,12 +896,6 @@ static void handle_scsi(struct command_block_wrapper* cbw)
                     memset(tb.ms_data_10->block_descriptor.reserved,0,4);
                     memset(tb.ms_data_10->block_descriptor.num_blocks,0,8);
 
-#ifdef STORAGE_64BIT_SECTOR
-                    tb.ms_data_10->block_descriptor.num_blocks[2] =
-                        ((block_count/block_size_mult) & 0xff00000000ULL)>>40;
-                    tb.ms_data_10->block_descriptor.num_blocks[3] =
-                        ((block_count/block_size_mult) & 0x00ff000000ULL)>>32;
-#endif
                     tb.ms_data_10->block_descriptor.num_blocks[4] =
                         ((block_count/block_size_mult) & 0xff000000)>>24;
                     tb.ms_data_10->block_descriptor.num_blocks[5] =
@@ -1077,7 +1078,7 @@ static void handle_scsi(struct command_block_wrapper* cbw)
                  cbw->command_block[8]);
             cur_cmd.orig_count = cur_cmd.count;
 
-            logf("scsi read %llu %d", cur_cmd.sector, cur_cmd.count);
+            //logf("scsi read %d %d", cur_cmd.sector, cur_cmd.count);
 
             if((cur_cmd.sector + cur_cmd.count) > block_count) {
                 send_csw(UMS_STATUS_FAIL);
@@ -1099,58 +1100,7 @@ static void handle_scsi(struct command_block_wrapper* cbw)
                 send_and_read_next();
             }
             break;
-#ifdef STORAGE_64BIT_SECTOR
-        case SCSI_READ_16:
-            logf("scsi read16 %d",lun);
-            if(!lun_present) {
-                send_command_failed_result();
-                cur_sense_data.sense_key=SENSE_NOT_READY;
-                cur_sense_data.asc=ASC_MEDIUM_NOT_PRESENT;
-                cur_sense_data.ascq=0;
-                break;
-            }
-            cur_cmd.data[0] = tb.transfer_buffer;
-            cur_cmd.data[1] = &tb.transfer_buffer[READ_BUFFER_SIZE];
-            cur_cmd.data_select=0;
-            cur_cmd.sector = block_size_mult *
-                 ((uint64_t)cbw->command_block[2] << 56 |
-                 (uint64_t)cbw->command_block[3] << 48 |
-                 (uint64_t)cbw->command_block[4] << 40 |
-                 (uint64_t)cbw->command_block[5] << 32 |
-                 cbw->command_block[6] << 24 |
-                 cbw->command_block[7] << 16 |
-                 cbw->command_block[8] << 8  |
-                 cbw->command_block[9]);
-            cur_cmd.count = block_size_mult *
-                (cbw->command_block[10] << 24 |
-                 cbw->command_block[11] << 16 |
-                 cbw->command_block[12] << 8 |
-                 cbw->command_block[13]);
-            cur_cmd.orig_count = cur_cmd.count;
 
-            logf("scsi read %llu %d", cur_cmd.sector, cur_cmd.count);
-
-            if((cur_cmd.sector + cur_cmd.count) > block_count) {
-                send_csw(UMS_STATUS_FAIL);
-                cur_sense_data.sense_key=SENSE_ILLEGAL_REQUEST;
-                cur_sense_data.asc=ASC_LBA_OUT_OF_RANGE;
-                cur_sense_data.ascq=0;
-            }
-            else {
-#ifdef USB_USE_RAMDISK
-                memcpy(cur_cmd.data[cur_cmd.data_select],
-                        ramdisk_buffer + cur_cmd.sector*SECTOR_SIZE,
-                        MIN(READ_BUFFER_SIZE/SECTOR_SIZE,cur_cmd.count)*SECTOR_SIZE);
-#else
-                cur_cmd.last_result = storage_read_sectors(IF_MD(cur_cmd.lun,)
-                        cur_cmd.sector,
-                        MIN(READ_BUFFER_SIZE/SECTOR_SIZE, cur_cmd.count),
-                        cur_cmd.data[cur_cmd.data_select]);
-#endif
-                send_and_read_next();
-            }
-            break;
-#endif
         case SCSI_WRITE_10:
             logf("scsi write10 %d",lun);
             if(!lun_present) {
@@ -1185,48 +1135,6 @@ static void handle_scsi(struct command_block_wrapper* cbw)
                         MIN(WRITE_BUFFER_SIZE, cur_cmd.count*SECTOR_SIZE));
             }
             break;
-#ifdef STORAGE_64BIT_SECTOR
-        case SCSI_WRITE_16:
-            logf("scsi write16 %d",lun);
-            if(!lun_present) {
-                send_csw(UMS_STATUS_FAIL);
-                cur_sense_data.sense_key=SENSE_NOT_READY;
-                cur_sense_data.asc=ASC_MEDIUM_NOT_PRESENT;
-                cur_sense_data.ascq=0;
-                break;
-            }
-            cur_cmd.data[0] = tb.transfer_buffer;
-            cur_cmd.data[1] = &tb.transfer_buffer[WRITE_BUFFER_SIZE];
-            cur_cmd.data_select=0;
-            cur_cmd.sector = block_size_mult *
-                ((uint64_t)cbw->command_block[2] << 56 |
-                 (uint64_t)cbw->command_block[3] << 48 |
-                 (uint64_t)cbw->command_block[4] << 40 |
-                 (uint64_t)cbw->command_block[5] << 32 |
-                 cbw->command_block[6] << 24 |
-                 cbw->command_block[7] << 16 |
-                 cbw->command_block[8] << 8  |
-                 cbw->command_block[9]);
-            cur_cmd.count = block_size_mult *
-                (cbw->command_block[10] << 24 |
-                 cbw->command_block[11] << 16 |
-                 cbw->command_block[12] << 8 |
-                 cbw->command_block[13]);
-            cur_cmd.orig_count = cur_cmd.count;
-
-            /* expect data */
-            if((cur_cmd.sector + cur_cmd.count) > block_count) {
-                send_csw(UMS_STATUS_FAIL);
-                cur_sense_data.sense_key=SENSE_ILLEGAL_REQUEST;
-                cur_sense_data.asc=ASC_LBA_OUT_OF_RANGE;
-                cur_sense_data.ascq=0;
-            }
-            else {
-                receive_block_data(cur_cmd.data[0],
-                        MIN(WRITE_BUFFER_SIZE, cur_cmd.count*SECTOR_SIZE));
-            }
-            break;
-#endif
 
 #if CONFIG_RTC
         case SCSI_WRITE_BUFFER:
@@ -1279,14 +1187,14 @@ static void send_command_failed_result(void)
 #if CONFIG_RTC
 static void receive_time(void)
 {
-    usb_drv_recv_nonblocking(ep_out, tb.transfer_buffer, 12);
+    usb_drv_recv(ep_out, tb.transfer_buffer, 12);
     state = RECEIVING_TIME;
 }
 #endif /* CONFIG_RTC */
 
 static void receive_block_data(void *data,int size)
 {
-    usb_drv_recv_nonblocking(ep_out, data, size);
+    usb_drv_recv(ep_out, data, size);
     state = RECEIVING_BLOCKS;
 }
 
@@ -1302,7 +1210,7 @@ static void send_csw(int status)
     state = WAITING_FOR_CSW_COMPLETION_OR_COMMAND;
     //logf("CSW: %X",status);
     /* Already start waiting for the next command */
-    usb_drv_recv_nonblocking(ep_out, cbw_buffer, MAX_CBW_SIZE);
+    usb_drv_recv(ep_out, cbw_buffer, MAX_CBW_SIZE);
     /* The next completed transfer will be either the CSW one
      * or the new command */
 
@@ -1337,7 +1245,7 @@ static void fill_inquiry(IF_MD_NONVOID(int lun))
 
     tb.inquiry->DeviceType = DIRECT_ACCESS_DEVICE;
     tb.inquiry->AdditionalLength = 0x1f;
-//    memset(tb.inquiry->Reserved, 0, sizeof(tb.inquiry->Reserved)); // Redundant
+    memset(tb.inquiry->Reserved, 0, 3);
     tb.inquiry->Versions = 4; /* SPC-2 */
     tb.inquiry->Format = 2; /* SPC-2/3 inquiry format */
 

@@ -12,8 +12,8 @@
 /*define this if the ATA controller and method of USB access support LBA48 */
 #define HAVE_LBA48
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have access to the quickscreen */
 #define HAVE_QUICKSCREEN
@@ -67,8 +67,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #ifndef BOOTLOADER
@@ -192,6 +192,12 @@
 #define BOOTFILE_EXT    "mi4"
 #define BOOTFILE        "rockbox." BOOTFILE_EXT
 #define BOOTDIR         "/.rockbox"
+
+/* Offset ( in the firmware file's header ) to the file CRC and data.
+   Not used for the mrobe 100, since it boots an mi4 file, but needed
+   for compatibility. */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x0
 
 #define ICODE_ATTR_TREMOR_NOT_MDCT
 

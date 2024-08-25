@@ -41,8 +41,8 @@
 /*define this if the ATA controller and method of USB access support LBA48 */
 #define HAVE_LBA48
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -80,8 +80,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 //#define CONFIG_RTC RTC_RX5X348AB
@@ -147,6 +147,12 @@
 
 /* Define this if you have ATA power-off control */
 #define HAVE_ATA_POWER_OFF
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you have adjustable CPU frequency */
 /* #define HAVE_ADJUSTABLE_CPU_FREQ */

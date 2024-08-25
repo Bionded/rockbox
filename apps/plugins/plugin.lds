@@ -6,6 +6,8 @@
 OUTPUT_FORMAT(elf32-m68k)
 #elif defined(CPU_ARM)
 OUTPUT_FORMAT(elf32-littlearm)
+#elif defined(CPU_SH)
+OUTPUT_FORMAT(elf32-sh)
 #elif defined(CPU_MIPS)
 OUTPUT_FORMAT(elf32-littlemips)
 #else
@@ -36,6 +38,7 @@ OUTPUT_FORMAT(elf32-littlemips)
 
 #elif CONFIG_CPU==DM320
 
+/* Give this 1 meg to allow it to align to the MMU boundary */
 #ifndef LCD_NATIVE_WIDTH
 #define LCD_NATIVE_WIDTH LCD_WIDTH
 #endif
@@ -44,24 +47,16 @@ OUTPUT_FORMAT(elf32-littlemips)
 #define LCD_NATIVE_HEIGHT LCD_HEIGHT
 #endif
 
-#ifdef MROBE_500
-/* Give this 1 meg to allow it to align to the MMU boundary */
 #define LCD_FUDGE       LCD_NATIVE_WIDTH%32
-#define LCD_BUFFER_SIZE ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
+#define LCD_BUFFER_SIZE  ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
 #define LCD_TTB_AREA    0x100000*((LCD_BUFFER_SIZE>>19)+1)
-#else
-/* must be 16Kb (0x4000) aligned */
-#define TTB_SIZE        (0x4000)
-#define LCD_BUFFER_SIZE (LCD_NATIVE_WIDTH*LCD_NATIVE_HEIGHT*2)
-#define LCD_TTB_AREA    (TTB_SIZE + LCD_BUFFER_SIZE)
-#endif
 
 #define DRAMSIZE (MEMORYSIZE * 0x100000) - STUBOFFSET - PLUGIN_BUFFER_SIZE - CODEC_SIZE - LCD_TTB_AREA
 
 #elif CONFIG_CPU==S3C2440
 #include "cpu.h"
 /* must be 16Kb (0x4000) aligned */
-#define TTB_SIZE         (0x4000)
+#define TTB_SIZE         (0x4000) 
 #define DRAMSIZE (MEMORYSIZE * 0x100000) - STUBOFFSET - PLUGIN_BUFFER_SIZE - CODEC_SIZE - LCD_BUFFER_SIZE - TTB_SIZE
 
 #elif CONFIG_CPU==TCC7801
@@ -83,10 +78,6 @@ OUTPUT_FORMAT(elf32-littlemips)
 #elif CONFIG_CPU==IMX233
 #include "cpu.h"
 #define DRAMSIZE (DRAM_SIZE - PLUGIN_BUFFER_SIZE - CODEC_SIZE - FRAME_SIZE - TTB_SIZE)
-#elif CONFIG_CPU==X1000
-#include "cpu.h"
-#undef STUBOFFSET
-#define DRAMSIZE (X1000_DRAM_SIZE - PLUGIN_BUFFER_SIZE - CODEC_SIZE)
 #endif
 
  /* default to full RAM (minus codecs&plugins) unless specified otherwise */
@@ -134,7 +125,7 @@ OUTPUT_FORMAT(elf32-littlemips)
 /* The bit of IRAM that is available is used in the core */
 #define IRAMSIZE 0
 
-#elif defined(CPU_TCC780X)
+#elif defined(CPU_TCC780X) || defined(CPU_TCC77X)
 #define DRAMORIG 0x20000000
 #if CONFIG_CPU==TCC7801
 #define IRAMORIG 0x1000c000
@@ -184,11 +175,6 @@ OUTPUT_FORMAT(elf32-littlemips)
 #define IRAM DRAM
 #define IRAMSIZE 0
 /* The bit of IRAM that is available is used in the core */
-
-#elif CONFIG_CPU == X1000
-#define DRAMORIG X1000_DRAM_BASE
-#define IRAM DRAM
-#define IRAMSIZE 0
 
 #elif CONFIG_CPU == RK27XX
 #define DRAMORIG 0x60000000
@@ -279,7 +265,7 @@ SECTIONS
         *(.idata)
 #endif
     } > PLUGIN_RAM
-
+    
 #if NOCACHE_BASE != 0
     .ncdata . + NOCACHE_BASE :
     {
@@ -288,7 +274,7 @@ SECTIONS
         . = ALIGN(CACHEALIGN_SIZE);
 /* EABI currently needs these defined here, otherwise .iram and .bss can
    sometimes have an incorrect load address, breaking codecs and plugins. */
-        bssaddr = . - NOCACHE_BASE;
+        bssaddr = . - NOCACHE_BASE; 
 #if defined(IRAMSIZE) && IRAMSIZE != 0
         iramcopy = . - NOCACHE_BASE;
 #endif
@@ -306,7 +292,6 @@ SECTIONS
     {
         *(.eh_frame)
 #ifdef CPU_MIPS
-        *(.MIPS.abiflags)
         *(.rel.dyn)
 #endif
     }
@@ -322,7 +307,7 @@ SECTIONS
         *(COMMON)
         . = ALIGN(0x4);
     } > PLUGIN_RAM
-
+    
 #if NOCACHE_BASE != 0
     .ncbss . + NOCACHE_BASE (NOLOAD) :
     {
@@ -362,7 +347,7 @@ SECTIONS
         . = ALIGN(0x4);
         iend = .;
     } > PLUGIN_IRAM
-
+    
     loadendaddr = MAX(plugin_end_addr, LOADADDR(.iram) + SIZEOF(.iram));
 #else
     loadendaddr = plugin_end_addr;

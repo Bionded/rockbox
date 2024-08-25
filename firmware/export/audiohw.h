@@ -41,7 +41,6 @@
 #define LIN_GAIN_CAP          (1 << 11)
 #define MIC_GAIN_CAP          (1 << 12)
 #define FILTER_ROLL_OFF_CAP   (1 << 13)
-#define POWER_MODE_CAP        (1 << 14)
 
 /* Used by every driver to export its min/max/default values for its audio
    settings. */
@@ -185,6 +184,8 @@ struct sound_settings_info
 #include "tlv320.h"
 #elif defined(HAVE_AS3514)
 #include "as3514.h"
+#elif defined(HAVE_MAS35XX)
+#include "mas35xx.h"
 #if defined(HAVE_DAC3550A)
 #include "dac3550a.h"
 #endif /* HAVE_DAC3550A */
@@ -192,12 +193,8 @@ struct sound_settings_info
 #include "tsc2100.h"
 #elif defined(HAVE_JZ4740_CODEC)
 #include "jz4740-codec.h"
-#elif defined(HAVE_X1000_ICODEC_PLAY)
-#include "x1000-codec.h"
 #elif defined(HAVE_AK4537)
 #include "ak4537.h"
-#elif defined(HAVE_AK4376)
-#include "ak4376.h"
 #elif defined(HAVE_RK27XX_CODEC)
 #include "rk27xx_codec.h"
 #elif defined(HAVE_AIC3X)
@@ -212,18 +209,13 @@ struct sound_settings_info
 #include "df1704.h"
 #elif defined(HAVE_PCM1792_CODEC)
 #include "pcm1792.h"
-#elif defined(HAVE_EROS_QN_CODEC)
-#include "eros_qn_codec.h"
-#include "es9018k2m.h"
 #elif defined(HAVE_NWZ_LINUX_CODEC)
 #include "nwzlinux_codec.h"
 #elif defined(HAVE_CS4398)
 #include "cs4398.h"
 #elif defined(HAVE_ES9018)
 #include "es9018.h"
-#elif defined(HAVE_ES9218)
-#include "es9218.h"
-#elif (CONFIG_PLATFORM & (PLATFORM_ANDROID | PLATFORM_MAEMO \
+#elif (CONFIG_PLATFORM & (PLATFORM_ANDROID | PLATFORM_MAEMO\
        | PLATFORM_PANDORA | PLATFORM_SDL))
 #include "hosted_codec.h"
 #elif defined(DX50)
@@ -232,17 +224,6 @@ struct sound_settings_info
 #include "codec-dx90.h"
 #elif defined(HAVE_ROCKER_CODEC)
 #include "rocker_codec.h"
-#elif defined(HAVE_XDUOO_LINUX_CODEC)
-#include "xduoolinux_codec.h"
-#elif defined(HAVE_FIIO_LINUX_CODEC)
-#include "fiiolinux_codec.h"
-#elif defined(HAVE_EROSQ_LINUX_CODEC)
-#include "erosqlinux_codec.h"
-#endif
-
-#if defined(HAVE_X1000_ICODEC_REC) && !defined(HAVE_X1000_ICODEC_PLAY)
-/* Targets may have an external DAC above, but use icodec for recording only */
-#include "x1000-codec.h"
 #endif
 
 /* convert caps into defines */
@@ -404,10 +385,6 @@ enum AUDIOHW_EQ_SETTINGS
 
 #if (AUDIOHW_CAPS & FILTER_ROLL_OFF_CAP)
 #define AUDIOHW_HAVE_FILTER_ROLL_OFF
-#endif
-
-#if (AUDIOHW_CAPS & POWER_MODE_CAP)
-#define AUDIOHW_HAVE_POWER_MODE
 #endif
 
 #endif /* AUDIOHW_CAPS */
@@ -605,22 +582,6 @@ void audiohw_set_depth_3d(int val);
 void audiohw_set_filter_roll_off(int val);
 #endif
 
-#ifdef AUDIOHW_HAVE_POWER_MODE
-enum audiohw_power_mode
-{
-    SOUND_HIGH_POWER = 0,
-    SOUND_LOW_POWER,
-};
-
-/**
- * Set DAC's power saving mode.
- * @param enable 0 - highest performance, 1 - battery saving
- * NOTE: AUDIOHW_CAPS need to contain
- *          POWER_MODE_CAP
- */
-void audiohw_set_power_mode(int mode);
-#endif
-
 void audiohw_set_frequency(int fsel);
 
 #ifdef HAVE_RECORDING
@@ -681,7 +642,7 @@ void audiohw_set_pitch(int32_t val);
 
 /**
  * Return the set pitch ratio
- */
+ */ 
 int32_t audiohw_get_pitch(void);
 #endif /* HAVE_PITCHCONTROL */
 
@@ -705,10 +666,5 @@ AUDIOHW_SETTING(TREBLE,      "dB", 0, 1,  -24,  24,   0)
 AUDIOHW_SETTING(BALANCE,      "%", 0, 1, -100, 100,   0)
 AUDIOHW_SETTING(CHANNELS,      "", 0, 1,    0,   5,   0)
 AUDIOHW_SETTING(STEREO_WIDTH, "%", 0, 5,    0, 250, 100)
-
-/* if not otherwise defined, set to 16 */
-#if !defined(PCM_NATIVE_BITDEPTH)
-# define PCM_NATIVE_BITDEPTH 16
-#endif
 
 #endif /* _AUDIOHW_H_ */

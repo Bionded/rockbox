@@ -38,7 +38,6 @@ struct entry {
 #define BROWSE_SELECTONLY       0x0001  /* exit on selecting a file */
 #define BROWSE_NO_CONTEXT_MENU  0x0002  /* disable context menu */
 #define BROWSE_RUNFILE          0x0004  /* do ft_open() on the file instead of browsing */
-#define BROWSE_DIRFILTER        0x0080  /* override global_settings.dirfilter with browse_context.dirfilter */
 #define BROWSE_SELECTED         0x0100  /* this bit is set if user selected item */
 
 
@@ -53,6 +52,7 @@ struct tree_cache {
     int     name_buffer_handle;     /* handle to the name cache */
     int     max_entries;            /* Max entries in the cache */
     int     name_buffer_size;       /* in bytes */
+    volatile int lock_count;        /* non-0 if buffers may not move */
 };
 
 struct browse_context {
@@ -82,20 +82,23 @@ struct tree_context {
      * (used when we want to return back to a previouws directory)*/
     int selected_item_history[MAX_DIR_LEVELS];
 
+    int firstpos; /* which dir entry is on first
+                     position in dir buffer */
+    int pos_history[MAX_DIR_LEVELS];
+
     int *dirfilter; /* file use */
     int filesindir; /* The number of files in the dircache */
     int dirsindir; /* file use */
     int dirlength; /* total number of entries in dir, incl. those not loaded */
 #ifdef HAVE_TAGCACHE
+    int table_history[MAX_DIR_LEVELS]; /* db use */
+    int extra_history[MAX_DIR_LEVELS]; /* db use */
     int currtable; /* db use */
     int currextra; /* db use */
 #endif
-    int sort_dir; /* directory sort order */
-    int out_of_tree; /* shortcut from elsewhere */
     struct tree_cache cache;
     bool dirfull;
-    bool is_browsing; /* valid browse context? */
-
+    int sort_dir; /* directory sort order */
     struct browse_context *browse;
 };
 
@@ -106,17 +109,25 @@ struct entry* tree_get_entries(struct tree_context *t);
 struct entry* tree_get_entry_at(struct tree_context *t, int index);
 
 void tree_mem_init(void) INIT_ATTR;
-void tree_init(void) INIT_ATTR;
+void tree_gui_init(void) INIT_ATTR;
 char* get_current_file(char* buffer, size_t buffer_len);
 void set_dirfilter(int l_dirfilter);
 void set_current_file(const char *path);
+void browse_context_init(struct browse_context *browse,
+                         int dirfilter, unsigned flags,
+                         char *title, enum themable_icons icon,
+                         const char *root, const char *selected);
 int rockbox_browse(struct browse_context *browse);
 int create_playlist(void);
 void resume_directory(const char *dir);
-
-void tree_lock_cache(struct tree_context *t);
-void tree_unlock_cache(struct tree_context *t);
-
+static inline void tree_lock_cache(struct tree_context *t)
+{
+    t->cache.lock_count++;
+}
+static inline void tree_unlock_cache(struct tree_context *t)
+{
+    t->cache.lock_count--;
+}
 #ifdef WIN32
 /* it takes an int on windows */
 #define getcwd_size_t int
@@ -133,4 +144,5 @@ void tree_restore(void);
 bool bookmark_play(char* resume_file, int index, unsigned long elapsed,
                    unsigned long offset, int seed, char *filename);
 
+extern struct gui_synclist tree_lists;
 #endif

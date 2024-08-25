@@ -23,6 +23,7 @@
 #ifndef __RADIO_YPR0_H__
 #define __RADIO_YPR0_H__
 
+#include "si4709.h"
 #include "stdint.h"
 #include "rds.h"
 #include "si4700.h"

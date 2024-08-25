@@ -154,9 +154,8 @@ static void grey_update_clip_rect(void)
 }
 
 /* Set current grey viewport for draw routines */
-struct viewport *grey_set_viewport(struct viewport *vp)
+void grey_set_viewport(struct viewport *vp)
 {
-    struct viewport *last_vp = _grey_info.vp;
     if (vp == NULL)
         vp = &_grey_default_vp;
 
@@ -165,7 +164,6 @@ struct viewport *grey_set_viewport(struct viewport *vp)
         _grey_info.vp = vp;
         grey_update_clip_rect();
     }
-    return last_vp; 
 }
 
 /* Set viewport to default settings */

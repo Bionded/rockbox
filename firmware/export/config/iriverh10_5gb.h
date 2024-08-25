@@ -26,8 +26,8 @@
 #define REC_SAMPR_CAPS  (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -62,8 +62,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #ifndef BOOTLOADER
@@ -146,6 +146,14 @@
 
 /* We're able to shut off power to the HDD */
 #define HAVE_ATA_POWER_OFF
+
+/* Offset ( in the firmware file's header ) to the file length */
+#define FIRMWARE_OFFSET_FILE_LENGTH 0x8
+
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.h10 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

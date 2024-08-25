@@ -24,7 +24,7 @@ Snake!
 
 by Itai Shaked
 
-ok, a little explanation -
+ok, a little explanation - 
 board holds the snake and apple position - 1+ - snake body (the number
 represents the age [1 is the snake's head]).
 -1 is an apple, and 0 is a clear spot.
@@ -41,8 +41,32 @@ dir is the current direction of the snake - 0=up, 1=right, 2=down, 3=left;
 
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define SNAKE_QUIT BUTTON_OFF
+#define SNAKE_LEFT BUTTON_LEFT
+#define SNAKE_RIGHT BUTTON_RIGHT
+#define SNAKE_UP   BUTTON_UP
+#define SNAKE_DOWN BUTTON_DOWN
+#define SNAKE_PLAYPAUSE BUTTON_PLAY
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define SNAKE_QUIT BUTTON_OFF
+#define SNAKE_LEFT BUTTON_LEFT
+#define SNAKE_RIGHT BUTTON_RIGHT
+#define SNAKE_UP   BUTTON_UP
+#define SNAKE_DOWN BUTTON_DOWN
+#define SNAKE_PLAYPAUSE BUTTON_SELECT
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define SNAKE_QUIT BUTTON_OFF
+#define SNAKE_LEFT BUTTON_LEFT
+#define SNAKE_RIGHT BUTTON_RIGHT
+#define SNAKE_UP   BUTTON_UP
+#define SNAKE_DOWN BUTTON_DOWN
+#define SNAKE_PLAYPAUSE BUTTON_MENU
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define SNAKE_QUIT BUTTON_OFF
 #define SNAKE_LEFT BUTTON_LEFT
 #define SNAKE_RIGHT BUTTON_RIGHT
@@ -55,12 +79,12 @@ dir is the current direction of the snake - 0=up, 1=right, 2=down, 3=left;
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define SNAKE_QUIT (BUTTON_SELECT|BUTTON_REPEAT)
+#define SNAKE_QUIT (BUTTON_SELECT|BUTTON_MENU)
 #define SNAKE_LEFT BUTTON_LEFT
 #define SNAKE_RIGHT BUTTON_RIGHT
 #define SNAKE_UP   BUTTON_MENU
 #define SNAKE_DOWN BUTTON_PLAY
-#define SNAKE_PLAYPAUSE (BUTTON_SELECT|BUTTON_REL)
+#define SNAKE_PLAYPAUSE BUTTON_SELECT
 
 #elif (CONFIG_KEYPAD == IAUDIO_X5M5_PAD)
 #define SNAKE_QUIT BUTTON_POWER
@@ -273,23 +297,7 @@ dir is the current direction of the snake - 0=up, 1=right, 2=down, 3=left;
 #define SNAKE_DOWN      BUTTON_OPTION
 #define SNAKE_PLAYPAUSE BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define SNAKE_QUIT      BUTTON_POWER
-#define SNAKE_LEFT      BUTTON_PREV
-#define SNAKE_RIGHT     BUTTON_NEXT
-#define SNAKE_UP        BUTTON_HOME
-#define SNAKE_DOWN      BUTTON_OPTION
-#define SNAKE_PLAYPAUSE BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define SNAKE_QUIT      BUTTON_POWER
-#define SNAKE_LEFT      BUTTON_PREV
-#define SNAKE_RIGHT     BUTTON_NEXT
-#define SNAKE_UP        BUTTON_HOME
-#define SNAKE_DOWN      BUTTON_OPTION
-#define SNAKE_PLAYPAUSE BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define SNAKE_QUIT      BUTTON_POWER
 #define SNAKE_LEFT      BUTTON_HOME
 #define SNAKE_RIGHT     BUTTON_VOL_DOWN
@@ -297,24 +305,13 @@ dir is the current direction of the snake - 0=up, 1=right, 2=down, 3=left;
 #define SNAKE_DOWN      BUTTON_NEXT
 #define SNAKE_PLAYPAUSE BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define SNAKE_QUIT      BUTTON_POWER
-#define SNAKE_LEFT      BUTTON_SCROLL_BACK
-#define SNAKE_RIGHT     BUTTON_SCROLL_FWD
+#define SNAKE_LEFT      BUTTON_HOME
+#define SNAKE_RIGHT     BUTTON_VOL_DOWN
 #define SNAKE_UP        BUTTON_PREV
 #define SNAKE_DOWN      BUTTON_NEXT
 #define SNAKE_PLAYPAUSE BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define SNAKE_QUIT      BUTTON_POWER
-#define SNAKE_LEFT      BUTTON_LEFT
-#define SNAKE_RIGHT     BUTTON_RIGHT
-#define SNAKE_UP        BUTTON_UP
-#define SNAKE_DOWN      BUTTON_DOWN
-#define SNAKE_PLAYPAUSE BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -491,11 +488,8 @@ static void snake_game_init(void) {
     board[11][7]=1;
 }
 
-static int snake_menu_cb(int action,
-                         const struct menu_item_ex *this_item,
-                         struct gui_synclist *this_list)
+static int snake_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     if(action == ACTION_REQUEST_MENUITEM
        && !ingame && ((intptr_t)this_item)==0)
         return ACTION_EXIT_MENUITEM;

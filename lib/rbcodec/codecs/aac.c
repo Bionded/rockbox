@@ -28,7 +28,7 @@
 CODEC_HEADER
 
 /* The maximum buffer size handled by faad. 12 bytes are required by libfaad
- * as headroom (see libfaad/bits.c). FAAD_BYTE_BUFFER_SIZE bytes are buffered
+ * as headroom (see libfaad/bits.c). FAAD_BYTE_BUFFER_SIZE bytes are buffered 
  * for each frame. */
 #define FAAD_BYTE_BUFFER_SIZE (2048-12)
 
@@ -56,13 +56,13 @@ enum codec_status codec_run(void)
     size_t n;
     demux_res_t demux_res;
     stream_t input_stream;
-    uint64_t sound_samples_done;
+    uint32_t sound_samples_done;
     uint32_t elapsed_time;
     int file_offset;
     int framelength;
     int lead_trim = 0;
     unsigned int frame_samples;
-    uint32_t i;
+    unsigned int i;
     unsigned char* buffer;
     NeAACDecFrameInfo frame_info;
     NeAACDecHandle decoder;
@@ -92,7 +92,7 @@ enum codec_status codec_run(void)
 
     stream_create(&input_stream,ci);
 
-    ci->seek_buffer(0);
+    ci->seek_buffer(ci->id3->first_frame_offset);
 
     /* if qtmovie_read returns successfully, the stream is up to
      * the movie data, which can be used directly by the decoder */
@@ -129,30 +129,30 @@ enum codec_status codec_run(void)
 #endif
 
     i = 0;
-
-    if (param) {
-        elapsed_time = param;
-        action = CODEC_ACTION_SEEK_TIME;
-    } else if (file_offset > 0) {
+    
+    if (file_offset > 0) {
         /* Resume the desired (byte) position. Important: When resuming SBR
-         * upsampling files the resulting sound_samples_done must be expanded
+         * upsampling files the resulting sound_samples_done must be expanded 
          * by a factor of 2. This is done via using sbr_fac. */
         if (m4a_seek_raw(&demux_res, &input_stream, file_offset,
-                         &sound_samples_done, &i, &seek_idx)) {
+                          &sound_samples_done, (int*) &i)) {
             sound_samples_done *= sbr_fac;
         } else {
             sound_samples_done = 0;
         }
         NeAACDecPostSeekReset(decoder, i);
         elapsed_time = sound_samples_done * 1000LL / ci->id3->frequency;
+    } else if (param) {
+        elapsed_time = param;
+        action = CODEC_ACTION_SEEK_TIME;
     } else {
         elapsed_time = 0;
         sound_samples_done = 0;
     }
 
     ci->set_elapsed(elapsed_time);
-
-    if (i == 0)
+    
+    if (i == 0) 
     {
         lead_trim = ci->id3->lead_trim;
     }
@@ -168,43 +168,46 @@ enum codec_status codec_run(void)
         /* Deal with any pending seek requests */
         if (action == CODEC_ACTION_SEEK_TIME) {
             /* Seek to the desired time position. Important: When seeking in SBR
-             * upsampling files the seek_time must be divided by 2 when calling
-             * m4a_seek and the resulting sound_samples_done must be expanded
+             * upsampling files the seek_time must be divided by 2 when calling 
+             * m4a_seek and the resulting sound_samples_done must be expanded 
              * by a factor 2. This is done via using sbr_fac. */
             if (m4a_seek(&demux_res, &input_stream,
-                         (uint64_t) param * ci->id3->frequency / sbr_fac / 1000ULL,
-                         &sound_samples_done, &i, &seek_idx)) {
+                          (param/10/sbr_fac)*(ci->id3->frequency/100),
+                          &sound_samples_done, (int*) &i)) {
                 sound_samples_done *= sbr_fac;
                 elapsed_time = sound_samples_done * 1000LL / ci->id3->frequency;
                 ci->set_elapsed(elapsed_time);
+                seek_idx = 0;
 
-                if (i == 0)
+                if (i == 0) 
                 {
                     lead_trim = ci->id3->lead_trim;
                 }
             }
             NeAACDecPostSeekReset(decoder, i);
             ci->seek_complete();
-            if (i >= demux_res.num_sample_byte_sizes)
-                break;
         }
 
         action = CODEC_ACTION_NULL;
 
         /* There can be gaps between chunks, so skip ahead if needed. It
-         * doesn't seem to happen much, but it probably means that a
+         * doesn't seem to happen much, but it probably means that a 
          * "proper" file can have chunks out of order. Why one would want
-         * that an good question (but files with gaps do exist, so who
-         * knows?), and we might not properly support it.
-         * Metadata can also be placed after audio data so skip back if needed.
+         * that an good question (but files with gaps do exist, so who 
+         * knows?), so we don't support that - for now, at least.
          */
         file_offset = m4a_check_sample_offset(&demux_res, i, &seek_idx);
 
-        if (file_offset > 0 && file_offset != ci->curpos)
+        if (file_offset > ci->curpos)
         {
-            ci->seek_buffer(file_offset);
+            ci->advance_buffer(file_offset - ci->curpos);
         }
-
+        else if (file_offset == 0)
+        {
+            LOGF("AAC: get_sample_offset error\n");
+            return CODEC_ERROR;
+        }
+        
         /* Request the required number of bytes from the input buffer */
         buffer=ci->request_buffer(&n, FAAD_BYTE_BUFFER_SIZE);
 
@@ -214,11 +217,7 @@ enum codec_status codec_run(void)
         /* NeAACDecDecode may sometimes return NULL without setting error. */
         if (ret == NULL || frame_info.error > 0) {
             LOGF("FAAD: decode error '%s'\n", NeAACDecGetErrorMessage(frame_info.error));
-
-            // In files with gaps between chunks and reduced lookup_table we can't properly detect all gaps
-            // in m4a_check_sample_offset.  So just ignore decode errors till next chunk present in lookup_table 
-            if (file_offset > 0)
-                return CODEC_ERROR;
+            return CODEC_ERROR;
         }
 
         /* Advance codec buffer (no need to call set_offset because of this) */
@@ -226,7 +225,7 @@ enum codec_status codec_run(void)
 
         /* Output the audio */
         ci->yield();
-
+        
         frame_samples = frame_info.samples >> 1;
 
         if (empty_first_frame)
@@ -245,7 +244,7 @@ enum codec_status codec_run(void)
 
         /* Gather number of samples for the decoded frame. */
         framelength = frame_samples - lead_trim;
-
+        
         if (i == demux_res.num_sample_byte_sizes - 1)
         {
             // Size of the last frame

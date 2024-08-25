@@ -2,8 +2,8 @@
  * loopgen.h: interface file for loop generation functions for grid.[ch].
  */
 
-#ifndef PUZZLES_LOOPGEN_H
-#define PUZZLES_LOOPGEN_H
+#ifndef _LOOPGEN_H
+#define _LOOPGEN_H
 
 #include "puzzles.h"
 #include "grid.h"
@@ -13,7 +13,7 @@ enum face_colour { FACE_WHITE, FACE_GREY, FACE_BLACK };
 /* face should be of type grid_face* here. */
 #define FACE_COLOUR(face) \
     ( (face) == NULL ? FACE_BLACK : \
-	  board[(face)->index] )
+	  board[(face) - g->faces] )
 
 typedef int (*loopgen_bias_fn_t)(void *ctx, char *board, int face);
 

@@ -16,10 +16,17 @@ my $LANGUAGE_COOKIE   = 0x1a;
 my $VOICE_COOKIE      = 0x9a;
 my $LANGUAGE_VERSION  = 0x06;
 my $LANGUAGE_FLAG_RTL = 0x01;
-my $LANGUAGE_FLAG_UNITS_FIRST = 0x02;
 
 my $HEADER_SIZE       = 4;
 my $SUBHEADER_SIZE    = 6;
+
+# A note for future users and readers: The original v1 language system allowed
+# the build to create and use a different language than english built-in. We
+# removed that feature from our build-system, but the build scripts still had
+# the ability. But, starting now, this ability is no longer provided since I
+# figured it was boring and unnecessary to write support for now since we
+# don't use it anymore.
+   
 
 if(!$ARGV[0]) {
     print <<MOO
@@ -36,9 +43,18 @@ Usage: genlang [options] <langv2 file>
     Create binary voicestring file named [outfile]. Works like -b and can be
     used the same time.
 
+ -u
+    Update language file. Given the translated file and the most recent english
+    file, you\'ll get an updated version sent to stdout. Suitable action to do
+    when you intend to update a translation.
+
  -e=<english lang file>
     Point out the english (original source) file, to use that as master
-    language template. Used in combination with -b.
+    language template. Used in combination with -b, -u or -s.
+
+ -s
+    Sort the Update language file in the same order as the strings in the
+    English file.
 
  -t=<target>
     Specify which target you want the translations/phrases for. Required when
@@ -61,26 +77,42 @@ MOO
     exit;
 }
 
+# How update works:
+#
+# 1) scan the english file, keep the whole <phrase> for each phrase.
+# 2) read the translated file, for each end of phrase, compare:
+#  A) all source strings, if there's any change there should be a comment about
+#     it output
+#  B) the desc fields
+#
+# 3) output the phrase with the comments from above
+# 4) check which phrases that the translated version didn't have, and spit out
+#    the english version of those
+#
+
 my $prefix = $p;
 my $binary = $b;
+my $update = $u;
+my $sortfile = $s;
 my $binvoice = $c;
 
 my $english = $e;
 my $voiceout = $o;
 
-my $check = ($binary?.5:0) + ($prefix?1:0) + ($voiceout?1:0) + ($binvoice?.5:0);
+my $check = ($binary?.5:0) + ($prefix?1:0) + ($update?1:0) + ($voiceout?1:0) + ($sortfile?1:0) + ($binvoice?.5:0);
 
 if($check > 1) {
-    print STDERR "Please use only one of -p, -o, -b, and -c\n";
+    print STDERR "Please use only one of -p, -u, -o, -b, -c and -s\n";
     exit;
 }
 if(!$check) {
-    print STDERR "Please use at least one of -p, -o, -c, and -e\n";
+    print STDERR "Please use at least one of -p, -u, -o, -c, -e and -s\n";
     exit;
 }
 
-if(($binary || $voiceout) && !$english) {
-    print STDERR "Please use -e too when you use -b, or -o\n";
+
+if(($binary || $update || $voiceout || $sortfile) && !$english) {
+    print STDERR "Please use -e too when you use -b, -o, -u or -s\n";
     exit;
 }
 
@@ -91,7 +123,7 @@ if($binary && !$target_id) {
 }
 
 my $target = $t;
-if(!$target) {
+if(!$target && !$update && !$sortfile) {
     print STDERR "Please specify a target (with -t)!\n";
     exit;
 }
@@ -207,8 +239,9 @@ if($english) {
 }
 
 sub readenglish {
-    # For the cases where the english file needs to be scanned/read, we must
-    # do it before we read the translated file.
+    # For the cases where the english file needs to be scanned/read, we do
+    # it before we read the translated file. For -b it isn't necessary, but for
+    # -u it is convenient.
 
     my @idnum = ((0));       # start with a true number
     my @vidnum = ((0x8000)); # first voice id
@@ -235,7 +268,7 @@ sub readenglish {
     my $withindest;
     my $numphrases = 0;
     my $numusers = 1; # core is already in the users map
-
+    
     while(<ENG>) {
 
         # get rid of DOS newlines
@@ -277,7 +310,7 @@ sub readenglish {
             elsif($withindest && ($_ =~ /^ *\<\/dest\>/i)) {
                 $withindest=0;
 
-                if($deststr && ($deststr !~ /^none\z/i)) {
+                if($update || ($deststr && ($deststr !~ /^none\z/i))) {
                     # we unconditionally always use all IDs when the "update"
                     # feature is used
                     $id = $maybeid;
@@ -290,7 +323,7 @@ sub readenglish {
             elsif($withindest && ($_ =~ / *([^:]+): *(.*)/)) {
                 my ($name, $val)=($1, $2);
                 $dest=""; # in case it is left untouched for when the
-                # model name isn't "ours"
+                # model name isn't "our"
                 dest($_, $name, $val);
 
                 if($dest) {
@@ -316,6 +349,83 @@ sub readenglish {
     close(ENG);
 }
 
+# a function that compares the english phrase with the translated one.
+# compare source strings and desc
+
+# Then output the updated version!
+sub compare {
+    my ($idstr, $engref, $locref)=@_;
+    my ($edesc, $ldesc);
+    my ($esource, $lsource);
+    my $mode=0;
+    
+    for my $l (@$engref) {
+        if($l =~ /^ *#/) {
+            # comment
+            next;
+        }
+        if($l =~ /^ *desc: (.*)/) {
+            $edesc=$1;
+        }
+        elsif($l =~ / *\<source\>/i) {
+            $mode=1;
+        }
+        elsif($mode) {
+            if($l =~ / *\<\/source\>/i) {
+                last;
+            }
+            $esource .= "$l\n";
+        }
+    }
+
+    my @show;
+    my @source;
+
+    $mode = 0;
+    for my $l (@$locref) {
+        if($l =~ /^ *desc: (.*)/) {
+            $ldesc=$1;
+            if(trim($edesc) ne trim($ldesc)) {
+                $l = "### The 'desc' field differs from the english!\n### the previously used desc is commented below:\n### desc: $ldesc\n  desc: $edesc\n";
+            }
+            push @show, $l;
+        }
+        elsif($l =~ / *\<source\>/i) {
+            $mode=1;
+            push @show, $l;
+        }
+        elsif($mode) {
+            if($l =~ / *\<\/source\>/i) {
+                $mode = 0;
+                print @show;
+                if(trim($esource) ne trim($lsource)) {
+                    print "### The <source> section differs from the english!\n",
+                    "### the previously used one is commented below:\n";
+                    for(split("\n", $lsource)) {
+                        print "### $_\n";
+                    }
+                    print $esource;
+                }
+                else {
+                    print $lsource;
+                }
+                undef @show; # start over
+
+                push @show, $l;
+            }
+            else {
+                $lsource .= "$l";
+            }
+        }
+        else {
+            push @show, $l;
+        }
+    }
+
+
+    print @show;
+}
+
 my @idcount;           # counter for lang ID numbers
 my @voiceid;           # counter for voice-only ID numbers
 
@@ -330,6 +440,7 @@ for (keys %users) {
 
 open(LANG, "<$input") || die "Error: couldn't read language file named $input\n";
 my @phrase;
+my $header = 1;
 my $langoptions = 0;
 
 while(<LANG>) {
@@ -341,14 +452,12 @@ while(<LANG>) {
 
     if($_ =~ /^( *\#|[ \t\n\r]*\z)/) {
         # comment or empty line - output it if it's part of the header
-        if ($_ =~ /LANGUAGE_IS_RTL/) {
-            $langoptions |= $LANGUAGE_FLAG_RTL;
-        }
-        if ($_ =~ /LANGUAGE_UNITS_FIRST/) {
-            $langoptions |= $LANGUAGE_FLAG_UNITS_FIRST;
+        if ($header and ($update || $sortfile)) {
+            print($_);
         }
         next;
     }
+    $header = 0;
 
     my $ll = $_;
 
@@ -370,9 +479,8 @@ while(<LANG>) {
                 my $idstr = $phrase{'id'};
                 my $idnum;
 
-                if(($binary || $binvoice || $voiceout) && !$english{$idstr}) {
+                if($binary && !$english{$idstr}) {
                     # $idstr doesn't exist for english, skip it\n";
-		    # FIXME/TODO:  Any reason this filter shouldn't always be enabled?
                 }
                 elsif($dest =~ /^none\z/i) {
                     # "none" as dest (without quotes) means that this entire
@@ -381,7 +489,10 @@ while(<LANG>) {
                 elsif($sortfile) {
                     $allphrases{$idstr}=join('',@phrase);
                 }
-                else {
+                elsif(!$update) {
+                    # we don't do the fully detailed analysis when we "update"
+                    # since we don't do it for a particular target etc
+
                     # allow the keyword 'deprecated' to be used on dest and
                     # voice strings to mark that as deprecated. It will then
                     # be replaced with "".
@@ -406,7 +517,7 @@ while(<LANG>) {
                     if($dest eq '""' && $phrase{'desc'} !~ /deprecated/i && $idstr !~ /^VOICE/) {
                         print STDERR "$input:$line:1: warning: empty dest before line in non-deprecated phrase!\n";
                     }
-
+                    
                     my $userstr = trim($phrase{'user'});
                     my $user = $users{$userstr};
                     if ($userstr eq "") {
@@ -435,14 +546,10 @@ while(<LANG>) {
                     else {
                         $idnum = $idcount[$user]++;
                     }
-
-		    # Strip out the magic "Same as english" flag
-		    $dest =~ s/^("?)~+/$1/;
-		    $voice =~ s/^("?)~+/$1/;
-
+                    
                     $id{$idstr} = $idnum;
                     $idnum[$user][$idnum]=$idstr;
-
+                    
                     $source{$idstr}=$src;
                     $dest{$idstr}=$dest;
                     $voice{$idstr}=$voice;
@@ -461,8 +568,30 @@ while(<LANG>) {
                     undef $user;
                     undef %phrase;
                 }
+
+                if($update) {
+                    my $e = $english{$idstr};
+
+                    if($e) {
+                        # compare original english with this!
+                        my @eng = split("\n", $english{$idstr});
+
+                        compare($idstr, \@eng, \@phrase);
+
+                        $english{$idstr}=""; # clear it
+                    }
+                    else {
+                        print "### $idstr: The phrase is not used. Skipped\n";
+                    }
+                }
                 undef @phrase;
             } # end of </phrase>
+            elsif($part eq "/options") {
+                # closing the options
+                if ($options{'rtl'}) {
+                    $langoptions |= $LANGUAGE_FLAG_RTL;
+                }
+            } # end of </options>
 
             # starts with a slash, this _ends_ this section
             $m = pop @m; # get back old value, the previous level's tag
@@ -483,6 +612,19 @@ while(<LANG>) {
 }
 close(LANG);
 
+if($update) {
+    my $any=0;
+    for(keys %english) {
+        if($english{$_}) {
+            print "###\n",
+            "### This phrase below was not present in the translated file\n",
+            "<phrase>\n";
+            print $english{$_};
+            print "</phrase>\n";
+        }
+    }
+}
+
 if ($sortfile) {
     for(sort { $sortorder{$a} <=> $sortorder{$b} } keys %allphrases) {
          print $allphrases{$_};
@@ -495,7 +637,7 @@ if($prefix) {
     open(HFILE_CORE, ">$prefix/lang.h") ||
         die "Error: couldn't create file $prefix/lang.h\n";
     open(CFILE_CORE, ">$prefix/lang_core.c") ||
-        die "Error: couldn't create file $prefix/lang_core.c\n";
+        die "Error: couldn't create file $prefix/lang_core.c\n";        
 
    # get header file name
    $headername = "$prefix/lang.h";
@@ -538,7 +680,7 @@ MOO
     print CFILE_CORE <<MOO
 /* This file was automatically generated using genlang, the strings come
    from "$input" */
-
+   
 #include "$headername"
 
 unsigned char *language_strings[LANG_LAST_INDEX_IN_ARRAY];
@@ -550,9 +692,9 @@ MOO
     my $i;
     for $i (0 .. $idcount[$users{"core"}]-1) {
         my $name=$idnum[$users{"core"}][$i]; # get the ID name
-
+        
         $name =~ tr/\"//d; # cut off the quotes
-
+        
         printf HFILE_CORE ("    %s, /* %d */\n", $name, $i);
     }
 
@@ -568,15 +710,14 @@ MOO
 # Output the ID names for the enum in the header file
     for $i (0x8001 .. ($voiceid[$users{"core"}]-1)) {
         my $name=$idnum[$users{"core"}][$i]; # get the ID name
-
+        
         $name =~ tr/\"//d; # cut off the quotes
-
+        
         printf HFILE_CORE ("    %s, /* 0x%x */\n", $name, $i);
     }
 
     # Output end of lang_enum.h
     print HFILE_CORE <<MOO
-    LANG_LAST_VOICEONLY_INDEX_IN_ARRAY /* this is not a string, this is a marker */
 };
 /* end of generated enum list */
 #endif /* _LANG_ENUM_H_ */
@@ -587,7 +728,7 @@ MOO
     for $i (0 .. $idcount[$users{"core"}]-1) {
         my $name=$idnum[$users{"core"}][$i]; # get the ID
         my $dest = $dest{$name}; # get the destination phrase
-
+        
         $dest =~ s:\"$:\\0\":; # insert a \0 before the second quote
 
         if(!$dest) {
@@ -651,7 +792,7 @@ elsif($binary || $binvoice) {
         # loop over the target phrases
         # This loops over the strings in the translated language file order
         my @ids = ((0 .. ($idcount[$_]-1)));
-        push @ids, (0x8001 .. ($voiceid[$_]-1));
+        push @ids, (0x8000 .. ($voiceid[$_]-1));
         for $n (@ids) {
             my $name=$idnum[$_][$n]; # get the ID
             my $dest = $dest{$name}; # get the destination phrase
@@ -686,38 +827,66 @@ elsif($voiceout) {
 
     my @engl;
 
-    for (keys %users) {
-        # loop over the target phrases
-        # This loops over the strings in the translated language file order
-        my @ids = ((0 .. ($idcount[$_]-1)));
-        push @ids, (0x8001 .. ($voiceid[$_]-1));
-        for $n (@ids) {
-            my $name=$idnum[$_][$n]; # get the ID
-            my $dest = $dest{$name}; # get the destination phrase
-            my $voice = $voice{$name}; # get the destination voice string
+    # This loops over the strings in the translated language file order
+    my @ids = ((0 .. ($idcount[$users{"core"}]-1)));
+    push @ids, (0x8000 .. ($voiceid[$users{"core"}]-1));
 
-            if($voice) {
-                $voice =~ s/^\"(.*)\"\s*$/$1/g; # cut off quotes
-                # Now, make sure we get the number from the english sort order:
-                $idnum = $idmap[$_]{$name};
-		$engl[$idnum] = "#$idnum ($n)\nid: $name\nvoice: \"$voice\"\n";
+    #for my $id (@ids) {
+    #    print "$id\n";
+    #}
+
+    for $i (@ids) {
+        my $name=$idnum[$users{"core"}][$i]; # get the ID
+        my $dest = $voice{$name}; # get the destination voice string
+
+        if($dest) {
+            $dest =~ s/^\"(.*)\"\s*$/$1/g; # cut off quotes
+
+            # Now, make sure we get the number from the english sort order:
+            $idnum = $idmap[$users{"core"}]{$name};
+
+            if(length($idnum)) {
+                $engl[$idnum] = $i;
+
+                #print "Input index $i output index $idnum\n";
             }
+            else {
+                # not used, mark it so
+                $engl[$i] = -1
+            }
+
         }
     }
-    # Print the list in the the English sort order
-    for (@engl) {
-        print $_;
+    for my $i (@ids) {
+
+        my $o = $engl[$i];
+
+        if(($o < 0) || !length($o)) {
+            if($i < 0x8000) {
+                print "#$i\nid: NOT_USED_$i\nvoice: \"\"\n";
+            }
+            else {
+                print "#$i\nid: VOICE_NOT_USED_$i\nvoice: \"\"\n";
+            }
+            next;
+        }
+
+        my $name=$idnum[$users{"core"}][$o]; # get the ID
+        my $dest = $voice{$name}; # get the destination voice string
+        
+        print "#$i ($o)\nid: $name\nvoice: $dest\n";
     }
+    
 }
 
 
 if($verbose) {
     my $num_str = 0;
-
+    
     for (keys %users) {
         $num_str += $idcount[$_];
     }
-
+    
     printf("%d ID strings scanned\n", $num_str);
 
     print "* head *\n";

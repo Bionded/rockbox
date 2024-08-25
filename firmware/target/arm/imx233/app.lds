@@ -116,7 +116,7 @@ SECTIONS
         _end = .;
     } > DRAM
 
-    .audiobuf _end (NOLOAD) :
+    .audiobuf (NOLOAD) :
     {
         _audiobuffer = .;
         audiobuffer = .;

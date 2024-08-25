@@ -26,6 +26,7 @@
 #include "panic.h"
 #include "core_alloc.h"
 #include "sound.h"
+#include "ata.h"
 #include "codecs.h"
 #include "codec_thread.h"
 #include "voice_thread.h"
@@ -35,23 +36,20 @@
 #include "talk.h"
 #include "playlist.h"
 #include "abrepeat.h"
-#ifdef HAVE_PLAY_FREQ
-#include "pcm_mixer.h"
-#endif
 #include "pcmbuf.h"
 #include "audio_thread.h"
 #include "playback.h"
-#include "storage.h"
 #include "misc.h"
 #include "settings.h"
-#include "audiohw.h"
 
 #ifdef HAVE_TAGCACHE
 #include "tagcache.h"
 #endif
 
+#ifdef HAVE_LCD_BITMAP
 #ifdef HAVE_ALBUMART
 #include "albumart.h"
+#endif
 #endif
 
 #ifdef HAVE_PLAY_FREQ
@@ -172,16 +170,11 @@ static struct mutex id3_mutex SHAREDBSS_ATTR; /* (A,O)*/
 #define MAX_MULTIPLE_AA SKINNABLE_SCREENS_COUNT
 #ifdef HAVE_ALBUMART
 
-static int albumart_mode = -1;
-
 static struct albumart_slot
 {
     struct dim dim;     /* Holds width, height of the albumart */
     int used;           /* Counter; increments if something uses it */
 } albumart_slots[MAX_MULTIPLE_AA]; /* (A,O) */
-
-static char last_folder_aa_path[MAX_PATH] = "\0";
-static int last_folder_aa_hid[MAX_MULTIPLE_AA] = {0};
 
 #define FOREACH_ALBUMART(i) for (int i = 0; i < MAX_MULTIPLE_AA; i++)
 #endif /* HAVE_ALBUMART */
@@ -199,7 +192,6 @@ static enum filling_state
     STATE_FINISHED, /* all remaining tracks are fully buffered */
     STATE_ENDING,   /* audio playback is ending */
     STATE_ENDED,    /* audio playback is done */
-    STATE_STOPPED,  /* buffering is stopped explicitly */
 } filling = STATE_IDLE;
 
 /* Track info - holds information about each track in the buffer */
@@ -315,8 +307,6 @@ static unsigned int track_event_flags = TEF_NONE; /* (A, O-) */
 
 /* Pending manual track skip offset */
 static int skip_offset = 0; /* (A, O) */
-
-static bool track_skip_is_manual = false;
 
 /* Track change notification */
 static struct
@@ -595,20 +585,6 @@ static bool track_list_commit_buf_info(struct track_buf_info *tbip,
     return true;
 }
 
-#ifdef HAVE_ALBUMART
-static inline void clear_cached_aa_handles(int* aa_handles)
-{
-    if (last_folder_aa_path[0] == 0)
-        return;
-
-    FOREACH_ALBUMART(i)
-    {
-        if (aa_handles[i] == last_folder_aa_hid[i])
-            aa_handles[i] = 0;
-    }
-}
-#endif //HAVE_ALBUMART
-
 /* Free the track buffer entry and possibly remove it from the list if it
    was succesfully added at some point */
 static void track_list_free_buf_info(struct track_buf_info *tbip)
@@ -650,9 +626,6 @@ static void track_list_free_buf_info(struct track_buf_info *tbip)
     /* No movement allowed during bufclose calls */
     buf_pin_handle(hid, true);
 
-#ifdef HAVE_ALBUMART
-    clear_cached_aa_handles(tbip->info.aa_hid);
-#endif
     FOR_EACH_TRACK_INFO_HANDLE(i)
         bufclose(tbip->info.handle[i]);
 
@@ -840,21 +813,6 @@ size_t audio_buffer_available(void)
     return MAX(core_size, size);
 }
 
-#ifdef HAVE_ALBUMART
-static void clear_last_folder_album_art(void)
-{
-    if(last_folder_aa_path[0] == 0)
-        return;
-
-    last_folder_aa_path[0] = 0;
-    FOREACH_ALBUMART(i)
-    {
-        bufclose(last_folder_aa_hid[i]);
-        last_folder_aa_hid[i] = 0;
-    }
-}
-#endif
-
 /* Set up the audio buffer for playback
  * filebuflen must be pre-initialized with the maximum size */
 static void audio_reset_buffer_noalloc(
@@ -890,10 +848,6 @@ static void audio_reset_buffer_noalloc(
     scratch_mem_init(filebuf);
     filebuf += allocsize;
     filebuflen -= allocsize;
-
-#ifdef HAVE_ALBUMART
-    clear_last_folder_album_art();
-#endif
 
     buffering_reset(filebuf, filebuflen);
 
@@ -1036,9 +990,7 @@ static void audio_reset_buffer(void)
         core_free(audiobuf_handle);
         audiobuf_handle = 0;
     }
-    if (core_allocatable() < (1 << 10))
-        talk_buffer_set_policy(TALK_BUFFER_LOOSE); /* back off voice buffer */
-    audiobuf_handle = core_alloc_maximum(&filebuflen, &ops);
+    audiobuf_handle = core_alloc_maximum("audiobuf", &filebuflen, &ops);
 
     if (audiobuf_handle > 0)
         audio_reset_buffer_noalloc(core_get_data(audiobuf_handle));
@@ -1054,7 +1006,7 @@ static void audio_update_filebuf_watermark(int seconds)
     size_t bytes = 0;
 
 #ifdef HAVE_DISK_STORAGE
-    int spinup = storage_spinup_time();
+    int spinup = ata_spinup_time();
 
     if (seconds == 0)
     {
@@ -1252,34 +1204,40 @@ static void audio_update_and_announce_next_track(const struct mp3entry *id3_next
 
 /* Bring the user current mp3entry up to date and set a new offset for the
    buffered metadata */
-static void playing_id3_sync(struct track_info *user_infop, struct audio_resume_info *resume_info, bool skip_resume_adjustments)
+static void playing_id3_sync(struct track_info *user_infop,
+                             unsigned long elapsed, unsigned long offset)
 {
     id3_mutex_lock();
 
     struct mp3entry *id3 = bufgetid3(user_infop->id3_hid);
+    struct mp3entry *playing_id3 = id3_get(PLAYING_ID3);
 
     pcm_play_lock();
 
-    if (id3)
-    {
-        if (resume_info)
-        {
-            id3->elapsed = resume_info->elapsed;
-            id3->offset = resume_info->offset;
-        }
-        id3->skip_resume_adjustments = skip_resume_adjustments;
-    }
-    
+    unsigned long e = playing_id3->elapsed;
+    unsigned long o = playing_id3->offset;
+
     id3_write(PLAYING_ID3, id3);
 
-    if (!resume_info && id3)
+    if (elapsed == (unsigned long)-1)
     {
-        id3->offset = 0;
-        id3->elapsed = 0;
-        id3->skip_resume_adjustments = false;
+        playing_id3->elapsed = e;
+        elapsed = 0;
+    }
+
+    if (offset == (unsigned long)-1)
+    {
+        playing_id3->offset = o;
+        offset = 0;
     }
 
     pcm_play_unlock();
+
+    if (id3)
+    {
+        id3->elapsed = elapsed;
+        id3->offset = offset;
+    }
 
     id3_mutex_unlock();
 }
@@ -1518,7 +1476,7 @@ static bool audio_init_codec(struct track_info *track_infop,
 enum { AUTORESUMABLE_UNKNOWN = 0, AUTORESUMABLE_TRUE, AUTORESUMABLE_FALSE };
 static bool autoresumable(struct mp3entry *id3)
 {
-    char *path;
+    char *endp, *path;
     size_t len;
     bool is_resumable;
 
@@ -1527,7 +1485,7 @@ static bool autoresumable(struct mp3entry *id3)
 
     is_resumable = false;
 
-    if (*id3->path)
+    if (id3->path)
     {
         for (path = global_settings.autoresume_paths;
              *path;                     /* search terms left? */
@@ -1536,7 +1494,13 @@ static bool autoresumable(struct mp3entry *id3)
             if (*path == ':')           /* Skip empty search patterns */
                 continue;
 
-            len = strcspn(path, ":");
+            /* FIXME: As soon as strcspn or strchrnul are made available in
+               the core, the following can be made more efficient. */
+            endp = strchr(path, ':');
+            if (endp)
+                len = endp - path;
+            else
+                len = strlen(path);
 
             /* Note: At this point, len is always > 0 */
 
@@ -1584,8 +1548,8 @@ static bool audio_start_codec(bool auto_skip)
         return false;
     }
 
-    #ifdef HAVE_TAGCACHE
-    bool autoresume_enable = !cur_id3->skip_resume_adjustments && global_settings.autoresume_enable;
+#ifdef HAVE_TAGCACHE
+    bool autoresume_enable = global_settings.autoresume_enable;
 
     if (autoresume_enable && !(cur_id3->elapsed || cur_id3->offset))
     {
@@ -1635,11 +1599,8 @@ static bool audio_start_codec(bool auto_skip)
        and back again will cause accumulation of silent rewinds - that's not
        our job to track directly nor could it be in any reasonable way
      */
-    if (!cur_id3->skip_resume_adjustments)
-    {
-        resume_rewind_adjust_progress(cur_id3, &cur_id3->elapsed, &cur_id3->offset);
-        cur_id3->skip_resume_adjustments = true;
-    }
+    resume_rewind_adjust_progress(cur_id3, &cur_id3->elapsed,
+                                  &cur_id3->offset);
 
     /* Update the codec API with the metadata and track info */
     id3_write(CODEC_ID3, cur_id3);
@@ -1724,47 +1685,15 @@ static bool audio_load_cuesheet(struct track_info *infop,
 }
 
 #ifdef HAVE_ALBUMART
-
-void set_albumart_mode(int setting)
-{
-    if (albumart_mode != -1 &&
-        albumart_mode != setting)
-        playback_update_aa_dims();
-    albumart_mode = setting;
-}
-
-static int load_album_art_from_path(char *path, struct bufopen_bitmap_data *user_data, bool is_current_track, int i)
-{
-    user_data->embedded_albumart = NULL;
-
-    bool same_path = strcmp(last_folder_aa_path, path) == 0;
-    if (same_path && last_folder_aa_hid[i] != 0)
-        return last_folder_aa_hid[i];
-
-    // To simplify caching logic a bit we keep track only for first AA path
-    // If other album arts use different path (like dimension specific arts) just skip caching for them
-    bool is_cacheable = i == 0 && (is_current_track || last_folder_aa_path[0] == 0);
-    if (!same_path && is_cacheable)
-    {
-        clear_last_folder_album_art();
-        strcpy(last_folder_aa_path, path);
-    }
-    int hid = bufopen(path, 0, TYPE_BITMAP, user_data);
-    if (hid != ERR_BUFFER_FULL && (same_path || is_cacheable))
-        last_folder_aa_hid[i] = hid;
-    return hid;
-}
-
 /* Load any album art for the file - returns false if the buffer is full */
-static int audio_load_albumart(struct track_info *infop,
-                                struct mp3entry *track_id3, bool is_current_track)
+static bool audio_load_albumart(struct track_info *infop,
+                                struct mp3entry *track_id3)
 {
     FOREACH_ALBUMART(i)
     {
         struct bufopen_bitmap_data user_data;
         int *aa_hid = &infop->aa_hid[i];
         int hid = ERR_UNSUPPORTED_TYPE;
-        bool checked_image_file = false;
 
         /* albumart_slots may change during a yield of bufopen,
          * but that's no problem */
@@ -1775,47 +1704,30 @@ static int audio_load_albumart(struct track_info *infop,
         memset(&user_data, 0, sizeof(user_data));
         user_data.dim = &albumart_slots[i].dim;
 
-        char path[MAX_PATH];
-        if(global_settings.album_art == AA_PREFER_IMAGE_FILE)
-        {
-            if (find_albumart(track_id3, path, sizeof(path),
-                          &albumart_slots[i].dim))
-            {
-                hid = load_album_art_from_path(path, &user_data, is_current_track, i);
-            }
-            checked_image_file = true;
-        }
-
         /* We can only decode jpeg for embedded AA */
-        if (global_settings.album_art != AA_OFF &&
-            hid < 0 && hid != ERR_BUFFER_FULL &&
-            track_id3->has_embedded_albumart && track_id3->albumart.type == AA_TYPE_JPG)
+        if (track_id3->has_embedded_albumart && track_id3->albumart.type == AA_TYPE_JPG)
         {
-            if (is_current_track)
-                clear_last_folder_album_art();
             user_data.embedded_albumart = &track_id3->albumart;
             hid = bufopen(track_id3->path, 0, TYPE_BITMAP, &user_data);
         }
 
-        if (global_settings.album_art != AA_OFF && !checked_image_file &&
-            hid < 0 && hid != ERR_BUFFER_FULL)
+        if (hid < 0 && hid != ERR_BUFFER_FULL)
         {
             /* No embedded AA or it couldn't be loaded - try other sources */
+            char path[MAX_PATH];
+
             if (find_albumart(track_id3, path, sizeof(path),
                               &albumart_slots[i].dim))
             {
-                hid = load_album_art_from_path(path, &user_data, is_current_track, i);
+                user_data.embedded_albumart = NULL;
+                hid = bufopen(path, 0, TYPE_BITMAP, &user_data);
             }
         }
 
         if (hid == ERR_BUFFER_FULL)
         {
             logf("buffer is full for now (%s)", __func__);
-            return ERR_BUFFER_FULL;
-        }
-        else if (hid == ERR_BITMAP_TOO_LARGE){
-            logf("image is too large to fit in buffer (%s)", __func__);
-            return ERR_BITMAP_TOO_LARGE;
+            return false;
         }
         else
         {
@@ -1951,39 +1863,10 @@ static int audio_load_track(void)
          playlist_peek_offset);
 
     /* Get track name from current playlist read position */
-    int fd = -1;
     char path_buf[MAX_PATH + 1];
-    const char *path;
-
-    while (1)
-    {
-        path = playlist_peek(playlist_peek_offset,
-                             path_buf,
-                             sizeof (path_buf));
-
-        if (!path)
-            break;
-
-        /* Test for broken playlists by probing for the files */
-        if (file_exists(path))
-        {
-            fd = open(path, O_RDONLY);
-            if (fd >= 0)
-                break;
-        }
-        logf("Open failed %s", path);
-
-        /* only skip if failed track has a successor in playlist */
-        if (!playlist_peek(playlist_peek_offset + 1, NULL, 0))
-            break;
-
-        /* Skip invalid entry from playlist */
-        playlist_skip_entry(NULL, playlist_peek_offset);
-
-        /* Sync the playlist if it isn't finished */
-        if (playlist_peek(playlist_peek_offset, NULL, 0))
-            playlist_next(0);
-    }
+    const char *path = playlist_peek(playlist_peek_offset,
+                                     path_buf,
+                                     sizeof (path_buf));
 
     if (!path)
     {
@@ -2019,11 +1902,13 @@ static int audio_load_track(void)
         /* Load the metadata for the first unbuffered track */
         ub_id3 = id3_get(UNBUFFERED_ID3);
 
+        int fd = open(path, O_RDONLY);
         if (fd >= 0)
         {
             id3_mutex_lock();
             get_metadata(ub_id3, fd, path);
             id3_mutex_unlock();
+            close(fd);
         }
 
         if (filling != STATE_FULL)
@@ -2041,22 +1926,15 @@ static int audio_load_track(void)
         {
             track_list_free_info(&info);
             track_list.in_progress_hid = 0;
-            if (fd >= 0)
-                close(fd);
             return LOAD_TRACK_ERR_FAILED;
         }
 
         /* Successful load initiation */
         track_list.in_progress_hid = info.self_hid;
     }
-    if (fd >= 0)
-        close(fd);
+
     return LOAD_TRACK_OK;
 }
-
-#ifdef HAVE_PLAY_FREQ
-static bool audio_auto_change_frequency(struct mp3entry *id3, bool play);
-#endif
 
 /* Second part of the track loading: We now have the metadata available, so we
    can load the codec, the album art and finally the audio data.
@@ -2090,24 +1968,6 @@ static int audio_finish_load_track(struct track_info *infop)
         goto audio_finish_load_track_exit;
     }
 
-    struct track_info user_cur;
-
-#ifdef HAVE_PLAY_FREQ
-    track_list_user_current(0, &user_cur);
-    bool is_current_user = infop->self_hid == user_cur.self_hid;
-    if (audio_auto_change_frequency(track_id3, is_current_user))
-    {
-        // frequency switch requires full re-buffering, so stop buffering
-        filling = STATE_STOPPED;
-        logf("buffering stopped (current_track: %b, current_user: %b)", infop->self_hid == cur_info.self_hid, is_current_user);
-        if (is_current_user)
-            // audio_finish_load_track_exit not needed as playback restart is already initiated
-            return trackstat;
-
-        goto audio_finish_load_track_exit;
-    }
-#endif
-
     /* Try to load a cuesheet for the track */
     if (!audio_load_cuesheet(infop, track_id3))
     {
@@ -2118,12 +1978,7 @@ static int audio_finish_load_track(struct track_info *infop)
 
 #ifdef HAVE_ALBUMART
     /* Try to load album art for the track */
-    int retval = audio_load_albumart(infop, track_id3, infop->self_hid == cur_info.self_hid);
-    if (retval == ERR_BITMAP_TOO_LARGE)
-    {
-        /* No space for album art on buffer because the file is larger than the buffer.
-        Ignore the file and keep buffering */
-    } else if (retval == ERR_BUFFER_FULL)
+    if (!audio_load_albumart(infop, track_id3))
     {
         /* No space for album art on buffer, not an error */
         filling = STATE_FULL;
@@ -2134,6 +1989,7 @@ static int audio_finish_load_track(struct track_info *infop)
     /* All handles available to external routines are ready - audio and codec
        information is private */
 
+    struct track_info user_cur;
     track_list_user_current(0, &user_cur);
     if (infop->self_hid == user_cur.self_hid)
     {
@@ -2171,10 +2027,22 @@ static int audio_finish_load_track(struct track_info *infop)
     /** Finally, load the audio **/
     off_t file_offset = 0;
 
+    if (track_id3->elapsed > track_id3->length)
+        track_id3->elapsed = 0;
+
+    if ((off_t)track_id3->offset >= buf_filesize(infop->audio_hid))
+        track_id3->offset = 0;
+
+    logf("%s: set offset for %s to %lu\n", __func__,
+         track_id3->title, track_id3->offset);
+
     /* Adjust for resume rewind so we know what to buffer - starting the codec
        calls it again, so we don't save it (and they shouldn't accumulate) */
     unsigned long elapsed, offset;
     resume_rewind_adjust_progress(track_id3, &elapsed, &offset);
+
+    logf("%s: Set resume for %s to %lu %lu", __func__,
+         track_id3->title, elapsed, offset);
 
     enum data_type audiotype = rbcodec_format_is_atomic(track_id3->codectype) ?
                                       TYPE_ATOMIC_AUDIO : TYPE_PACKET_AUDIO;
@@ -2207,19 +2075,6 @@ static int audio_finish_load_track(struct track_info *infop)
     if (hid >= 0)
     {
         infop->audio_hid = hid;
-
-        /*
-         * Fix up elapsed time and offset if past the end
-         */
-        if (track_id3->elapsed > track_id3->length)
-            track_id3->elapsed = 0;
-
-        if ((off_t)track_id3->offset >= buf_filesize(infop->audio_hid))
-            track_id3->offset = 0;
-
-        logf("%s: set resume for %s to %lu %lX", __func__,
-             track_id3->title, track_id3->elapsed, track_id3->offset);
-
         if (infop->self_hid == cur_info.self_hid)
         {
             /* This is the current track to decode - should be started now */
@@ -2261,7 +2116,7 @@ audio_finish_load_track_exit:
         playlist_peek_offset--;
     }
 
-    if (filling != STATE_FULL && filling != STATE_STOPPED)
+    if (filling != STATE_FULL)
     {
         /* Load next track - error or not */
         track_list.in_progress_hid = 0;
@@ -2432,7 +2287,7 @@ static void audio_on_finish_load_track(int id3_hid)
                change otherwise */
             bool was_valid = valid_mp3entry(id3_get(PLAYING_ID3));
 
-            playing_id3_sync(&info, NULL, true);
+            playing_id3_sync(&info, -1, -1);
 
             if (!was_valid)
             {
@@ -2467,48 +2322,6 @@ static void audio_on_handle_finished(int hid)
             filling_is_finished();
         }
     }
-}
-
-static inline char* single_mode_get_id3_tag(struct mp3entry *id3)
-{
-    struct mp3entry *valid_id3 = valid_mp3entry(id3);
-    if (valid_id3 == NULL)
-        return NULL;
-
-    switch (global_settings.single_mode)
-    {
-        case SINGLE_MODE_ALBUM:
-            return valid_id3->album;
-        case SINGLE_MODE_ALBUM_ARTIST:
-            return valid_id3->albumartist;
-        case SINGLE_MODE_ARTIST:
-            return valid_id3->artist;
-        case SINGLE_MODE_COMPOSER:
-            return valid_id3->composer;
-        case SINGLE_MODE_GROUPING:
-            return valid_id3->grouping;
-        case SINGLE_MODE_GENRE:
-            return valid_id3->genre_string;
-    }
-
-    return NULL;
-}
-
-static bool single_mode_do_pause(int id3_hid)
-{
-    if (global_settings.single_mode != SINGLE_MODE_OFF && global_settings.party_mode == 0 &&
-        ((skip_pending == TRACK_SKIP_AUTO) || (skip_pending == TRACK_SKIP_AUTO_NEW_PLAYLIST))) {
-
-        if (global_settings.single_mode == SINGLE_MODE_TRACK)
-            return true;
-
-        char *previous_tag = single_mode_get_id3_tag(id3_get(PLAYING_ID3));
-        char *new_tag = single_mode_get_id3_tag(bufgetid3(id3_hid));
-        return previous_tag == NULL ||
-               new_tag == NULL ||
-               strcmp(previous_tag, new_tag) != 0;
-    }
-    return false;
 }
 
 /* Called to make an outstanding track skip the current track and to send the
@@ -2557,27 +2370,22 @@ static void audio_finalise_track_change(void)
     bool have_info = track_list_current(0, &info);
     struct mp3entry *track_id3 = NULL;
 
+    id3_mutex_lock();
+
     /* Update the current cuesheet if any and enabled */
     if (have_info)
     {
         buf_read_cuesheet(info.cuesheet_hid);
         track_id3 = bufgetid3(info.id3_hid);
-
-        if (single_mode_do_pause(info.id3_hid))
-        {
-            play_status = PLAY_PAUSED;
-            pcmbuf_pause(true);
-        }
     }
-    /* Sync the next track information */
-    have_info = track_list_current(1, &info);
-
-    id3_mutex_lock();
 
     id3_write(PLAYING_ID3, track_id3);
 
     /* The skip is technically over */
     skip_pending = TRACK_SKIP_NONE;
+
+    /* Sync the next track information */
+    have_info = track_list_current(1, &info);
 
     id3_write(NEXTTRACK_ID3, have_info ? bufgetid3(info.id3_hid) :
                                          id3_get(UNBUFFERED_ID3));
@@ -2585,11 +2393,6 @@ static void audio_finalise_track_change(void)
     id3_mutex_unlock();
 
     audio_playlist_track_change();
-
-#ifdef HAVE_PLAY_FREQ
-    if (filling == STATE_STOPPED)
-        audio_auto_change_frequency(track_id3, true);
-#endif
 }
 
 /* Actually begin a transition and take care of the codec change - may complete
@@ -2600,9 +2403,9 @@ static void audio_begin_track_change(enum pcm_track_change_type type,
     /* Even if the new track is bad, the old track must be finished off */
     pcmbuf_start_track_change(type);
 
-    track_skip_is_manual = (type == TRACK_CHANGE_MANUAL);
+    bool auto_skip = type != TRACK_CHANGE_MANUAL;
 
-    if (track_skip_is_manual)
+    if (!auto_skip)
     {
         /* Manual track change happens now */
         audio_finalise_track_change();
@@ -2621,10 +2424,10 @@ static void audio_begin_track_change(enum pcm_track_change_type type,
                 return;
 
             /* Everything needed for the codec is ready - start it */
-            if (audio_start_codec(!track_skip_is_manual))
+            if (audio_start_codec(auto_skip))
             {
-                if (track_skip_is_manual)
-                    playing_id3_sync(&info, NULL, true);
+                if (!auto_skip)
+                    playing_id3_sync(&info, -1, -1);
                 return;
             }
         }
@@ -2641,79 +2444,6 @@ static void audio_monitor_end_of_playlist(void)
     skip_pending = TRACK_SKIP_AUTO_END_PLAYLIST;
     filling = STATE_ENDING;
     pcmbuf_start_track_change(TRACK_CHANGE_END_OF_DATA);
-}
-
-/* Does this track have an entry allocated? */
-static bool audio_can_change_track(int *trackstat, int *id3_hid)
-{
-    struct track_info info;
-    bool have_track = track_list_advance_current(1, &info);
-    *id3_hid = info.id3_hid;
-    if (!have_track || info.audio_hid < 0)
-    {
-        bool end_of_playlist = false;
-
-        if (have_track)
-        {
-            if (filling == STATE_STOPPED)
-            {
-                audio_begin_track_change(TRACK_CHANGE_END_OF_DATA, *trackstat);
-                return false;
-            }
-
-            /* Track load is not complete - it might have stopped on a
-               full buffer without reaching the audio handle or we just
-               arrived at it early
-
-               If this type is atomic and we couldn't get the audio,
-               perhaps it would need to wrap to make the allocation and
-               handles are in the way - to maximize the liklihood it can
-               be allocated, clear all handles to reset the buffer and
-               its indexes to 0 - for packet audio, this should not be an
-               issue and a pointless full reload of all the track's
-               metadata may be avoided */
-
-            struct mp3entry *track_id3 = bufgetid3(info.id3_hid);
-
-            if (track_id3 && !rbcodec_format_is_atomic(track_id3->codectype))
-            {
-                /* Continue filling after this track */
-                audio_reset_and_rebuffer(TRACK_LIST_KEEP_CURRENT, 1);
-                return true;
-            }
-            /* else rebuffer at this track; status applies to the track we
-               want */
-        }
-        else if (!playlist_peek(1, NULL, 0))
-        {
-            /* Play sequence is complete - directory change or other playlist
-               resequencing - the playlist must now be advanced in order to
-               continue since a peek ahead to the next track is not possible */
-            skip_pending = TRACK_SKIP_AUTO_NEW_PLAYLIST;
-            end_of_playlist = playlist_next(1) < 0;
-        }
-
-        if (!end_of_playlist)
-        {
-            *trackstat = audio_reset_and_rebuffer(TRACK_LIST_CLEAR_ALL,
-                    skip_pending == TRACK_SKIP_AUTO ? 0 : -1);
-
-            if (*trackstat == LOAD_TRACK_ERR_NO_MORE)
-            {
-                /* Failed to find anything after all - do playlist switchover
-                   instead */
-                skip_pending = TRACK_SKIP_AUTO_NEW_PLAYLIST;
-                end_of_playlist = playlist_next(1) < 0;
-            }
-        }
-
-        if (end_of_playlist)
-        {
-            audio_monitor_end_of_playlist();
-            return false;
-        }
-    }
-    return true;
 }
 
 /* Codec has completed decoding the track
@@ -2760,14 +2490,71 @@ static void audio_on_codec_complete(int status)
     track_event_flags = TEF_AUTO_SKIP;
     skip_pending = TRACK_SKIP_AUTO;
 
-    int id3_hid = 0;
-    if (audio_can_change_track(&trackstat, &id3_hid)) 
+    /* Does this track have an entry allocated? */
+    struct track_info info;
+    bool have_track = track_list_advance_current(1, &info);
+
+    if (!have_track || info.audio_hid < 0)
     {
-        audio_begin_track_change(
-                single_mode_do_pause(id3_hid)
-                ? TRACK_CHANGE_END_OF_DATA
-                : TRACK_CHANGE_AUTO, trackstat);
+        bool end_of_playlist = false;
+
+        if (have_track)
+        {
+            /* Track load is not complete - it might have stopped on a
+               full buffer without reaching the audio handle or we just
+               arrived at it early
+
+               If this type is atomic and we couldn't get the audio,
+               perhaps it would need to wrap to make the allocation and
+               handles are in the way - to maximize the liklihood it can
+               be allocated, clear all handles to reset the buffer and
+               its indexes to 0 - for packet audio, this should not be an
+               issue and a pointless full reload of all the track's
+               metadata may be avoided */
+
+            struct mp3entry *track_id3 = bufgetid3(info.id3_hid);
+
+            if (track_id3 && !rbcodec_format_is_atomic(track_id3->codectype))
+            {
+                /* Continue filling after this track */
+                audio_reset_and_rebuffer(TRACK_LIST_KEEP_CURRENT, 1);
+                audio_begin_track_change(TRACK_CHANGE_AUTO, trackstat);
+                return;
+            }
+            /* else rebuffer at this track; status applies to the track we
+               want */
+        }
+        else if (!playlist_peek(1, NULL, 0))
+        {
+            /* Play sequence is complete - directory change or other playlist
+               resequencing - the playlist must now be advanced in order to
+               continue since a peek ahead to the next track is not possible */
+            skip_pending = TRACK_SKIP_AUTO_NEW_PLAYLIST;
+            end_of_playlist = playlist_next(1) < 0;
+        }
+
+        if (!end_of_playlist)
+        {
+            trackstat = audio_reset_and_rebuffer(TRACK_LIST_CLEAR_ALL,
+                            skip_pending == TRACK_SKIP_AUTO ? 0 : -1);
+
+            if (trackstat == LOAD_TRACK_ERR_NO_MORE)
+            {
+                /* Failed to find anything after all - do playlist switchover
+                   instead */
+                skip_pending = TRACK_SKIP_AUTO_NEW_PLAYLIST;
+                end_of_playlist = playlist_next(1) < 0;
+            }
+        }
+
+        if (end_of_playlist)
+        {
+            audio_monitor_end_of_playlist();
+            return;
+        }
     }
+
+    audio_begin_track_change(TRACK_CHANGE_AUTO, trackstat);
 }
 
 /* Called when codec completes seek operation
@@ -2801,20 +2588,9 @@ static void audio_on_track_changed(void)
 static void audio_start_playback(const struct audio_resume_info *resume_info,
                                  unsigned int flags)
 {
-    static struct audio_resume_info resume = { 0, 0 };
+    struct audio_resume_info resume =
+        *(resume_info ?: &(struct audio_resume_info){ 0, 0 } );
     enum play_status old_status = play_status;
-
-    bool skip_resume_adjustments = false;
-    if (resume_info)
-    {
-        resume.elapsed = resume_info->elapsed;
-        resume.offset = resume_info->offset;
-    }
-    else
-    {
-        resume.elapsed = 0;
-        resume.offset = 0;
-    }
 
     if (flags & AUDIO_START_NEWBUF)
     {
@@ -2839,11 +2615,8 @@ static void audio_start_playback(const struct audio_resume_info *resume_info,
             /* Clear out some stuff to resume the current track where it
                left off */
             pcmbuf_play_stop();
-
             resume.elapsed = id3_get(PLAYING_ID3)->elapsed;
             resume.offset = id3_get(PLAYING_ID3)->offset;
-            skip_resume_adjustments = id3_get(PLAYING_ID3)->skip_resume_adjustments;
-
             track_list_clear(TRACK_LIST_CLEAR_ALL);
             pcmbuf_update_frequency();
         }
@@ -2858,7 +2631,6 @@ static void audio_start_playback(const struct audio_resume_info *resume_info,
             pcmbuf_start_track_change(TRACK_CHANGE_MANUAL);
             wipe_track_metadata(true);
         }
-        pcmbuf_update_frequency();
 
         /* Set after track finish event in case skip was in progress */
         skip_pending = TRACK_SKIP_NONE;
@@ -2919,7 +2691,7 @@ static void audio_start_playback(const struct audio_resume_info *resume_info,
         /* This is the currently playing track - get metadata, stat */
         struct track_info info;
         track_list_current(0, &info);
-        playing_id3_sync(&info, &resume, skip_resume_adjustments);
+        playing_id3_sync(&info, resume.elapsed, resume.offset);
 
         if (valid_mp3entry(id3_get(PLAYING_ID3)))
         {
@@ -2962,7 +2734,6 @@ static void audio_stop_playback(void)
 
     skip_pending = TRACK_SKIP_NONE;
     track_event_flags = TEF_NONE;
-    track_skip_is_manual = false;
 
     /* Close all tracks and mark them NULL */
     remove_event(BUFFER_EVENT_REBUFFER, buffer_event_rebuffer_callback);
@@ -2976,9 +2747,7 @@ static void audio_stop_playback(void)
     play_status = PLAY_STOPPED;
 
     wipe_track_metadata(true);
-#ifdef HAVE_ALBUMART
-    clear_last_folder_album_art();
-#endif
+
     /* Go idle */
     filling = STATE_IDLE;
     cancel_cpu_boost();
@@ -3038,11 +2807,6 @@ static void audio_on_skip(void)
     /* Manual skip */
     track_event_flags = TEF_NONE;
 
-    if (toskip == 1 && global_settings.repeat_mode == REPEAT_ONE)
-    {
-        audio_reset_and_rebuffer(TRACK_LIST_KEEP_CURRENT, 1);
-    }
-
     /* If there was an auto skip in progress, there will be residual
        advancement of the playlist and/or track list so compensation will be
        required in order to end up in the right spot */
@@ -3093,7 +2857,7 @@ static void audio_on_skip(void)
             track_list_delta += d;
         }
     }
-    track_skip_is_manual = false;
+
     /* Adjust things by how much the playlist was manually moved */
     playlist_peek_offset -= playlist_delta;
 
@@ -3197,12 +2961,6 @@ static void audio_on_ff_rewind(long time)
 
         track_event_flags = TEF_NONE;
 
-        if (time < 0)
-        {
-            time = id3->length + time;
-            if (time < 0)
-                time = 0;
-        }
         /* Send event before clobbering the time if rewinding. */
         if (time == 0)
         {
@@ -3240,15 +2998,21 @@ static void audio_on_ff_rewind(long time)
         struct track_info cur_info;
         track_list_current(0, &cur_info);
 
+        /* Track must complete the loading _now_ since a codec and audio
+           handle are needed in order to do the seek */
         bool finish_load = cur_info.audio_hid < 0;
-        if (finish_load)
+
+        if (finish_load &&
+            audio_finish_load_track(&cur_info) != LOAD_TRACK_READY)
         {
-            // track is not yet loaded so simply update resume details for upcoming finish_load_track and quit 
-            playing_id3_sync(&cur_info, &(struct audio_resume_info){ time, 0 }, true);
-            return;
+            /* Call above should push any load sequence - no need for
+               halt_decoding_track here if no skip was pending here because
+               there would not be a codec started if no audio handle was yet
+               opened */
+            break;
         }
 
-        if (pending == TRACK_SKIP_AUTO)
+        if (pending == TRACK_SKIP_AUTO || finish_load)
         {
             if (!bufreadid3(cur_info.id3_hid, ci_id3) ||
                 !audio_init_codec(&cur_info, ci_id3))
@@ -3498,7 +3262,6 @@ void audio_playback_handler(struct queue_event *ev)
             }
             /* Fall-through */
         case STATE_FINISHED:
-        case STATE_STOPPED:
             /* All data was buffered */
             cancel_cpu_boost();
             /* Fall-through */
@@ -3570,6 +3333,9 @@ static void buffer_event_finished_callback(unsigned short id, void *ev_data)
         break;
 
     case TYPE_PACKET_AUDIO:
+        /* Strip any useless trailing tags that are left. */
+        strip_tags(hid);
+        /* Fall-through */
     case TYPE_ATOMIC_AUDIO:
         LOGFQUEUE("buffering > audio Q_AUDIO_HANDLE_FINISHED: %d", hid);
         audio_queue_post(Q_AUDIO_HANDLE_FINISHED, hid);
@@ -3587,8 +3353,9 @@ static void buffer_event_finished_callback(unsigned short id, void *ev_data)
 /* Update elapsed time for next PCM insert */
 void audio_codec_update_elapsed(unsigned long elapsed)
 {
+#ifdef AB_REPEAT_ENABLE
     ab_position_report(elapsed);
-
+#endif
     /* Save in codec's id3 where it is used at next pcm insert */
     id3_get(CODEC_ID3)->elapsed = elapsed;
 }
@@ -3785,7 +3552,8 @@ void audio_hard_stop(void)
 #ifdef PLAYBACK_VOICE
     voice_stop();
 #endif
-    audiobuf_handle = core_free(audiobuf_handle);
+    if (audiobuf_handle > 0)
+        audiobuf_handle = core_free(audiobuf_handle);
 }
 
 /* Resume playback if paused */
@@ -3793,13 +3561,6 @@ void audio_resume(void)
 {
     LOGFQUEUE("audio >| audio Q_AUDIO_PAUSE resume");
     audio_queue_send(Q_AUDIO_PAUSE, false);
-}
-
-/* Internal function used by REPEAT_ONE extern playlist.c */
-bool audio_pending_track_skip_is_manual(void)
-{
-    logf("Track change is: %s", track_skip_is_manual ? "Manual": "Auto");
-    return track_skip_is_manual;
 }
 
 /* Skip the specified number of tracks forward or backward from the current */
@@ -4036,92 +3797,17 @@ void audio_set_crossfade(int enable)
 #endif /* HAVE_CROSSFADE */
 
 #ifdef HAVE_PLAY_FREQ
-static unsigned long audio_guess_frequency(struct mp3entry *id3)
+void audio_set_playback_frequency(int setting)
 {
-    switch (id3->frequency)
-    {
-#if HAVE_PLAY_FREQ >= 48
-    case 44100:
-        return SAMPR_44;
-    case 48000:
-        return SAMPR_48;
-#endif
-#if HAVE_PLAY_FREQ >= 96
-    case 88200:
-        return SAMPR_88;
-    case 96000:
-        return SAMPR_96;
-#endif
-#if HAVE_PLAY_FREQ >= 192
-    case 176400:
-        return SAMPR_176;
-    case 192000:
-        return SAMPR_192;
-#endif
-    default:
-        return (id3->frequency % 4000) ? SAMPR_44 : SAMPR_48;
-    }
-}
+    static const unsigned long play_sampr[] = { SAMPR_44, SAMPR_48 };
 
-static bool audio_auto_change_frequency(struct mp3entry *id3, bool play)
-{
-    if (!valid_mp3entry(id3))
-        return false;
-    unsigned long guessed_frequency = global_settings.play_frequency == 0 ? audio_guess_frequency(id3) : 0;
-    if (guessed_frequency && mixer_get_frequency() != guessed_frequency)
-    {
-        if (!play)
-            return true;
+    if ((unsigned)setting >= ARRAYLEN(play_sampr))
+        setting = 0;
 
-#ifdef PLAYBACK_VOICE
-        voice_stop();
-#endif
-        mixer_set_frequency(guessed_frequency);
-        audio_queue_post(Q_AUDIO_REMAKE_AUDIO_BUFFER, 0);
-        return true;
-    }
-    return false;
-}
+    unsigned long playback_sampr = mixer_get_frequency();
+    unsigned long sampr = play_sampr[setting];
 
-void audio_set_playback_frequency(unsigned int sample_rate_hz)
-{
-    /* sample_rate_hz == 0 is "automatic", and also a sentinel */
-#if HAVE_PLAY_FREQ >= 192
-    static const unsigned int play_sampr[] = {SAMPR_44, SAMPR_48, SAMPR_88, SAMPR_96, SAMPR_176, SAMPR_192, 0 };
-#elif HAVE_PLAY_FREQ >= 96
-    static const unsigned int play_sampr[] = {SAMPR_44, SAMPR_48, SAMPR_88, SAMPR_96, 0 };
-#elif HAVE_PLAY_FREQ >= 48
-    static const unsigned int play_sampr[] = {SAMPR_44, SAMPR_48, 0 };
-#else
-    #error "HAVE_PLAY_FREQ < 48 ??"
-#endif
-    const unsigned int *p_sampr = play_sampr;
-    unsigned int sampr = 0;
-
-    while (*p_sampr != 0)
-    {
-        if (*p_sampr == sample_rate_hz)
-        {
-            sampr = *p_sampr;
-            break;
-        }
-        p_sampr++;
-    }
-
-    if (sampr == 0)
-    {
-        if (audio_status() & (AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE))
-        {
-            sampr = audio_guess_frequency(audio_current_track());
-        }
-        else
-        {
-            logf("could not set sample rate to %u hz", sample_rate_hz);
-            return; /* leave as is */
-        }
-    }
-
-    if (sampr != mixer_get_frequency())
+    if (sampr != playback_sampr)
     {
         mixer_set_frequency(sampr);
         LOGFQUEUE("audio >| audio Q_AUDIO_REMAKE_AUDIO_BUFFER");

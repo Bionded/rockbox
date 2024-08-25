@@ -41,8 +41,8 @@
 /* Define this to add support for ATA DMA */
 //#define HAVE_ATA_DMA
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -65,6 +65,9 @@
 /* define this if the target has volume keys which can be used in the lists */
 #define HAVE_VOLUME_IN_LIST
 
+/* define this if you want viewport clipping enabled for safe LCD functions */
+#define HAVE_VIEWPORT_CLIP
+
 /* LCD dimensions */
 #define CONFIG_LCD LCD_MROBE500
 
@@ -78,7 +81,7 @@
 #define _RESOLUTION         _LCD_RES_VGA
 #define _ORIENTATION        _LCD_LANDSCAPE
 
-#if _RESOLUTION == _LCD_RES_VGA
+#if _RESOLUTION == _LCD_RES_VGA 
 #define LCD_NATIVE_WIDTH 480
 #define LCD_NATIVE_HEIGHT 640
 #define LCD_DPI 216
@@ -140,8 +143,8 @@
 /* define this if the target has volume keys which can be used in the lists */
 #define HAVE_VOLUME_IN_LIST
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 //#define HAVE_HARDWARE_BEEP
 
@@ -195,7 +198,7 @@
 /* define current usage levels */
 #define CURRENT_NORMAL     85 /* Measured */
 #define CURRENT_BACKLIGHT  200 /* Over 200 mA total measured when on */
-#define CURRENT_REMOTE     2   /* FIXME: placeholder value */
+#define CURRENT_RECORD     0  /* no recording */
 
 /* Hardware controlled charging with monitoring */
 #define CONFIG_CHARGING CHARGING_MONITOR
@@ -220,7 +223,7 @@
 #define HAVE_USB_HID_MOUSE
 
 /* Define this if hardware supports alternate blitting */
-#define HAVE_LCD_MODES (LCD_MODE_RGB565 | LCD_MODE_YUV | LCD_MODE_PAL256)
+#define HAVE_LCD_MODES LCD_MODE_RGB565 | LCD_MODE_YUV | LCD_MODE_PAL256
 
 #define CONFIG_CPU DM320
 
@@ -237,6 +240,12 @@
 
 /* Define this if you have ATA power-off control */
 #define HAVE_ATA_POWER_OFF
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ

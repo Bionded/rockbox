@@ -57,6 +57,10 @@
 #define MP4_gnre FOURCC('g', 'n', 'r', 'e')
 #define MP4_hdlr FOURCC('h', 'd', 'l', 'r')
 #define MP4_ilst FOURCC('i', 'l', 's', 't')
+#define MP4_isom FOURCC('i', 's', 'o', 'm')
+#define MP4_M4A  FOURCC('M', '4', 'A', ' ')
+#define MP4_m4a  FOURCC('m', '4', 'a', ' ') /*technically its "M4A "*/
+#define MP4_M4B  FOURCC('M', '4', 'B', ' ') /*but files exist with lower case*/
 #define MP4_mdat FOURCC('m', 'd', 'a', 't')
 #define MP4_mdia FOURCC('m', 'd', 'i', 'a')
 #define MP4_mdir FOURCC('m', 'd', 'i', 'r')
@@ -64,6 +68,8 @@
 #define MP4_minf FOURCC('m', 'i', 'n', 'f')
 #define MP4_moov FOURCC('m', 'o', 'o', 'v')
 #define MP4_mp4a FOURCC('m', 'p', '4', 'a')
+#define MP4_mp42 FOURCC('m', 'p', '4', '2')
+#define MP4_qt   FOURCC('q', 't', ' ', ' ')
 #define MP4_soun FOURCC('s', 'o', 'u', 'n')
 #define MP4_stbl FOURCC('s', 't', 'b', 'l')
 #define MP4_stsd FOURCC('s', 't', 's', 'd')
@@ -79,38 +85,31 @@
 static unsigned long read_mp4_tag(int fd, unsigned int size_left, char* buffer,
                                   unsigned int buffer_left)
 {
-    unsigned long bytes_read = 0;
-    ssize_t rd_ret = 0;
-    ssize_t bytes_req;
-    #define MP4_TAG_HEADER_SIZE 16
-
-
-    if (size_left >= MP4_TAG_HEADER_SIZE)
+    unsigned int bytes_read = 0;
+    
+    if (buffer_left == 0)
+    {
+        lseek(fd, size_left, SEEK_CUR);     /* Skip everything */
+    } 
+    else 
     {
         /* Skip the data tag header - maybe we should parse it properly? */
-        lseek(fd, MP4_TAG_HEADER_SIZE, SEEK_CUR);
-        size_left -= MP4_TAG_HEADER_SIZE;
+        lseek(fd, 16, SEEK_CUR); 
+        size_left -= 16;
 
         if (size_left > buffer_left)
-            bytes_req = buffer_left;
-        else
-            bytes_req = size_left;
-
-        rd_ret = read(fd, buffer, bytes_req);
-        if (rd_ret == bytes_req)
-            bytes_read = bytes_req;
+        {
+            read(fd, buffer, buffer_left);
+            lseek(fd, size_left - buffer_left, SEEK_CUR);
+            bytes_read = buffer_left;
+        } 
         else
         {
-            /* read less than expected or an error from read() */
-            logf("Error %d, read_mp4_tag", rd_ret);
-            if (rd_ret < 0)
-                rd_ret = 0; /* Skip everything */
+            read(fd, buffer, size_left);
+            bytes_read = size_left;
         }
     }
-    if (size_left >  (unsigned int) rd_ret)
-        lseek(fd, size_left - rd_ret, SEEK_CUR);
-
-
+    
     return bytes_read;
 }
 
@@ -189,7 +188,7 @@ static unsigned int read_mp4_length(int fd, uint32_t* size)
 {
     unsigned int length = 0;
     int bytes = 0;
-    unsigned char c = '\0';
+    unsigned char c;
 
     do
     {
@@ -205,9 +204,8 @@ static unsigned int read_mp4_length(int fd, uint32_t* size)
 
 static bool read_mp4_esds(int fd, struct mp3entry* id3, uint32_t* size)
 {
-    unsigned char buf[8] = {0};
+    unsigned char buf[8];
     bool sbr = false;
-    bool sbr_signaled = false;
 
     lseek(fd, 4, SEEK_CUR);     /* Version and flags. */
     read(fd, buf, 1);           /* Verify ES_DescrTag. */
@@ -277,7 +275,6 @@ static bool read_mp4_esds(int fd, struct mp3entry* id3, uint32_t* size)
          * Object type           - 5 bits
          * Frequency index       - 4 bits
          * Channel configuration - 4 bits
-         * Also see libfaad/mp4.c AudioSpecificConfig2 (consider using it instead of manual parsing)
          */
         bits = get_long_be(buf);
         type = bits >> 27;              /* Object type - 5 bits */
@@ -322,7 +319,6 @@ static bool read_mp4_esds(int fd, struct mp3entry* id3, uint32_t* size)
             if (type == 5)
             {
                 sbr = bits >> 31;
-                sbr_signaled = true;
 
                 if (sbr)
                 {
@@ -349,15 +345,14 @@ static bool read_mp4_esds(int fd, struct mp3entry* id3, uint32_t* size)
                 }
             }
         }
-#ifndef CODEC_AAC_SBR_DEC
-        //SBR_DEC is disabled so disable sbr implicit signalling
-        sbr_signaled = true;
-#endif
-        if (!sbr && !sbr_signaled && id3->frequency <= 24000)
+        
+        if (!sbr && (id3->frequency <= 24000) && (length <= 2))
         {
-            /* As stated in libfaad/mp4.c AudioSpecificConfig2:
-             * no SBR signalled, this could mean either implicit signalling or no SBR in this file 
-             * MPEG specification states: assume SBR on files with samplerate <= 24000 Hz 
+            /* Double the frequency for low-frequency files without a "long" 
+             * DecSpecificConfig header. The file may or may not contain SBR,
+             * but here we guess it does if the header is short. This can
+             * fail on some files, but it's the best we can do, short of 
+             * decoding (parts of) the file.
              */
             id3->frequency *= 2;
             sbr = true;
@@ -443,10 +438,9 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
         case MP4_gnre:
             {
                 unsigned short genre;
-                const unsigned int g_size = sizeof(genre);
-                id3->genre_string = NULL;
-                if (read_mp4_tag(fd, size, (char*) &genre, g_size) == g_size)
-                    id3->genre_string = id3_get_num_genre(betoh16(genre) - 1);
+                
+                read_mp4_tag(fd, size, (char*) &genre, sizeof(genre));
+                id3->genre_string = id3_get_num_genre(betoh16(genre) - 1);
             }
             break;
         
@@ -458,18 +452,18 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
         case MP4_disk:
             {
                 unsigned short n[2];
-                id3->discnum = 0;
-                if (read_mp4_tag(fd, size, (char*) &n, sizeof(n))  == sizeof(n))
-                    id3->discnum = betoh16(n[1]);
+                
+                read_mp4_tag(fd, size, (char*) &n, sizeof(n));
+                id3->discnum = betoh16(n[1]);
             }
             break;
 
         case MP4_trkn:
             {
                 unsigned short n[2];
-                id3->tracknum = 0;
-                if (read_mp4_tag(fd, size, (char*) &n, sizeof(n)) == sizeof(n))
-                    id3->tracknum = betoh16(n[1]);
+                
+                read_mp4_tag(fd, size, (char*) &n, sizeof(n));
+                id3->tracknum = betoh16(n[1]);
             }
             break;
 
@@ -477,26 +471,23 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
         case MP4_covr:
             {
                 int pos = lseek(fd, 0, SEEK_CUR) + 16;
-                id3->albumart.type = AA_TYPE_UNKNOWN;
                 
-                if (read_mp4_tag(fd, size, buffer, 8) >= 4)
+                read_mp4_tag(fd, size, buffer, 8);
+                id3->albumart.type = AA_TYPE_UNKNOWN;
+                if (memcmp(buffer, "\xff\xd8\xff\xe0", 4) == 0)
                 {
-
-                    if (memcmp(buffer, "\xff\xd8\xff\xe0", 4) == 0)
-                    {
-                        id3->albumart.type = AA_TYPE_JPG;
-                    }
-                    else if (memcmp(buffer, "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a", 8) == 0)
-                    {
-                        id3->albumart.type = AA_TYPE_PNG;
-                    }
-                    
-                    if (id3->albumart.type != AA_TYPE_UNKNOWN)
-                    {
-                        id3->albumart.pos  = pos;
-                        id3->albumart.size = size - 16;
-                        id3->has_embedded_albumart = true;
-                    }
+                    id3->albumart.type = AA_TYPE_JPG;
+                }
+                else if (memcmp(buffer, "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a", 8) == 0)
+                {
+                    id3->albumart.type = AA_TYPE_PNG;
+                }
+                
+                if (id3->albumart.type != AA_TYPE_UNKNOWN)
+                {
+                    id3->albumart.pos  = pos;
+                    id3->albumart.size = size - 16;
+                    id3->has_embedded_albumart = true;
                 }
             }
             break;
@@ -506,7 +497,7 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
             {
                 char tag_name[TAG_NAME_LENGTH];
                 uint32_t sub_size;
-                ssize_t rd_ret;
+                
                 /* "mean" atom */
                 read_uint32be(fd, &sub_size);
                 size -= sub_size;
@@ -519,34 +510,26 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
                 
                 if (sub_size > sizeof(tag_name) - 1)
                 {
-                    rd_ret = read(fd, tag_name, sizeof(tag_name) - 1);                  
+                    read(fd, tag_name, sizeof(tag_name) - 1);
                     lseek(fd, sub_size - (sizeof(tag_name) - 1), SEEK_CUR);
-                    sub_size = sizeof(tag_name) - 1;
+                    tag_name[sizeof(tag_name) - 1] = 0;
                 }
                 else
                 {
-                    rd_ret = read(fd, tag_name, sub_size);
+                    read(fd, tag_name, sub_size);
+                    tag_name[sub_size] = 0;
                 }
-                if (rd_ret != (ssize_t)sub_size)
-                    rd_ret = 0;
-                tag_name[rd_ret] = 0;
-
-                static const char *tn_options[] = {"composer", "iTunSMPB",
-                                   "musicbrainz track id", "album artist", NULL};
-
-                int tn_op = string_option(tag_name, tn_options, true);
-
-
-                if (tn_op == 0 && !cwrt) /*composer*/
+                
+                if ((strcasecmp(tag_name, "composer") == 0) && !cwrt)
                 {
                     read_mp4_tag_string(fd, size, &buffer, &buffer_left, 
                         &id3->composer);
                 }   
-                else if (tn_op == 1) /*iTunSMPB*/
+                else if (strcasecmp(tag_name, "iTunSMPB") == 0)
                 {
                     char value[TAG_VALUE_LENGTH];
                     char* value_p = value;
-                    char* any = NULL;
+                    char* any;
                     unsigned int length = sizeof(value);
 
                     read_mp4_tag_string(fd, size, &value_p, &length, &any);
@@ -555,12 +538,12 @@ static bool read_mp4_tags(int fd, struct mp3entry* id3,
                     DEBUGF("AAC: lead_trim %d, tail_trim %d\n", 
                         id3->lead_trim, id3->tail_trim);
                 }
-                else if (tn_op == 2) /*musicbrainz track id*/
+                else if (strcasecmp(tag_name, "musicbrainz track id") == 0)
                 {
                     read_mp4_tag_string(fd, size, &buffer, &buffer_left,
                         &id3->mb_track_id);
                 }
-                else if (tn_op == 3) /*album artist*/
+                else if ((strcasecmp(tag_name, "album artist") == 0))
                 {
                     read_mp4_tag_string(fd, size, &buffer, &buffer_left, 
                         &id3->albumartist);
@@ -615,11 +598,20 @@ static bool read_mp4_container(int fd, struct mp3entry* id3,
         {
         case MP4_ftyp:
             {
-                // filetype (supported ignore case values: m4a, m4b, mp42, 3gp6, qt, isom)
-                char filetype[4];
-                read(fd, &filetype, 4);
-                DEBUGF("MP4 file type:  '%.4s'\n", filetype);
+                uint32_t id;
+                
+                read_uint32be(fd, &id);
                 size -= 4;
+                
+                if ((id != MP4_M4A) && (id != MP4_M4B) && (id != MP4_mp42) 
+                    && (id != MP4_qt) && (id != MP4_3gp6) && (id != MP4_m4a)
+                    && (id != MP4_isom))
+                {
+                    DEBUGF("Unknown MP4 file type: '%c%c%c%c'\n", 
+                        (int)(id >> 24 & 0xff), (int)(id >> 16 & 0xff),
+                        (int)(id >> 8 & 0xff), (int)(id & 0xff));
+                    return false;
+                }
             }
             break;
 
@@ -696,11 +688,13 @@ static bool read_mp4_container(int fd, struct mp3entry* id3,
                      * need any further special handling. */
                     if (id3->codectype==AFMT_MP4_AAC_HE && l<=1024)
                     {
-                        l *= 2;
+                        id3->samples += n * l * 2;
                         id3->needs_upsampling_correction = true;
                     }
-
-                    id3->samples += (uint64_t) n * l;
+                    else
+                    {
+                        id3->samples += n * l;
+                    }
                 }
                 
                 size = 0;
@@ -764,8 +758,7 @@ static bool read_mp4_container(int fd, struct mp3entry* id3,
                Ignore them. */
             if(size == 0)
                 break;
-            /* mdat chunks accumulate! */
-            id3->filesize += size;
+            id3->filesize = size;
             if(id3->samples > 0) {
                 /* We've already seen the moov chunk. */
                 done = true;
@@ -776,8 +769,8 @@ static bool read_mp4_container(int fd, struct mp3entry* id3,
             {
                 /* ADDME: add support for real chapters. Right now it's only
                  * used for Nero's gapless hack */
-                uint8_t chapters   = 0;
-                uint64_t timestamp = 0;
+                uint8_t chapters;
+                uint64_t timestamp;
 
                 lseek(fd, 8, SEEK_CUR);
                 read_uint8(fd, &chapters);

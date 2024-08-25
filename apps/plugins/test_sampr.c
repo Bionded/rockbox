@@ -192,8 +192,6 @@ static void play_tone(bool volume_set)
 {
     static struct opt_items names[HW_NUM_FREQ] =
     {
-        HW_HAVE_192_([HW_FREQ_192] = { "192kHz",     -1 },)
-        HW_HAVE_176_([HW_FREQ_176] = { "176.4kHz",   -1 },)
         HW_HAVE_96_([HW_FREQ_96] = { "96kHz",     -1 },)
         HW_HAVE_88_([HW_FREQ_88] = { "88.2kHz",   -1 },)
         HW_HAVE_64_([HW_FREQ_64] = { "64kHz",     -1 },)
@@ -252,7 +250,7 @@ static void play_tone(bool volume_set)
     else
 #endif /* HAVE_VOLUME_IN_LIST */
     {
-        rb->set_option("Sample Rate", &freq, RB_INT, names,
+        rb->set_option("Sample Rate", &freq, INT, names,
                        HW_NUM_FREQ, set_frequency);
         (void)volume_set;
     }

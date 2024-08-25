@@ -144,6 +144,81 @@ void lcd_init_device(void)
     lcd_write_command(LCD_SET_NORMAL_DISPLAY);
 }
 
+
+#elif defined(CPU_TCC77X)
+
+/* TCC77x specific defines */
+#define LCD_BASE 0x50000000
+#define LCD_CMD   *(volatile unsigned char*)(LCD_BASE)
+#define LCD_DATA  *(volatile unsigned char*)(LCD_BASE+1)
+
+void lcd_write_command(int byte)
+{
+    LCD_CMD = byte;
+        
+    asm volatile (
+        "nop      \n\t"
+        "nop      \n\t"
+        "nop      \n\t"
+    );
+}
+
+void lcd_write_data(const fb_data* p_bytes, int count)
+{
+    while (count--)
+    {
+        LCD_DATA = *(p_bytes++);
+
+        asm volatile (
+            "nop      \n\t"
+            "nop      \n\t"
+            "nop      \n\t"
+        );
+    }
+}
+
+/* LCD init */
+void lcd_init_device(void)
+{
+    uint32_t bus_width;
+
+    /* Telechips init the same as the original firmware */
+    CSCFG1 &= 0xc3ffc000;
+    CSCFG1 |= 0x3400101a;
+    CSCFG1 |= (1 << 21);
+    CSCFG1 &= ~(1 << 21);
+
+    bus_width = ((MCFG >> 11) & 0x3) ^ 3;
+
+    CSCFG1 = (bus_width << 28) |
+             (3 << 26) |                 /* MTYPE = 3 */
+             ((LCD_BASE >> 28) << 22) |  /* CSBASE = 0x5 */
+             (1 << 20) |                 /* Unknown */
+             (3 << 11) |                 /* Setup time = 3 cycles */
+             (3 << 3) |                  /* Pulse width = 3+1 cycles */
+             (1 << 0);                   /* Hold time = 1 cycle */
+
+    /* SSD1815 inits like the original firmware */
+    lcd_write_command(LCD_SET_DISPLAY_OFF);
+    lcd_set_flip(false);
+    lcd_write_command(LCD_SET_INTERNAL_REGULATOR_RESISTOR_RATIO | 5);
+    lcd_set_contrast(lcd_default_contrast());
+    lcd_write_command(LCD_SET_POWER_CONTROL_REGISTER | 7);
+               /* power control register: op-amp=1, regulator=1, booster=1 */
+    lcd_write_command(LCD_SET_BIAS_TC_OSC);
+
+    /* 0xc2 = 110 000 10: Osc. Freq 110 - ???
+                          TC value 000  - "-0.01%/C (TC0, POR)"
+                          Bias ratio 10 - "1/9, 1/7 (POR)"
+     */
+    lcd_write_command(0xc2);
+    lcd_write_command(LCD_SET_DISPLAY_ON);
+
+    lcd_clear_display();
+    lcd_update();
+}
+
+/* End of TCC77x specific defines */
 #endif
 
 
@@ -221,7 +296,6 @@ void lcd_update(void)
 {
     int y;
 
-    void* (*fbaddr)(int x, int y) = FB_CURRENTVP_BUFFER->get_address_fn;
     /* Copy display bitmap to hardware */
     for (y = 0; y < LCD_FBHEIGHT; y++)
     {
@@ -229,7 +303,7 @@ void lcd_update(void)
         lcd_write_command (LCD_CNTL_HIGHCOL | ((xoffset >> 4) & 0xf));
         lcd_write_command (LCD_CNTL_LOWCOL | (xoffset & 0xf));
 
-        lcd_write_data (fbaddr(0,y), LCD_WIDTH);
+        lcd_write_data (FBADDR(0, y), LCD_WIDTH);
     }
 }
 
@@ -250,7 +324,6 @@ void lcd_update_rect(int x, int y, int width, int height)
     if(ymax >= LCD_FBHEIGHT)
         ymax = LCD_FBHEIGHT-1;
 
-    void* (*fbaddr)(int x, int y) = FB_CURRENTVP_BUFFER->get_address_fn;
     /* Copy specified rectange bitmap to hardware */
     for (; y <= ymax; y++)
     {
@@ -258,6 +331,6 @@ void lcd_update_rect(int x, int y, int width, int height)
         lcd_write_command (LCD_CNTL_HIGHCOL | (((x+xoffset) >> 4) & 0xf));
         lcd_write_command (LCD_CNTL_LOWCOL | ((x+xoffset) & 0xf));
 
-        lcd_write_data (fbaddr(x,y), width);
+        lcd_write_data (FBADDR(x,y), width);
     }
 }

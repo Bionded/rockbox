@@ -24,8 +24,7 @@
 #define _PLAYLIST_VIEWER_H_
 
 enum playlist_viewer_result playlist_viewer(void);
-enum playlist_viewer_result playlist_viewer_ex(const char* filename,
-                                               int* most_recent_selection);
+enum playlist_viewer_result playlist_viewer_ex(const char* filename);
 bool search_playlist(void);
 
 enum playlist_viewer_result {

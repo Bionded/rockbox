@@ -40,11 +40,9 @@
     if (fn) fn(__VA_ARGS__)
 
 static int enc_menuitem_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list);
+                                  const struct menu_item_ex *this_item);
 static int enc_menuitem_enteritem(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list);
+                                  const struct menu_item_ex *this_item);
 static void enc_rec_settings_changed(struct encoder_config *cfg);
 /* this is used by all encoder menu items,
    MUST be initialised before the call to do_menu() */
@@ -115,7 +113,7 @@ static void mp3_enc_convert_config(struct encoder_config *cfg,
     }
     else
     {
-        if ((unsigned)global_settings.mp3_enc_config.bitrate >= MP3_ENC_NUM_BITR)
+        if ((unsigned)global_settings.mp3_enc_config.bitrate > MP3_ENC_NUM_BITR)
             global_settings.mp3_enc_config.bitrate = MP3_ENC_BITRATE_CFG_DEFAULT;
         cfg->mp3_enc.bitrate = mp3_enc_bitr[global_settings.mp3_enc_config.bitrate];
     }
@@ -183,7 +181,7 @@ static bool mp3_enc_bitrate(struct menucallback_data *data)
 
     int index = round_value_to_list32(cfg->mp3_enc.bitrate, rate_list,
                                       n_rates, false);
-    bool res = set_option(str(LANG_BITRATE), &index, RB_INT,
+    bool res = set_option(str(LANG_BITRATE), &index, INT,
                           items, n_rates, NULL);
     index = round_value_to_list32(rate_list[index], mp3_enc_bitr,
                                   MP3_ENC_NUM_BITR, false);
@@ -193,9 +191,9 @@ static bool mp3_enc_bitrate(struct menucallback_data *data)
 } /* mp3_enc_bitrate */
 
 /* mp3_enc configuration menu */
-MENUITEM_FUNCTION_W_PARAM(mp3_bitrate, 0, ID2P(LANG_BITRATE),
-                   mp3_enc_bitrate, &menu_callback_data,
-                   enc_menuitem_callback, Icon_NOICON);
+MENUITEM_FUNCTION(mp3_bitrate, MENU_FUNC_USEPARAM, ID2P(LANG_BITRATE),
+                   mp3_enc_bitrate,
+                   &menu_callback_data, enc_menuitem_callback, Icon_NOICON);
 MAKE_MENU( mp3_enc_menu, ID2P(LANG_ENCODER_SETTINGS),
            enc_menuitem_enteritem, Icon_NOICON,
            &mp3_bitrate);
@@ -264,11 +262,9 @@ static inline bool rec_format_ok(int rec_format)
 /* This is called before entering the menu with the encoder settings
    Its needed to make sure the settings can take effect. */
 static int enc_menuitem_enteritem(int action,
-                                  const struct menu_item_ex *this_item,
-                                  struct gui_synclist *this_list)
+                                  const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     /* this struct must be init'ed before calling do_menu() so this is safe */
     struct menucallback_data *data = &menu_callback_data;
     if (action == ACTION_STD_OK) /* entering the item */
@@ -281,12 +277,10 @@ static int enc_menuitem_enteritem(int action,
 /* this is called when a encoder setting is exited
    It is used to update the status bar and save the setting */
 static int enc_menuitem_callback(int action,
-                                 const struct menu_item_ex *this_item,
-                                 struct gui_synclist *this_list)
+                                  const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     struct menucallback_data *data = 
-            (struct menucallback_data*)this_item->function_param->param;
+            (struct menucallback_data*)this_item->function->param;
     
     if (action == ACTION_EXIT_MENUITEM)
     {
@@ -375,7 +369,7 @@ bool enc_get_caps(const struct encoder_config *cfg,
     else
     {
         /* If no function provided...defaults to all */
-        caps->samplerate_caps = SAMPR_CAP_ALL_192;
+        caps->samplerate_caps = SAMPR_CAP_ALL;
         caps->channel_caps    = CHN_CAP_ALL;
     }
 

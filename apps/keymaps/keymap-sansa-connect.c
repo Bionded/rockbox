@@ -70,25 +70,8 @@ static const struct button_mapping button_context_wps[]  = {
 
 static const struct button_mapping button_context_yesno[] = {
   {ACTION_YESNO_ACCEPT,   BUTTON_SELECT,                    BUTTON_NONE},
-  {ACTION_STD_CANCEL,     BUTTON_PREV,                      BUTTON_NONE},
-  {ACTION_STD_CANCEL,     BUTTON_NEXT,                      BUTTON_NONE},
-  {ACTION_STD_CANCEL,     BUTTON_VOL_UP,                      BUTTON_NONE},
-  {ACTION_STD_CANCEL,     BUTTON_VOL_DOWN,                      BUTTON_NONE},
-  {ACTION_STD_CANCEL,     BUTTON_POWER,                      BUTTON_NONE},
-  LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
-}; /* button_context_yesno */
-
-static const struct button_mapping button_context_settings_time[] = {
-  {ACTION_STD_PREV,       BUTTON_PREV|BUTTON_REL,     BUTTON_PREV},
-  {ACTION_STD_PREVREPEAT, BUTTON_PREV|BUTTON_REPEAT,  BUTTON_PREV},
-  {ACTION_STD_NEXT,       BUTTON_NEXT|BUTTON_REL,     BUTTON_NEXT},
-  {ACTION_STD_NEXTREPEAT, BUTTON_NEXT|BUTTON_REPEAT,  BUTTON_NEXT},
-  {ACTION_STD_CANCEL,     BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_LEFT},
-  {ACTION_STD_OK,         BUTTON_SELECT|BUTTON_REL,   BUTTON_SELECT},
-  {ACTION_SETTINGS_INC,   BUTTON_SCROLL_FWD,          BUTTON_NONE},
-  {ACTION_SETTINGS_DEC,   BUTTON_SCROLL_BACK,         BUTTON_NONE},
   LAST_ITEM_IN_LIST
-}; /* button_context_settings_time */
+}; /* button_context_yesno */
 
 static const struct button_mapping button_context_keyboard[] = {
   {ACTION_KBD_LEFT,       BUTTON_LEFT,                      BUTTON_NONE},
@@ -130,9 +113,7 @@ const struct button_mapping* get_context_mapping(int context)
         case CONTEXT_KEYBOARD:
         case CONTEXT_MORSE_INPUT:
             return button_context_keyboard;
-        case CONTEXT_SETTINGS_TIME:
-            return button_context_settings_time;
-
+            
         case CONTEXT_TREE:
         case CONTEXT_LIST:
         case CONTEXT_MAINMENU:

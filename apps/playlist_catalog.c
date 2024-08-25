@@ -36,7 +36,6 @@
 #include "onplay.h"
 #include "playlist.h"
 #include "settings.h"
-#include "rbpaths.h"
 #include "splash.h"
 #include "tree.h"
 #include "yesno.h"
@@ -46,8 +45,6 @@
 #include "talk.h"
 #include "playlist_viewer.h"
 #include "bookmark.h"
-#include "root_menu.h"
-#include "general.h"
 
 /* Use for recursive directory search */
 struct add_track_context {
@@ -55,70 +52,68 @@ struct add_track_context {
     int count;
 };
 
-enum catbrowse_status_flags{
-    CATBROWSE_NOTHING = 0,
-    CATBROWSE_CATVIEW,
-    CATBROWSE_PLAYLIST
-};
-
 /* keep track of most recently used playlist */
 static char most_recent_playlist[MAX_PATH];
-/* we need playlist_dir_length for easy removal of playlist dir prefix */
-static size_t playlist_dir_length;
-/* keep track of what browser(s) are current to prevent reentry */
-static int browser_status = CATBROWSE_NOTHING;
 
-static size_t get_directory(char* dirbuf, size_t dirbuf_sz)
+/* directory where our playlists our stored */
+static char playlist_dir[MAX_PATH];
+static int  playlist_dir_length;
+static bool playlist_dir_exists = false;
+
+/* Retrieve playlist directory from config file and verify it exists */
+static bool initialized = false;
+static int initialize_catalog(void)
 {
-    const char *pl_dir = PLAYLIST_CATALOG_DEFAULT_DIR;
 
-    /* directory config is of the format: "dir: /path/to/dir" */
-    if (global_settings.playlist_catalog_dir[0] != '\0')
+    if (!initialized)
     {
-        pl_dir = global_settings.playlist_catalog_dir;
+        bool default_dir = true;
+
+        /* directory config is of the format: "dir: /path/to/dir" */
+        if (global_settings.playlist_catalog_dir[0] &&
+            strcmp(global_settings.playlist_catalog_dir,
+                   PLAYLIST_CATALOG_DEFAULT_DIR))
+        {
+            strcpy(playlist_dir, global_settings.playlist_catalog_dir);
+            default_dir = false;
+        }
+
+        /* fall back to default directory if no or invalid config */
+        if (default_dir)
+        {
+            strcpy(playlist_dir, PLAYLIST_CATALOG_DEFAULT_DIR);
+            if (!dir_exists(playlist_dir))
+                mkdir(playlist_dir);
+        }
+
+        /* remove duplicate leading '/' */
+        if (playlist_dir[0] == '/' && playlist_dir[1] == '/')
+            strcpy(playlist_dir, &playlist_dir[1]);
+
+        playlist_dir_length = strlen(playlist_dir);
+
+        if (dir_exists(playlist_dir))
+        {
+            playlist_dir_exists = true;
+            memset(most_recent_playlist, 0, sizeof(most_recent_playlist));
+            initialized = true;
+        }
     }
 
-    return path_append(dirbuf, pl_dir, PA_SEP_SOFT, dirbuf_sz);
-}
-
-/* Retrieve playlist directory from config file and verify it exists
- * attempts to create directory
- * catalog dir is returned in dirbuf */
-static int initialize_catalog_buf(char* dirbuf, size_t dirbuf_sz)
-{
-    playlist_dir_length = get_directory(dirbuf, dirbuf_sz);
-    if (playlist_dir_length >= dirbuf_sz)
+    if (!playlist_dir_exists)
     {
-        return -2;
-    }
-
-    if (!dir_exists(dirbuf))
-    {
-        if (mkdir(dirbuf) < 0) {
-            if (global_settings.talk_menu) {
-                talk_id(LANG_CATALOG_NO_DIRECTORY, true);
-                talk_dir_or_spell(dirbuf, NULL, true);
-                talk_force_enqueue_next();
-            }
-            splashf(HZ*2, str(LANG_CATALOG_NO_DIRECTORY), dirbuf);
+        if (mkdir(playlist_dir) < 0) {
+            splashf(HZ*2, ID2P(LANG_CATALOG_NO_DIRECTORY), playlist_dir);
             return -1;
         }
         else {
+            playlist_dir_exists = true;
             memset(most_recent_playlist, 0, sizeof(most_recent_playlist));
+            initialized = true;
         }
     }
 
     return 0;
-}
-
-/* Retrieve playlist directory from config file and verify it exists
- * attempts to create directory
- * Don't inline as we want the stack to be freed ASAP */
-static NO_INLINE int initialize_catalog(void)
-{
-    char playlist_dir[MAX_PATH];
-
-    return initialize_catalog_buf(playlist_dir, sizeof(playlist_dir));
 }
 
 void catalog_set_directory(const char* directory)
@@ -129,126 +124,61 @@ void catalog_set_directory(const char* directory)
     }
     else
     {
-        path_append(global_settings.playlist_catalog_dir, directory,
-                    PA_SEP_SOFT, sizeof(global_settings.playlist_catalog_dir));
+        strcpy(global_settings.playlist_catalog_dir, directory);
     }
+    initialized = false;
     initialize_catalog();
 }
 
-void catalog_get_directory(char* dirbuf, size_t dirbuf_sz)
+const char* catalog_get_directory(void)
 {
-    if (initialize_catalog_buf(dirbuf, dirbuf_sz) < 0)
-    {
-        dirbuf[0] = '\0';
-        return;
-    }
+    if (initialize_catalog() == -1)
+        return "";
+    return playlist_dir;
 }
 
 /* Display all playlists in catalog.  Selected "playlist" is returned.
- * If status is CATBROWSE_CATVIEW then we're not adding anything into playlist */
-static int display_playlists(char* playlist, enum catbrowse_status_flags status)
+   If "view" mode is set then we're not adding anything into playlist. */
+static int display_playlists(char* playlist, bool view)
 {
-    static bool reopen_last_playlist = false;
-    static int most_recent_selection = 0;
-    int result = -1;
+    struct browse_context browse;
     char selected_playlist[MAX_PATH];
-    selected_playlist[0] = '\0';
+    int result = -1;
 
-    browser_status |= status;
-    bool view = (status == CATBROWSE_CATVIEW);
+    browse_context_init(&browse, SHOW_M3U,
+                        BROWSE_SELECTONLY|(view? 0: BROWSE_NO_CONTEXT_MENU),
+                        str(LANG_CATALOG), NOICON,
+                        playlist_dir, most_recent_playlist);
 
-    struct browse_context browse = {
-        .dirfilter = SHOW_M3U,
-        .flags = BROWSE_SELECTONLY | (view ? 0 : BROWSE_NO_CONTEXT_MENU),
-        .title = str(LANG_CATALOG),
-        .icon = Icon_NOICON,
-        .root = selected_playlist,
-        .selected = &most_recent_playlist[playlist_dir_length + 1],
-        .buf = selected_playlist,
-        .bufsize = sizeof(selected_playlist),
-    };
+    browse.buf = selected_playlist;
+    browse.bufsize = sizeof(selected_playlist);
 
 restart:
-    /* set / restore the root directory for the browser */
-    catalog_get_directory(selected_playlist, sizeof(selected_playlist));
     browse.flags &= ~BROWSE_SELECTED;
+    rockbox_browse(&browse);
 
-    if (view && reopen_last_playlist)
+    if (browse.flags & BROWSE_SELECTED)
     {
-        switch (playlist_viewer_ex(most_recent_playlist, &most_recent_selection))
+        strlcpy(most_recent_playlist, selected_playlist+playlist_dir_length+1,
+            sizeof(most_recent_playlist));
+
+        if (view)
         {
-            case PLAYLIST_VIEWER_OK:
+            
+            if (!bookmark_autoload(selected_playlist))
             {
-                result = 0;
-                break;
+                if (playlist_viewer_ex(selected_playlist) == PLAYLIST_VIEWER_CANCEL)
+                    goto restart;
             }
-            case PLAYLIST_VIEWER_CANCEL:
-            {
-                reopen_last_playlist = false;
-                goto restart;
-            }
-            case PLAYLIST_VIEWER_USB:
-            case PLAYLIST_VIEWER_MAINMENU:
-            /* Fall through */
-            default:
-                break;
-        }
-    }
-    else /* browse playlist dir */
-    {
-        int browse_ret = rockbox_browse(&browse);
-        if (browse_ret == GO_TO_WPS
-            || (view && browse_ret == GO_TO_PREVIOUS_MUSIC))
             result = 0;
-    }
-
-    if (browse.flags & BROWSE_SELECTED) /* User picked a playlist */
-    {
-        if (strcmp(most_recent_playlist, selected_playlist)) /* isn't most recent one */
-        {
-            path_append(most_recent_playlist, selected_playlist,
-                        PA_SEP_SOFT, sizeof(most_recent_playlist));
-            most_recent_selection = 0;
-            reopen_last_playlist = false;
         }
-
-        if (view) /* display playlist contents or resume bookmark */
-        {
-
-            int res = bookmark_autoload(selected_playlist);
-            if (res == BOOKMARK_DO_RESUME)
-               result = 0;
-            else if (res == BOOKMARK_CANCEL)
-                goto restart;
-            else
-            {
-                switch (playlist_viewer_ex(selected_playlist, &most_recent_selection)) {
-                    case PLAYLIST_VIEWER_OK:
-                    {
-                        reopen_last_playlist = true;
-                        result = 0;
-                        break;
-                    }
-                    case PLAYLIST_VIEWER_CANCEL:
-                    {
-                        goto restart;
-                    }
-                    case PLAYLIST_VIEWER_USB:
-                    case PLAYLIST_VIEWER_MAINMENU:
-                    /* Fall through */
-                    default:
-                        reopen_last_playlist = true;
-                        break;
-                }
-            }
-        }
-        else /* we're just adding something to a playlist */
+        else
         {
             result = 0;
-            strmemccpy(playlist, selected_playlist, MAX_PATH);
+            strlcpy(playlist, selected_playlist, MAX_PATH);
         }
     }
-    browser_status &= ~status;
+
     return result;
 }
 
@@ -257,7 +187,7 @@ restart:
 static void display_insert_count(int count)
 {
     static long talked_tick = 0;
-    if(global_settings.talk_menu && count &&
+    if(global_settings.talk_menu && count && 
         (talked_tick == 0 || TIME_AFTER(current_tick, talked_tick+5*HZ)))
     {
         talked_tick = current_tick;
@@ -298,10 +228,8 @@ static int add_to_playlist(const char* playlist, bool new_playlist,
         fd = open(playlist, O_CREAT|O_WRONLY|O_APPEND, 0666);
 
     if(fd < 0)
-    {
-        splash(HZ*2, ID2P(LANG_FAILED));
         return result;
-    }
+
     /* In case we're in the playlist directory */
     reload_directory();
 
@@ -377,120 +305,78 @@ exit:
     close(fd);
     return result;
 }
-
+static bool in_cat_viewer = false;
 bool catalog_view_playlists(void)
 {
-    if ((browser_status & CATBROWSE_CATVIEW) == CATBROWSE_CATVIEW)
+    bool retval = true;
+    if (in_cat_viewer)
         return false;
 
-    if (initialize_catalog() < 0)
+    if (initialize_catalog() == -1)
         return false;
 
-    return (display_playlists(NULL, CATBROWSE_CATVIEW) >= 0);
+    in_cat_viewer = true;
+    retval = (display_playlists(NULL, true) != -1);
+    in_cat_viewer = false;
+    return retval;
 }
 
-static void apply_playlist_extension(char* buf, size_t buf_size)
-{
-    size_t len = strlen(buf);
-    if(len > 4 && !strcasecmp(&buf[len-4], ".m3u"))
-        strlcat(buf, "8", buf_size);
-    else if(len <= 5 || strcasecmp(&buf[len-5], ".m3u8"))
-        strlcat(buf, ".m3u8", buf_size);
-}
-
-static int remove_extension(char* path)
-{
-    char *dot = strrchr(path, '.');
-    if (dot)
-       *dot = '\0';
-
-    return 0;
-}
-
-
-bool catalog_pick_new_playlist_name(char *pl_name, size_t buf_size,
-                                    const char* curr_pl_name)
-{
-    char bmark_file[MAX_PATH + 7];
-    bool do_save = false;
-    while (!do_save && !remove_extension(pl_name) &&
-           !kbd_input(pl_name, buf_size - 7, NULL))
-    {
-        do_save = true;
-        apply_playlist_extension(pl_name, buf_size);
-
-        /* warn before overwriting existing (different) playlist */
-        if (!curr_pl_name || strcmp(curr_pl_name, pl_name))
-        {
-            if (file_exists(pl_name))
-                do_save = confirm_overwrite_yesno() == YESNO_YES;
-
-            if (do_save) /* delete bookmark file unrelated to new playlist */
-            {
-                snprintf(bmark_file, sizeof(bmark_file), "%s.bmark", pl_name);
-                if (file_exists(bmark_file))
-                    remove(bmark_file);
-            }
-        }
-    }
-    return do_save;
-}
-
-static int (*ctx_add_to_playlist)(const char* playlist, bool new_playlist);
+static bool in_add_to_playlist = false;
 bool catalog_add_to_a_playlist(const char* sel, int sel_attr,
-                               bool new_playlist, char *m3u8name,
-                               void (*add_to_pl_cb))
+                               bool new_playlist, char *m3u8name)
 {
     int result;
     char playlist[MAX_PATH + 7]; /* room for /.m3u8\0*/
-    if ((browser_status & CATBROWSE_PLAYLIST) == CATBROWSE_PLAYLIST)
+    if (in_add_to_playlist)
         return false;
 
-    if (initialize_catalog_buf(playlist, sizeof(playlist)) < 0)
+    if (initialize_catalog() == -1)
         return false;
 
     if (new_playlist)
     {
+        size_t len;
         if (m3u8name == NULL)
         {
             const char *name;
             /* If sel is empty, root, or playlist directory  we use 'all' */
-            if (!sel || !strcmp(sel, "/") || !strcmp(sel, playlist))
+            if (!sel || !strcmp(sel, "/") || !strcmp(sel, playlist_dir))
             {
-                sel = "/";
+                if (!sel || !strcmp(sel, PLAYLIST_CATALOG_DEFAULT_DIR))
+                    sel = "/";
                 name = "/all";
             }
             else /*If sel is a folder, we prefill the text field with its name*/
                 name = strrchr(sel, '/');
 
-            if (name == NULL || ((sel_attr & ATTR_DIRECTORY) != ATTR_DIRECTORY))
-                create_numbered_filename(playlist, playlist, PLAYLIST_UNTITLED_PREFIX,
-                                         ".m3u8", 1 IF_CNFN_NUM_(, NULL));
-            else
-            {
-                strlcat(playlist, name, sizeof(playlist));
-                apply_playlist_extension(playlist, sizeof(playlist));
-            }
+            snprintf(playlist, MAX_PATH + 1, "%s/%s",
+                     playlist_dir,
+                     (name!=NULL && (sel_attr & ATTR_DIRECTORY))?name+1:"");
         }
         else
-            strmemccpy(playlist, m3u8name, sizeof(playlist));
+            strlcpy(playlist, m3u8name, MAX_PATH);
 
-        if (!catalog_pick_new_playlist_name(playlist, sizeof(playlist), NULL))
+        if (kbd_input(playlist, MAX_PATH))
             return false;
+
+        len = strlen(playlist);
+        if(len > 4 && !strcasecmp(&playlist[len-4], ".m3u"))
+            strlcat(playlist, "8", sizeof(playlist));
+        else if(len <= 5 || strcasecmp(&playlist[len-5], ".m3u8"))
+            strlcat(playlist, ".m3u8", sizeof(playlist));
     }
     else
     {
-        if (display_playlists(playlist, CATBROWSE_PLAYLIST) < 0)
+        in_add_to_playlist = true;
+        result = display_playlists(playlist, false);
+        in_add_to_playlist = false;
+
+        if (result == -1)
             return false;
     }
 
-    if (add_to_pl_cb != NULL)
-    {
-        ctx_add_to_playlist = add_to_pl_cb;
-        result = ctx_add_to_playlist(playlist, new_playlist);
-    }
+    if (add_to_playlist(playlist, new_playlist, sel, sel_attr) == 0)
+        return true;
     else
-        result = add_to_playlist(playlist, new_playlist, sel, sel_attr);
-
-    return (result == 0);
+        return false;
 }

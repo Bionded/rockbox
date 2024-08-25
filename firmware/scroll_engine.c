@@ -37,15 +37,29 @@
 #endif
 #include "scroll_engine.h"
 
+
+/* private helper function for the scroll engine. Do not use in apps/.
+ * defined in lcd-bitmap-common.c */
+extern struct viewport *lcd_get_viewport(bool *is_defaut);
+#ifdef HAVE_REMOTE_LCD
+extern struct viewport *lcd_remote_get_viewport(bool *is_defaut);
+#endif
+
 static const char scroll_tick_table[18] = {
  /* Hz values [f(x)=100.8/(x+.048)]:
     1, 1.25, 1.55, 2, 2.5, 3.12, 4, 5, 6.25, 8.33, 10, 12.5, 16.7, 20, 25, 33, 49.2, 96.2 */
     100, 80, 64, 50, 40, 32, 25, 20, 16, 12, 10, 8, 6, 5, 4, 3, 2, 1
 };
 
+static void scroll_thread(void);
+static char scroll_stack[DEFAULT_STACK_SIZE*3];
+static const char scroll_name[] = "scroll";
+
 #include "drivers/lcd-scroll.c"
 
 #ifdef HAVE_REMOTE_LCD
+static struct event_queue scroll_queue SHAREDBSS_ATTR;
+
 /* copied from lcd-remote-1bit.c */
 /* Compile 1 bit vertical packing LCD driver for remote LCD */
 #undef LCDFN
@@ -54,10 +68,6 @@ static const char scroll_tick_table[18] = {
 #define LCDM(ma) LCD_REMOTE_ ## ma
 
 #include "drivers/lcd-scroll.c"
-#endif /* HAVE_REMOTE_LCD */
-
-#if defined(HAVE_REMOTE_LCD) && !defined(BOOTLOADER)
-static struct event_queue scroll_queue SHAREDBSS_ATTR;
 
 static void sync_display_ticks(void)
 {
@@ -100,14 +110,11 @@ static bool scroll_process_message(int delay)
 
     return false;
 }
-#endif /* HAVE_REMOTE_LCD && !BOOTLOADER */
+#endif /* HAVE_REMOTE_LCD */
 
-#if !defined(BOOTLOADER)
-static void scroll_thread(void);
-static const char scroll_name[] = "scroll";
 static void scroll_thread(void) NORETURN_ATTR;
-
 #ifdef HAVE_REMOTE_LCD
+
 static void scroll_thread(void)
 {
     enum
@@ -172,23 +179,24 @@ static void scroll_thread(void)
         }
     }
 }
-#else /* !HAVE_REMOTE_LCD */
+#else
 static void scroll_thread(void)
 {
     while (1)
     {
         sleep(lcd_scroll_info.ticks);
+#if !defined(BOOTLOADER) || defined(HAVE_LCD_CHARCELLS)
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
         if (lcd_active())
 #endif
             lcd_scroll_worker();
+#endif /*!BOOTLOADER\HAVE_LCD_CHARCELLS*/
     }
 }
-#endif /* !HAVE_REMOTE_LCD */
+#endif /* HAVE_REMOTE_LCD */
 
 void scroll_init(void)
 {
-    static char scroll_stack[DEFAULT_STACK_SIZE*3];
 #ifdef HAVE_REMOTE_LCD
     queue_init(&scroll_queue, true);
 #endif
@@ -197,9 +205,3 @@ void scroll_init(void)
                   IF_PRIO(, PRIORITY_USER_INTERFACE)
                   IF_COP(, CPU));
 }
-#else /* BOOTLOADER */
-void scroll_init(void)
-{
-    /* DUMMY */
-}
-#endif /* BOOTLOADER*/

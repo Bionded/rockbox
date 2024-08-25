@@ -33,8 +33,6 @@ static const unsigned _16bpp_colors[32] = {
     LCD_RGBPACK(IB1, IB1, IB0), LCD_RGBPACK(IB1, IB1, IB1),
 };
 
-static fb_data *lcd_fb = NULL;
-
 void init_spect_scr(void)
 {
     int i;
@@ -51,11 +49,6 @@ void init_spect_scr(void)
 
 void update_screen(void)
 {
-    if (!lcd_fb)
-    {
-        struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-        lcd_fb = vp_main->buffer->fb_ptr;
-    }
     fb_data *frameb;
   
     int y=0;
@@ -65,7 +58,7 @@ void update_screen(void)
     byte *scrptr;
     scrptr = (byte *) SPNM(image);
     */
-    frameb = lcd_fb;
+    frameb = rb->lcd_framebuffer;
     for ( y = 0 ; y < HEIGHT*WIDTH; y++ ){
         frameb[y] = FB_SCALARPACK(_16bpp_colors[(unsigned)sp_image[y]]);
     }
@@ -75,7 +68,7 @@ void update_screen(void)
     int srcx, srcy=0;     /* x / y coordinates in source image */
     unsigned char* image;
     image = sp_image + ( (Y_OFF)*(WIDTH) ) + X_OFF;
-    frameb = lcd_fb;
+    frameb = rb->lcd_framebuffer;
     for(y = 0; y < LCD_HEIGHT; y++)
     {
         srcx = 0;           /* reset our x counter before each row... */

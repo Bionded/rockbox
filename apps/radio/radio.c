@@ -54,13 +54,21 @@
 #include "viewport.h"
 #include "skin_engine/skin_engine.h"
 #include "statusbar-skinned.h"
+#if CONFIG_CODEC == SWCODEC
 #include "playback.h"
+#endif
 #include "presets.h"
-#include "wps.h" /* for wps_state... */
 
 #if CONFIG_TUNER
 
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define FM_RECORD
+#define FM_PRESET_ADD
+#define FM_PRESET_ACTION
+#define FM_PRESET
+#define FM_MODE
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define FM_PRESET
 #define FM_MODE
 #define FM_NEXT_PRESET
@@ -77,6 +85,10 @@
    proper tuning quiets the screen almost entirely in that extreme measures
    have to be taken to hear any interference. */
 #define HAVE_NOISY_IDLE_MODE
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define FM_RECORD_DBLPRE
+#define FM_RECORD
 
 #elif (CONFIG_KEYPAD == SANSA_E200_PAD) || (CONFIG_KEYPAD == SANSA_C200_PAD) ||\
       (CONFIG_KEYPAD == SANSA_FUZE_PAD) || (CONFIG_KEYPAD == SANSA_CLIP_PAD) ||\
@@ -167,24 +179,6 @@ bool in_radio_screen(void)
     return in_screen;
 }
 
-/* Keep freq on the grid for the current region */
-int snap_freq_to_grid(int freq)
-{
-    const struct fm_region_data * const fmr =
-        &fm_region_data[global_settings.fm_region];
-
-    /* Range clamp if out of range or just round to nearest */
-    if (freq < fmr->freq_min)
-        freq = fmr->freq_min;
-    else if (freq > fmr->freq_max)
-        freq = fmr->freq_max;
-    else
-        freq = (freq - fmr->freq_min + fmr->freq_step/2) /
-                fmr->freq_step * fmr->freq_step + fmr->freq_min;
-
-    return freq;
-}
-
 /* TODO: Move some more of the control functionality to firmware
          and clean up the mess */
 
@@ -204,8 +198,7 @@ void radio_start(void)
     /* clear flag before any yielding */
     radio_status &= ~FMRADIO_START_PAUSED;
 
-    /* ensure the frequency is in range otherwise bad things happen --Bilgus */
-    curr_freq = snap_freq_to_grid(global_status.last_frequency * fmr->freq_step + fmr->freq_min);
+    curr_freq = global_status.last_frequency * fmr->freq_step + fmr->freq_min;
 
     tuner_set(RADIO_SLEEP, 0); /* wake up the tuner */
 
@@ -278,6 +271,24 @@ void radio_stop(void)
 bool radio_hardware_present(void)
 {
     return tuner_get(RADIO_PRESENT);
+}
+
+/* Keep freq on the grid for the current region */
+int snap_freq_to_grid(int freq)
+{
+    const struct fm_region_data * const fmr =
+        &fm_region_data[global_settings.fm_region];
+
+    /* Range clamp if out of range or just round to nearest */
+    if (freq < fmr->freq_min)
+        freq = fmr->freq_min;
+    else if (freq > fmr->freq_max)
+        freq = fmr->freq_max;
+    else
+        freq = (freq - fmr->freq_min + fmr->freq_step/2) /
+                fmr->freq_step * fmr->freq_step + fmr->freq_min;
+
+    return freq;
 }
 
 void remember_frequency(void)
@@ -353,6 +364,14 @@ void radio_screen(void)
     int lastbutton = BUTTON_NONE;
     unsigned long rec_lastclick = 0;
 #endif
+#if CONFIG_CODEC != SWCODEC
+    int timeout = current_tick + HZ/10;
+#if !defined(SIMULATOR)
+    unsigned int last_seconds = 0;
+    unsigned int seconds = 0;
+    struct audio_recording_options rec_options;
+#endif /* SIMULATOR */
+#endif /* CONFIG_CODEC != SWCODEC */
 #ifndef HAVE_NOISY_IDLE_MODE
     int button_timeout = current_tick + (2*HZ);
 #endif
@@ -365,9 +384,7 @@ void radio_screen(void)
     {
         radio_load_presets(global_settings.fmr_file);
     }
-    /* TODO: Can this be moved somewhere else? */
-    get_wps_state()->id3 = NULL;
-    get_wps_state()->nid3 = NULL;
+    skin_get_global_state()->id3 = NULL;
 #ifdef HAVE_ALBUMART
     radioart_init(true);
 #endif    
@@ -377,7 +394,29 @@ void radio_screen(void)
 
     fms_fix_displays(FMS_ENTER);
 
+#ifndef SIMULATOR
+
+#if CONFIG_CODEC != SWCODEC
+    rec_create_directory();
+    audio_init_recording();
+
+    sound_settings_apply();
+    /* Yes, we use the D/A for monitoring */
+    peak_meter_playback(true);
+
+    peak_meter_enable(true);
+
+    rec_init_recording_options(&rec_options);
+    rec_options.rec_source = AUDIO_SRC_LINEIN;
+    rec_set_recording_options(&rec_options);
+
+    audio_set_recording_gain(sound_default(SOUND_LEFT_GAIN),
+            sound_default(SOUND_RIGHT_GAIN), AUDIO_GAIN_LINEIN);
+
+#endif /* CONFIG_CODEC != SWCODEC */
+#endif /* ndef SIMULATOR */
     /* turn on radio */
+#if CONFIG_CODEC == SWCODEC
     /* This should be done before touching audio settings */
     while (!pcm_is_initialized())
        sleep(0);
@@ -385,6 +424,10 @@ void radio_screen(void)
     audio_set_input_source(AUDIO_SRC_FMRADIO,
                            (radio_status == FMRADIO_PAUSED) ?
                                SRCF_FMRADIO_PAUSED : SRCF_FMRADIO_PLAYING);
+#else
+    if (radio_status == FMRADIO_OFF)
+        radio_start();
+#endif
 
     if(radio_preset_count() < 1 && yesno_pop(ID2P(LANG_FM_FIRST_AUTOSCAN)))
         presets_scan(NULL);
@@ -436,6 +479,13 @@ void radio_screen(void)
         switch(button)
         {
              case ACTION_FM_STOP:
+#if CONFIG_CODEC != SWCODEC && !defined(SIMULATOR)
+                if(audio_status() == AUDIO_STATUS_RECORD)
+                {
+                    audio_stop();
+                }
+                else
+#endif
                 {
                     done = true;
                     if(presets_have_changed())
@@ -474,11 +524,18 @@ void radio_screen(void)
                     rec_command(RECORDING_CMD_START);
                     update_type = SKIN_REFRESH_ALL;
                 }
+#if CONFIG_CODEC != SWCODEC
+                last_seconds = 0;
+#endif
 #endif /* SIMULATOR */
                 break;
 #endif /* #ifdef FM_RECORD */
 
             case ACTION_FM_EXIT:
+#if CONFIG_CODEC != SWCODEC && !defined(SIMULATOR)
+                if(audio_status() == AUDIO_STATUS_RECORD)
+                    audio_stop();
+#endif
                 keep_playing = true;
                 done = true;
                 if(presets_have_changed())
@@ -521,14 +578,14 @@ void radio_screen(void)
 
             case ACTION_SETTINGS_INC:
             case ACTION_SETTINGS_INCREPEAT:
-                global_settings.volume += sound_steps(SOUND_VOLUME);
+                global_settings.volume++;
                 setvol();
                 update_type = SKIN_REFRESH_NON_STATIC;
                 break;
 
             case ACTION_SETTINGS_DEC:
             case ACTION_SETTINGS_DECREPEAT:
-                global_settings.volume -= sound_steps(SOUND_VOLUME);
+                global_settings.volume--;
                 setvol();
                 update_type = SKIN_REFRESH_NON_STATIC;
                 break;
@@ -540,7 +597,7 @@ void radio_screen(void)
                     radio_start();
 
                 update_type = SKIN_REFRESH_NON_STATIC;
-                talk = true;
+                talk = false;
                 talk_shutup();
                 break;
 
@@ -583,6 +640,10 @@ void radio_screen(void)
 #endif /* FM_FREEZE */
 
             case SYS_USB_CONNECTED:
+#if CONFIG_CODEC != SWCODEC
+                /* Only accept USB connection when not recording */
+                if(audio_status() != AUDIO_STATUS_RECORD)
+#endif
                 {
                     default_event_handler(SYS_USB_CONNECTED);
                     screen_freeze = true; /* Cosmetic: makes sure the
@@ -638,6 +699,10 @@ void radio_screen(void)
                 default_event_handler(button);
                 if (!tuner_get(RADIO_PRESENT))
                 {
+#if CONFIG_CODEC != SWCODEC && !defined(SIMULATOR)
+                    if(audio_status() == AUDIO_STATUS_RECORD)
+                        audio_stop();
+#endif
                     keep_playing = false;
                     done = true;
                     if(presets_have_changed())
@@ -659,10 +724,21 @@ void radio_screen(void)
             lastbutton = button;
 #endif
 
+#if CONFIG_CODEC != SWCODEC
+        peak_meter_peek();
+#endif
+
         if(!screen_freeze)
         {
             /* Only display the peak meter when not recording */
+#if CONFIG_CODEC != SWCODEC
+            if(TIME_AFTER(current_tick, timeout))
             {
+                timeout = current_tick + HZ;
+#else  /* SWCODEC */
+            {
+#endif /* CONFIG_CODEC == SWCODEC */
+
                 /* keep "mono" from always being displayed when paused */
                 if (radio_status != FMRADIO_PAUSED)
                 {
@@ -677,8 +753,15 @@ void radio_screen(void)
                 }
             }
 
+#if CONFIG_CODEC != SWCODEC && !defined(SIMULATOR)
+            seconds = audio_recorded_time() / HZ;
+            if (update_type || seconds > last_seconds)
+            {
+                last_seconds = seconds;
+#else
             if (update_type)
             {
+#endif
                 FOR_NB_SCREENS(i)
                     skin_update(FM_SCREEN, i, update_type);
                 if (update_type == (int)SKIN_REFRESH_ALL)
@@ -702,6 +785,13 @@ void radio_screen(void)
                             enqueue);
         }
 
+#if CONFIG_CODEC != SWCODEC
+        if(audio_status() & AUDIO_STATUS_ERROR)
+        {
+            done = true;
+        }
+#endif
+
 #ifndef HAVE_NOISY_IDLE_MODE
         if (TIME_AFTER(current_tick, button_timeout))
         {
@@ -711,6 +801,23 @@ void radio_screen(void)
     } /*while(!done)*/
 
 #ifndef SIMULATOR
+#if CONFIG_CODEC != SWCODEC
+    if(audio_status() & AUDIO_STATUS_ERROR)
+    {
+        splash(0, str(LANG_DISK_FULL));
+        audio_error_clear();
+
+        while(1)
+        {
+            button = get_action(CONTEXT_FM|ALLOW_SOFTLOCK, TIMEOUT_BLOCK);
+            if(button == ACTION_FM_STOP)
+                break;
+        }
+    }
+
+    audio_init_playback();
+#endif /* CONFIG_CODEC != SWCODEC */
+
     sound_settings_apply();
 #endif /* SIMULATOR */
 
@@ -718,12 +825,23 @@ void radio_screen(void)
     {
 /* Catch FMRADIO_PLAYING status for the sim. */
 #ifndef SIMULATOR
+#if CONFIG_CODEC != SWCODEC
+        /* Enable the Left and right A/D Converter */
+        audio_set_recording_gain(sound_default(SOUND_LEFT_GAIN),
+                                 sound_default(SOUND_RIGHT_GAIN),
+                                 AUDIO_GAIN_LINEIN);
+        mas_codec_writereg(6, 0x4000);
+#endif
         end_search();
 #endif /* SIMULATOR */
     }
     else
     {
+#if CONFIG_CODEC == SWCODEC
         audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+#else
+        radio_stop();
+#endif
     }
 
 #ifndef HAVE_NOISY_IDLE_MODE

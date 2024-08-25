@@ -17,15 +17,14 @@ include $(FIRMDIR)/asm/asm.make
 
 FIRMLIB_SRC += $(call preprocess, $(FIRMDIR)/SOURCES)
 FIRMLIB_OBJ := $(call c2obj, $(FIRMLIB_SRC))
-FIRMLIB_OBJ += $(BUILDDIR)/sysfont.o
+ifeq (,$(findstring -DARCHOS_PLAYER,$(TARGET)))
+    FIRMLIB_OBJ += $(BUILDDIR)/sysfont.o
+endif
 OTHER_SRC += $(FIRMLIB_SRC)
 
 FIRMLIB = $(BUILDDIR)/firmware/libfirmware.a
 
-ifeq ($(SYSFONT),)
-SYSFONT = 08-Schumacher-Clean
-endif
-SYSFONTX = $(ROOTDIR)/fonts/$(SYSFONT).bdf
+SYSFONT = $(ROOTDIR)/fonts/08-Schumacher-Clean.bdf
 
 CLEANOBJS += $(BUILDDIR)/sysfont.* $(BUILDDIR)/version.*
 
@@ -40,10 +39,10 @@ $(FIRMLIB): $(FIRMLIB_OBJ)
 	$(SILENT)$(shell rm -f $@)
 	$(call PRINTS,AR $(@F))$(AR) rcs $@ $^ >/dev/null
 
-$(BUILDDIR)/sysfont.h: $(SYSFONTX) $(TOOLS) $(BUILDDIR)/firmware/common/config.o
+$(BUILDDIR)/sysfont.h: $(SYSFONT) $(TOOLS) $(BUILDDIR)/firmware/common/config.o
 	$(call PRINTS,CONVBDF $(subst $(ROOTDIR)/,,$<))$(TOOLSDIR)/convbdf -l $(MAXCHAR) -h -o $@ $<
 
-$(BUILDDIR)/sysfont.o: $(SYSFONTX) $(BUILDDIR)/sysfont.h
+$(BUILDDIR)/sysfont.o: $(SYSFONT) $(BUILDDIR)/sysfont.h
 	$(call PRINTS,CONVBDF $(subst $(ROOTDIR)/,,$<))$(TOOLSDIR)/convbdf -l $(MAXCHAR) -c -o $(BUILDDIR)/sysfont.c $<
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$(BUILDDIR)/sysfont.c))$(CC) $(CFLAGS) -c $(BUILDDIR)/sysfont.c -o $@
 

@@ -46,17 +46,20 @@
 #include "tagcache.h"
 #include "list.h"
 #include "option_select.h"
-#include "buffering.h"
 
+#ifdef HAVE_LCD_BITMAP
 #include "peakmeter.h"
 /* Image stuff */
 #include "bmp.h"
 #ifdef HAVE_ALBUMART
 #include "albumart.h"
 #endif
+#endif
 
 #include "cuesheet.h"
+#if CONFIG_CODEC == SWCODEC
 #include "playback.h"
+#endif
 #include "backdrop.h"
 #include "viewport.h"
 #if CONFIG_TUNER
@@ -65,7 +68,7 @@
 #endif
 #include "root_menu.h"
 
-#include "wps.h"
+
 #include "wps_internals.h"
 #include "skin_engine.h"
 #include "statusbar-skinned.h"
@@ -81,23 +84,26 @@ void skin_update(enum skinnable_screens skin, enum screen_type screen,
                  unsigned int update_type)
 {
     struct gui_wps *gwps = skin_get_gwps(skin, screen);
-    /* This maybe shouldnt be here,
+    /* This maybe shouldnt be here, 
      * This is also safe for skined screen which dont use the id3 */
-    struct mp3entry *id3 = get_wps_state()->id3;
+    struct mp3entry *id3 = skin_get_global_state()->id3;
     bool cuesheet_update = (id3 != NULL ? cuesheet_subtrack_changed(id3) : false);
     if (cuesheet_update)
         skin_request_full_update(skin);
-
-    skin_render(gwps, skin_do_full_update(skin, screen) ?
+ 
+    skin_render(gwps, skin_do_full_update(skin, screen) ? 
                         SKIN_REFRESH_ALL : update_type);
 }
+
+#ifdef HAVE_LCD_BITMAP
+
 
 #ifdef AB_REPEAT_ENABLE
 
 #define DIRECTION_RIGHT 1
 #define DIRECTION_LEFT -1
 
-static int ab_calc_mark_x_pos(int mark, int capacity,
+static int ab_calc_mark_x_pos(int mark, int capacity, 
         int offset, int size)
 {
     return offset + ( (size * mark) / capacity );
@@ -125,7 +131,7 @@ static void ab_draw_arrow_mark(struct screen * screen,
     }
 }
 
-void ab_draw_markers(struct screen * screen, int capacity,
+void ab_draw_markers(struct screen * screen, int capacity, 
                      int x, int y, int w, int h)
 {
     bool a_set, b_set;
@@ -158,17 +164,16 @@ void ab_draw_markers(struct screen * screen, int capacity,
 
 #endif
 
-void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
-                      int line, struct progressbar *pb)
+void draw_progressbar(struct gui_wps *gwps, int line, struct progressbar *pb)
 {
     struct screen *display = gwps->display;
-    struct viewport *vp = &skin_viewport->vp;
-    struct wps_state *state = get_wps_state();
+    struct viewport *vp = SKINOFFSETTOPTR(get_skin_buffer(gwps->data), pb->vp);
+    struct wps_state *state = skin_get_global_state();
     struct mp3entry *id3 = state->id3;
     int x = pb->x, y = pb->y, width = pb->width, height = pb->height;
     unsigned long length, end;
     int flags = HORIZONTAL;
-
+    
     if (height < 0)
         height = font_get(vp->font)->height;
 
@@ -185,13 +190,8 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
     {
         int minvol = sound_min(SOUND_VOLUME);
         int maxvol = sound_max(SOUND_VOLUME);
-#if defined(HAVE_PERCEPTUAL_VOLUME) || defined(HAVE_TOUCHSCREEN)
-        length = 1000;
-        end = to_normalized_volume(global_settings.volume, minvol, maxvol, length);
-#else
-        length = maxvol - minvol;
-        end = global_settings.volume - minvol;
-#endif
+        length = maxvol-minvol;
+        end = global_settings.volume-minvol;
     }
     else if (pb->type == SKIN_TOKEN_BATTERY_PERCENTBAR)
     {
@@ -217,7 +217,7 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
     else if (pb->type == SKIN_TOKEN_SETTINGBAR)
     {
         int val, count;
-        get_setting_info_for_bar(pb->setting, pb->setting_offset, &count, &val);
+        get_setting_info_for_bar(pb->setting_id, &count, &val);
         length = count - 1;
         end = val;
     }
@@ -252,13 +252,13 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
         length = 1;
         end = 0;
     }
-
+    
     if (!pb->horizontal)
     {
         /* we want to fill upwards which is technically inverted. */
         flags = INVERTFILL;
     }
-
+    
     if (pb->invert_fill_direction)
     {
         flags ^= INVERTFILL;
@@ -397,20 +397,16 @@ void wps_display_images(struct gui_wps *gwps, struct viewport* vp)
     while (list)
     {
         struct wps_token *token = SKINOFFSETTOPTR(get_skin_buffer(data), list->token);
-        struct gui_img *img = NULL;
-        if (token)
-            img = (struct gui_img*)SKINOFFSETTOPTR(get_skin_buffer(data), token->value.data);
-        if (img) {
-            if (img->using_preloaded_icons && img->display >= 0)
+        struct gui_img *img = (struct gui_img*)SKINOFFSETTOPTR(get_skin_buffer(data), token->value.data);
+        if (img->using_preloaded_icons && img->display >= 0)
+        {
+            screen_put_icon(display, img->x, img->y, img->display);
+        }
+        else if (img->loaded)
+        {
+            if (img->display >= 0)
             {
-                screen_put_icon(display, img->x, img->y, img->display);
-            }
-            else if (img->loaded)
-            {
-                if (img->display >= 0)
-                {
-                    wps_draw_image(gwps, img, img->display, vp);
-                }
+                wps_draw_image(gwps, img, img->display, vp);
             }
         }
         list = SKINOFFSETTOPTR(get_skin_buffer(data), list->next);
@@ -418,7 +414,8 @@ void wps_display_images(struct gui_wps *gwps, struct viewport* vp)
 #ifdef HAVE_ALBUMART
     /* now draw the AA */
     struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
-    if (aa && aa->draw_handle >= 0)
+    if (aa && SKINOFFSETTOPTR(get_skin_buffer(data), aa->vp) == vp
+        && aa->draw_handle >= 0)
     {
         draw_album_art(gwps, aa->draw_handle, false);
         aa->draw_handle = -1;
@@ -428,10 +425,12 @@ void wps_display_images(struct gui_wps *gwps, struct viewport* vp)
     display->set_drawmode(DRMODE_SOLID);
 }
 
+#endif /* HAVE_LCD_BITMAP */
+
 /* Evaluate the conditional that is at *token_index and return whether a skip
    has ocurred. *token_index is updated with the new position.
 */
-int evaluate_conditional(struct gui_wps *gwps, int offset,
+int evaluate_conditional(struct gui_wps *gwps, int offset, 
                          struct conditional *conditional, int num_options)
 {
     if (!gwps)
@@ -505,82 +504,78 @@ void write_line(struct screen *display, struct align_pos *format_align,
 
     /* CASE 1: left and centered string overlap */
     /* there is a left string, need to merge left and center */
-    if (center_width != 0)
-    {
-        if (left_width != 0 && left_width + space_width > center_xpos) {
-            /* replace the former separator '\0' of left and
-                center string with a space */
-            *(--format_align->center) = ' ';
-            /* calculate the new width and position of the merged string */
-            left_width = left_width + space_width + center_width;
-            /* there is no centered string anymore */
-            center_width = 0;
-        }
-        /* there is no left string, move center to left */
-        else if (left_width == 0 && center_xpos < 0) {
-            /* move the center string to the left string */
-            format_align->left = format_align->center;
-            /* calculate the new width and position of the string */
-            left_width = center_width;
-            /* there is no centered string anymore */
-            center_width = 0;
-        }
-    } /*(center_width != 0)*/
+    if ((left_width != 0 && center_width != 0) &&
+        (left_width + space_width > center_xpos)) {
+        /* replace the former separator '\0' of left and
+            center string with a space */
+        *(--format_align->center) = ' ';
+        /* calculate the new width and position of the merged string */
+        left_width = left_width + space_width + center_width;
+        /* there is no centered string anymore */
+        center_width = 0;
+    }
+    /* there is no left string, move center to left */
+    if ((left_width == 0 && center_width != 0) &&
+        (left_width > center_xpos)) {
+        /* move the center string to the left string */
+        format_align->left = format_align->center;
+        /* calculate the new width and position of the string */
+        left_width = center_width;
+        /* there is no centered string anymore */
+        center_width = 0;
+    }
 
     /* CASE 2: centered and right string overlap */
     /* there is a right string, need to merge center and right */
-    if (center_width != 0)
-    {
-        int center_left_x = center_xpos + center_width;
-        if (right_width != 0 && center_left_x + space_width > right_xpos) {
-            /* replace the former separator '\0' of center and
-                right string with a space */
-            *(--format_align->right) = ' ';
-            /* move the center string to the right after merge */
-            format_align->right = format_align->center;
-            /* calculate the new width and position of the merged string */
-            right_width = center_width + space_width + right_width;
-            right_xpos = (viewport_width - right_width);
-            /* there is no centered string anymore */
-            center_width = 0;
-        }
-        /* there is no right string, move center to right */
-        else if (right_width == 0 && center_left_x > right_xpos) {
-            /* move the center string to the right string */
-            format_align->right = format_align->center;
-            /* calculate the new width and position of the string */
-            right_width = center_width;
-            right_xpos = (viewport_width - right_width);
-            /* there is no centered string anymore */
-            center_width = 0;
-        }
-    } /*(center_width != 0)*/
+    if ((center_width != 0 && right_width != 0) &&
+        (center_xpos + center_width + space_width > right_xpos)) {
+        /* replace the former separator '\0' of center and
+            right string with a space */
+        *(--format_align->right) = ' ';
+        /* move the center string to the right after merge */
+        format_align->right = format_align->center;
+        /* calculate the new width and position of the merged string */
+        right_width = center_width + space_width + right_width;
+        right_xpos = (viewport_width - right_width);
+        /* there is no centered string anymore */
+        center_width = 0;
+    }
+    /* there is no right string, move center to right */
+    if ((center_width != 0 && right_width == 0) &&
+        (center_xpos + center_width > right_xpos)) {
+        /* move the center string to the right string */
+        format_align->right = format_align->center;
+        /* calculate the new width and position of the string */
+        right_width = center_width;
+        right_xpos = (viewport_width - right_width);
+        /* there is no centered string anymore */
+        center_width = 0;
+    }
 
     /* CASE 3: left and right overlap
         There is no center string anymore, either there never
         was one or it has been merged in case 1 or 2 */
     /* there is a left string, need to merge left and right */
-    if (center_width == 0 && right_width != 0)
-    {
-        if (left_width != 0 && left_width + space_width > right_xpos) {
-            /* replace the former separator '\0' of left and
-                right string with a space */
-            *(--format_align->right) = ' ';
-            /* calculate the new width and position of the string */
-            left_width = left_width + space_width + right_width;
-            /* there is no right string anymore */
-            right_width = 0;
-        }
-        /* there is no left string, move right to left */
-        else if (left_width == 0 && right_xpos < 0) {
-            /* move the right string to the left string */
-            format_align->left = format_align->right;
-            /* calculate the new width and position of the string */
-            left_width = right_width;
-            /* there is no right string anymore */
-            right_width = 0;
-        }
-    } /* (center_width == 0 && right_width != 0)*/
+    if ((left_width != 0 && center_width == 0 && right_width != 0) &&
+        (left_width + space_width > right_xpos)) {
+        /* replace the former separator '\0' of left and
+            right string with a space */
+        *(--format_align->right) = ' ';
+        /* calculate the new width and position of the string */
+        left_width = left_width + space_width + right_width;
+        /* there is no right string anymore */
+        right_width = 0;
+    }
+    /* there is no left string, move right to left */
+    if ((left_width == 0 && center_width == 0 && right_width != 0) &&
+        (left_width > right_xpos)) {
+        /* move the right string to the left string */
+        format_align->left = format_align->right;
+        /* calculate the new width and position of the string */
+        left_width = right_width;
+        /* there is no right string anymore */
+        right_width = 0;
+    }
 
     if (scroll && ((left_width > scroll_width) ||
                    (center_width > scroll_width) ||
@@ -594,29 +589,34 @@ void write_line(struct screen *display, struct align_pos *format_align,
     else
     {
         linedes->scroll = false;
+#ifdef HAVE_LCD_BITMAP
         /* clear the line first */
         display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
         display->fillrect(0, line*string_height, viewport_width, string_height);
         display->set_drawmode(DRMODE_SOLID);
+#endif
 
         /* Nasty hack: we output an empty scrolling string,
         which will reset the scroller for that line */
         display->puts_scroll(0, line, (unsigned char *)"");
+#ifdef HAVE_LCD_BITMAP
         line *= string_height;
         center_xpos = (viewport_width-center_width)/2;
         right_xpos = viewport_width-right_width;
+#endif
         /* print aligned strings. print whole line at once so that %Vs works
          * across the full viewport width */
         char *left   = format_align->left   ?: "";
         char *center = format_align->center ?: "";
         char *right  = format_align->right  ?: "";
 
-        display->put_line(0, line, linedes, "$t$*s$t$*s$t", left_width == 0 ? "" : left ,
-                center_xpos - left_width, center_width == 0 ? "" : center,
-                right_xpos - center_xpos - center_width, right_width == 0 ? "" : right);
+        display->put_line(0, line, linedes, "$t$*s$t$*s$t", left,
+                center_xpos - left_width, center,
+                right_xpos - (center_xpos + center_width), right);
     }
 }
 
+#ifdef HAVE_LCD_BITMAP
 void draw_peakmeters(struct gui_wps *gwps, int line_number,
                      struct viewport *viewport)
 {
@@ -642,96 +642,29 @@ void draw_peakmeters(struct gui_wps *gwps, int line_number,
     }
 }
 
-#ifdef HAVE_ALBUMART
-/* Draw the album art bitmap from the given handle ID onto the given WPS.
-   Call with clear = true to clear the bitmap instead of drawing it. */
-void draw_album_art(struct gui_wps *gwps, int handle_id, bool clear)
+bool skin_has_sbs(enum screen_type screen, struct wps_data *data)
 {
-    if (!gwps || !gwps->data || !gwps->display || handle_id < 0)
-        return;
-
-    struct wps_data *data = gwps->data;
-    struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
-
-    if (!aa)
-        return;
-
-    struct bitmap *bmp;
-    if (bufgetdata(handle_id, 0, (void *)&bmp) <= 0)
-        return;
-
-    short x = aa->x;
-    short y = aa->y;
-    short width = bmp->width;
-    short height = bmp->height;
-
-    if (aa->width > 0)
-    {
-        /* Crop if the bitmap is too wide */
-        width = MIN(bmp->width, aa->width);
-
-        /* Align */
-        if (aa->xalign & WPS_ALBUMART_ALIGN_RIGHT)
-            x += aa->width - width;
-        else if (aa->xalign & WPS_ALBUMART_ALIGN_CENTER)
-            x += (aa->width - width) / 2;
-    }
-
-    if (aa->height > 0)
-    {
-        /* Crop if the bitmap is too high */
-        height = MIN(bmp->height, aa->height);
-
-        /* Align */
-        if (aa->yalign & WPS_ALBUMART_ALIGN_BOTTOM)
-            y += aa->height - height;
-        else if (aa->yalign & WPS_ALBUMART_ALIGN_CENTER)
-            y += (aa->height - height) / 2;
-    }
-
-    if (!clear)
-    {
-        /* Draw the bitmap */
-        gwps->display->bitmap_part((fb_data*)bmp->data, 0, 0,
-                                    STRIDE(gwps->display->screen_type,
-                                        bmp->width, bmp->height),
-                                   x, y, width, height);
-#ifdef HAVE_LCD_INVERT
-        if (global_settings.invert) {
-            gwps->display->set_drawmode(DRMODE_COMPLEMENT);
-            gwps->display->fillrect(x, y, width, height);
-            gwps->display->set_drawmode(DRMODE_SOLID);
-        }
-#endif
-    }
-    else
-    {
-        /* Clear the bitmap */
-        gwps->display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
-        gwps->display->fillrect(x, y, width, height);
-        gwps->display->set_drawmode(DRMODE_SOLID);
-    }
-}
-#endif
-
-bool skin_has_sbs(struct gui_wps *gwps)
-{
-    struct wps_data *data = gwps->data;
-
+    (void)screen;
+    (void)data;
     bool draw = false;
+#ifdef HAVE_LCD_BITMAP
     if (data->wps_sb_tag)
         draw = data->show_sb_on_wps;
-    else if (statusbar_position(gwps->display->screen_type) != STATUSBAR_OFF)
+    else if (statusbar_position(screen) != STATUSBAR_OFF)
         draw = true;
+#endif
     return draw;
 }
+#endif
 
 /* do the button loop as often as required for the peak meters to update
- * with a good refresh rate.
+ * with a good refresh rate. 
  */
 int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout)
 {
+    (void)skin; /* silence charcell warning */
     int button = ACTION_NONE;
+#ifdef HAVE_LCD_BITMAP
     /* when the peak meter is enabled we want to have a
         few extra updates to make it look smooth. On the
         other hand we don't want to waste energy if it
@@ -770,6 +703,7 @@ int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout)
     /* The peak meter is disabled
        -> no additional screen updates needed */
     else
+#endif
     {
         button = get_action(context, timeout);
     }

@@ -42,6 +42,7 @@ __ENSURE_STRUCT_CACHE_FRIENDLY(struct pcm_dma_command_t)
 
 static int dac_locked = 0;
 static struct pcm_dma_command_t dac_dma;
+static bool dac_freezed = false;
 
 static const void *dac_buf; /* current buffer */
 static size_t dac_size; /* remaining size */
@@ -148,6 +149,12 @@ void pcm_play_dma_start(const void *addr, size_t size)
     pcm_play_unlock();
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    imx233_dma_freeze_channel(APB_AUDIO_DAC, pause);
+    dac_freezed = pause;
+}
+
 void pcm_play_dma_init(void)
 {
     audiohw_preinit();
@@ -172,6 +179,23 @@ void pcm_dma_apply_settings(void)
      * transfer two samples (2 x 2 bytes) F times per second = 4F b/s */
     dma_max_size = CACHEALIGN_UP(4 * pcm_sampr / 100);
     pcm_play_unlock();
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    struct imx233_dma_info_t info = imx233_dma_get_info(APB_AUDIO_DAC, DMA_INFO_AHB_BYTES);
+    return info.ahb_bytes;
+}
+
+const void *pcm_play_dma_get_peak_buffer(int *count)
+{
+    if(!dac_freezed)
+        imx233_dma_freeze_channel(APB_AUDIO_DAC, true);
+    struct imx233_dma_info_t info = imx233_dma_get_info(APB_AUDIO_DAC, DMA_INFO_AHB_BYTES | DMA_INFO_BAR);
+    if(!dac_freezed)
+        imx233_dma_freeze_channel(APB_AUDIO_DAC, false);
+    *count = info.ahb_bytes;
+    return (void *)info.bar;
 }
 
 /*

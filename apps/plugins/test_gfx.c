@@ -495,7 +495,6 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_set_backdrop(NULL);
     rb->lcd_clear_display();
 #endif
-
     backlight_ignore_timeout();
 
     rb->splashf(0, "LCD driver performance test, please wait %d sec",
@@ -522,9 +521,7 @@ enum plugin_status plugin_start(const void* parameter)
                      (cpu_freq + 500000) / 1000000);
 #endif
     rb->close(log_fd);
-
     backlight_use_settings();
-
 #ifdef TEST_GREYLIB
     grey_release();
 #endif

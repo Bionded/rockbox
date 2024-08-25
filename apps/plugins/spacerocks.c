@@ -28,8 +28,35 @@
 
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define AST_PAUSE BUTTON_ON
+#define AST_QUIT BUTTON_OFF
+#define AST_THRUST BUTTON_UP
+#define AST_HYPERSPACE BUTTON_DOWN
+#define AST_LEFT BUTTON_LEFT
+#define AST_RIGHT BUTTON_RIGHT
+#define AST_FIRE BUTTON_PLAY
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define AST_PAUSE BUTTON_ON
+#define AST_QUIT BUTTON_OFF
+#define AST_THRUST BUTTON_UP
+#define AST_HYPERSPACE BUTTON_DOWN
+#define AST_LEFT BUTTON_LEFT
+#define AST_RIGHT BUTTON_RIGHT
+#define AST_FIRE BUTTON_SELECT
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define AST_PAUSE (BUTTON_MENU | BUTTON_OFF)
+#define AST_QUIT BUTTON_OFF
+#define AST_THRUST BUTTON_UP
+#define AST_HYPERSPACE BUTTON_DOWN
+#define AST_LEFT BUTTON_LEFT
+#define AST_RIGHT BUTTON_RIGHT
+#define AST_FIRE BUTTON_MENU
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define AST_PAUSE BUTTON_REC
 #define AST_QUIT BUTTON_OFF
 #define AST_THRUST BUTTON_UP
@@ -51,10 +78,10 @@
 
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define AST_PAUSE BUTTON_PLAY
-#define AST_QUIT BUTTON_MENU
-#define AST_THRUST BUTTON_RIGHT
-#define AST_HYPERSPACE BUTTON_LEFT
+#define AST_PAUSE (BUTTON_SELECT | BUTTON_PLAY)
+#define AST_QUIT (BUTTON_SELECT | BUTTON_MENU)
+#define AST_THRUST BUTTON_MENU
+#define AST_HYPERSPACE BUTTON_PLAY
 #define AST_LEFT BUTTON_SCROLL_BACK
 #define AST_RIGHT BUTTON_SCROLL_FWD
 #define AST_FIRE BUTTON_SELECT
@@ -259,8 +286,8 @@
 #define AST_QUIT BUTTON_POWER
 #define AST_THRUST BUTTON_UP
 #define AST_HYPERSPACE BUTTON_DOWN
-#define AST_LEFT BUTTON_SCROLL_BACK
-#define AST_RIGHT BUTTON_SCROLL_FWD
+#define AST_LEFT BUTTON_LEFT
+#define AST_RIGHT BUTTON_RIGHT
 #define AST_FIRE BUTTON_SELECT
 
 #elif (CONFIG_KEYPAD == SAMSUNG_YPR0_PAD)
@@ -327,7 +354,7 @@
 #define AST_RIGHT       BUTTON_RIGHT
 #define AST_FIRE        BUTTON_SELECT
 
-#elif (CONFIG_KEYPAD == XDUOO_X3_PAD) || (CONFIG_KEYPAD == XDUOO_X3II_PAD) ||  (CONFIG_KEYPAD == XDUOO_X20_PAD)
+#elif (CONFIG_KEYPAD == XDUOO_X3_PAD)
 #define AST_PAUSE       BUTTON_VOL_UP
 #define AST_QUIT        BUTTON_POWER
 #define AST_THRUST      BUTTON_HOME
@@ -336,16 +363,7 @@
 #define AST_RIGHT       BUTTON_NEXT
 #define AST_FIRE        BUTTON_PLAY
 
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
-#define AST_PAUSE       BUTTON_VOL_UP
-#define AST_QUIT        BUTTON_POWER
-#define AST_THRUST      BUTTON_HOME
-#define AST_HYPERSPACE  BUTTON_OPTION
-#define AST_LEFT        BUTTON_PREV
-#define AST_RIGHT       BUTTON_NEXT
-#define AST_FIRE        BUTTON_PLAY
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define AST_PAUSE       BUTTON_PLAY
 #define AST_QUIT        BUTTON_POWER
 #define AST_THRUST      BUTTON_NEXT
@@ -354,26 +372,14 @@
 #define AST_RIGHT       BUTTON_VOL_DOWN
 #define AST_FIRE        BUTTON_VOL_UP
 
-#elif (CONFIG_KEYPAD == EROSQ_PAD)
-#define AST_PAUSE       BUTTON_PREV
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
+#define AST_PAUSE       BUTTON_PLAY
 #define AST_QUIT        BUTTON_POWER
-#define AST_THRUST      BUTTON_PLAY
-#define AST_HYPERSPACE  BUTTON_MENU
-#define AST_LEFT        BUTTON_SCROLL_BACK
-#define AST_RIGHT       BUTTON_SCROLL_FWD
-#define AST_FIRE        BUTTON_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define AST_PAUSE       BUTTON_MENU
-#define AST_QUIT        BUTTON_POWER
-#define AST_THRUST      BUTTON_SELECT
-#define AST_HYPERSPACE  BUTTON_BACK
-#define AST_LEFT        BUTTON_LEFT
-#define AST_RIGHT       BUTTON_RIGHT
-#define AST_FIRE        BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define AST_THRUST      BUTTON_NEXT
+#define AST_HYPERSPACE  BUTTON_PREV
+#define AST_LEFT        BUTTON_HOME
+#define AST_RIGHT       BUTTON_VOL_DOWN
+#define AST_FIRE        BUTTON_VOL_UP
 
 #else
 #error No keymap defined!
@@ -1914,11 +1920,8 @@ static bool spacerocks_help(void)
 
 #define PLUGIN_OTHER 10
 static bool ingame;
-static int spacerocks_menu_cb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int spacerocks_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     if (action == ACTION_REQUEST_MENUITEM
         && !ingame && ((intptr_t)this_item)==0)
         return ACTION_EXIT_MENUITEM;
@@ -2128,10 +2131,8 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
     /* universal font */
     rb->lcd_setfont(FONT_SYSFIXED);
-
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
-
     highscore_load(SCORE_FILE, highscores, NUM_SCORES);
     rb->srand(*rb->current_tick);
 
@@ -2143,7 +2144,6 @@ enum plugin_status plugin_start(const void* parameter)
 
     rb->lcd_setfont(FONT_UI);
     highscore_save(SCORE_FILE, highscores, NUM_SCORES);
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
 

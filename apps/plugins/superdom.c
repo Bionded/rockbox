@@ -385,13 +385,9 @@ static int calc_strength(int colour, int x, int y)
                 if(a && b) /* diagonally adjacent, give less influence */
                 {
                     score += 5;
-                    if(board[x + a][y + b].tank)
+                    if(board[x + a][y + b].tank || board[x + a][y + b].farm)
                         score += 15;
-                    if(board[x + a][y + b].farm)
-                        score += 15;
-                    if(board[x + a][y + b].plane)
-                        score += 20;
-                    if (board[x + a][y + b].ind)
+                    if(board[x + a][y + b].plane || board[x + a][y + b].ind)
                         score += 20;
                     if(board[x + a][y + b].nuke)
                         score += 10;
@@ -401,14 +397,10 @@ static int calc_strength(int colour, int x, int y)
                 else
                 {
                     score += 10;
-                    if(board[x + a][y + b].tank)
+                    if(board[x + a][y + b].tank || board[x + a][y + b].farm)
                         score += 30;
-                    if(board[x + a][y + b].farm)
-                        score += 30;
-                    if(board[x + a][y + b].plane)
-                        score += 20;
-                    if(board[x + a][y + b].ind)
-                        score += 20;
+                    if(board[x + a][y + b].plane || board[x + a][y + b].ind)
+                        score += 40;
                     if(board[x + a][y + b].nuke)
                         score += 20;
                     if(board[x + a][y + b].men)
@@ -591,7 +583,7 @@ static int settings_menu(void)
                                                          };
             static int sel=1;
             rb->set_option("Computer difficulty", &sel,
-                           RB_INT, difficulty_options, 3, NULL);
+                           INT, difficulty_options, 3, NULL);
             superdom_settings.compdiff=sel+1;
             break;
         }
@@ -697,7 +689,7 @@ static int save_game(void)
     char savepath[MAX_PATH];
 
     rb->snprintf(savepath, sizeof(savepath), "/Savegame.ssg");
-    if(rb->kbd_input(savepath, MAX_PATH, NULL))
+    if(rb->kbd_input(savepath, MAX_PATH))
     {
         DEBUGF("Keyboard input failed\n");
         return -1;
@@ -1458,6 +1450,7 @@ static int show_inventory(void)
 {
     struct simplelist_info info;
     rb->simplelist_info_init(&info, "Inventory", 9, NULL);
+    info.hide_selection = true;
     info.get_name = inventory_data;
     if(rb->simplelist_show_list(&info))
     {
@@ -1907,7 +1900,7 @@ static void computer_allocate(void)
     int men_needed;
     struct threat targets[2];
     int numtargets;
-    struct cursor adj = { 0, 0 };
+    struct cursor adj;
 
     compres.cash += compres.bank;
     compres.bank = 0;
@@ -1949,32 +1942,37 @@ static void computer_allocate(void)
             }
         }
     }
-    if(superdom_settings.compdiff>=AI_BUILD_INDS_FARMS_LEVEL && compres.cash>=PRICE_FACTORY+100)
+    if(superdom_settings.compdiff>=AI_BUILD_INDS_FARMS_LEVEL && compres.cash>=PRICE_FACTORY)
     {
-        int cnt = 0;
-        do
+        while(compres.cash>=PRICE_FACTORY)
         {
             if(compres.farms<compres.inds)
             {
-                i = rb->rand()%BOARD_SIZE + 1;
-                j = rb->rand()%BOARD_SIZE + 1;
-                if(board[i][j].colour == COLOUR_DARK && !board[i][j].farm)
+                while(compres.farms<compres.inds && compres.cash>=PRICE_FARM)
                 {
-                    buy_resources(COLOUR_DARK, 3, i, j, 0);
-                    break;
+                    i = rb->rand()%BOARD_SIZE + 1;
+                    j = rb->rand()%BOARD_SIZE + 1;
+                    if(board[i][j].colour == COLOUR_DARK && !board[i][j].farm)
+                    {
+                        buy_resources(COLOUR_DARK, 3, i, j, 0);
+                        break;
+                    }
                 }
             }
             else
             {
-                i = rb->rand()%BOARD_SIZE + 1;
-                j = rb->rand()%BOARD_SIZE + 1;
-                if(board[i][j].colour == COLOUR_DARK && !board[i][j].ind)
+                while(compres.inds<compres.farms && compres.cash>=PRICE_FACTORY)
                 {
-                    buy_resources(COLOUR_DARK, 4, i, j, 0);
-                    break;
+                    i = rb->rand()%BOARD_SIZE + 1;
+                    j = rb->rand()%BOARD_SIZE + 1;
+                    if(board[i][j].colour == COLOUR_DARK && !board[i][j].ind)
+                    {
+                        buy_resources(COLOUR_DARK, 4, i, j, 0);
+                        break;
+                    }
                 }
             }
-        } while(compres.cash>=PRICE_FACTORY + 100 && cnt++ < 3);
+        }
     }
     /* AI will buy nukes first if possible */
     if(compres.cash > PRICE_NUKE + PRICE_TANK && superdom_settings.compdiff>=AI_BUILD_NUKES_LEVEL)

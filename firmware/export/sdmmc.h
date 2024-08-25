@@ -22,11 +22,9 @@
 #define __SDMMC_H__
 
 #include <stdbool.h>
-#include <stdint.h>
-#include <mv.h> /* for sector_t */
 
 typedef struct
-{
+{  
     bool initialized;
 
     unsigned long read_timeout;     /* n * 8 clock cycles */
@@ -39,7 +37,7 @@ typedef struct
     unsigned int nsac;              /* clock cycles */
     unsigned long taac;             /* n * 0.1 ns */
     unsigned int r2w_factor;
-    sector_t     numblocks;         /* size in flash blocks */
+    unsigned long numblocks;        /* size in flash blocks */
     unsigned int blocksize;         /* block size in bytes */
     unsigned long rca;              /* RCA register */
 
@@ -50,8 +48,6 @@ typedef struct
 #if (CONFIG_STORAGE & STORAGE_SD)
     unsigned int current_bank;
 #endif
-
-     unsigned int sd2plus;  /* SD 2.0 or better */
 } tCardInfo;
 
 #if (CONFIG_STORAGE & STORAGE_SD)

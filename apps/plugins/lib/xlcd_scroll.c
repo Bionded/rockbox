@@ -30,14 +30,9 @@
 static const unsigned short patterns[4] = {0xFFFF, 0xFF00, 0x00FF, 0x0000};
 #endif
 
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if   defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
 void xlcd_scroll_left(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int length, oldmode;
 
     if ((unsigned)count >= LCD_WIDTH)
@@ -48,7 +43,8 @@ void xlcd_scroll_left(int count)
 
     length = (LCD_WIDTH-count)*LCD_FBHEIGHT;
 
-    rb->memmove(lcd_fb, lcd_fb + LCD_HEIGHT*count, length * sizeof(fb_data));
+    rb->memmove(rb->lcd_framebuffer, rb->lcd_framebuffer + LCD_HEIGHT*count, 
+                length * sizeof(fb_data));
 
     oldmode = rb->lcd_get_drawmode();
     rb->lcd_set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
@@ -59,11 +55,6 @@ void xlcd_scroll_left(int count)
 /* Scroll right */
 void xlcd_scroll_right(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int length, oldmode;
 
     if ((unsigned)count >= LCD_WIDTH)
@@ -74,8 +65,8 @@ void xlcd_scroll_right(int count)
 
     length = (LCD_WIDTH-count)*LCD_FBHEIGHT;
 
-    rb->memmove(lcd_fb + LCD_HEIGHT*count,
-                lcd_fb, length * sizeof(fb_data));
+    rb->memmove(rb->lcd_framebuffer + LCD_HEIGHT*count, 
+                rb->lcd_framebuffer, length * sizeof(fb_data));
 
     oldmode = rb->lcd_get_drawmode();
     rb->lcd_set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
@@ -86,13 +77,8 @@ void xlcd_scroll_right(int count)
 /* Scroll up */
 void xlcd_scroll_up(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int width, length, oldmode;
-
+    
     fb_data *data;
 
     if ((unsigned)count >= LCD_HEIGHT)
@@ -102,10 +88,10 @@ void xlcd_scroll_up(int count)
     }
 
     length = LCD_HEIGHT - count;
-
+    
     width = LCD_WIDTH-1;
-    data = lcd_fb;
-
+    data = rb->lcd_framebuffer;
+    
     do {
         rb->memmove(data,data + count,length * sizeof(fb_data));
         data += LCD_HEIGHT;
@@ -120,13 +106,8 @@ void xlcd_scroll_up(int count)
 /* Scroll down */
 void xlcd_scroll_down(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int width, length, oldmode;
-
+    
     fb_data *data;
 
     if ((unsigned)count >= LCD_HEIGHT)
@@ -138,8 +119,8 @@ void xlcd_scroll_down(int count)
     length = LCD_HEIGHT - count;
 
     width = LCD_WIDTH-1;
-    data = lcd_fb;
-
+    data = rb->lcd_framebuffer;
+    
     do {
         rb->memmove(data + count, data, length * sizeof(fb_data));
         data += LCD_HEIGHT;
@@ -157,11 +138,6 @@ void xlcd_scroll_down(int count)
 /* Scroll left */
 void xlcd_scroll_left(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int bitcount=0, oldmode;
     int blockcount=0, blocklen;
 
@@ -179,7 +155,7 @@ void xlcd_scroll_left(int count)
 
     if (blockcount)
     {
-        unsigned char *data = lcd_fb;
+        unsigned char *data = rb->lcd_framebuffer;
         unsigned char *data_end = data + LCD_FBWIDTH*LCD_HEIGHT;
 
         do
@@ -192,7 +168,7 @@ void xlcd_scroll_left(int count)
     if (bitcount)
     {
         int bx, y;
-        unsigned char *addr = lcd_fb + blocklen;
+        unsigned char *addr = rb->lcd_framebuffer + blocklen;
 #if LCD_DEPTH == 2
         unsigned fill = (0x55 * (~rb->lcd_get_background() & 3)) << bitcount;
 #endif
@@ -220,11 +196,6 @@ void xlcd_scroll_left(int count)
 /* Scroll right */
 void xlcd_scroll_right(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     int bitcount=0, oldmode;
     int blockcount=0, blocklen;
 
@@ -242,7 +213,7 @@ void xlcd_scroll_right(int count)
 
     if (blockcount)
     {
-        unsigned char *data = lcd_fb;
+        unsigned char *data = rb->lcd_framebuffer;
         unsigned char *data_end = data + LCD_FBWIDTH*LCD_HEIGHT;
 
         do
@@ -255,7 +226,7 @@ void xlcd_scroll_right(int count)
     if (bitcount)
     {
         int bx, y;
-        unsigned char *addr = lcd_fb + blockcount;
+        unsigned char *addr = rb->lcd_framebuffer + blockcount;
 #if LCD_DEPTH == 2
         unsigned fill = 0x55 * (~rb->lcd_get_background() & 3);
 #endif
@@ -285,11 +256,6 @@ void xlcd_scroll_right(int count)
 /* Scroll left */
 void xlcd_scroll_left(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     fb_data *data, *data_end;
     int length, oldmode;
 
@@ -299,7 +265,7 @@ void xlcd_scroll_left(int count)
         return;
     }
 
-    data = lcd_fb;
+    data = rb->lcd_framebuffer;
     data_end = data + LCD_WIDTH*LCD_FBHEIGHT;
     length = LCD_WIDTH - count;
 
@@ -319,11 +285,6 @@ void xlcd_scroll_left(int count)
 /* Scroll right */
 void xlcd_scroll_right(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
-
     fb_data *data, *data_end;
     int length, oldmode;
 
@@ -333,7 +294,7 @@ void xlcd_scroll_right(int count)
         return;
     }
 
-    data = lcd_fb;
+    data = rb->lcd_framebuffer;
     data_end = data + LCD_WIDTH*LCD_FBHEIGHT;
     length = LCD_WIDTH - count;
 
@@ -357,10 +318,6 @@ void xlcd_scroll_right(int count)
 /* Scroll up */
 void xlcd_scroll_up(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
     int length, oldmode;
 
     if ((unsigned)count >= LCD_HEIGHT)
@@ -371,8 +328,8 @@ void xlcd_scroll_up(int count)
 
     length = LCD_HEIGHT - count;
 
-    rb->memmove(lcd_fb,
-                      lcd_fb + count * LCD_FBWIDTH,
+    rb->memmove(rb->lcd_framebuffer,
+                      rb->lcd_framebuffer + count * LCD_FBWIDTH,
                       length * LCD_FBWIDTH * sizeof(fb_data));
 
     oldmode = rb->lcd_get_drawmode();
@@ -384,10 +341,6 @@ void xlcd_scroll_up(int count)
 /* Scroll down */
 void xlcd_scroll_down(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
     int length, oldmode;
 
     if ((unsigned)count >= LCD_HEIGHT)
@@ -398,8 +351,8 @@ void xlcd_scroll_down(int count)
 
     length = LCD_HEIGHT - count;
 
-    rb->memmove(lcd_fb + count * LCD_FBWIDTH,
-                      lcd_fb,
+    rb->memmove(rb->lcd_framebuffer + count * LCD_FBWIDTH,
+                      rb->lcd_framebuffer,
                       length * LCD_FBWIDTH * sizeof(fb_data));
 
     oldmode = rb->lcd_get_drawmode();
@@ -408,16 +361,12 @@ void xlcd_scroll_down(int count)
     rb->lcd_set_drawmode(oldmode);
 }
 
-#else /* LCD_PIXELFORMAT == VERTICAL_PACKING,
+#else /* LCD_PIXELFORMAT == VERTICAL_PACKING, 
          LCD_PIXELFORMAT == VERTICAL_INTERLEAVED */
 
 /* Scroll up */
 void xlcd_scroll_up(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
     int bitcount=0, oldmode;
     int blockcount=0, blocklen;
 
@@ -426,7 +375,7 @@ void xlcd_scroll_up(int count)
         rb->lcd_clear_display();
         return;
     }
-
+        
 #if (LCD_DEPTH == 1) \
  || (LCD_DEPTH == 2) && (LCD_PIXELFORMAT == VERTICAL_INTERLEAVED)
     blockcount = count >> 3;
@@ -439,15 +388,85 @@ void xlcd_scroll_up(int count)
 
     if (blockcount)
     {
-        rb->memmove(lcd_fb,
-                          lcd_fb + blockcount * LCD_FBWIDTH,
+        rb->memmove(rb->lcd_framebuffer,
+                          rb->lcd_framebuffer + blockcount * LCD_FBWIDTH,
                           blocklen * LCD_FBWIDTH * sizeof(fb_data));
     }
     if (bitcount)
     {
 #if LCD_PIXELFORMAT == VERTICAL_PACKING
 
-#if defined(CPU_COLDFIRE) && (LCD_DEPTH == 2)
+#if (CONFIG_CPU == SH7034) && (LCD_DEPTH == 1)
+        asm (
+            "mov     #0,r4       \n"  /* x = 0 */
+            "mova    .su_shifttbl,r0 \n"  /* calculate jump destination for */
+            "mov.b   @(r0,%[cnt]),%[cnt] \n"  /* shift amount from table */
+            "bra     .su_cloop   \n"  /* skip table */
+            "add     r0,%[cnt]   \n"
+
+            ".align  2           \n"
+        ".su_shifttbl:           \n"  /* shift jump offset table */
+            ".byte   .su_shift0 - .su_shifttbl \n"
+            ".byte   .su_shift1 - .su_shifttbl \n"
+            ".byte   .su_shift2 - .su_shifttbl \n"
+            ".byte   .su_shift3 - .su_shifttbl \n"
+            ".byte   .su_shift4 - .su_shifttbl \n"
+            ".byte   .su_shift5 - .su_shifttbl \n"
+            ".byte   .su_shift6 - .su_shifttbl \n"
+            ".byte   .su_shift7 - .su_shifttbl \n"
+
+        ".su_cloop:              \n"  /* repeat for every column */
+            "mov     %[addr],r2  \n"  /* get start address */
+            "mov     #0,r3       \n"  /* current_row = 0 */
+            "mov     #0,r1       \n"  /* fill with zero */
+
+        ".su_iloop:              \n"  /* repeat for all rows */
+            "sub     %[wide],r2  \n"  /* address -= width */
+            "mov.b   @r2,r0      \n"  /* get data byte */
+            "shll8   r1          \n"  /* old data to 2nd byte */
+            "extu.b  r0,r0       \n"  /* extend unsigned */
+            "or      r1,r0       \n"  /* combine old data */
+            "jmp     @%[cnt]     \n"  /* jump into shift "path" */
+            "extu.b  r0,r1       \n"  /* store data for next round */
+
+        ".su_shift6:             \n"  /* shift right by 0..7 bits */
+            "shll2   r0          \n"
+            "bra     .su_shift0  \n"
+            "shlr8   r0          \n"
+        ".su_shift4:             \n"
+            "shlr2   r0          \n"
+        ".su_shift2:             \n"
+            "bra     .su_shift0  \n"
+            "shlr2   r0          \n"
+        ".su_shift7:             \n"
+            "shlr2   r0          \n"
+        ".su_shift5:             \n"
+            "shlr2   r0          \n"
+        ".su_shift3:             \n"
+            "shlr2   r0          \n"
+        ".su_shift1:             \n"
+            "shlr    r0          \n"
+        ".su_shift0:             \n"
+
+            "mov.b   r0,@r2      \n"  /* store data */
+            "add     #1,r3       \n"  /* current_row++ */
+            "cmp/hi  r3,%[rows]  \n"  /* current_row < bheight - shift ? */
+            "bt      .su_iloop   \n"
+
+            "add     #1,%[addr]  \n"  /* start_address++ */
+            "add     #1,r4       \n"  /* x++ */
+            "cmp/hi  r4,%[wide]  \n"  /* x < width ? */
+            "bt      .su_cloop   \n"
+            : /* outputs */
+            : /* inputs */
+            [addr]"r"(rb->lcd_framebuffer + blocklen * LCD_FBWIDTH),
+            [wide]"r"(LCD_FBWIDTH),
+            [rows]"r"(blocklen),
+            [cnt] "r"(bitcount)
+            : /* clobbers */
+            "r0", "r1", "r2", "r3", "r4"
+        );
+#elif defined(CPU_COLDFIRE) && (LCD_DEPTH == 2)
         asm (
             "move.l  %[wide],%%d3\n"  /* columns = width */
 
@@ -475,7 +494,7 @@ void xlcd_scroll_up(int count)
             : /* inputs */
             [wide]"r"(LCD_FBWIDTH),
             [rows]"r"(blocklen),
-            [addr]"a"(lcd_fb + blocklen * LCD_FBWIDTH),
+            [addr]"a"(rb->lcd_framebuffer + blocklen * LCD_FBWIDTH),
             [cnt] "d"(bitcount),
             [bkg] "d"(0x55 * (~rb->lcd_get_background() & 3))
             : /* clobbers */
@@ -483,7 +502,7 @@ void xlcd_scroll_up(int count)
         );
 #else /* C version */
         int x, by;
-        unsigned char *addr = lcd_fb + blocklen * LCD_FBWIDTH;
+        unsigned char *addr = rb->lcd_framebuffer + blocklen * LCD_FBWIDTH;
 #if LCD_DEPTH == 2
         unsigned fill = 0x55 * (~rb->lcd_get_background() & 3);
 #else
@@ -508,7 +527,7 @@ void xlcd_scroll_up(int count)
 
 #if LCD_DEPTH == 2
         int x, by;
-        fb_data *addr = lcd_fb + blocklen * LCD_FBWIDTH;
+        fb_data *addr = rb->lcd_framebuffer + blocklen * LCD_FBWIDTH;
         unsigned fill, mask;
 
         fill = patterns[rb->lcd_get_background() & 3] << 8;
@@ -542,10 +561,6 @@ void xlcd_scroll_up(int count)
 /* Scroll up */
 void xlcd_scroll_down(int count)
 {
-    /*size_t dst_stride;*/
-    /*struct viewport *vp_main = NULL;*/
-    fb_data *lcd_fb = get_framebuffer(NULL, NULL);
-
     int bitcount=0, oldmode;
     int blockcount=0, blocklen;
 
@@ -554,7 +569,7 @@ void xlcd_scroll_down(int count)
         rb->lcd_clear_display();
         return;
     }
-
+        
 #if (LCD_DEPTH == 1) \
  || (LCD_DEPTH == 2) && (LCD_PIXELFORMAT == VERTICAL_INTERLEAVED)
     blockcount = count >> 3;
@@ -567,15 +582,84 @@ void xlcd_scroll_down(int count)
 
     if (blockcount)
     {
-        rb->memmove(lcd_fb + blockcount * LCD_FBWIDTH,
-                          lcd_fb,
+        rb->memmove(rb->lcd_framebuffer + blockcount * LCD_FBWIDTH,
+                          rb->lcd_framebuffer,
                           blocklen * LCD_FBWIDTH * sizeof(fb_data));
     }
     if (bitcount)
     {
 #if LCD_PIXELFORMAT == VERTICAL_PACKING
 
-#if defined(CPU_COLDFIRE) && (LCD_DEPTH == 2)
+#if (CONFIG_CPU == SH7034) && (LCD_DEPTH == 1)
+        asm (
+            "mov     #0,r4       \n"  /* x = 0 */
+            "mova    .sd_shifttbl,r0 \n"  /* calculate jump destination for */
+            "mov.b   @(r0,%[cnt]),%[cnt] \n"  /* shift amount from table */
+            "bra     .sd_cloop   \n"  /* skip table */
+            "add     r0,%[cnt]   \n"
+
+            ".align  2           \n"
+        ".sd_shifttbl:           \n"  /* shift jump offset table */
+            ".byte   .sd_shift0 - .sd_shifttbl \n"
+            ".byte   .sd_shift1 - .sd_shifttbl \n"
+            ".byte   .sd_shift2 - .sd_shifttbl \n"
+            ".byte   .sd_shift3 - .sd_shifttbl \n"
+            ".byte   .sd_shift4 - .sd_shifttbl \n"
+            ".byte   .sd_shift5 - .sd_shifttbl \n"
+            ".byte   .sd_shift6 - .sd_shifttbl \n"
+            ".byte   .sd_shift7 - .sd_shifttbl \n"
+
+        ".sd_cloop:              \n"  /* repeat for every column */
+            "mov     %[addr],r2  \n"  /* get start address */
+            "mov     #0,r3       \n"  /* current_row = 0 */
+            "mov     #0,r1       \n"  /* fill with zero */
+
+        ".sd_iloop:              \n"  /* repeat for all rows */
+            "shlr8   r1          \n"  /* shift right to get residue */
+            "mov.b   @r2,r0      \n"  /* get data byte */
+            "jmp     @%[cnt]     \n"  /* jump into shift "path" */
+            "extu.b  r0,r0       \n"  /* extend unsigned */
+
+        ".sd_shift6:             \n"  /* shift left by 0..7 bits */
+            "shll8   r0          \n"
+            "bra     .sd_shift0  \n"
+            "shlr2   r0          \n"
+        ".sd_shift4:             \n"
+            "shll2   r0          \n"
+        ".sd_shift2:             \n"
+            "bra     .sd_shift0  \n"
+            "shll2   r0          \n"
+        ".sd_shift7:             \n"
+            "shll2   r0          \n"
+        ".sd_shift5:             \n"
+            "shll2   r0          \n"
+        ".sd_shift3:             \n"
+            "shll2   r0          \n"
+        ".sd_shift1:             \n"
+            "shll    r0          \n"
+        ".sd_shift0:             \n"
+
+            "or      r0,r1       \n"  /* combine with last residue */
+            "mov.b   r1,@r2      \n"  /* store data */
+            "add     %[wide],r2  \n"  /* address += width */
+            "add     #1,r3       \n"  /* current_row++ */
+            "cmp/hi  r3,%[rows]  \n"  /* current_row < bheight - shift ? */
+            "bt      .sd_iloop   \n"
+
+            "add     #1,%[addr]  \n"  /* start_address++ */
+            "add     #1,r4       \n"  /* x++ */
+            "cmp/hi  r4,%[wide]  \n"  /* x < width ? */
+            "bt      .sd_cloop   \n"
+            : /* outputs */
+            : /* inputs */
+            [addr]"r"(rb->lcd_framebuffer + blockcount * LCD_FBWIDTH),
+            [wide]"r"(LCD_WIDTH),
+            [rows]"r"(blocklen),
+            [cnt] "r"(bitcount)
+            : /* clobbers */
+            "r0", "r1", "r2", "r3", "r4"
+        );
+#elif defined(CPU_COLDFIRE) && (LCD_DEPTH == 2)
         asm (
             "move.l  %[wide],%%d3\n"  /* columns = width */
 
@@ -603,7 +687,7 @@ void xlcd_scroll_down(int count)
             : /* inputs */
             [wide]"r"(LCD_WIDTH),
             [rows]"r"(blocklen),
-            [addr]"a"(lcd_fb + blockcount * LCD_FBWIDTH),
+            [addr]"a"(rb->lcd_framebuffer + blockcount * LCD_FBWIDTH),
             [cnt] "d"(bitcount),
             [bkg] "d"((0x55 * (~rb->lcd_get_background() & 3)) << bitcount)
             : /* clobbers */
@@ -611,7 +695,7 @@ void xlcd_scroll_down(int count)
         );
 #else /* C version */
         int x, by;
-        unsigned char *addr = lcd_fb + blockcount * LCD_FBWIDTH;
+        unsigned char *addr = rb->lcd_framebuffer + blockcount * LCD_FBWIDTH;
 #if LCD_DEPTH == 2
         unsigned fill = (0x55 * (~rb->lcd_get_background() & 3)) << bitcount;
 #else
@@ -636,9 +720,9 @@ void xlcd_scroll_down(int count)
 
 #if LCD_DEPTH == 2
         int x, by;
-        fb_data *addr = lcd_fb + blockcount * LCD_FBWIDTH;
+        fb_data *addr = rb->lcd_framebuffer + blockcount * LCD_FBWIDTH;
         unsigned fill, mask;
-
+        
         fill = patterns[rb->lcd_get_background() & 3] >> (8 - bitcount);
         mask = (0xFFu >> bitcount) << bitcount;
         mask |= mask << 8;
@@ -668,4 +752,4 @@ void xlcd_scroll_down(int count)
 }
 
 #endif /* LCD_PIXELFORMAT, LCD_DEPTH */
-#endif /* LCD_STRIDEFORMAT == VERTICAL_STRIDE */
+#endif /* defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE */

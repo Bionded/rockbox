@@ -204,7 +204,7 @@ void ProjectExporter::checkWPS(ProjectModel* project, QString file)
     fin.close();
 
     skin_element* root;
-    root = skin_parse(contents.toLatin1());
+    root = skin_parse(contents.toAscii());
     if(!root)
     {
         addWarning(tr("Couldn't parse ") + file.split("/").last());

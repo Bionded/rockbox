@@ -156,7 +156,7 @@ static bool test_fs(void)
     fd = rb->open(TEST_FILE, O_RDONLY);
     if (fd < 0)
     {
-        rb->splashf(0, "open() failed: %d", fd);
+        rb->splashf(0, "open() failed: %d", ret);
         goto error;
     }
 
@@ -470,7 +470,6 @@ enum plugin_status plugin_start(const void* parameter)
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
 
-
     while(!quit)
     {
         switch(rb->do_menu(&menu, &selected, NULL, false))
@@ -489,7 +488,7 @@ enum plugin_status plugin_start(const void* parameter)
 
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
+    
     rb->rmdir(testbasedir);
 
     return PLUGIN_OK;

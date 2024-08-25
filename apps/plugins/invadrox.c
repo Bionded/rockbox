@@ -66,6 +66,10 @@
 /* Original graphics is only 1bpp so it should be portable
  * to most targets. But for now, only support the simple ones.
  */
+#ifndef HAVE_LCD_BITMAP
+    #error INVADROX: Unsupported LCD
+#endif
+
 #if (LCD_DEPTH < 2)
     #error INVADROX: Unsupported LCD
 #endif
@@ -141,6 +145,14 @@
 #define RIGHT BUTTON_RIGHT
 #define FIRE BUTTON_SELECT
 
+#elif CONFIG_KEYPAD == TATUNG_TPJ1022_PAD
+
+/* TODO: Figure out which buttons to use for Tatung Elio TPJ-1022 */
+#define QUIT BUTTON_AB
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define FIRE BUTTON_MENU
+
 #elif CONFIG_KEYPAD == GIGABEAT_S_PAD
 
 #define QUIT BUTTON_BACK
@@ -154,6 +166,13 @@
 #define LEFT BUTTON_MINUS
 #define RIGHT BUTTON_PLUS
 #define FIRE BUTTON_MENU
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define QUIT BUTTON_POWER
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define FIRE BUTTON_PLAY
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 
@@ -253,43 +272,19 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define QUIT  BUTTON_POWER
 #define FIRE  BUTTON_MENU
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 
 #define QUIT  BUTTON_POWER
 #define LEFT  BUTTON_HOME
 #define RIGHT BUTTON_VOL_DOWN
 #define FIRE  BUTTON_VOL_UP
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 
 #define QUIT  BUTTON_POWER
 #define LEFT  BUTTON_HOME
 #define RIGHT BUTTON_VOL_DOWN
 #define FIRE  BUTTON_VOL_UP
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
-
-#define QUIT  BUTTON_POWER
-#define LEFT  BUTTON_HOME
-#define RIGHT BUTTON_VOL_DOWN
-#define FIRE  BUTTON_VOL_UP
-
-#elif CONFIG_KEYPAD == EROSQ_PAD
-
-#define QUIT  BUTTON_POWER
-#define LEFT  BUTTON_SCROLL_BACK
-#define RIGHT BUTTON_SCROLL_FWD
-#define FIRE  BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-
-#define QUIT  BUTTON_POWER
-#define LEFT  BUTTON_LEFT
-#define RIGHT BUTTON_RIGHT
-#define FIRE  BUTTON_SELECT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
     #error INVADROX: Unsupported keypad
@@ -609,7 +604,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 
 #elif (LCD_WIDTH == 220) && (LCD_HEIGHT == 176)
 
-/* H300, iPod Color: 220x176x16
+/* TPJ1022, H300, iPod Color: 220x176x16
  * ============================
  * X: 0p padding at left/right gives 220p playfield in middle.
  *    8p "border" gives 204p actual playfield. UFO use full 220p.
@@ -643,23 +638,6 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define LIVES_X 8
 #define MAX_Y 15
 
-#elif (LCD_WIDTH == 360) && (LCD_HEIGHT == 400)
-
-/* Shanling Q1
- */
-#define ARCADISH_GRAPHICS
-#define PLAYFIELD_X 32
-#define SHIP_Y (PLAYFIELD_Y - 3 * SHIP_HEIGHT)
-#define ALIEN_START_Y (UFO_Y + 3 * ALIEN_HEIGHT)
-/* Redefine SCORE_Y */
-#undef SCORE_Y
-#define SCORE_Y 80
-#define SCORENUM_X (PLAYFIELD_X + NUMBERS_WIDTH)
-#define SCORENUM_Y SCORE_Y + (2 * (FONT_HEIGHT + 1) + 1)
-#define HISCORENUM_X (LCD_WIDTH - PLAYFIELD_X - 1 - 6 * NUMBERS_WIDTH - 5 * NUM_SPACING)
-#define SHIELD_Y (PLAYFIELD_Y - 6 * SHIP_HEIGHT)
-#define LIVES_X 10
-#define MAX_Y 18
 
 #else
     #error INVADROX: Unsupported LCD type
@@ -780,20 +758,20 @@ int curr_alien, aliens_paralyzed, gamespeed;
 int ufo_state, ufo_x;
 bool level_finished;
 bool aliens_down, aliens_right, hit_left_border, hit_right_border;
-static fb_data *lcd_fb;
+
 
 /* No standard get_pixel function yet, use this hack instead */
 #if (LCD_DEPTH >= 8)
 
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if   defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
 static inline fb_data get_pixel(int x, int y)
 {
-    return lcd_fb[x*LCD_HEIGHT+y];
+    return rb->lcd_framebuffer[x*LCD_HEIGHT+y];
 }
 #else
 static inline fb_data get_pixel(int x, int y)
 {
-    return lcd_fb[ytab[y] + x];
+    return rb->lcd_framebuffer[ytab[y] + x];
 }
 #endif
 
@@ -806,7 +784,7 @@ static const unsigned char shifts[4] = {
 /* Horizontal packing */
 static inline fb_data get_pixel(int x, int y)
 {
-    return (lcd_fb[ytab[y] + (x >> 2)] >> shifts[x & 3]) & 3;
+    return (rb->lcd_framebuffer[ytab[y] + (x >> 2)] >> shifts[x & 3]) & 3;
 }
 #else
 /* Vertical packing */
@@ -815,7 +793,7 @@ static const unsigned char shifts[4] = {
 };
 static inline fb_data get_pixel(int x, int y)
 {
-    return (lcd_fb[ytab[y] + x] >> shifts[y & 3]) & 3;
+    return (rb->lcd_framebuffer[ytab[y] + x] >> shifts[y & 3]) & 3;
 }
 #endif /* Horizontal/Vertical packing */
 
@@ -834,8 +812,8 @@ static void draw_number(int x, int y, int num, int digits)
         d = num % 10;
         num = num / 10;
         rb->lcd_bitmap_part(invadrox_numbers, d * NUMBERS_WIDTH, 0,
-                            STRIDE( SCREEN_MAIN,
-                                    BMPWIDTH_invadrox_numbers,
+                            STRIDE( SCREEN_MAIN, 
+                                    BMPWIDTH_invadrox_numbers, 
                                     BMPHEIGHT_invadrox_numbers),
                             x + i * (NUMBERS_WIDTH + NUM_SPACING), y,
                             NUMBERS_WIDTH, FONT_HEIGHT);
@@ -866,17 +844,17 @@ static void draw_lives(void)
     int i;
     /* Lives num */
     rb->lcd_bitmap_part(invadrox_numbers, lives * NUMBERS_WIDTH, 0,
-                        STRIDE( SCREEN_MAIN,
-                                BMPWIDTH_invadrox_numbers,
-                                BMPHEIGHT_invadrox_numbers),
+                        STRIDE( SCREEN_MAIN, 
+                                BMPWIDTH_invadrox_numbers, 
+                                BMPHEIGHT_invadrox_numbers), 
                         PLAYFIELD_X + LIVES_X, PLAYFIELD_Y + 2,
                         NUMBERS_WIDTH, FONT_HEIGHT);
 
     /* Ships */
     for (i = 0; i < (lives - 1); i++) {
-        rb->lcd_bitmap_part(invadrox_ships, 0, 0,
-                            STRIDE( SCREEN_MAIN,
-                                    BMPWIDTH_invadrox_ships,
+        rb->lcd_bitmap_part(invadrox_ships, 0, 0, 
+                            STRIDE( SCREEN_MAIN, 
+                                    BMPWIDTH_invadrox_ships, 
                                     BMPHEIGHT_invadrox_ships),
                             PLAYFIELD_X + LIVES_X + SHIP_WIDTH + i * (SHIP_WIDTH + NUM_SPACING),
                             PLAYFIELD_Y + 1, SHIP_WIDTH, SHIP_HEIGHT);
@@ -898,11 +876,11 @@ static inline void draw_aliens(void)
     int i;
 
     for (i = 0; i < 5 * ALIENS; i++) {
-        rb->lcd_bitmap_part(invadrox_aliens, aliens[i].x & 1 ? ALIEN_WIDTH : 0,
+        rb->lcd_bitmap_part(invadrox_aliens, aliens[i].x & 1 ? ALIEN_WIDTH : 0, 
                             aliens[i].type * ALIEN_HEIGHT,
-                            STRIDE( SCREEN_MAIN,
-                                    BMPWIDTH_invadrox_aliens,
-                                    BMPHEIGHT_invadrox_aliens),
+                            STRIDE( SCREEN_MAIN, 
+                                    BMPWIDTH_invadrox_aliens, 
+                                    BMPHEIGHT_invadrox_aliens), 
                             PLAYFIELD_X + LIVES_X + aliens[i].x * ALIEN_SPEED,
                             ALIEN_START_Y + aliens[i].y * ALIEN_HEIGHT,
                             ALIEN_WIDTH, ALIEN_HEIGHT);
@@ -1040,11 +1018,11 @@ static bool move_aliens(void)
     x = PLAYFIELD_X + LIVES_X + aliens[curr_alien].x * ALIEN_SPEED;
     y = ALIEN_START_Y + aliens[curr_alien].y * ALIEN_HEIGHT;
     rb->lcd_bitmap_part(invadrox_aliens,
-                        aliens[curr_alien].x & 1 ? ALIEN_WIDTH : 0,
+                        aliens[curr_alien].x & 1 ? ALIEN_WIDTH : 0, 
                         aliens[curr_alien].type * ALIEN_HEIGHT,
-                        STRIDE( SCREEN_MAIN,
+                        STRIDE( SCREEN_MAIN, 
                                 BMPWIDTH_invadrox_aliens,
-                                BMPHEIGHT_invadrox_aliens),
+                                BMPHEIGHT_invadrox_aliens), 
                         x, y, ALIEN_WIDTH, ALIEN_HEIGHT);
 
     if (!next_alien()) {
@@ -1073,9 +1051,9 @@ static inline void draw_ship(void)
 
     /* Draw ship */
     rb->lcd_bitmap_part(invadrox_ships, 0, ship_frame * SHIP_HEIGHT,
-                        STRIDE( SCREEN_MAIN,
+                        STRIDE( SCREEN_MAIN, 
                                 BMPWIDTH_invadrox_ships,
-                                BMPHEIGHT_invadrox_ships),
+                                BMPHEIGHT_invadrox_ships), 
                         ship_x, SHIP_Y, SHIP_WIDTH, SHIP_HEIGHT);
     if (ship_hit) {
         /* Alternate between frame 1 and 2 during hit */
@@ -1100,7 +1078,7 @@ static inline void fire_alpha(int xc, int yc, unsigned color)
 
     rb->lcd_set_foreground(color);
     rb->lcd_set_drawmode(DRMODE_FG);
-
+    
     rb->lcd_mono_bitmap(invadrox_fire, xc - (FIRE_WIDTH/2), yc, FIRE_WIDTH, FIRE_HEIGHT);
 
     rb->lcd_set_foreground(LCD_BLACK);
@@ -1316,9 +1294,9 @@ static inline void draw_bomb(int i)
 {
     rb->lcd_bitmap_part(invadrox_bombs, bombs[i].type * BOMB_WIDTH,
                         bombs[i].frame * BOMB_HEIGHT,
-                        STRIDE( SCREEN_MAIN,
+                        STRIDE( SCREEN_MAIN, 
                                 BMPWIDTH_invadrox_bombs,
-                                BMPHEIGHT_invadrox_bombs),
+                                BMPHEIGHT_invadrox_bombs), 
                         bombs[i].x, bombs[i].y,
                         BOMB_WIDTH, BOMB_HEIGHT);
     /* Advance frame */
@@ -1420,9 +1398,9 @@ static void move_bombs(void)
                         bombs[i].state = S_EXPLODE * 4;
                         bombs[i].target = TARGET_SHIP;
                         rb->lcd_bitmap_part(invadrox_ships, 0, 1 * SHIP_HEIGHT,
-                                            STRIDE( SCREEN_MAIN,
+                                            STRIDE( SCREEN_MAIN, 
                                                     BMPWIDTH_invadrox_ships,
-                                                    BMPHEIGHT_invadrox_ships),
+                                                    BMPHEIGHT_invadrox_ships), 
                                             ship_x, SHIP_Y,
                                             SHIP_WIDTH, SHIP_HEIGHT);
                         break;
@@ -1911,11 +1889,8 @@ enum plugin_status plugin_start(UNUSED const void* parameter)
 {
     rb->lcd_setfont(FONT_SYSFIXED);
     /* Turn off backlight timeout */
-#ifdef HAVE_BACKLIGHT
     backlight_ignore_timeout();
-#endif
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
+
     /* now go ahead and have fun! */
     game_loop();
 
@@ -1931,9 +1906,8 @@ enum plugin_status plugin_start(UNUSED const void* parameter)
     /* Restore user's original backlight setting */
     rb->lcd_setfont(FONT_UI);
     /* Turn on backlight timeout (revert to settings) */
-#ifdef HAVE_BACKLIGHT
     backlight_use_settings();
-#endif
+
     return PLUGIN_OK;
 }
 

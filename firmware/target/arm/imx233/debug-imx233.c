@@ -42,7 +42,6 @@
 #include "timrot-imx233.h"
 #include "string.h"
 #include "stdio.h"
-#include "strlcat.h"
 #include "button.h"
 #include "button-imx233.h"
 #include "sdmmc-imx233.h"
@@ -941,8 +940,8 @@ bool dbg_hw_info_emi(void)
 
 bool dbg_hw_info_audio(void)
 {
-    static const char * const hp_sel[2] = {"DAC", "Line1"};
-    static const char * const mux_sel[4] = {"Mic", "Line1", "HP", "Line2"};
+    static const char *hp_sel[2] = {"DAC", "Line1"};
+    static const char *mux_sel[4] = {"Mic", "Line1", "HP", "Line2"};
     lcd_setfont(FONT_SYSFIXED);
 
     while(1)
@@ -964,7 +963,6 @@ bool dbg_hw_info_audio(void)
         struct imx233_audioout_info_t out = imx233_audioout_get_info();
         struct imx233_audioin_info_t in = imx233_audioin_get_info();
         int line = 0;
-        size_t len;
 #define display_sys(st, sys, name) \
         if(st.sys) \
         { \
@@ -973,17 +971,15 @@ bool dbg_hw_info_audio(void)
             for(int i = 0; i < 2; i++) \
             { \
                 if(st.sys##mute[i]) \
-                    strlcat(buffer, "mute", 64); \
-                else { \
-                    len = strlen(buffer); \
-                    snprintf(buffer + len, 64 - len,  "%d.%d", \
+                    strcat(buffer, "mute"); \
+                else \
+                    snprintf(buffer + strlen(buffer), 64,  "%d.%d", \
                         /* properly handle negative values ! */ \
                         st.sys##vol[i] / 10, (10 + (st.sys##vol[i]) % 10) % 10); \
-                } \
                 if(i == 0) \
-                    strlcat(buffer, " / ", 64); \
+                    strcat(buffer, " / "); \
                 else \
-                    strlcat(buffer, " dB", 64); \
+                    strcat(buffer, " dB"); \
             } \
             lcd_putsf(0, line++, "%s", buffer); \
         } \
@@ -1175,7 +1171,7 @@ bool dbg_hw_info_button(void)
             }
             else if(MAP[i].periph == IMX233_BUTTON_LRADC)
             {
-                static const char * const op_name[] =
+                static const char *op_name[] =
                 {
                     [IMX233_BUTTON_EQ] = "eq",
                     [IMX233_BUTTON_GT] = "gt",
@@ -1203,9 +1199,9 @@ bool dbg_hw_info_button(void)
             }
             flags[0] = 0;
             if(MAP[i].flags & IMX233_BUTTON_INVERTED)
-                strlcat(flags, " inv", sizeof(flags));
+                strcat(flags, " inv");
             if(MAP[i].flags & IMX233_BUTTON_PULLUP)
-                strlcat(flags, " pull", sizeof(flags));
+                strcat(flags, " pull");
 #if LCD_WIDTH <= LCD_HEIGHT
             lcd_putsf(0, line++, "%s %d %d/%d %d %s", MAP[i].name, val,
                 MAP[i].rounds, MAP[i].threshold, raw, type);

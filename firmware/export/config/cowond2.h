@@ -24,8 +24,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_LINEIN | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -58,11 +58,10 @@
 /* define this if you have a flash memory storage */
 #define HAVE_FLASH_STORAGE
 
-/* NAND is broken. */
-//#define CONFIG_STORAGE (STORAGE_NAND | STORAGE_SD)
-#define CONFIG_STORAGE STORAGE_SD
-#define HAVE_MULTIVOLUME
+#define CONFIG_STORAGE (STORAGE_NAND | STORAGE_SD)
+#define HAVE_MULTIDRIVE
 #define HAVE_HOTSWAP
+#define NUM_DRIVES 2
 
 #define CONFIG_NAND NAND_TCC
 
@@ -89,6 +88,9 @@
 /* The D2 has either a PCF50606 or PCF50635, RTC_D2 handles both */
 #define CONFIG_RTC RTC_D2
 
+/* define this if you have RTC RAM available for settings */
+//#define HAVE_RTC_RAM
+
 /* Define this if you have a software controlled poweroff */
 #define HAVE_SW_POWEROFF
 
@@ -103,8 +105,8 @@
 
 #define AB_REPEAT_ENABLE
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* The D2 uses a WM8985 codec */
 #define HAVE_WM8985
@@ -155,6 +157,12 @@
 #define HAVE_ADJUSTABLE_CPU_FREQ
 
 #define INCLUDE_TIMEOUT_API
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define CONFIG_LCD LCD_COWOND2
 

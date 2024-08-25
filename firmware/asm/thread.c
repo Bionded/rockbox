@@ -9,6 +9,8 @@
   #include "arm/thread.c"
 #elif defined(CPU_COLDFIRE)
   #include "m68k/thread.c"
+#elif CONFIG_CPU == SH7034
+  #include "sh/thread.c"
 #elif defined(CPU_MIPS)
   #include "mips/thread.c"
 #else

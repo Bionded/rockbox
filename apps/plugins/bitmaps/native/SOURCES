@@ -1,3 +1,5 @@
+#ifdef HAVE_LCD_BITMAP
+
 /* 2048 */
 
 #define MIN(x,y) ((x<y)?x:y)
@@ -8,16 +10,12 @@ _2048_background.224x224x24.bmp
 _2048_tiles.36x36x24.bmp
 _2048_background.168x168x24.bmp
 #elif MIN(LCD_WIDTH, LCD_HEIGHT)>=132 || MIN(LCD_WIDTH, LCD_HEIGHT)>=128
-#if (LCD_DEPTH > 2)
 _2048_tiles.26x26x24.bmp
-#else
-_2048_tiles.26x26x2.bmp
-#endif
 _2048_background.121x121x24.bmp
 #elif MIN(LCD_WIDTH, LCD_HEIGHT)>=110
 _2048_tiles.22x22x24.bmp
 _2048_background.103x103x24.bmp
-#elif MIN(LCD_WIDTH, LCD_HEIGHT)>=96
+#elif LCD_HEIGHT>=96 && LCD_WIDTH>=128
 _2048_tiles.19x19x24.bmp
 _2048_background.88x88x24.bmp
 #else
@@ -26,44 +24,6 @@ _2048_tiles.12x12x24.bmp
 _2048_background.56x56x24.bmp
 #endif
 #undef MIN
-
-/* amaze */
-#if defined(HAVE_LCD_COLOR)
-#if LCD_WIDTH >= 220 || LCD_HEIGHT >= 220
-amaze_tiles_9.9x9x16.bmp
-amaze_tiles_7.7x7x16.bmp
-#elif LCD_WIDTH >= 160 || LCD_HEIGHT >= 160
-amaze_tiles_7.7x7x16.bmp
-amaze_tiles_5.5x5x16.bmp
-#else
-amaze_tiles_5.5x5x16.bmp
-amaze_tiles_3.3x3x16.bmp
-#endif
-
-#elif LCD_DEPTH > 1
-#if LCD_WIDTH >= 220 || LCD_HEIGHT >= 220
-amaze_tiles_9.9x9x2.bmp
-amaze_tiles_7.7x7x2.bmp
-#elif LCD_WIDTH >= 160 || LCD_HEIGHT >= 160
-amaze_tiles_7.7x7x2.bmp
-amaze_tiles_5.5x5x2.bmp
-#else
-amaze_tiles_5.5x5x2.bmp
-amaze_tiles_3.3x3x2.bmp
-#endif
-
-#else /* mono */
-#if LCD_WIDTH >= 220 || LCD_HEIGHT >= 220
-amaze_tiles_9.9x9x1.bmp
-amaze_tiles_7.7x7x1.bmp
-#elif LCD_WIDTH >= 160 || LCD_HEIGHT >= 160
-amaze_tiles_7.7x7x1.bmp
-amaze_tiles_5.5x5x1.bmp
-#else
-amaze_tiles_5.5x5x1.bmp
-amaze_tiles_3.3x3x1.bmp
-#endif
-#endif /* amaze */
 
 /* Brickmania */
 #ifdef HAVE_LCD_COLOR
@@ -200,9 +160,6 @@ jackpot_slots.30x420x1.bmp
     ((LCD_WIDTH >= 480) && (LCD_HEIGHT >= 640))
 bubbles_emblem.640x480x16.bmp
 bubbles_background.640x480x16.bmp
-#elif (LCD_WIDTH >= 360) && (LCD_HEIGHT >= 400)
-bubbles_emblem.360x400x16.bmp
-bubbles_background.360x400x16.bmp
 #elif (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 bubbles_emblem.320x240x16.bmp
 bubbles_background.320x240x16.bmp
@@ -433,9 +390,7 @@ invadrox_shield.22x16x16.bmp
 invadrox_ufo.16x7x16.bmp
 invadrox_ufo_explode.21x8x16.bmp
 invadrox_numbers.50x7x16.bmp
-#if LCD_WIDTH == 360 && LCD_HEIGHT == 400
-invadrox_background.360x400x16.bmp
-#elif LCD_WIDTH == 320
+#if LCD_WIDTH == 320
 invadrox_background.320x240x16.bmp
 #elif LCD_WIDTH == 240
 invadrox_background.240x320x16.bmp
@@ -504,8 +459,6 @@ jewels.220x176x16.bmp
 jewels.320x240x16.bmp
 #elif (LCD_WIDTH == 320) && (LCD_HEIGHT == 240)
 jewels.320x240x16.bmp
-#elif (LCD_WIDTH == 360) && (LCD_HEIGHT == 400)
-jewels.360x400x16.bmp
 #elif   ((LCD_WIDTH == 640) && (LCD_HEIGHT == 480)) || \
         ((LCD_WIDTH == 480) && (LCD_HEIGHT == 640))
 jewels.640x480x16.bmp
@@ -586,7 +539,8 @@ pegbox_pieces.9x7x1.bmp
 #endif
 
 /* Puzzles */
-#if defined(HAVE_LCD_COLOR) && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE)
+#if defined(HAVE_LCD_COLOR) && \
+    (!defined(LCD_STRIDEFORMAT) || (LCD_STRIDEFORMAT != VERTICAL_STRIDE))
 puzzles_cursor.11x16x24.bmp
 #endif
 
@@ -594,8 +548,6 @@ puzzles_cursor.11x16x24.bmp
 #if LCD_DEPTH >= 16 /* colour versions*/
 #if   (LCD_WIDTH == 640) && (LCD_HEIGHT == 480)
 rockblox_background.640x480x16.bmp
-#elif   (LCD_WIDTH == 360) && (LCD_HEIGHT == 400)
-rockblox_background.360x400x16.bmp
 #elif   (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 rockblox_background.320x240x16.bmp
 #elif (LCD_WIDTH == 240) && (LCD_HEIGHT >= 320)
@@ -653,12 +605,6 @@ snake2_header2.640x480x16.bmp
 snake2_left.640x480x16.bmp
 snake2_right.640x480x16.bmp
 snake2_bottom.640x480x16.bmp
-#elif (LCD_WIDTH >= 360) && (LCD_HEIGHT >= 400) && (LCD_DEPTH >= 16)
-snake2_header1.360x400x16.bmp
-snake2_header2.360x400x16.bmp
-snake2_left.360x400x16.bmp
-snake2_right.360x400x16.bmp
-snake2_bottom.360x400x16.bmp
 #elif (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)
 snake2_header1.320x240x16.bmp
 snake2_header2.320x240x16.bmp
@@ -930,8 +876,7 @@ superdom_boarditems.176x132x16.bmp
 #elif (LCD_WIDTH == 320 && LCD_HEIGHT == 240)
 superdom_boarditems.320x240x16.bmp
 #elif ((LCD_WIDTH == 240) && (LCD_HEIGHT == 320)) || \
-      ((LCD_WIDTH == 240) && (LCD_HEIGHT == 400)) || \
-      ((LCD_WIDTH == 360) && (LCD_HEIGHT == 400))
+      ((LCD_WIDTH == 240) && (LCD_HEIGHT == 400))
 superdom_boarditems.240x320x16.bmp
 #elif (LCD_WIDTH == 480 && LCD_HEIGHT == 640) 
 superdom_boarditems.480x640x16.bmp
@@ -968,8 +913,6 @@ sliding_puzzle.132x132x16.bmp
 sliding_puzzle.176x176x16.bmp
 #elif SMALLER_DIMENSION <= 240
 sliding_puzzle.240x240x16.bmp
-#elif SMALLER_DIMENSION <= 360
-sliding_puzzle.360x360x16.bmp
 #elif SMALLER_DIMENSION <= 480
 sliding_puzzle.480x480x16.bmp
 #endif
@@ -1011,49 +954,10 @@ rockboxlogo.91x32x1.bmp
 #endif
 #endif
 
-/* Credits logo */
-#if (LCD_DEPTH == 1)
-#if (LCD_WIDTH == 160)
-creditslogo.160x53x1.bmp
-#elif (LCD_WIDTH == 128)
-creditslogo.128x42x1.bmp
-#else
-creditslogo.112x30x1.bmp
-#endif
-#elif (LCD_WIDTH == 96) && (LCD_DEPTH >= 16)
-creditslogo.96x30x16.bmp
-#elif (LCD_WIDTH == 128) && (LCD_DEPTH == 2)
-creditslogo.128x42x2.bmp
-#elif (LCD_WIDTH == 128) && (LCD_DEPTH >= 16)
-creditslogo.128x40x16.bmp
-#elif (LCD_WIDTH == 132) && (LCD_DEPTH >= 16)
-creditslogo.132x40x16.bmp
-#elif (LCD_WIDTH == 138) && (LCD_DEPTH >= 2)
-creditslogo.138x46x2.bmp
-#elif (LCD_WIDTH == 160) && (LCD_DEPTH == 2)
-creditslogo.160x53x2.bmp
-#elif (LCD_WIDTH == 320) && (LCD_DEPTH == 2)
-creditslogo.160x53x2.bmp
-#elif (LCD_WIDTH == 160) && (LCD_DEPTH >= 16)
-creditslogo.160x50x16.bmp
-#elif (LCD_WIDTH == 176) && (LCD_DEPTH >= 16)
-creditslogo.176x54x16.bmp
-#elif (LCD_WIDTH == 220) && (LCD_DEPTH >= 16)
-creditslogo.220x68x16.bmp
-#elif (LCD_WIDTH == 240) && (LCD_DEPTH >= 16)
-creditslogo.240x74x16.bmp
-#elif (LCD_WIDTH >= 320) && (LCD_WIDTH < 480)  && (LCD_DEPTH >= 16)
-creditslogo.320x98x16.bmp
-#elif (LCD_WIDTH >= 480) && (LCD_WIDTH < 640) && (LCD_DEPTH >= 16)
-creditslogo.480x149x16.bmp
-#elif (LCD_WIDTH >= 640) && (LCD_DEPTH >= 16)
-creditslogo.640x198x16.bmp
-#endif
-
 /* Pitch detector */
 /* The following preprocessor condition must match the condition */
 /* for pitch detector from plugins/SOURCES                       */
-#if defined(HAVE_RECORDING) && \
+#if (CONFIG_CODEC == SWCODEC) && defined(HAVE_RECORDING) && \
     (defined(HAVE_LINE_IN) || defined(HAVE_MIC_IN))
 #if (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)
 pitch_notes.320x240x16.bmp
@@ -1100,3 +1004,5 @@ resistor.128x128x16.bmp
 #else
 resistor.68x20x16.bmp
 #endif
+
+#endif /* HAVE_LCD_BITMAP */

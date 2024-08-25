@@ -424,7 +424,7 @@ void initmodplayer(void)
         /* Set Default Panning */
         mixer_setpanning(c, panningvalues[c]);
         /* Reset channels in the MOD Player */
-        ci->memset(&modplayer.modchannel[c], 0, sizeof(struct s_modchannel));
+        memset(&modplayer.modchannel[c], 0, sizeof(struct s_modchannel));
         /* Don't play anything */
         mixer.channel[c].channelactive = false;
     }

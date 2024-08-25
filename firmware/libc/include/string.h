@@ -20,7 +20,6 @@ extern "C" {
 _PTR     _EXFUN(memchr,(const _PTR, int, size_t));
 int      _EXFUN(memcmp,(const _PTR, const _PTR, size_t));
 _PTR     _EXFUN(memcpy,(_PTR, const _PTR, size_t));
-_PTR     _EXFUN(memccpy,(_PTR, const _PTR, int, size_t));
 _PTR     _EXFUN(mempcpy,(_PTR, const _PTR, size_t));
 _PTR     _EXFUN(memmove,(_PTR, const _PTR, size_t));
 _PTR     _EXFUN(memset,(_PTR, int, size_t));
@@ -39,6 +38,9 @@ char    *_EXFUN(strrchr,(const char *, int));
 size_t   _EXFUN(strspn,(const char *, const char *));
 char    *_EXFUN(strstr,(const char *, const char *));
 char    *_EXFUN(strcasestr,(const char *, const char *));
+
+size_t  strlcpy(char *dst, const char *src, size_t siz);
+size_t  strlcat(char *dst, const char *src, size_t siz);
 
 #ifndef _REENT_ONLY
 char    *_EXFUN(strtok,(char *, const char *));

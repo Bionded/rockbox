@@ -77,7 +77,7 @@
 #if CONFIG_CPU == MCF5249 && defined(HAVE_UDA1380)
 static const unsigned char pcm_freq_parms[HW_NUM_FREQ][2] =
 {
-HW_HAVE_88_([HW_FREQ_88] = { 0x0c, 0x01 },)
+    [HW_FREQ_88] = { 0x0c, 0x01 },
     [HW_FREQ_44] = { 0x06, 0x01 },
     [HW_FREQ_22] = { 0x04, 0x02 },
     [HW_FREQ_11] = { 0x02, 0x02 },
@@ -91,7 +91,7 @@ HW_HAVE_88_([HW_FREQ_88] = { 0x0c, 0x01 },)
  */
 static const unsigned char pcm_freq_parms[HW_NUM_FREQ][2] =
 {
-HW_HAVE_88_([HW_FREQ_88] = { 0x00, 0x01 },)
+    [HW_FREQ_88] = { 0x00, 0x01 },
     [HW_FREQ_44] = { 0x00, 0x01 },
     [HW_FREQ_22] = { 0x00, 0x01 },
     [HW_FREQ_11] = { 0x00, 0x01 },
@@ -102,7 +102,7 @@ HW_HAVE_88_([HW_FREQ_88] = { 0x00, 0x01 },)
 #if (CONFIG_CPU == MCF5250 || CONFIG_CPU == MCF5249) && defined(HAVE_TLV320)
 static const unsigned char pcm_freq_parms[HW_NUM_FREQ][2] =
 {
-HW_HAVE_88_([HW_FREQ_88] = { 0x0c, 0x01 },)
+    [HW_FREQ_88] = { 0x0c, 0x01 },
     [HW_FREQ_44] = { 0x06, 0x01 },
     [HW_FREQ_22] = { 0x04, 0x01 },
     [HW_FREQ_11] = { 0x02, 0x02 },
@@ -264,6 +264,30 @@ void pcm_play_dma_stop(void)
     dma_play_lock.state = (1 << 14);
 } /* pcm_play_dma_stop */
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause)
+    {
+        /* pause playback on current buffer */
+        and_l(~(DMA_EEXT | DMA_INT), &DCR0); /* per request and int OFF */
+        DSR0 = 1;                            /* stop channel */
+        iis_play_reset_if_playback(true);
+        dma_play_lock.state = (1 << 14);
+    }
+    else
+    {
+        /* restart playback on current buffer */
+        iis_play_reset_if_playback(true);
+        or_l(DMA_INT | DMA_EEXT | DMA_START, &DCR0); /* everything ON */
+        dma_play_lock.state = (0 << 14);
+    }
+} /* pcm_play_dma_pause */
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return BCR0 & 0xffffff;
+} /* pcm_get_bytes_waiting */
+
 /* DMA0 Interrupt is called when the DMA has finished transfering a chunk
    from the caller's buffer */
 void DMA0(void) __attribute__ ((interrupt_handler, section(".icode")));
@@ -300,6 +324,21 @@ void DMA0(void)
     }
     /* else inished playing */
 } /* DMA0 */
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    unsigned long addr, cnt;
+
+    /* Make sure interrupt doesn't change the second value after we read the
+     * first value. */
+    int level = set_irq_level(DMA_IRQ_LEVEL);
+    addr = SAR0;
+    cnt = BCR0;
+    restore_irq(level);
+
+    *count = (cnt & 0xffffff) >> 2;
+    return (void *)((addr + 2) & ~3);
+} /* pcm_play_dma_get_peak_buffer */
 
 #ifdef HAVE_RECORDING
 /****************************************************************************

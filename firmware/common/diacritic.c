@@ -194,7 +194,7 @@ static const struct diac_range diac_ranges[] =
 };
 
 #define MRU_MAX_LEN 32
-#ifndef BOOTLOADER
+
 bool is_diacritic(const unsigned short char_code, bool *is_rtl)
 {
     static uint8_t mru_len = 0;
@@ -232,10 +232,7 @@ bool is_diacritic(const unsigned short char_code, bool *is_rtl)
 
     /* Add MRU entry */
     if (mru_len < MRU_MAX_LEN)
-    {
-        diacritic_mru[mru_len] = i;
         mru_len++;
-    }
 
 Found:
 
@@ -251,12 +248,4 @@ Found:
 
     return (char_code < diac->base + (info & DIAC_CNT));
 }
-#else /*BOOTLOADER*/
-inline bool is_diacritic(const unsigned short char_code, bool *is_rtl)
-{
-    (void)char_code;
-    if (is_rtl)
-        *is_rtl = false;
-    return false;
-}
-#endif /* ndef BOOTLOADER*/
+

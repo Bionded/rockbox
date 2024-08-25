@@ -24,18 +24,12 @@
 #include "system-arm.h"
 #include "mmu-arm.h"
 
-#ifdef SANSA_CONNECT
-#define CPUFREQ_DEFAULT  74250000
-#define CPUFREQ_NORMAL   74250000
-#define CPUFREQ_MAX     148500000
-#else
+#define CPUFREQ_SLEEP       32768
 #define CPUFREQ_DEFAULT  87500000
 #define CPUFREQ_NORMAL   87500000
 #define CPUFREQ_MAX     175000000
-#endif
 
 void udelay(int usec);
-void mdelay(int msec);
 
 #if defined(CREATIVE_ZVx) && defined(BOOTLOADER)
     /* hacky.. */

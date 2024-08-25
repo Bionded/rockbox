@@ -23,13 +23,12 @@
 
 #include "config.h"
 #include "timefuncs.h"
-#include "metadata.h"
-#ifndef WARBLE
-#include "playlist.h"
-#endif
 
 struct screen;
 
+#if CONFIG_CHARGING && !defined(HAVE_POWEROFF_WHILE_CHARGING) && defined(CPU_SH)
+int charging_screen(void);
+#endif
 #if CONFIG_CHARGING || defined(SIMULATOR)
 void charging_splash(void);
 #endif
@@ -39,16 +38,11 @@ int mmc_remove_request(void);
 #endif
 
 #if CONFIG_RTC
-bool set_time_screen(const char* title, struct tm *tm, bool set_date);
+bool set_time_screen(const char* title, struct tm *tm);
 #endif
 
-#ifndef WARBLE
-bool browse_id3_ex(struct mp3entry *id3, struct playlist_info *playlist,
-                int playlist_display_index, int playlist_amount,
-                struct tm *modified, int track_ct);
-#endif
-bool browse_id3(struct mp3entry *id3, int playlist_display_index, int playlist_amount,
-                struct tm *modified, int track_ct);
+bool shutdown_screen(void);
+bool browse_id3(void);
 int  view_runtime(void);
 
 #ifdef HAVE_TOUCHSCREEN

@@ -10,15 +10,12 @@ OUTPUT=beastpatcher.exe
 CROSS=
 else
 OUTPUT=beastpatcher
-CROSS=i686-w64-mingw32-
+CROSS=i586-mingw32msvc-
 endif
 endif
 
 ifneq ($(findstring MINGW,$(shell uname)),MINGW)
-LIBS := -lmtp
-ifdef STATIC
-LIBS := -Wl,-Bstatic $(LIBS) -Wl,-Bdynamic
-endif
+LIBS = /usr/lib/libmtp.a /usr/lib/libusb.a
 CFLAGS += $(shell printf \
 	'\#include <libmtp.h>\nlibmtp version: LIBMTP_VERSION\n' | \
 	gcc -E -P - -o - | grep -q '^libmtp version: 0\.2' && echo '-DOLDMTP')
@@ -33,9 +30,9 @@ CC = $(CROSS)gcc
 
 all: $(OUTPUT)
 
-SOURCES = beastpatcher.c bootimg.c mknkboot.c md5.c main.c
-HEADERS = beastpatcher.h mtp_common.h bootimg.h mknkboot.h md5.h
-OBJS    = beastpatcher.o bootimg.o mknkboot.o md5.o main.o mtp_libmtp.o
+SOURCES = beastpatcher.c bootimg.c mknkboot.c main.c
+HEADERS = beastpatcher.h mtp_common.h bootimg.h mknkboot.h
+OBJS    = beastpatcher.o bootimg.o mknkboot.o main.o mtp_libmtp.o
 MTPSRCS_W32 = mtp_win32.c
 MTPSRCS_MTP = mtp_libmtp.c
 
@@ -71,7 +68,7 @@ bin2c: ../../../rbutil/tools/bin2c.c
 bootimg.c: bootloader.bin bin2c
 	./bin2c bootloader.bin bootimg
 
-mknkboot: mknkboot.c md5.c
+mknkboot: mknkboot.c
 	$(SILENT)$(NATIVECC) $(CFLAGS) $+ -o $@
 clean:
 	rm -f beastpatcher.exe beastpatcher-mac beastpatcher-i386 beastpatcher-ppc beastpatcher bin2c bootimg.c bootimg.h mknkboot *~ *.o beastpatcher.dmg

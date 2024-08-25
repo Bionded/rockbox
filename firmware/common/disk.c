@@ -27,13 +27,8 @@
 #include "disk_cache.h"
 #include "fileobj_mgr.h"
 #include "dir.h"
-#include "rb_namespace.h"
+#include "dircache_redirect.h"
 #include "disk.h"
-
-#if defined(HAVE_BOOTDATA) && !defined(SIMULATOR) && !defined(BOOTLOADER)
-#include "bootdata.h"
-#include "crc32.h"
-#endif
 
 #ifndef CONFIG_DEFAULT_PARTNUM
 #define CONFIG_DEFAULT_PARTNUM 0
@@ -44,7 +39,7 @@
 #define disk_writer_lock()      file_internal_lock_WRITER()
 #define disk_writer_unlock()    file_internal_unlock_WRITER()
 
-/* "MBR" Partition table entry layout:
+/* Partition table entry layout:
    -----------------------
    0: 0x80 - active
    1: starting head
@@ -58,16 +53,6 @@
    12-15: nr of sectors in partition
 */
 
-#define BYTES2INT64(array, pos) \
-    (((uint64_t)array[pos+0] <<  0) | \
-     ((uint64_t)array[pos+1] <<  8) | \
-     ((uint64_t)array[pos+2] << 16) | \
-     ((uint64_t)array[pos+3] << 24) | \
-     ((uint64_t)array[pos+4] << 32) | \
-     ((uint64_t)array[pos+5] << 40) | \
-     ((uint64_t)array[pos+6] << 48) | \
-     ((uint64_t)array[pos+7] << 56) )
-
 #define BYTES2INT32(array, pos) \
     (((uint32_t)array[pos+0] <<  0) | \
      ((uint32_t)array[pos+1] <<  8) | \
@@ -75,38 +60,34 @@
      ((uint32_t)array[pos+3] << 24))
 
 #define BYTES2INT16(array, pos) \
-    (((uint16_t)array[pos+0] << 0) | \
-     ((uint16_t)array[pos+1] << 8))
+    (((uint32_t)array[pos+0] << 0) | \
+     ((uint32_t)array[pos+1] << 8))
 
-static struct partinfo part[NUM_DRIVES*MAX_PARTITIONS_PER_DRIVE];
-static struct volumeinfo volumes[NUM_VOLUMES];
-
-/* check if the entry points to a free volume */
-static bool is_free_volume(const struct volumeinfo *vi)
+static const unsigned char fat_partition_types[] =
 {
-    return vi->drive < 0;
-}
+    0x0b, 0x1b, /* FAT32 + hidden variant */
+    0x0c, 0x1c, /* FAT32 (LBA) + hidden variant */
+#ifdef HAVE_FAT16SUPPORT
+    0x04, 0x14, /* FAT16 <= 32MB + hidden variant */
+    0x06, 0x16, /* FAT16  > 32MB + hidden variant */
+    0x0e, 0x1e, /* FAT16 (LBA) + hidden variant */
+#endif
+};
 
-/* mark a volume entry as free */
-static void mark_free_volume(struct volumeinfo *vi)
-{
-    vi->drive = -1;
-    vi->partition = -1;
-}
+/* space for 4 partitions on 2 drives */
+static struct partinfo part[NUM_DRIVES*4];
+/* mounted to which drive (-1 if none) */
+static int vol_drive[NUM_VOLUMES];
 
 static int get_free_volume(void)
 {
     for (int i = 0; i < NUM_VOLUMES; i++)
-        if (is_free_volume(&volumes[i]))
+    {
+        if (vol_drive[i] == -1) /* unassigned? */
             return i;
+    }
 
     return -1; /* none found */
-}
-
-static void init_volume(struct volumeinfo *vi, int drive, int part)
-{
-    vi->drive = drive;
-    vi->partition = part;
 }
 
 #ifdef MAX_LOG_SECTOR_SIZE
@@ -145,13 +126,12 @@ bool disk_init(IF_MD_NONVOID(int drive))
         /* For each drive, start at a different position, in order not to
            destroy the first entry of drive 0. That one is needed to calculate
            config sector position. */
-        struct partinfo *pinfo = &part[IF_MD_DRV(drive)*MAX_PARTITIONS_PER_DRIVE];
-	uint8_t is_gpt = 0;
+        struct partinfo *pinfo = &part[IF_MD_DRV(drive)*4];
 
         disk_writer_lock();
 
         /* parse partitions */
-        for (int i = 0; i < MAX_PARTITIONS_PER_DRIVE && i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             unsigned char* ptr = sector + 0x1be + 16*i;
             pinfo[i].type  = ptr[4];
@@ -166,121 +146,8 @@ bool disk_init(IF_MD_NONVOID(int drive))
             {
                 /* not handled yet */
             }
+        }
 
-            if (pinfo[i].type == PARTITION_TYPE_GPT_GUARD) {
-		is_gpt = 1;
-	    }
-	}
-
-        // XXX backup GPT header at final LBA of drive...
-
-	while (is_gpt) {
-	    /* Re-start partition parsing using GPT */
-	    uint64_t part_lba;
-	    uint32_t part_entries;
-	    uint32_t part_entry_size;
-            unsigned char* ptr = sector;
-
-	    storage_read_sectors(IF_MD(drive,) 1, 1, sector);
-
-	    part_lba = BYTES2INT64(ptr, 0);
-            if (part_lba != 0x5452415020494645ULL) {
-                DEBUGF("GPT: Invalid signature\n");
-                break;
-            }
-            part_entry_size = BYTES2INT32(ptr, 8);
-            if (part_entry_size != 0x00010000) {
-                DEBUGF("GPT: Invalid version\n");
-                break;
-            }
-            part_entry_size = BYTES2INT32(ptr, 12);
-            if (part_entry_size != 0x5c) {
-                DEBUGF("GPT: Invalid header size\n");
-                break;
-            }
-            // XXX checksum header -- u32 @ offset 16
-            part_entry_size = BYTES2INT32(ptr, 24);
-            if (part_entry_size != 1) {
-                DEBUGF("GPT: Invalid header LBA\n");
-                break;
-            }
-
-	    part_lba = BYTES2INT64(ptr, 72);
-	    part_entries = BYTES2INT32(ptr, 80);
-	    part_entry_size = BYTES2INT32(ptr, 84);
-
-	    int part = 0;
-reload:
-	    storage_read_sectors(IF_MD(drive,) part_lba, 1, sector);
-            uint8_t *pptr = ptr;
-	    while (part < MAX_PARTITIONS_PER_DRIVE && part_entries) {
-		if (pptr - ptr >= SECTOR_SIZE) {
-		    part_lba++;
-		    goto reload;
-		}
-
-		/* Parse GPT entry.  We only care about the "General Data" type, ie:
-		     EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
-                     LE32     LE16 LE16 BE16 BE16
-                */
-                uint64_t tmp;
-                tmp = BYTES2INT32(pptr, 0);
-                if (tmp != 0xEBD0A0A2)
-                    goto skip;
-                tmp = BYTES2INT16(pptr, 4);
-                if (tmp != 0xB9E5)
-                    goto skip;
-                tmp = BYTES2INT16(pptr, 6);
-                if (tmp != 0x4433)
-                    goto skip;
-                if (pptr[8] != 0x87 || pptr[9] != 0xc0)
-                    goto skip;
-                if (pptr[10] != 0x68 || pptr[11] != 0xb6 || pptr[12] != 0xb7 ||
-                    pptr[13] != 0x26 || pptr[14] != 0x99 || pptr[15] != 0xc7)
-                    goto skip;
-
-                tmp = BYTES2INT64(pptr, 48); /* Flags */
-                if (tmp) {
-                    DEBUGF("GPT: Skip parition with flags\n");
-                    goto skip; /* Any flag makes us ignore this */
-                }
-                tmp = BYTES2INT64(pptr, 32); /* FIRST LBA */
-#ifndef STORAGE_64BIT_SECTOR
-                if (tmp > UINT32_MAX) {
-                    DEBUGF("GPT: partition starts after 2TiB mark\n");
-                    goto skip;
-                }
-#endif
-                if (tmp < 34) {
-                    DEBUGF("GPT: Invalid start LBA\n");
-                    goto skip;
-                }
-                pinfo[part].start = tmp;
-                tmp = BYTES2INT64(pptr, 40); /* LAST LBA */
-#ifndef STORAGE_64BIT_SECTOR
-                if (tmp > UINT32_MAX) {
-                    DEBUGF("GPT: partition ends after 2TiB mark\n");
-                    goto skip;
-                }
-#endif
-                if (tmp <= pinfo[part].start) {
-                    DEBUGF("GPT: Invalid end LBA\n");
-                    goto skip;
-                }
-                pinfo[part].size = tmp - pinfo[part].start + 1;
-                pinfo[part].type = PARTITION_TYPE_FAT32_LBA;
-
-                DEBUGF("GPart%d: start: %016lx size: %016lx\n",
-                       part,pinfo[part].start,pinfo[part].size);
-                part++;
-
-            skip:
-                pptr += part_entry_size;
-                part_entries--;
-            }
-
-            is_gpt = 0; /* To break out of the loop */
-	}
         disk_writer_unlock();
 
         init = true;
@@ -313,13 +180,6 @@ int disk_mount(int drive)
 
     int volume = get_free_volume();
 
-    if (volume < 0)
-    {
-        DEBUGF("No Free Volumes\n");
-        disk_writer_unlock();
-        return 0;
-    }
-
     if (!disk_init(IF_MD(drive)))
     {
         disk_writer_unlock();
@@ -331,8 +191,43 @@ int disk_mount(int drive)
     disk_sector_multiplier[IF_MD_DRV(drive)] = 1;
 #endif
 
-        /* try "superfloppy" mode */
-        DEBUGF("Trying to mount sector 0.\n");
+    for (int i = CONFIG_DEFAULT_PARTNUM;
+         volume != -1 && i < 4 && mounted < NUM_VOLUMES_PER_DRIVE;
+         i++)
+    {
+        if (memchr(fat_partition_types, pinfo[i].type,
+                   sizeof(fat_partition_types)) == NULL)
+            continue;  /* not an accepted partition type */
+
+    #ifdef MAX_LOG_SECTOR_SIZE
+        for (int j = 1; j <= (MAX_LOG_SECTOR_SIZE/SECTOR_SIZE); j <<= 1)
+        {
+            if (!fat_mount(IF_MV(volume,) IF_MD(drive,) pinfo[i].start * j))
+            {
+                pinfo[i].start *= j;
+                pinfo[i].size *= j;
+                mounted++;
+                vol_drive[volume] = drive; /* remember the drive for this volume */
+                disk_sector_multiplier[drive] = j;
+                volume_onmount_internal(IF_MV(volume));
+                volume = get_free_volume(); /* prepare next entry */
+                break;
+            }
+        }
+    #else /* ndef MAX_LOG_SECTOR_SIZE */
+        if (!fat_mount(IF_MV(volume,) IF_MD(drive,) pinfo[i].start))
+        {
+            mounted++;
+            vol_drive[volume] = drive; /* remember the drive for this volume */
+            volume_onmount_internal(IF_MV(volume));
+            volume = get_free_volume(); /* prepare next entry */
+        }
+    #endif /* MAX_LOG_SECTOR_SIZE */
+    }
+
+    if (mounted == 0 && volume != -1) /* none of the 4 entries worked? */
+    {   /* try "superfloppy" mode */
+        DEBUGF("No partition found, trying to mount sector 0.\n");
 
         if (!fat_mount(IF_MV(volume,) IF_MD(drive,) 0))
         {
@@ -341,45 +236,8 @@ int disk_mount(int drive)
                 fat_get_bytes_per_sector(IF_MV(volume)) / SECTOR_SIZE;
         #endif
             mounted = 1;
-            init_volume(&volumes[volume], drive, 0);
+            vol_drive[volume] = drive; /* remember the drive for this volume */
             volume_onmount_internal(IF_MV(volume));
-        }
-
-    if (mounted == 0 && volume != -1) /* not a "superfloppy"? */
-    {
-        for (int i = CONFIG_DEFAULT_PARTNUM;
-             volume != -1 && i < MAX_PARTITIONS_PER_DRIVE && mounted < NUM_VOLUMES_PER_DRIVE;
-             i++)
-        {
-            if (pinfo[i].type == 0 || pinfo[i].type == 5)
-                continue;  /* skip free/extended partitions */
-
-        DEBUGF("Trying to mount partition %d.\n", i);
-
-        #ifdef MAX_LOG_SECTOR_SIZE
-            for (int j = 1; j <= (MAX_LOG_SECTOR_SIZE/SECTOR_SIZE); j <<= 1)
-            {
-                if (!fat_mount(IF_MV(volume,) IF_MD(drive,) pinfo[i].start * j))
-                {
-                    pinfo[i].start *= j;
-                    pinfo[i].size *= j;
-                    mounted++;
-                    init_volume(&volumes[volume], drive, i);
-                    disk_sector_multiplier[drive] = j;
-                    volume_onmount_internal(IF_MV(volume));
-                    volume = get_free_volume(); /* prepare next entry */
-                    break;
-                }
-            }
-        #else /* ndef MAX_LOG_SECTOR_SIZE */
-            if (!fat_mount(IF_MV(volume,) IF_MD(drive,) pinfo[i].start))
-            {
-                mounted++;
-                init_volume(&volumes[volume], drive, i);
-                volume_onmount_internal(IF_MV(volume));
-                volume = get_free_volume(); /* prepare next entry */
-            }
-        #endif /* MAX_LOG_SECTOR_SIZE */
         }
     }
 
@@ -397,9 +255,8 @@ int disk_mount_all(void)
     volume_onunmount_internal(IF_MV(-1));
     fat_init();
 
-    /* mark all volumes as free */
     for (int i = 0; i < NUM_VOLUMES; i++)
-        mark_free_volume(&volumes[i]);
+        vol_drive[i] = -1; /* mark all as unassigned */
 
     for (int i = 0; i < NUM_DRIVES; i++)
     {
@@ -424,13 +281,13 @@ int disk_unmount(int drive)
 
     for (int i = 0; i < NUM_VOLUMES; i++)
     {
-        struct volumeinfo *vi = &volumes[i];
-        /* unmount any volumes on the drive */
-        if (vi->drive == drive)
-        {
-            mark_free_volume(vi); /* FIXME: should do this after unmount? */
+        if (vol_drive[i] == drive)
+        {   /* force releasing resources */
+            vol_drive[i] = -1; /* mark unused */
+
             volume_onunmount_internal(IF_MV(i));
             fat_unmount(IF_MV(i));
+
             unmounted++;
         }
     }
@@ -505,13 +362,13 @@ unsigned int volume_get_cluster_size(IF_MV_NONVOID(int volume))
     return clustersize;
 }
 
-void volume_size(IF_MV(int volume,) sector_t *sizep, sector_t *freep)
+void volume_size(IF_MV(int volume,) unsigned long *sizep, unsigned long *freep)
 {
     disk_reader_lock();
 
     if (!CHECK_VOL(volume) || !fat_size(IF_MV(volume,) sizep, freep))
     {
-        if (sizep) *sizep = 0;
+        if (freep) *sizep = 0;
         if (freep) *freep = 0;
     }
 
@@ -519,7 +376,7 @@ void volume_size(IF_MV(int volume,) sector_t *sizep, sector_t *freep)
 }
 
 #if defined (HAVE_HOTSWAP) || defined (HAVE_MULTIDRIVE) \
-    || defined (HAVE_DIRCACHE) || defined(HAVE_BOOTDATA)
+    || defined (HAVE_DIRCACHE)
 enum volume_info_type
 {
 #ifdef HAVE_HOTSWAP
@@ -529,7 +386,6 @@ enum volume_info_type
 #if defined (HAVE_MULTIDRIVE) || defined (HAVE_DIRCACHE)
     VP_DRIVE,
 #endif
-    VP_PARTITION,
 };
 
 static int volume_properties(int volume, enum volume_info_type infotype)
@@ -540,25 +396,22 @@ static int volume_properties(int volume, enum volume_info_type infotype)
 
     if (CHECK_VOL(volume))
     {
-        struct volumeinfo *vi = &volumes[volume];
+        int vd = vol_drive[volume];
         switch (infotype)
         {
     #ifdef HAVE_HOTSWAP
         case VP_REMOVABLE:
-            res = storage_removable(vi->drive) ? 1 : 0;
+            res = storage_removable(vd) ? 1 : 0;
             break;
         case VP_PRESENT:
-            res = storage_present(vi->drive) ? 1 : 0;
+            res = storage_present(vd) ? 1 : 0;
             break;
     #endif
     #if defined(HAVE_MULTIDRIVE) || defined(HAVE_DIRCACHE)
         case VP_DRIVE:
-            res = vi->drive;
+            res = vd;
             break;
     #endif
-        case VP_PARTITION:
-            res = vi->partition;
-            break;
         }
     }
 
@@ -585,11 +438,6 @@ int volume_drive(int volume)
 }
 #endif /* HAVE_MULTIDRIVE */
 
-int volume_partition(int volume)
-{
-    return volume_properties(volume, VP_PARTITION);
-}
-
 #ifdef HAVE_DIRCACHE
 bool volume_ismounted(IF_MV_NONVOID(int volume))
 {
@@ -597,5 +445,4 @@ bool volume_ismounted(IF_MV_NONVOID(int volume))
 }
 #endif /* HAVE_DIRCACHE */
 
-
-#endif /* HAVE_HOTSWAP || HAVE_MULTIDRIVE || HAVE_DIRCACHE || HAVE_BOOTDATA */
+#endif /* HAVE_HOTSWAP || HAVE_MULTIDRIVE || HAVE_DIRCACHE */

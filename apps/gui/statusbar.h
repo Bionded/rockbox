@@ -23,10 +23,13 @@
 #define _GUI_STATUSBAR_H_
 
 #include "config.h"
-#include "button.h"
 #include "status.h"
 #include "screen_access.h"
 #include "events.h"
+
+#define STATUSBAR_X_POS                         0
+#define STATUSBAR_Y_POS                         0 /* MUST be a multiple of 8 */
+#define STATUSBAR_HEIGHT                        8
 
 struct status_info {
     int battlevel;
@@ -99,7 +102,8 @@ struct gui_syncstatusbar
 };
 
 extern void gui_syncstatusbar_init(struct gui_syncstatusbar * bars) INIT_ATTR;
-
+extern void gui_syncstatusbar_draw(struct gui_syncstatusbar * bars,
+                                    bool force_redraw);
 #if !defined(HAVE_REMOTE_LCD) || defined(__PCTOOL__)
 #include "settings.h"
 #define statusbar_position(a) ((enum statusbar_values)global_settings.statusbar)

@@ -26,38 +26,46 @@
 #ifndef PLUGIN
 
 #include "tag_table.h"
-#include "screen_access.h"
+
+#include "wps_internals.h" /* TODO: remove this line.. shoudlnt be needed */
 
 enum skinnable_screens {
+#ifdef HAVE_LCD_BITMAP
     CUSTOM_STATUSBAR,
+#endif
     WPS,
 #if CONFIG_TUNER
     FM_SCREEN,
 #endif
-
+    
+    
     SKINNABLE_SCREENS_COUNT
 };
 
-struct skin_stats;
-struct skin_viewport;
-struct gui_wps;
-
 #ifdef HAVE_TOUCHSCREEN
-int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset);
-void skin_disarm_touchregions(struct gui_wps *gwps);
+int skin_get_touchaction(struct wps_data *data, int* edge_offset,
+                         struct touchregion **retregion);
+void skin_disarm_touchregions(struct wps_data *data);
 #endif
 
 /* Do a update_type update of the skinned screen */
 void skin_update(enum skinnable_screens skin, enum screen_type screen,
                  unsigned int update_type);
 
-bool skin_has_sbs(struct gui_wps *gwps);
+/*
+ * setup up the skin-data from a format-buffer (isfile = false)
+ * or from a skinfile (isfile = true)
+ */
+bool skin_data_load(enum screen_type screen, struct wps_data *wps_data,
+                    const char *buf, bool isfile, struct skin_stats *stats);
+
+bool skin_has_sbs(enum screen_type screen, struct wps_data *data);
 
 
 /* load a backdrop into the skin buffer.
  * reuse buffers if the file is already loaded */
 char* skin_backdrop_load(char* backdrop, char *bmpdir, enum screen_type screen);
-bool skin_backdrop_init(void);
+void skin_backdrop_init(void);
 int skin_backdrop_assign(char* backdrop, char *bmpdir,
                           enum screen_type screen);
 bool skin_backdrops_preload(void);
@@ -65,7 +73,7 @@ void skin_backdrop_show(int backdrop_id);
 void skin_backdrop_load_setting(void);
 void skin_backdrop_unload(int backdrop_id);
 #define BACKDROP_BUFFERNAME "#backdrop_buffer#"
-void skin_backdrop_set_buffer(int backdrop_id, struct skin_viewport *svp);
+void* skin_backdrop_get_buffer(int backdrop_id);
 
 /* do the button loop as often as required for the peak meters to update
  * with a good refresh rate. 
@@ -76,14 +84,13 @@ int skin_wait_for_action(enum skinnable_screens skin, int context, int timeout);
 void skin_load(enum skinnable_screens skin, enum screen_type screen,
                const char *buf, bool isfile);
 struct gui_wps *skin_get_gwps(enum skinnable_screens skin, enum screen_type screen);
+struct wps_state *skin_get_global_state(void);
 void gui_sync_skin_init(void);
 
 void skin_unload_all(void);
 
 bool skin_do_full_update(enum skinnable_screens skin, enum screen_type screen);
 void skin_request_full_update(enum skinnable_screens skin);
-
-bool dbg_skin_engine(void);
 
 #endif /* !PLUGIN */
 #endif

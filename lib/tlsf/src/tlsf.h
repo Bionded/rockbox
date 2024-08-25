@@ -1,6 +1,6 @@
 /*
  * Two Levels Segregate Fit memory allocator (TLSF)
- * Version 2.4.6
+ * Version 2.4.4
  *
  * Written by Miguel Masmano Tello <mimastel@doctor.upv.es>
  *
@@ -19,7 +19,7 @@
 #ifndef _TLSF_H_
 #define _TLSF_H_
 
-#include <sys/types.h>
+#include <string.h> /* defines size_t */
 
 extern size_t init_memory_pool(size_t, void *);
 extern size_t get_used_size(void *);

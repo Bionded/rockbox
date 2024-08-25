@@ -13,7 +13,7 @@
  * bottom of the COPYING file for details on this license.
  *
  * Original code from http://www.beermex.com/@spc/ihpfirm.src.zip
- * Details at http://www.rockbox.org/wiki/IriverToolsGuide
+ * Details at http://www.rockbox.org/twiki/bin/view/Main/IriverToolsGuide
  *
  ****************************************************************************/
 #include <stdio.h>
@@ -99,19 +99,17 @@ static FILE * openoutfile( const char * filename )
 int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify,
                   enum striptype stripmode )
 {
-    int rv = 0;
     FILE * infile = NULL;
     FILE * outfile = NULL;
     int i = -1;
     unsigned char headerdata[512];
-    unsigned int dwLength1, dwLength2, dwLength3, fp = 0;
-    unsigned int minsize, maxsize, sizes[2];
+    unsigned long dwLength1, dwLength2, dwLength3, fp = 0;
     unsigned char blockdata[16+16];
     unsigned char out[16];
     unsigned char newmunge;
     signed long lenread;
     int s = 0;
-    unsigned char * pChecksums = NULL, * ppChecksums = NULL;
+    unsigned char * pChecksums, * ppChecksums = 0;
     unsigned char ck;
 
     infile = openinfile(infile_name);
@@ -122,8 +120,9 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This doesn't look like a valid encrypted iHP "
                  "firmware - reason: header length\n" );
-        rv = -1;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -1;
     };
 
     i = testheader( headerdata );
@@ -131,8 +130,9 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This firmware is for an unknown model, or is not"
                  " a valid encrypted iHP firmware\n" );
-        rv = -2;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -2;
     };
     fprintf( stderr, "Model %s\n", models[ i ] );
 
@@ -143,20 +143,20 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
     dwLength3 = headerdata[8] | (headerdata[9]<<8) |
         (headerdata[10]<<16) | (headerdata[11]<<24);
 
-    if( dwLength2 > dwLength1 ||
+    if( dwLength1 < firmware_minsize[ i ] ||
+        dwLength1 > firmware_maxsize[ i ] ||
+        dwLength2 < firmware_minsize[ i ] ||
+        dwLength2 > dwLength1 ||
         dwLength3 > dwLength1 ||
         dwLength2>>9 != dwLength3 ||
         dwLength2+dwLength3+512 != dwLength1 )
     {
         fprintf( stderr, "This doesn't look like a valid encrypted "
                  "iHP firmware - reason: file 'length' data\n" );
-        rv = -3;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -3;
     };
-
-    minsize = firmware_minsize[i];
-    maxsize = firmware_maxsize[i];
-    sizes[0] = sizes[1] = 0;
 
     pChecksums = ppChecksums = (unsigned char *)( malloc( dwLength3 ) );
 
@@ -183,12 +183,6 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
             blockdata[i] = newmunge;
             ck += out[i];
         }
-
-        if (fp <= 32)
-            sizes[fp / 16 - 1] = (out[0] << 24) |
-                                 (out[1] << 16) |
-                                 (out[2] <<  8) |
-                                 (out[3] <<  0);
 
         if( fp > ESTF_SIZE || stripmode != STRIP_HEADER_CHECKSUM_ESTF )
         {
@@ -217,23 +211,13 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
             s+=16;
     };
 
-    if( sizes[0] < minsize ||
-        sizes[1] < minsize ||
-        sizes[0] > maxsize ||
-        sizes[1] > maxsize )
-    {
-        fprintf( stderr, "This doesn't look like a valid encrypted "
-                 "iHP firmware - reason: ESTFBINR 'length' data\n" );
-        rv = -4;
-        goto bail;
-    };
-
     if( fp != dwLength2 )
     {
         fprintf( stderr, "This doesn't look like a valid encrypted "
                  "iHP firmware - reason: 'length2' mismatch\n" );
-        rv = -5;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -4;
     };
 
     fp = 0;
@@ -248,8 +232,9 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
         {
             fprintf( stderr, "This doesn't look like a valid encrypted "
                      "iHP firmware - reason: Checksum mismatch!" );
-            rv = -6;
-            goto bail;
+            fclose(infile);
+            fclose(outfile);
+            return -5;
         };
         ppChecksums += lenread;
     };
@@ -258,8 +243,9 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This doesn't look like a valid encrypted "
                  "iHP firmware - reason: 'length3' mismatch\n" );
-        rv = -7;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -6;
     };
 
 
@@ -281,30 +267,22 @@ int iriver_decode(const char *infile_name, const char *outfile_name, BOOL modify
             break;
     };
 
-bail:
-    if (infile != NULL)
-        fclose(infile);
-    if (outfile != NULL)
-        fclose(outfile);
-    free(pChecksums);
-    return rv;
+    return 0;
 }
 
 int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify )
 {
-    int rv = 0;
     FILE * infile = NULL;
     FILE * outfile = NULL;
     int i = -1;
     unsigned char headerdata[512];
-    unsigned int dwLength1, dwLength2, dwLength3, fp = 0;
-    unsigned int minsize, maxsize, sizes[2];
+    unsigned long dwLength1, dwLength2, dwLength3, fp = 0;
     unsigned char blockdata[16+16];
     unsigned char out[16];
     unsigned char newmunge;
     signed long lenread;
     int s = 0;
-    unsigned char * pChecksums = NULL, * ppChecksums = NULL;
+    unsigned char * pChecksums, * ppChecksums;
     unsigned char ck;
 
     infile = openinfile(infile_name);
@@ -315,8 +293,9 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This doesn't look like a valid decoded "
                  "iHP firmware - reason: header length\n" );
-        rv = -1;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -1;
     };
 
     if( modify )
@@ -329,8 +308,9 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This firmware is for an unknown model, or is not"
                  " a valid decoded iHP firmware\n" );
-        rv = -2;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -2;
     };
     fprintf( stderr, "Model %s\n", models[ i ] );
 
@@ -341,19 +321,19 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
     dwLength3 = headerdata[8] | (headerdata[9]<<8) |
         (headerdata[10]<<16) | (headerdata[11]<<24);
 
-    if( dwLength2 > dwLength1 ||
+    if( dwLength1 < firmware_minsize[i] ||
+        dwLength1 > firmware_maxsize[i] ||
+        dwLength2 < firmware_minsize[i] ||
+        dwLength2 > dwLength1 ||
         dwLength3 > dwLength1 ||
         dwLength2+dwLength3+512 != dwLength1 )
     {
         fprintf( stderr, "This doesn't look like a valid decoded iHP"
                  " firmware - reason: file 'length' data\n" );
-        rv = -3;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -3;
     };
-
-    minsize = firmware_minsize[i];
-    maxsize = firmware_maxsize[i];
-    sizes[0] = sizes[1] = 0;
 
     pChecksums = ppChecksums = (unsigned char *)( malloc( dwLength3 ) );
 
@@ -365,13 +345,6 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
            ( lenread = fread( blockdata+16, 1, 16, infile ) ) == 16 )
     {
         fp += 16;
-
-        if (fp <= 32)
-            sizes[fp / 16 - 1] = (blockdata[28] << 24) |
-                                 (blockdata[29] << 16) |
-                                 (blockdata[30] <<  8) |
-                                 (blockdata[31] <<  0);
-
         for( i=0; i<16; ++i )
         {
             newmunge = blockdata[16+((12+i)&0xf)] ^ blockdata[i];
@@ -392,23 +365,13 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
             s+=16;
     };
 
-    if( sizes[0] < minsize ||
-        sizes[1] < minsize ||
-        sizes[0] > maxsize ||
-        sizes[1] > maxsize )
-    {
-        fprintf( stderr, "This doesn't look like a valid decoded iHP"
-                 " firmware - reason: ESTFBINR 'length' data\n" );
-        rv = -4;
-        goto bail;
-    };
-
     if( fp != dwLength2 )
     {
         fprintf( stderr, "This doesn't look like a valid decoded "
                  "iHP firmware - reason: 'length1' mismatch\n" );
-        rv = -5;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -4;
     };
 
     /* write out remainder w/out applying descrambler */
@@ -427,17 +390,14 @@ int iriver_encode(const char *infile_name, const char *outfile_name, BOOL modify
     {
         fprintf( stderr, "This doesn't look like a valid decoded "
                  "iHP firmware - reason: 'length2' mismatch\n" );
-        rv = -6;
-        goto bail;
+        fclose(infile);
+        fclose(outfile);
+        return -5;
     };
 
     fprintf( stderr, "File encoded successfully and checksum table built!\n" );
 
-bail:
-    if (infile != NULL)
-        fclose(infile);
-    if (outfile != NULL)
-        fclose(outfile);
-    free(pChecksums);
-    return rv;
+    fclose(infile);
+    fclose(outfile);
+    return 0;
 }

@@ -14,6 +14,9 @@
 /*define this if the ATA controller and method of USB access support LBA48 */
 #define HAVE_LBA48
 
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
+
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
 
@@ -70,6 +73,9 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
+
 /* define this if you have a disk storage, i.e. something
    that needs spinups and can cause skips when shaked */
 #define HAVE_DISK_STORAGE
@@ -115,7 +121,7 @@
                         SRC_CAP_FMRADIO | SRC_CAP_SPDIF)
 
 /* define hardware samples rate caps mask */
-#define HW_SAMPR_CAPS   (/*SAMPR_CAP_88 |*/ SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
+#define HW_SAMPR_CAPS   (SAMPR_CAP_88 | SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
 
 /* define the bitmask of recording sample rates */
 #define REC_SAMPR_CAPS  (SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
@@ -135,7 +141,7 @@
 
 /* define current usage levels */
 #define CURRENT_NORMAL     80  /* 16h playback on 1300mAh battery */
-#define CURRENT_BACKLIGHT  23  /* from IriverBattery wiki page */
+#define CURRENT_BACKLIGHT  23  /* from IriverBattery twiki page */
 #define CURRENT_SPDIF_OUT  10  /* optical SPDIF output on */
 #define CURRENT_RECORD    105  /* additional current while recording */
 #define CURRENT_REMOTE      8  /* additional current when remote connected */
@@ -163,6 +169,12 @@
 /* Define this if you have ATA power-off control */
 #define HAVE_ATA_POWER_OFF
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
 #define HAVE_ATA_LED_CTRL
 
 /* Define this if you have adjustable CPU frequency */
@@ -172,7 +184,6 @@
 #define BOOTFILE "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
 
-#define FLASH_BASE             0x00000000
 #define BOOTLOADER_ENTRYPOINT  0x001F0000
 #define FLASH_RAMIMAGE_ENTRY   0x00001000
 #define FLASH_ROMIMAGE_ENTRY   0x00100000

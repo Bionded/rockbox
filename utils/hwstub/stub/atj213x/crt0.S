@@ -130,34 +130,77 @@ stack_munge_loop:
     bne t0, sp, stack_munge_loop
     addiu t0, 4
 
-    # setup Global Pointer
-    la gp, _gp
-
     # jump to C code with enabled interrupts
     la t0, main
     jr.hb t0
     ei
 
+    .extern exception_jmp_ctx_ptr
     .global tlb_refill_handler
     .section .exception.tlb_refill,"ax",%progbits
 
 tlb_refill_handler:
-    j restore_exception_jmp
-    li a0, EXCEPTION_ADDR
+    la k1, exception_jmp_ctx_ptr
+    lw s0,  0(k1)
+    lw s1,  4(k1)
+    lw s2,  8(k1)
+    lw s3, 12(k1)
+    lw s4, 16(k1)
+    lw s5, 20(k1)
+    lw s6, 24(k1)
+    lw s7, 28(k1)
+    lw sp, 32(k1)
+    lw s8, 36(k1)
+    lw k1, 40(k1)
+    mtc0 k1, C0_EPC
+    ehb
+    li v0, EXCEPTION_ADDR
+    eret
+    nop
 
     .global cache_error_handler
     .section .exception.cache_error,"ax",%progbits
 
 cache_error_handler:
-    j restore_exception_jmp
-    li a0, EXCEPTION_ADDR
+    la k1, exception_jmp_ctx_ptr
+    lw s0,  0(k1)
+    lw s1,  4(k1)
+    lw s2,  8(k1)
+    lw s3, 12(k1)
+    lw s4, 16(k1)
+    lw s5, 20(k1)
+    lw s6, 24(k1)
+    lw s7, 28(k1)
+    lw sp, 32(k1)
+    lw s8, 36(k1)
+    lw k1, 40(k1)
+    mtc0 k1, C0_EPC
+    ehb
+    li v0, EXCEPTION_ADDR
+    eret
+    nop
 
     .global general_exception_handler
     .section .exception.general_exception,"ax",%progbits
 
 general_exception_handler:
-    j restore_exception_jmp
-    li a0, EXCEPTION_UNSP
+    la k1, exception_jmp_ctx_ptr
+    lw s0,  0(k1)
+    lw s1,  4(k1)
+    lw s2,  8(k1)
+    lw s3, 12(k1)
+    lw s4, 16(k1)
+    lw s5, 20(k1)
+    lw s6, 24(k1)
+    lw s7, 28(k1)
+    lw sp, 32(k1)
+    lw s8, 36(k1)
+    lw k1, 40(k1)
+    mtc0 k1, C0_EPC
+    ehb
+    li v0, EXCEPTION_UNSP
+    eret
+    nop
 
 /* s0-s7 not saved as this are callee saved registers
  * CO_STATUS is not saved as nested interrupts are not supported
@@ -245,6 +288,8 @@ restore:
     addiu sp, sp, 84
     move sp, k1
     eret
+    nop
 
     .set reorder
     .set at
+

@@ -36,17 +36,12 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
 #ifdef STANDALONE_SOLVER
-static bool verbose = false;
+bool verbose = 0;
 #endif
 
 enum {
@@ -235,17 +230,8 @@ static game_params *custom_params(const config_item *cfg)
 
 static const char *validate_params(const game_params *params, bool full)
 {
-    if (params->w < 2) return "Width must be at least two";
-    if (params->h < 2) return "Height must be at least two";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
-    if (params->diff >= DIFF_TRICKY) {
-        if (params->w < 5 && params->h < 5)
-            return "Either width or height must be at least five for Tricky";
-    } else {
-        if (params->w < 3 && params->h < 3)
-            return "Either width or height must be at least three";
-    }
+    if (params->w < 2) return "Width must be at least one";
+    if (params->h < 2) return "Height must be at least one";
     if (params->diff < 0 || params->diff >= DIFFCOUNT)
         return "Unknown difficulty level";
 
@@ -524,9 +510,7 @@ nextchar:
      * (i.e. each end points to the other) */
     for (idx = 0; idx < state->wh; idx++) {
         if (state->common->dominoes[idx] < 0 ||
-            state->common->dominoes[idx] >= state->wh ||
-            (state->common->dominoes[idx] % state->w != idx % state->w &&
-             state->common->dominoes[idx] / state->w != idx / state->w) ||
+            state->common->dominoes[idx] > state->wh ||
             state->common->dominoes[state->common->dominoes[idx]] != idx) {
             *prob = "Domino descriptions inconsistent";
             goto done;
@@ -557,7 +541,7 @@ static const char *validate_desc(const game_params *params, const char *desc)
 {
     const char *prob;
     game_state *st = new_game_int(params, desc, &prob);
-    if (!st) return prob;
+    if (!st) return (char*)prob;
     free_game(st);
     return NULL;
 }
@@ -1590,7 +1574,6 @@ static int lay_dominoes(game_state *state, random_state *rs, int *scratch)
     }
 
     debug(("Laid %d dominoes, total %d dominoes.\n", nlaid, state->wh/2));
-    (void)nlaid;
     game_debug(state, "Final layout");
     return ret;
 }
@@ -1737,13 +1720,22 @@ static game_ui *new_ui(const game_state *state)
 {
     game_ui *ui = snew(game_ui);
     ui->cur_x = ui->cur_y = 0;
-    ui->cur_visible = getenv_bool("PUZZLES_SHOW_CURSOR", false);
+    ui->cur_visible = false;
     return ui;
 }
 
 static void free_ui(game_ui *ui)
 {
     sfree(ui);
+}
+
+static char *encode_ui(const game_ui *ui)
+{
+    return NULL;
+}
+
+static void decode_ui(game_ui *ui, const char *encoding)
+{
 }
 
 static void game_changed_state(game_ui *ui, const game_state *oldstate,
@@ -1753,36 +1745,6 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
         ui->cur_visible = false;
 }
 
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    int idx;
-
-    if (IS_CURSOR_SELECT(button)) {
-        if (!ui->cur_visible) return "";
-        idx = ui->cur_y * state->w + ui->cur_x;
-        if (button == CURSOR_SELECT) {
-            if (state->grid[idx] == NEUTRAL && state->flags[idx] & GS_SET)
-                return "";
-            switch (state->grid[idx]) {
-              case EMPTY: return "+";
-              case POSITIVE: return "-";
-              case NEGATIVE: return "Clear";
-            }
-        }
-        if (button == CURSOR_SELECT2) {
-            if (state->grid[idx] != NEUTRAL) return "";
-            if (state->flags[idx] & GS_SET) /* neutral */
-                return "?";
-            if (state->flags[idx] & GS_NOTNEUTRAL) /* !neutral */
-                return "Clear";
-            else
-                return "X";
-        }
-    }
-    return "";
-}
-    
 struct game_drawstate {
     int tilesize;
     bool started, solved;
@@ -1843,13 +1805,14 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     char *nullret = NULL, buf[80], movech;
     enum { CYCLE_MAGNET, CYCLE_NEUTRAL } action;
 
-    if (IS_CURSOR_MOVE(button))
-        return move_cursor(button, &ui->cur_x, &ui->cur_y, state->w, state->h,
-                           false, &ui->cur_visible);
-    else if (IS_CURSOR_SELECT(button)) {
+    if (IS_CURSOR_MOVE(button)) {
+        move_cursor(button, &ui->cur_x, &ui->cur_y, state->w, state->h, false);
+        ui->cur_visible = true;
+        return UI_UPDATE;
+    } else if (IS_CURSOR_SELECT(button)) {
         if (!ui->cur_visible) {
             ui->cur_visible = true;
-            return MOVE_UI_UPDATE;
+            return UI_UPDATE;
         }
         action = (button == CURSOR_SELECT) ? CYCLE_MAGNET : CYCLE_NEUTRAL;
         gx = ui->cur_x;
@@ -1858,7 +1821,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
                (button == LEFT_BUTTON || button == RIGHT_BUTTON)) {
         if (ui->cur_visible) {
             ui->cur_visible = false;
-            nullret = MOVE_UI_UPDATE;
+            nullret = UI_UPDATE;
         }
         action = (button == LEFT_BUTTON) ? CYCLE_MAGNET : CYCLE_NEUTRAL;
     } else if (button == LEFT_BUTTON && is_clue(state, gx, gy)) {
@@ -1965,7 +1928,7 @@ badmove:
  */
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int tilesize; } ads, *ds = &ads;
@@ -2242,7 +2205,12 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     flash = (int)(flashtime * 5 / FLASH_TIME) % 2;
 
     if (!ds->started) {
-        /* draw corner +-. */
+        /* draw background, corner +-. */
+        draw_rect(dr, 0, 0,
+                  TILE_SIZE * (w+2) + 2 * BORDER,
+                  TILE_SIZE * (h+2) + 2 * BORDER,
+                  COL_BACKGROUND);
+
         draw_sym(dr, ds, -1, -1, POSITIVE, COL_TEXT);
         draw_sym(dr, ds, state->w, state->h, NEGATIVE, COL_TEXT);
 
@@ -2323,39 +2291,29 @@ static float game_flash_length(const game_state *oldstate,
     return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->cur_visible) {
-        *x = COORD(ui->cur_x);
-        *y = COORD(ui->cur_y);
-        *w = *h = TILE_SIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     return state->completed ? +1 : 0;
 }
 
-static void game_print_size(const game_params *params, const game_ui *ui,
-                            float *x, float *y)
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
 {
     int pw, ph;
 
     /*
      * I'll use 6mm squares by default.
      */
-    game_compute_size(params, 600, ui, &pw, &ph);
+    game_compute_size(params, 600, &pw, &ph);
     *x = pw / 100.0F;
     *y = ph / 100.0F;
 }
 
-static void game_print(drawing *dr, const game_state *state, const game_ui *ui,
-                       int tilesize)
+static void game_print(drawing *dr, const game_state *state, int tilesize)
 {
     int w = state->w, h = state->h;
     int ink = print_mono_colour(dr, 0);
@@ -2459,14 +2417,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    NULL, NULL, /* get_prefs, set_prefs */
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
@@ -2476,11 +2432,10 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
     true, false, game_print_size, game_print,
     false,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     REQUIRE_RBUTTON,		       /* flags */
 };
 
@@ -2489,14 +2444,14 @@ const struct game thegame = {
 #include <time.h>
 #include <stdarg.h>
 
-static const char *quis = NULL;
-static bool csv = false;
+const char *quis = NULL;
+bool csv = false;
 
-static void usage(FILE *out) {
+void usage(FILE *out) {
     fprintf(out, "usage: %s [-v] [--print] <params>|<game id>\n", quis);
 }
 
-static void doprint(game_state *state)
+void doprint(game_state *state)
 {
     char *fmt = game_text_format(state);
     printf("%s", fmt);
@@ -2590,7 +2545,7 @@ static void start_soak(game_params *p, random_state *rs)
     sfree(aux);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     bool print = false, soak = false, solved = false;
     int ret;
@@ -2639,7 +2594,7 @@ int main(int argc, char *argv[])
     decode_params(p, id);
     err = validate_params(p, true);
     if (err) {
-        fprintf(stderr, "%s: %s\n", argv[0], err);
+        fprintf(stderr, "%s: %s", argv[0], err);
         goto done;
     }
 

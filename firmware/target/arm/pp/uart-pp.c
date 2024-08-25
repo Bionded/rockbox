@@ -143,8 +143,6 @@ void serial_setup (void)
 
 #endif
 
-    (void)tmp;
-
     serial_bitrate(0);
 }
 

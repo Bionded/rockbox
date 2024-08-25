@@ -33,8 +33,8 @@
 #define CONFIG_STORAGE STORAGE_SD
 #define HAVE_FLASH_STORAGE
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -61,8 +61,8 @@
 
 #define CONFIG_KEYPAD LYRE_PROTO1_PAD
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* The number of bytes reserved for loadable codecs */
 #define CODEC_SIZE 0x100000
@@ -93,6 +93,12 @@
 #define CPU_FREQ 198656000
 #define MCK_FREQ 99328000
 #define SLOW_CLOCK 32768
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define BOOTFILE_EXT "lyre_proto1"
 #define BOOTFILE "rockbox." BOOTFILE_EXT

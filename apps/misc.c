@@ -54,16 +54,17 @@
 #include "power.h"
 #include "powermgmt.h"
 #include "backlight.h"
+#include "version.h"
 #include "font.h"
 #include "splash.h"
 #include "tagcache.h"
+#include "scrobbler.h"
 #include "sound.h"
 #include "playlist.h"
 #include "yesno.h"
 #include "viewport.h"
 #include "list.h"
 #include "fixedpoint.h"
-#include "open_plugin.h"
 
 #include "debug.h"
 
@@ -83,24 +84,24 @@
 #if defined(HAVE_RECORDING) && !defined(__PCTOOL__)
 #include "recording.h"
 #endif
-#if !defined(__PCTOOL__)
+#if defined(HAVE_LCD_BITMAP) && !defined(__PCTOOL__)
 #include "bmp.h"
 #include "icons.h"
-#endif /* !__PCTOOL__ */
+#endif /* End HAVE_LCD_BITMAP */
 #include "bookmark.h"
 #include "wps.h"
 #include "playback.h"
+#if CONFIG_CODEC == SWCODEC
 #include "voice_thread.h"
+#else
+#include "mp3_playback.h"
+#endif
 
 #ifdef BOOTFILE
 #if !defined(USB_NONE) && !defined(USB_HANDLED_BY_OF) \
         || defined(HAVE_HOTSWAP_STORAGE_AS_MAIN)
 #include "rolo.h"
 #endif
-#endif
-
-#ifndef PLUGIN
-#include "core_alloc.h" /*core_load_bmp()*/
 #endif
 
 #ifdef HAVE_HARDWARE_CLICK
@@ -139,7 +140,7 @@ const unsigned char * const unit_strings_core[] =
  * voiced.*/
 char *output_dyn_value(char *buf,
                        int buf_size,
-                       int64_t value,
+                       int value,
                        const unsigned char * const *units,
                        unsigned int unit_count,
                        bool binary_scale)
@@ -147,9 +148,8 @@ char *output_dyn_value(char *buf,
     unsigned int scale = binary_scale ? 1024 : 1000;
     unsigned int fraction = 0;
     unsigned int unit_no = 0;
-    uint64_t value_abs = (value < 0) ? -value : value;
+    unsigned int value_abs = (value < 0) ? -value : value;
     char tbuf[5];
-    int value2;
 
     while (value_abs >= scale && unit_no < (unit_count - 1))
     {
@@ -158,7 +158,7 @@ char *output_dyn_value(char *buf,
         unit_no++;
     }
 
-    value2 = (value < 0) ? -value_abs : value_abs; /* preserve sign */
+    value = (value < 0) ? -value_abs : value_abs; /* preserve sign */
     fraction = (fraction * 1000 / scale) / 10;
 
     if (value_abs >= 100 || fraction >= 100 || !unit_no)
@@ -171,10 +171,10 @@ char *output_dyn_value(char *buf,
     if (buf)
     {
         if (*tbuf)
-            snprintf(buf, buf_size, "%d%s%s%s", value2, str(LANG_POINT),
+            snprintf(buf, buf_size, "%d%s%s%s", value, str(LANG_POINT),
                      tbuf, P2STR(units[unit_no]));
         else
-            snprintf(buf, buf_size, "%d%s", value2, P2STR(units[unit_no]));
+            snprintf(buf, buf_size, "%d%s", value, P2STR(units[unit_no]));
     }
     else
     {
@@ -201,37 +201,6 @@ bool warn_on_pl_erase(void)
         return true;
 }
 
-bool show_search_progress(bool init, int display_count, int current, int total)
-{
-    static int last_tick = 0;
-
-    /* Don't show splashes for 1/2 second after starting search */
-    if (init)
-    {
-        last_tick = current_tick + HZ/2;
-        return true;
-    }
-
-    /* Update progress every 1/10 of a second */
-    if (TIME_AFTER(current_tick, last_tick + HZ/10))
-    {
-        if (total != current)
-        {
-            splash_progress(current, total, str(LANG_PLAYLIST_SEARCH_MSG),
-                            display_count, str(LANG_OFF_ABORT));
-        }
-        else
-            splashf(0, str(LANG_PLAYLIST_SEARCH_MSG),
-                    display_count, str(LANG_OFF_ABORT));
-
-        if (action_userabort(TIMEOUT_NOBLOCK))
-            return false;
-        last_tick = current_tick;
-        yield();
-    }
-
-    return true;
-}
 
 /* Performance optimized version of the read_line() (see below) function. */
 int fast_readline(int fd, char *buf, int buf_size, void *parameters,
@@ -303,20 +272,10 @@ bool settings_parseline(char* line, char** name, char** value)
         return false;
 
     *name = line;
-    *ptr = '\0'; /* terminate previous */
+    *ptr = 0;
     ptr++;
     ptr = skip_whitespace(ptr);
     *value = ptr;
-
-    /* strip whitespace from the right side of value */
-    ptr += strlen(ptr);
-    ptr--;
-    while ((ptr > (*value) - 1) && isspace(*ptr))
-    {
-        *ptr = '\0';
-        ptr--;
-    }
-
     return true;
 }
 
@@ -324,7 +283,6 @@ static void system_flush(void)
 {
     playlist_shutdown();
     tree_flush();
-    open_plugin_cache_flush();
     call_storage_idle_notifys(true); /*doesnt work on usb and shutdown from ata thread */
 }
 
@@ -333,16 +291,9 @@ static void system_restore(void)
     tree_restore();
 }
 
-static bool clean_shutdown(enum shutdown_type sd_type,
-                           void (*callback)(void *), void *parameter)
+static bool clean_shutdown(void (*callback)(void *), void *parameter)
 {
     long msg_id = -1;
-
-    if (!global_settings.show_shutdown_message && get_sleep_timer_active())
-    {
-        talk_force_shutup();
-        talk_disable(true);
-    }
 
     status_save();
 
@@ -351,7 +302,7 @@ static bool clean_shutdown(enum shutdown_type sd_type,
 #endif
     {
         bool batt_safe = battery_level_safe();
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC != SWCODEC || defined(HAVE_RECORDING)
         int audio_stat = audio_status();
 #endif
 
@@ -374,10 +325,7 @@ static bool clean_shutdown(enum shutdown_type sd_type,
 #endif
             level = battery_level();
             if (level > 10 || level < 0)
-            {
-                if (global_settings.show_shutdown_message)
-                    splash(0, str(LANG_SHUTTINGDOWN));
-            }
+                splash(0, str(LANG_SHUTTINGDOWN));
             else
             {
                 msg_id = LANG_WARNING_BATTERY_LOW;
@@ -391,12 +339,19 @@ static bool clean_shutdown(enum shutdown_type sd_type,
             splashf(0, "%s %s", str(LANG_WARNING_BATTERY_EMPTY),
                                 str(LANG_SHUTTINGDOWN));
         }
+#if CONFIG_CODEC != SWCODEC
+        if (global_settings.fade_on_stop
+            && (audio_stat & AUDIO_STATUS_PLAY))
+        {
+            fade(false, false);
+        }
+#endif
 
 #ifdef HAVE_DISK_STORAGE
         if (batt_safe) /* do not save on critical battery */
 #endif
         {
-#if defined(HAVE_RECORDING)
+#if defined(HAVE_RECORDING) && CONFIG_CODEC == SWCODEC
             if (audio_stat & AUDIO_STATUS_RECORD)
             {
                 rec_command(RECORDING_CMD_STOP);
@@ -413,9 +368,16 @@ static bool clean_shutdown(enum shutdown_type sd_type,
             if (callback != NULL)
                 callback(parameter);
 
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC != SWCODEC
+            /* wait for audio_stop or audio_stop_recording to complete */
+            while (audio_status())
+                sleep(1);
+#endif
+
+#if defined(HAVE_RECORDING) && CONFIG_CODEC == SWCODEC
             audio_close_recording();
 #endif
+            scrobbler_shutdown(true);
 
             system_flush();
 #ifdef HAVE_EEPROM_SETTINGS
@@ -441,10 +403,12 @@ static bool clean_shutdown(enum shutdown_type sd_type,
                 enqueue = true;
             }
             talk_id(LANG_SHUTTINGDOWN, enqueue);
+#if CONFIG_CODEC == SWCODEC
             voice_wait();
+#endif
         }
 
-        shutdown_hw(sd_type);
+        shutdown_hw();
     }
     return false;
 }
@@ -462,12 +426,27 @@ bool list_stop_handler(void)
     {
         if (!global_settings.party_mode)
         {
+#if CONFIG_CODEC != SWCODEC
+            if (global_settings.fade_on_stop)
+                fade(false, false);
+#endif
             bookmark_autobookmark(true);
             audio_stop();
             ret = true;  /* bookmarking can make a refresh necessary */
         }
     }
 #if CONFIG_CHARGING
+#if (CONFIG_KEYPAD == RECORDER_PAD) && !defined(HAVE_SW_POWEROFF)
+    else
+    {
+        if (charger_inserted())
+            charging_splash();
+        else
+            shutdown_screen(); /* won't return if shutdown actually happens */
+
+        ret = true;  /* screen is dirty, caller needs to refresh */
+    }
+#endif
 #ifndef HAVE_POWEROFF_WHILE_CHARGING
     {
         static long last_off = 0;
@@ -516,7 +495,7 @@ static void car_adapter_mode_processing(bool inserted)
             if ((audio_status() & AUDIO_STATUS_PLAY) &&
                 !(audio_status() & AUDIO_STATUS_PAUSE))
             {
-                pause_action(true);
+                pause_action(true, true);
                 paused_on_unplugged = true;
             }
             else if (!waiting_to_resume_play)
@@ -553,7 +532,7 @@ void car_adapter_mode_init(void)
 #ifdef HAVE_HEADPHONE_DETECTION
 static void hp_unplug_change(bool inserted)
 {
-    static bool headphone_caused_pause = true;
+    static bool headphone_caused_pause = false;
 
     if (global_settings.unplug_mode)
     {
@@ -564,21 +543,14 @@ static void hp_unplug_change(bool inserted)
             if ((audio_stat & AUDIO_STATUS_PLAY) &&
                     headphone_caused_pause &&
                     global_settings.unplug_mode > 1 )
-            {
-                enum current_activity act = get_current_activity();
-                /* only do a skin refresh if in one of the below screens */
-                bool refresh = (act == ACTIVITY_FM ||
-                                act == ACTIVITY_WPS ||
-                                act == ACTIVITY_RECORDING);
-                unpause_action(refresh);
-            }
+                unpause_action(true, true);
             headphone_caused_pause = false;
         } else {
             if ((audio_stat & AUDIO_STATUS_PLAY) &&
                     !(audio_stat & AUDIO_STATUS_PAUSE))
             {
                 headphone_caused_pause = true;
-                pause_action(false);
+                pause_action(false, false);
             }
         }
     }
@@ -588,7 +560,7 @@ static void hp_unplug_change(bool inserted)
     audio_enable_speaker(global_settings.speaker_mode);
 #endif
 }
-#endif /*HAVE_HEADPHONE_DETECTION*/
+#endif
 
 #ifdef HAVE_LINEOUT_DETECTION
 static void lo_unplug_change(bool inserted)
@@ -596,34 +568,11 @@ static void lo_unplug_change(bool inserted)
 #ifdef HAVE_LINEOUT_POWEROFF
     lineout_set(inserted);
 #else
-#ifdef AUDIOHW_HAVE_LINEOUT
-    audiohw_set_lineout_volume(0,0); /*hp vol re-set by this function as well*/
+    (void)inserted;
+    audiohw_set_lineout_volume(0,0);
 #endif
-    static bool lineout_caused_pause = true;
-
-    if (global_settings.unplug_mode)
-    {
-        int audio_stat = audio_status();
-        if (inserted)
-        {
-            backlight_on();
-            if ((audio_stat & AUDIO_STATUS_PLAY) &&
-                    lineout_caused_pause &&
-                    global_settings.unplug_mode > 1 )
-                unpause_action(true);
-            lineout_caused_pause = false;
-        } else {
-            if ((audio_stat & AUDIO_STATUS_PLAY) &&
-                    !(audio_stat & AUDIO_STATUS_PAUSE))
-            {
-                lineout_caused_pause = true;
-                pause_action(false);
-            }
-        }
-    }
-#endif /*HAVE_LINEOUT_POWEROFF*/
 }
-#endif /*HAVE_LINEOUT_DETECTION*/
+#endif
 
 long default_event_handler_ex(long event, void (*callback)(void *), void *parameter)
 {
@@ -646,6 +595,10 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
         case SYS_USB_CONNECTED:
             if (callback != NULL)
                 callback(parameter);
+#if (CONFIG_STORAGE & STORAGE_MMC) && (defined(ARCHOS_ONDIOSP) || defined(ARCHOS_ONDIOFM))
+            if (!mmc_touched() ||
+                (mmc_remove_request() == SYS_HOTSWAP_EXTRACTED))
+#endif
             {
                 system_flush();
 #ifdef BOOTFILE
@@ -664,17 +617,8 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
             return SYS_USB_CONNECTED;
 
         case SYS_POWEROFF:
-        case SYS_REBOOT:
-        {
-            enum shutdown_type sd_type;
-            if (event == SYS_POWEROFF)
-                sd_type = SHUTDOWN_POWER_OFF;
-            else
-                sd_type = SHUTDOWN_REBOOT;
-
-            if (!clean_shutdown(sd_type, callback, parameter))
-                return event;
-        }
+            if (!clean_shutdown(callback, parameter))
+                return SYS_POWEROFF;
             break;
 #if CONFIG_CHARGING
         case SYS_CHARGER_CONNECTED:
@@ -687,7 +631,7 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
             return SYS_CHARGER_DISCONNECTED;
 
         case SYS_CAR_ADAPTER_RESUME:
-            unpause_action(true);
+            unpause_action(true, true);
             return SYS_CAR_ADAPTER_RESUME;
 #endif
 #ifdef HAVE_HOTSWAP_STORAGE_AS_MAIN
@@ -768,9 +712,9 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
             if (status & AUDIO_STATUS_PLAY)
             {
                 if (status & AUDIO_STATUS_PAUSE)
-                    unpause_action(true);
+                    unpause_action(true, true);
                 else
-                    pause_action(true);
+                    pause_action(true, true);
             }
             else
                 if (playlist_resume() != -1)
@@ -802,6 +746,55 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
 long default_event_handler(long event)
 {
     return default_event_handler_ex(event, NULL, NULL);
+}
+
+int show_logo( void )
+{
+#ifdef HAVE_LCD_BITMAP
+    char version[32];
+    int font_h, font_w;
+
+    snprintf(version, sizeof(version), "Ver. %s", rbversion);
+
+    lcd_clear_display();
+#if defined(SANSA_CLIP) || defined(SANSA_CLIPV2) || defined(SANSA_CLIPPLUS)
+    /* display the logo in the blue area of the screen */
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_getstringsize((unsigned char *)"A", &font_w, &font_h);
+    lcd_putsxy((LCD_WIDTH/2) - ((strlen(version)*font_w)/2),
+               0, (unsigned char *)version);
+    lcd_bmp(&bm_rockboxlogo, (LCD_WIDTH - BMPWIDTH_rockboxlogo) / 2, 16);
+#else
+    lcd_bmp(&bm_rockboxlogo, (LCD_WIDTH - BMPWIDTH_rockboxlogo) / 2, 10);
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_getstringsize((unsigned char *)"A", &font_w, &font_h);
+    lcd_putsxy((LCD_WIDTH/2) - ((strlen(version)*font_w)/2),
+               LCD_HEIGHT-font_h, (unsigned char *)version);
+#endif
+    lcd_setfont(FONT_UI);
+
+#else
+    char *rockbox = "  ROCKbox!";
+
+    lcd_clear_display();
+    lcd_double_height(true);
+    lcd_puts(0, 0, rockbox);
+    lcd_puts_scroll(0, 1, rbversion);
+#endif
+    lcd_update();
+
+#ifdef HAVE_REMOTE_LCD
+    lcd_remote_clear_display();
+    lcd_remote_bmp(&bm_remote_rockboxlogo, 0, 10);
+    lcd_remote_setfont(FONT_SYSFIXED);
+    lcd_remote_getstringsize((unsigned char *)"A", &font_w, &font_h);
+    lcd_remote_putsxy((LCD_REMOTE_WIDTH/2) - ((strlen(version)*font_w)/2),
+                       LCD_REMOTE_HEIGHT-font_h, (unsigned char *)version);
+    lcd_remote_setfont(FONT_UI);
+    lcd_remote_update();
+#endif
+
+    return 0;
 }
 
 #ifdef BOOTFILE
@@ -845,7 +838,6 @@ void check_bootfile(bool do_rolo)
                 }
             }
             mtime = info.mtime;
-            break;
         }
     }
     closedir(dir);
@@ -870,113 +862,6 @@ void setvol(void)
     settings_save();
 }
 
-#ifdef HAVE_PERCEPTUAL_VOLUME
-static short norm_tab[MAX_NORM_VOLUME_STEPS+2];
-static int norm_tab_num_steps;
-static int norm_tab_size;
-
-static void update_norm_tab(void)
-{
-    const int lim = global_settings.volume_adjust_norm_steps;
-    if (lim == norm_tab_num_steps)
-        return;
-    norm_tab_num_steps = lim;
-
-    const int min = sound_min(SOUND_VOLUME);
-    const int max = sound_max(SOUND_VOLUME);
-    const int step = sound_steps(SOUND_VOLUME);
-
-    /* Ensure the table contains the minimum volume */
-    norm_tab[0] = min;
-    norm_tab_size = 1;
-
-    for (int i = 0; i < lim; ++i)
-    {
-        int vol = from_normalized_volume(i, min, max, lim);
-        int rem = vol % step;
-
-        vol -= rem;
-        if (abs(rem) > step/2)
-            vol += rem < 0 ? -step : step;
-
-        /* Add volume step, ignoring any duplicate entries that may
-         * occur due to rounding */
-        if (vol != norm_tab[norm_tab_size-1])
-            norm_tab[norm_tab_size++] = vol;
-    }
-
-    /* Ensure the table contains the maximum volume */
-    if (norm_tab[norm_tab_size-1] != max)
-        norm_tab[norm_tab_size++] = max;
-}
-
-void set_normalized_volume(int vol)
-{
-    update_norm_tab();
-
-    if (vol < 0)
-        vol = 0;
-    if (vol >= norm_tab_size)
-        vol = norm_tab_size - 1;
-
-    global_settings.volume = norm_tab[vol];
-}
-
-int get_normalized_volume(void)
-{
-    update_norm_tab();
-
-    int a = 0, b = norm_tab_size - 1;
-    while (a != b)
-    {
-        int i = (a + b + 1) / 2;
-        if (global_settings.volume < norm_tab[i])
-            b = i - 1;
-        else
-            a = i;
-    }
-
-    return a;
-}
-#else
-void set_normalized_volume(int vol)
-{
-    global_settings.volume = vol * sound_steps(SOUND_VOLUME);
-}
-
-int get_normalized_volume(void)
-{
-    return global_settings.volume / sound_steps(SOUND_VOLUME);
-}
-#endif
-
-void adjust_volume(int steps)
-{
-#ifdef HAVE_PERCEPTUAL_VOLUME
-    adjust_volume_ex(steps, global_settings.volume_adjust_mode);
-#else
-    adjust_volume_ex(steps, VOLUME_ADJUST_DIRECT);
-#endif
-}
-
-void adjust_volume_ex(int steps, enum volume_adjust_mode mode)
-{
-    switch (mode)
-    {
-    case VOLUME_ADJUST_PERCEPTUAL:
-#ifdef HAVE_PERCEPTUAL_VOLUME
-        set_normalized_volume(get_normalized_volume() + steps);
-        break;
-#endif
-    case VOLUME_ADJUST_DIRECT:
-    default:
-        global_settings.volume += steps * sound_steps(SOUND_VOLUME);
-        break;
-    }
-
-    setvol();
-}
-
 char* strrsplt(char* str, int c)
 {
     char* s = strrchr(str, c);
@@ -999,21 +884,32 @@ char* strrsplt(char* str, int c)
  */
 char *strip_extension(char* buffer, int buffer_size, const char *filename)
 {
-    if (!buffer || !filename || buffer_size <= 0)
+    char *dot = strrchr(filename, '.');
+    int len;
+
+    if (buffer_size <= 0)
     {
         return NULL;
     }
 
-    off_t dotpos = (strrchr(filename, '.') - filename) + 1;
+    buffer_size--;  /* Make room for end nil */
 
-    /* no match on filename beginning with '.' or beyond buffer_size */
-    if(dotpos > 1 && dotpos < buffer_size)
-        buffer_size = dotpos;
-    strmemccpy(buffer, filename, buffer_size);
+    if (dot != 0 && filename[0] != '.')
+    {
+        len = dot - filename;
+        len = MIN(len, buffer_size);
+    }
+    else
+    {
+        len = buffer_size;
+    }
+
+    strlcpy(buffer, filename, len + 1);
 
     return buffer;
 }
 
+#if CONFIG_CODEC == SWCODEC
 /* Play a standard sound */
 void system_sound_play(enum system_sound sound)
 {
@@ -1165,6 +1061,7 @@ void replaygain_update(void)
     settings.type = replaygain_setting_mode(settings.type);
     dsp_replaygain_set_settings(&settings);
 }
+#endif /* CONFIG_CODEC == SWCODEC */
 
 /* format a sound value like: -1.05 dB */
 int format_sound_value(char *buf, size_t size, int snd, int val)
@@ -1174,11 +1071,6 @@ int format_sound_value(char *buf, size_t size, int snd, int val)
     int physval = sound_val2phys(snd, val);
 
     unsigned int factor = ipow(10, numdec);
-    if (factor == 0)
-    {
-        DEBUGF("DIVISION BY ZERO: format_sound_value s:%d v:%d", snd, val);
-        factor = 1;
-    }
     unsigned int av = abs(physval);
     unsigned int i = av / factor;
     unsigned int d = av - i*factor;
@@ -1246,6 +1138,7 @@ int read_line(int fd, char* buffer, int buffer_size)
     return rdbufend >= 0 ? num_read : -1;
 }
 
+
 char* skip_whitespace(char* const str)
 {
     char *s = str;
@@ -1257,30 +1150,6 @@ char* skip_whitespace(char* const str)
 }
 
 #if !defined(CHECKWPS) && !defined(DBTOOL)
-
-int confirm_delete_yesno(const char *name)
-{
-    const char *lines[] = { ID2P(LANG_REALLY_DELETE), name };
-    const char *yes_lines[] = { ID2P(LANG_DELETING), name };
-    const struct text_message message = { lines, 2 };
-    const struct text_message yes_message = { yes_lines, 2 };
-    return gui_syncyesno_run(&message, &yes_message, NULL);
-}
-
-int confirm_overwrite_yesno(void)
-{
-    static const char *lines[] = { ID2P(LANG_REALLY_OVERWRITE) };
-    static const struct text_message message = { lines, 1 };
-    return gui_syncyesno_run(&message, NULL, NULL);
-}
-
-int confirm_remove_queued_yesno(void)
-{
-    static const char *lines[] = { ID2P(LANG_REMOVE_QUEUED_TRACKS) };
-    static const struct text_message message = { lines, 1 };
-    return gui_syncyesno_run(&message, NULL, NULL);
-}
-
 /*  time_split_units()
     split time values depending on base unit
     unit_idx: UNIT_HOUR, UNIT_MIN, UNIT_SEC, UNIT_MS
@@ -1373,14 +1242,14 @@ const char *format_time_auto(char *buffer, int buf_len, long value,
                         [UNIT_IDX_SEC] = 4,/* 999.59:59:0  RTL offsets    */
                         [UNIT_IDX_MS]  = 0,/* 0  .4 :7 :10 won't change   */
                    }; /* {10,7,4,0}; Offsets */
-    static const uint16_t unitlock[UNIT_IDX_TIME_COUNT] =
+    const uint16_t unitlock[UNIT_IDX_TIME_COUNT] =
                    {
                         [UNIT_IDX_HR]  = UNIT_LOCK_HR,
                         [UNIT_IDX_MIN] = UNIT_LOCK_MIN,
                         [UNIT_IDX_SEC] = UNIT_LOCK_SEC,
                         [UNIT_IDX_MS]  = 0,
                    }; /* unitlock */
-    static const uint16_t units[UNIT_IDX_TIME_COUNT] =
+    const uint16_t units[UNIT_IDX_TIME_COUNT] =
                    {
                         [UNIT_IDX_HR]  = UNIT_HOUR,
                         [UNIT_IDX_MIN] = UNIT_MIN,
@@ -1471,12 +1340,12 @@ const char *format_time_auto(char *buffer, int buf_len, long value,
 
         if (!supress_unit)
         {
-            strmemccpy(buffer, unit_strings_core[units[max_idx]], buf_len);
+            strlcpy(buffer, unit_strings_core[units[max_idx]], buf_len);
             left_offset += strlcat(buffer, " ", buf_len);
             strlcat(buffer, &timebuf[offsets[base_idx]], buf_len);
         }
         else
-            strmemccpy(buffer, &timebuf[offsets[base_idx]], buf_len);
+            strlcpy(buffer, &timebuf[offsets[base_idx]], buf_len);
 
         strlcat(buffer, sign, buf_len);
     }
@@ -1506,82 +1375,6 @@ void format_time(char* buf, int buf_size, long t)
              t < 0, "-", units_in[UNIT_IDX_HR], hashours, ":",
              hashours+1, units_in[UNIT_IDX_MIN], units_in[UNIT_IDX_SEC]);
 }
-
-const char* format_sleeptimer(char* buffer, size_t buffer_size,
-                              int value, const char* unit)
-{
-    (void) unit;
-    int minutes, hours;
-
-    if (value) {
-        hours = value / 60;
-        minutes = value - (hours * 60);
-        snprintf(buffer, buffer_size, "%d:%02d", hours, minutes);
-        return buffer;
-    } else {
-        return str(LANG_OFF);
-    }
-}
-
-static int seconds_to_min(int secs)
-{
-    return (secs + 10) / 60;  /* round up for 50+ seconds */
-}
-
-char* string_sleeptimer(char *buffer, size_t buffer_len)
-{
-    int sec = get_sleep_timer();
-    char timer_buf[10];
-
-    snprintf(buffer, buffer_len, "%s (%s)",
-             str(sec ? LANG_SLEEP_TIMER_CANCEL_CURRENT
-                 : LANG_SLEEP_TIMER_START_CURRENT),
-             format_sleeptimer(timer_buf, sizeof(timer_buf),
-                sec ? seconds_to_min(sec)
-                    : global_settings.sleeptimer_duration, NULL));
-    return buffer;
-}
-
-/* If a sleep timer is running, cancel it, otherwise start one */
-int toggle_sleeptimer(void)
-{
-    set_sleeptimer_duration(get_sleep_timer() ? 0
-                    : global_settings.sleeptimer_duration);
-    return 0;
-}
-
-void talk_sleeptimer(void)
-{
-    int seconds = get_sleep_timer();
-    long talk_ids[] = {
-        seconds ? LANG_SLEEP_TIMER_CANCEL_CURRENT
-            : LANG_SLEEP_TIMER_START_CURRENT,
-        VOICE_PAUSE,
-        (seconds ? seconds_to_min(seconds)
-            : global_settings.sleeptimer_duration) | UNIT_MIN << UNIT_SHIFT,
-        TALK_FINAL_ID
-    };
-    talk_idarray(talk_ids, true);
-}
-
-#if CONFIG_RTC
-void talk_timedate(void)
-{
-    struct tm *tm = get_time();
-    if (!global_settings.talk_menu)
-        return;
-    talk_id(VOICE_CURRENT_TIME, false);
-    if (valid_time(tm))
-    {
-        talk_time(tm, true);
-        talk_date(get_time(), true);
-    }
-    else
-    {
-        talk_id(LANG_UNKNOWN, true);
-    }
-}
-#endif /* CONFIG_RTC */
 #endif /* !defined(CHECKWPS) && !defined(DBTOOL)*/
 
 /**
@@ -1596,77 +1389,25 @@ void talk_timedate(void)
 int split_string(char *str, const char split_char, char *vector[], const int vector_length)
 {
     int i;
-    char sep[2] = {split_char, '\0'};
-    char *e, *p = strtok_r(str, sep, &e);
+    char *p = str;
 
-    /* strtok takes care of leading & trailing splitters */
-    for(i = 0; i < vector_length; i++)
+    /* skip leading splitters */
+    while(*p == split_char) p++;
+
+    /* *p in the condition takes care of trailing splitters */
+    for(i = 0; p && *p && i < vector_length; i++)
     {
         vector[i] = p;
-        if (!p)
-            break;
-        p = strtok_r(NULL, sep, &e);
+        if ((p = strchr(p, split_char)))
+        {
+            *p++ = '\0';
+            while(*p == split_char) p++; /* skip successive splitters */
+        }
     }
 
     return i;
 }
 
-/* returns match index from option list
- * returns -1 if option was not found
- * option list is array of char pointers with the final item set to null
- * ex - const char * const option[] = { "op_a", "op_b", "op_c", NULL}
- */
-int string_option(const char *option, const char *const oplist[], bool ignore_case)
-{
-    const char *op;
-    int (*cmp_fn)(const char*, const char*) = &strcasecmp;
-    if (!ignore_case)
-        cmp_fn = strcmp;
-    for (int i=0; (op=oplist[i]) != NULL; i++)
-    {
-        if (cmp_fn(op, option) == 0)
-            return i;
-    }
-    return -1;
-}
-
-/* Make sure part of path only contain chars valid for a FAT32 long name.
- * Double quotes are replaced with single quotes, other unsupported chars
- * are replaced with an underscore.
- *
- * path   - path to modify.
- * offset - where in path to start checking.
- * count  - number of chars to check.
- */
-void fix_path_part(char* path, int offset, int count)
-{
-    static const char invalid_chars[] = "*/:<>?\\|";
-    int i;
-
-    path += offset;
-
-    for (i = 0; i <= count; i++, path++)
-    {
-        if (*path == 0)
-            return;
-        if (*path == '"')
-            *path = '\'';
-        else if (strchr(invalid_chars, *path))
-            *path = '_';
-    }
-}
-
-/* open but with a builtin printf for assembling the path */
-int open_pathfmt(char *buf, size_t size, int oflag, const char *pathfmt, ...)
-{
-    va_list ap;
-    va_start(ap, pathfmt);
-    vsnprintf(buf, size, pathfmt, ap);
-    va_end(ap);
-    if ((oflag & O_PATH) == O_PATH)
-        return -1;
-    return open(buf, oflag, 0666);
-}
 
 /** Open a UTF-8 file and set file descriptor to first byte after BOM.
  *  If no BOM is present this behaves like open().
@@ -1738,6 +1479,7 @@ int hex_to_rgb(const char* hex, int* color)
 }
 #endif /* HAVE_LCD_COLOR */
 
+#ifdef HAVE_LCD_BITMAP
 /* '0'-'3' are ASCII 0x30 to 0x33 */
 #define is0123(x) (((x) & 0xfc) == 0x30)
 #if !defined(__PCTOOL__) || defined(CHECKWPS)
@@ -1780,6 +1522,7 @@ int clamp_value_wrap(int value, int max, int min)
     return value;
 }
 #endif
+#endif
 
 
 #ifndef __PCTOOL__
@@ -1788,242 +1531,32 @@ int clamp_value_wrap(int value, int max, int min)
 static enum current_activity
         current_activity[MAX_ACTIVITY_DEPTH] = {ACTIVITY_UNKNOWN};
 static int current_activity_top = 0;
-
-static void push_current_activity_refresh(enum current_activity screen, bool refresh)
-{
-    current_activity[current_activity_top++] = screen;
-    FOR_NB_SCREENS(i)
-    {
-        skinlist_set_cfg(i, NULL);
-        if (refresh)
-            skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
-    }
-}
-
-static void pop_current_activity_refresh(bool refresh)
-{
-    current_activity_top--;
-    FOR_NB_SCREENS(i)
-    {
-        skinlist_set_cfg(i, NULL);
-        if (refresh)
-            skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
-    }
-}
-
 void push_current_activity(enum current_activity screen)
 {
-    push_current_activity_refresh(screen, true);
-}
-
-void push_activity_without_refresh(enum current_activity screen)
-{
-    push_current_activity_refresh(screen, false);
-}
-
-void pop_current_activity(void)
-{
-    pop_current_activity_refresh(true);
-#if 0
-    current_activity_top--;
+    current_activity[current_activity_top++] = screen;
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
     {
         skinlist_set_cfg(i, NULL);
-        if (ACTIVITY_REFRESH_NOW == refresh)
-            skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
+        skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
     }
 #endif
 }
 
-void pop_current_activity_without_refresh(void)
+void pop_current_activity(void)
 {
-    pop_current_activity_refresh(false);
+    current_activity_top--;
+#ifdef HAVE_LCD_BITMAP
+    FOR_NB_SCREENS(i)
+    {
+        skinlist_set_cfg(i, NULL);
+        skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
+    }
+#endif
 }
-
 enum current_activity get_current_activity(void)
 {
     return current_activity[current_activity_top?current_activity_top-1:0];
 }
 
-/* core_load_bmp opens bitmp filename and allocates space for it
-*  you must set bm->data with the result from core_get_data(handle)
-*  you must also call core_free(handle) when finished with the bitmap
-*  returns handle, ALOC_ERR(0) on failure
-* ** Extended error info truth table **
-*  [ Handle ][buf_reqd]
-*  [  > 0   ][  > 0   ] buf_reqd indicates how many bytes were used
-*  [ALOC_ERR][  > 0   ] buf_reqd indicates how many bytes are needed
-*  [ALOC_ERR][READ_ERR] there was an error reading the file or it is empty
-*/
-int core_load_bmp(const char * filename, struct bitmap *bm, const int bmformat,
-                  ssize_t *buf_reqd, struct buflib_callbacks *ops)
-{
-    ssize_t buf_size;
-    ssize_t size_read = 0;
-    int handle = CLB_ALOC_ERR;
-
-    int fd = open(filename, O_RDONLY);
-    *buf_reqd = CLB_READ_ERR;
-
-    if (fd < 0) /* Exit if file opening failed */
-    {
-        DEBUGF("read_bmp_file: can't open '%s', rc: %d\n", filename, fd);
-        return CLB_ALOC_ERR;
-    }
-
-    buf_size = read_bmp_fd(fd, bm, 0, bmformat|FORMAT_RETURN_SIZE, NULL);
-
-    if (buf_size > 0)
-    {
-        handle = core_alloc_ex(buf_size, ops);
-        if (handle > 0)
-        {
-            bm->data = core_get_data_pinned(handle);
-            lseek(fd, 0, SEEK_SET); /* reset to beginning of file */
-            size_read = read_bmp_fd(fd, bm, buf_size, bmformat, NULL);
-
-            if (size_read > 0) /* free unused alpha channel, if any */
-            {
-                core_shrink(handle, bm->data, size_read);
-                *buf_reqd = size_read;
-            }
-
-            core_put_data_pinned(bm->data);
-            bm->data = NULL; /* do this to force a crash later if the
-                                    caller doesnt call core_get_data() */
-        }
-        else
-            *buf_reqd = buf_size; /* couldn't allocate pass bytes needed */
-
-        if (size_read <= 0)
-        {
-            /* error reading file */
-            core_free(handle); /* core_free() ignores free handles (<= 0) */
-            handle = CLB_ALOC_ERR;
-        }
-    }
-
-    close(fd);
-    return handle;
-}
-
-/*
- * Normalized volume routines adapted from alsamixer volume_mapping.c
- */
-/*
- * Copyright (c) 2010 Clemens Ladisch <clemens@ladisch.de>
- *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-/*
- * "The mapping is designed so that the position in the interval is proportional
- * to the volume as a human ear would perceive it (i.e., the position is the
- * cubic root of the linear sample multiplication factor).  For controls with
- * a small range (24 dB or less), the mapping is linear in the dB values so
- * that each step has the same size visually.  Only for controls without dB
- * information, a linear mapping of the hardware volume register values is used
- * (this is the same algorithm as used in the old alsamixer)."
- */
-
-#define NVOL_FRACBITS 16
-#define NVOL_UNITY    (1L << NVOL_FRACBITS)
-#define NVOL_FACTOR   (600L << NVOL_FRACBITS)
-
-#define NVOL_MAX_LINEAR_DB_SCALE (240L << NVOL_FRACBITS)
-
-#define nvol_div(x,y) fp_div((x), (y), NVOL_FRACBITS)
-#define nvol_mul(x,y) fp_mul((x), (y), NVOL_FRACBITS)
-#define nvol_exp10(x) fp_exp10((x), NVOL_FRACBITS)
-#define nvol_log10(x) fp_log10((x), NVOL_FRACBITS)
-
-static bool use_linear_dB_scale(long min_vol, long max_vol)
-{
-    /*
-     * Alsamixer uses a linear scale for small ranges.
-     * Commented out so perceptual volume works as advertised on all targets.
-     */
-    /*
-    return max_vol - min_vol <= NVOL_MAX_LINEAR_DB_SCALE;
-    */
-
-    (void)min_vol;
-    (void)max_vol;
-    return false;
-}
-
-long to_normalized_volume(long vol, long min_vol, long max_vol, long max_norm)
-{
-    long norm, min_norm;
-
-    vol <<= NVOL_FRACBITS;
-    min_vol <<= NVOL_FRACBITS;
-    max_vol <<= NVOL_FRACBITS;
-    max_norm <<= NVOL_FRACBITS;
-
-    if (use_linear_dB_scale(min_vol, max_vol))
-    {
-        norm = nvol_div(vol - min_vol, max_vol - min_vol);
-    }
-    else
-    {
-        min_norm = nvol_exp10(nvol_div(min_vol - max_vol, NVOL_FACTOR));
-        norm = nvol_exp10(nvol_div(vol - max_vol, NVOL_FACTOR));
-        norm = nvol_div(norm - min_norm, NVOL_UNITY - min_norm);
-    }
-
-    return nvol_mul(norm, max_norm) >> NVOL_FRACBITS;
-}
-
-long from_normalized_volume(long norm, long min_vol, long max_vol, long max_norm)
-{
-    long vol, min_norm;
-
-    norm <<= NVOL_FRACBITS;
-    min_vol <<= NVOL_FRACBITS;
-    max_vol <<= NVOL_FRACBITS;
-    max_norm <<= NVOL_FRACBITS;
-
-    vol = nvol_div(norm, max_norm);
-
-    if (use_linear_dB_scale(min_vol, max_vol))
-    {
-        vol = nvol_mul(vol, max_vol - min_vol) + min_vol;
-    }
-    else
-    {
-        min_norm = nvol_exp10(nvol_div(min_vol - max_vol, NVOL_FACTOR));
-        vol = nvol_mul(vol, NVOL_UNITY - min_norm) + min_norm;
-        vol = nvol_mul(nvol_log10(vol), NVOL_FACTOR) + max_vol;
-    }
-
-    return vol >> NVOL_FRACBITS;
-}
-
-void clear_screen_buffer(bool update)
-{
-    struct viewport vp;
-    struct viewport *last_vp;
-    FOR_NB_SCREENS(i)
-    {
-        struct screen * screen = &screens[i];
-        viewport_set_defaults(&vp, screen->screen_type);
-        last_vp = screen->set_viewport(&vp);
-        screen->clear_viewport();
-        if (update) {
-            screen->update_viewport();
-        }
-        screen->set_viewport(last_vp);
-    }
-}
-
-#endif /* ndef __PCTOOL__ */
+#endif

@@ -1,3 +1,4 @@
+#if CONFIG_CODEC == SWCODEC /* software codec platforms */
 codeclib.c
 ffmpeg_bitstream.c
 
@@ -5,6 +6,6 @@ mdct_lookup.c
 fft-ffmpeg.c
 mdct.c
 
-#if (CONFIG_PLATFORM & PLATFORM_HOSTED) && defined(__APPLE__)
+#elif (CONFIG_PLATFORM & PLATFORM_HOSTED) && defined(__APPLE__)
 osx.dummy.c
 #endif

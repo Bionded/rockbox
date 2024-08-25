@@ -86,6 +86,17 @@ Still To do:
 #define ACTION BUTTON_SELECT
 #define ACTIONTEXT "SELECT"
 
+#elif CONFIG_KEYPAD == RECORDER_PAD
+#define QUIT BUTTON_OFF
+#define ACTION BUTTON_PLAY
+#define ACTIONTEXT "PLAY"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define QUIT BUTTON_OFF
+#define ACTION BUTTON_UP
+#define ACTION2 BUTTON_MENU
+#define ACTIONTEXT "UP"
+
 #elif CONFIG_KEYPAD == GIGABEAT_S_PAD \
    || CONFIG_KEYPAD == SAMSUNG_YPR0_PAD
 #define QUIT BUTTON_BACK
@@ -107,6 +118,12 @@ Still To do:
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define QUIT BUTTON_POWER
 #define ACTION2 BUTTON_PLUS
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define QUIT BUTTON_POWER
+#define ACTION BUTTON_PLAY
+#define ACTION2 BUTTON_STOP
+#define ACTIONTEXT "PLAY"
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define QUIT BUTTON_BACK
@@ -192,15 +209,20 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define ACTION     BUTTON_SELECT
 #define ACTIONTEXT "Select"
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD || CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD || CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD || CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define QUIT       BUTTON_POWER
 #define ACTION     BUTTON_PLAY
 #define ACTIONTEXT "PLAY"
 
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define QUIT        BUTTON_POWER
-#define ACTION      BUTTON_PLAY
-#define ACTIONTEXT  "PLAY"
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
+#define QUIT       BUTTON_POWER
+#define ACTION     BUTTON_PLAY
+#define ACTIONTEXT "PLAY"
+
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+#define QUIT       BUTTON_POWER
+#define ACTION     BUTTON_PLAY
+#define ACTIONTEXT "PLAY"
 
 #elif !defined(HAVE_TOUCHSCREEN)
 #error No keymap defined!
@@ -523,18 +545,19 @@ static void chopAddBlock(int x,int y,int sx,int sy, int indexOverride)
 
 static void chopAddParticle(int x,int y,int sx,int sy)
 {
-    for(int i = 0; i < NUMBER_OF_PARTICLES; ++i)
-    {
-        if(!mParticles[i].bIsActive)
-        {
-            mParticles[i].bIsActive = 1;
-            mParticles[i].iWorldX = x;
-            mParticles[i].iWorldY = y;
-            mParticles[i].iSpeedX = sx;
-            mParticles[i].iSpeedY = sy;
-            return;
-        }
-    }
+    int i=0;
+
+    while(mParticles[i].bIsActive && i < NUMBER_OF_PARTICLES)
+        i++;
+
+    if(i==NUMBER_OF_PARTICLES)
+        return;
+
+    mParticles[i].bIsActive = 1;
+    mParticles[i].iWorldX = x;
+    mParticles[i].iWorldY = y;
+    mParticles[i].iSpeedX = sx;
+    mParticles[i].iSpeedY = sy;
 }
 
 static void chopGenerateBlockIfNeeded(void)
@@ -708,7 +731,7 @@ static void chopDrawScene(void)
 #elif LCD_DEPTH == 2
     rb->lcd_set_foreground(LCD_WHITE);
 #endif
-
+    
 #if LCD_WIDTH <= 128
     rb->snprintf(s, sizeof(s), "Dist: %d", score);
 #else
@@ -734,11 +757,8 @@ static void chopDrawScene(void)
 }
 
 static bool _ingame;
-static int chopMenuCb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int chopMenuCb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     if(action == ACTION_REQUEST_MENUITEM
        && !_ingame && ((intptr_t)this_item)==0)
         return ACTION_EXIT_MENUITEM;
@@ -754,7 +774,7 @@ static int chopMenu(int menunum)
         { "Normal", -1 },
         { "Steep", -1 },
     };
-
+    
     MENUITEM_STRINGLIST(menu,"Chopper Menu",chopMenuCb,
                         "Resume Game","Start New Game",
                         "Level","Playback Control","Quit");
@@ -784,7 +804,7 @@ static int chopMenu(int menunum)
                 res = -1;
                 break;
             case 2:
-                rb->set_option("Level", &iLevelMode, RB_INT, levels, 2, NULL);
+                rb->set_option("Level", &iLevelMode, INT, levels, 2, NULL);
                 break;
             case 3:
                 playback_control(NULL);
@@ -1083,10 +1103,8 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_set_foreground(LCD_WHITE);
 #endif
 
-
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
-
 
     rb->srand( *rb->current_tick );
 
@@ -1098,10 +1116,8 @@ enum plugin_status plugin_start(const void* parameter)
     configfile_save(CFG_FILE, config, 1, 0);
 
     rb->lcd_setfont(FONT_UI);
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
 
     return ret;
 }

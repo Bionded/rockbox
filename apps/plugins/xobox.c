@@ -38,14 +38,23 @@
 
 #define RC_QUIT BUTTON_RC_STOP
 
+#elif (CONFIG_KEYPAD == ARCHOS_AV300_PAD)
+
+#define QUIT BUTTON_OFF
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define PAUSE BUTTON_ON
+#define UP BUTTON_UP
+#define DOWN BUTTON_DOWN
+
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
 
-#define QUIT (BUTTON_SELECT | BUTTON_REPEAT)
+#define QUIT (BUTTON_SELECT | BUTTON_MENU)
 #define LEFT BUTTON_LEFT
 #define RIGHT BUTTON_RIGHT
-#define PAUSE (BUTTON_SELECT | BUTTON_REL)
+#define PAUSE BUTTON_SELECT
 #define MENU_UP BUTTON_SCROLL_FWD
 #define MENU_DOWN BUTTON_SCROLL_BACK
 #define UP BUTTON_MENU
@@ -115,6 +124,24 @@
 #define DOWN BUTTON_SCROLL_DOWN
 #define PAUSE BUTTON_PLAY
 
+#elif CONFIG_KEYPAD == RECORDER_PAD
+
+#define QUIT BUTTON_OFF
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define DOWN BUTTON_DOWN
+#define UP BUTTON_UP
+#define PAUSE BUTTON_PLAY
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+
+#define QUIT BUTTON_OFF
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define DOWN BUTTON_DOWN
+#define UP BUTTON_UP
+#define PAUSE BUTTON_MENU
+
 #elif (CONFIG_KEYPAD == GIGABEAT_S_PAD)
 
 #define QUIT BUTTON_BACK
@@ -145,6 +172,15 @@
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 
 #define QUIT BUTTON_POWER
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define QUIT BUTTON_POWER
+#define LEFT BUTTON_LEFT
+#define RIGHT BUTTON_RIGHT
+#define UP BUTTON_STOP
+#define DOWN BUTTON_PLAY
+#define PAUSE BUTTON_MENU
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 
@@ -306,7 +342,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define DOWN     BUTTON_DOWN
 #define PAUSE    BUTTON_SELECT
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 
 #define QUIT     BUTTON_POWER
 #define LEFT     BUTTON_PREV
@@ -315,16 +351,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define DOWN     BUTTON_OPTION
 #define PAUSE    BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-
-#define QUIT     BUTTON_POWER
-#define LEFT     BUTTON_PREV
-#define RIGHT    BUTTON_NEXT
-#define UP       BUTTON_HOME
-#define DOWN     BUTTON_OPTION
-#define PAUSE    BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 
 #define QUIT     BUTTON_POWER
 #define LEFT     BUTTON_HOME
@@ -333,32 +360,20 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define DOWN     BUTTON_NEXT
 #define PAUSE    BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 
 #define QUIT     BUTTON_POWER
-#define LEFT     BUTTON_SCROLL_BACK
-#define RIGHT    BUTTON_SCROLL_FWD
+#define LEFT     BUTTON_HOME
+#define RIGHT    BUTTON_VOL_DOWN
 #define UP       BUTTON_PREV
 #define DOWN     BUTTON_NEXT
 #define PAUSE    BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-
-#define QUIT    BUTTON_POWER
-#define LEFT    BUTTON_LEFT
-#define RIGHT   BUTTON_RIGHT
-#define UP      BUTTON_UP
-#define DOWN    BUTTON_DOWN
-#define PAUSE   BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
-
 #else
-#error "No keymap defined!"
+#error No keymap defined!
 #endif
 
-#if defined(HAVE_TOUCHSCREEN)
+#ifdef HAVE_TOUCHSCREEN
 #ifndef QUIT
 #define QUIT  BUTTON_TOPLEFT
 #endif
@@ -719,7 +734,7 @@ static void refresh_board (void)
 #else
     x = BOARD_X + CUBE_SIZE * BOARD_W - 40;
 #endif
-    rb->lcd_putsxyf (x, BOARD_Y + CUBE_SIZE * BOARD_H - 8,
+    rb->lcd_putsxyf (x, BOARD_Y + CUBE_SIZE * BOARD_H - 8, 
                  (player.lives != 1) ? "%d Lives" : "%d Life", player.lives);
 
 #if LCD_DEPTH>=2
@@ -1130,11 +1145,8 @@ static bool save_game(void)
 }
 
 /* the main menu */
-static int xobox_menu_cb(int action,
-                         const struct menu_item_ex *this_item,
-                         struct gui_synclist *this_list)
+static int xobox_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     intptr_t item = (intptr_t)this_item;
     if(action == ACTION_REQUEST_MENUITEM
        && !_ingame && (item == 0 || item == 6))
@@ -1145,7 +1157,7 @@ static int xobox_menu_cb(int action,
 static int xobox_menu(bool ingame)
 {
     rb->button_clear_queue();
-
+    
     int selection = 0;
     MENUITEM_STRINGLIST(main_menu, "Xobox Menu", xobox_menu_cb,
                         "Resume Game", "Start New Game",
@@ -1309,10 +1321,8 @@ enum plugin_status plugin_start (const void *parameter)
     randomize ();
     ret = xobox_loop ();
 
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
     rb->lcd_setfont (FONT_UI);
 
     highscore_save(SCORE_FILE, highscores, NUM_SCORES);

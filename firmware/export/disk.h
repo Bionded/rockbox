@@ -26,8 +26,8 @@
 
 struct partinfo
 {
-    sector_t start; /* first sector (LBA) */
-    sector_t size;  /* number of sectors */
+    unsigned long start; /* first sector (LBA) */
+    unsigned long size;  /* number of sectors */
     unsigned char type;
 };
 
@@ -35,9 +35,6 @@ struct partinfo
 #define PARTITION_TYPE_FAT32_LBA            0x0c
 #define PARTITION_TYPE_FAT16                0x06
 #define PARTITION_TYPE_OS2_HIDDEN_C_DRIVE   0x84
-#define PARTITION_TYPE_GPT_GUARD            0xee
-
-#define MAX_PARTITIONS_PER_DRIVE 4  /* Needs to be at least 4 */
 
 bool disk_init(IF_MD_NONVOID(int drive));
 bool disk_partinfo(int partition, struct partinfo *info);

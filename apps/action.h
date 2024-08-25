@@ -28,15 +28,10 @@
 #define TIMEOUT_NOBLOCK  0
 
 #define CONTEXT_STOPSEARCHING 0xFFFFFFFF
-
 #define CONTEXT_REMOTE  0x80000000 /* | this against another context to get remote buttons for that context */
 #define CONTEXT_CUSTOM  0x40000000 /* | this against anything to get your context number */
 #define CONTEXT_CUSTOM2 0x20000000 /* as above */
 #define CONTEXT_PLUGIN  0x10000000 /* for plugins using get_custom_action */
-#define CONTEXT_REMAPPED 0x08000000 /* marker for key remap context table */
-#define CORE_CONTEXT_REMAP(context) (CONTEXT_REMAPPED | context)
-#define CONTEXT_LOCKED  0x04000000 /* flag to use alternate keymap when screen is locked */
-
 
 #define LAST_ITEM_IN_LIST { CONTEXT_STOPSEARCHING, BUTTON_NONE, BUTTON_NONE }
 #define LAST_ITEM_IN_LIST__NEXTLIST(a) { a, BUTTON_NONE, BUTTON_NONE }
@@ -55,8 +50,8 @@
 #define SEL_ACTION_SEEK       0x004U
 #define SEL_ACTION_SKIP       0x008U
 #define SEL_ACTION_NOUNMAPPED 0x010U/* disable backlight on unmapped buttons */
-#define SEL_ACTION_ALLNONOTIFY  0x020U/* disable switch for all softlock notifications */
-#define SEL_ACTION_ALWAYSAUTOLOCK 0x040U/* always prime autolock, requires autolock enabled */
+                                    /* Available 0x020U*/
+                                    /* Available 0x040U*/
 #define SEL_ACTION_NOTOUCH    0x080U/* disable touch screen/pad on screen lock */
 #define SEL_ACTION_AUTOLOCK   0x100U/* autolock on backlight off */
 #define SEL_ACTION_NOEXT      0x200U/* disable selective backlight while charge*/
@@ -70,17 +65,10 @@
 #if !defined(HAS_BUTTON_HOLD)
 /* returns true if keys_locked and screen_has_lock */
 bool is_keys_locked(void);
-
 /* Enable selected actions to bypass a locked state
 * mask is combination of Selective action selection flags */
 void set_selective_softlock_actions(bool selective, unsigned int mask);
-
-/* search the standard and wps contexts for ACTION_STD_KEYLOCK,
- * load it into unlock_combo if we find it,
- * also arm autolock if enabled. */
-void action_autosoftlock_init(void);
-
-#endif /* !defined(HAS_BUTTON_HOLD) */
+#endif
 
 #if defined(HAVE_BACKLIGHT)
 /* Enable selected actions to leave the backlight off
@@ -94,7 +82,7 @@ void set_selective_backlight_actions(bool selective, unsigned int mask,
 enum {
     CONTEXT_STD = 0,
     /* These CONTEXT_ values were here before me,
-    their values may have significance, so dont touch! */
+    there values may have significance, so dont touch! */
     CONTEXT_WPS = 1,
     CONTEXT_TREE = 2,
     CONTEXT_RECORD = 3,
@@ -131,7 +119,6 @@ enum {
     CONTEXT_USB_HID_MODE_PRESENTATION,
     CONTEXT_USB_HID_MODE_BROWSER,
     CONTEXT_USB_HID_MODE_MOUSE,
-    LAST_CONTEXT_PLACEHOLDER,
 };
 
 
@@ -159,6 +146,7 @@ enum {
     ACTION_STD_REC,
     ACTION_STD_HOTKEY,
 
+    ACTION_F3, /* just so everything works again, possibly change me */
     /* code context actions */
 
     /* WPS codes */
@@ -247,6 +235,7 @@ enum {
     ACTION_SETTINGS_DEC,
     ACTION_SETTINGS_DECREPEAT,
     ACTION_SETTINGS_DECBIGSTEP,
+    ACTION_SETTINGS_RESET,
     ACTION_SETTINGS_SET, /* Used by touchscreen targets */
 
     /* bookmark screen */
@@ -257,8 +246,6 @@ enum {
     ACTION_QS_RIGHT,
     ACTION_QS_DOWN,
     ACTION_QS_TOP,
-    ACTION_QS_VOLUP,
-    ACTION_QS_VOLDOWN,
 
     /* pitchscreen */
     /* obviously ignore if you dont have thise screen */
@@ -379,6 +366,50 @@ enum {
     LAST_ACTION_PLACEHOLDER, /* custom actions should be this + something */
 };
 
+ /* act_cur holds action state during get_action() call */
+typedef struct
+{
+    int                            action;
+    int                            button;
+    int                            context;
+    int                            timeout;
+    const struct button_mapping   *items;
+    const struct button_mapping* (*get_context_map)(int);
+    bool                           is_prebutton;
+} action_cur_t;
+
+/* act_last holds action state between get_action() calls */
+typedef struct
+{
+    int      action;
+    long     tick;
+    int      button;
+    int      context;
+    intptr_t data;
+
+#if defined(HAVE_BACKLIGHT)
+    unsigned int backlight_mask;
+    long         bl_filter_tick;
+#endif
+
+#if !defined(HAS_BUTTON_HOLD)
+    long         sl_filter_tick;
+    unsigned int softlock_mask;
+    int          unlock_combo;
+    bool         keys_locked;
+    bool         screen_has_lock;
+
+#endif
+
+    bool          repeated;
+    bool          wait_for_release;
+
+#ifdef HAVE_TOUCHSCREEN
+    bool     ts_short_press;
+    int      ts_data;
+#endif
+} action_last_t;
+
 struct button_mapping {
     int action_code;
     int button_code;
@@ -398,11 +429,6 @@ bool action_userabort(int timeout);
 
 /* no other code should need this apart from action.c */
 const struct button_mapping* get_context_mapping(int context);
-
-/* load a key map to allow buttons for actions to be remapped see: core_keymap */
-int action_set_keymap(struct button_mapping* core_keymap, int count);
-/* load keymap in a handle: takes ownership of the handle on success */
-int action_set_keymap_handle(int handle, int count);
 
 /* returns the status code variable from action.c for the button just pressed
    If button != NULL it will be set to the actual button code */

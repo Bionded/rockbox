@@ -20,8 +20,6 @@
  ****************************************************************************/
 #include "config.h"
 
-.syntax unified
-
 .data
 was_aborted:
     .word   0
@@ -47,7 +45,7 @@ safe_read8_faulty_addr:
     @ if(value != NULL)
     cmp     r1, #0
     @   *value = r0
-    strbne  r0, [r1]
+    strneb  r0, [r1]
     @ return true;
     mov     r0, #1
     bx      lr
@@ -74,7 +72,7 @@ safe_read16_faulty_addr:
     @ if(value != NULL)
     cmp     r1, #0
     @   *value = r0
-    strhne  r0, [r1]
+    strneh  r0, [r1]
     @ return true;
     mov     r0, #1
     bx      lr

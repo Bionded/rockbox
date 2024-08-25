@@ -19,6 +19,9 @@
  *
  ****************************************************************************/
 #include "config.h"
+#if defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+#include <stdlib.h> /* sim uses rand for peakmeter simulation */
+#endif
 #include "thread.h"
 #include "kernel.h"
 #include "settings.h"
@@ -39,6 +42,7 @@
 #endif
 #include "action.h"
 
+#if CONFIG_CODEC == SWCODEC
 #include "pcm.h"
 #include "pcm_mixer.h"
 
@@ -47,8 +51,15 @@
 #endif
 
 static bool pm_playback = true; /* selects between playback and recording peaks */
+#endif
 
 static struct meter_scales scales[NB_SCREENS];
+
+#if !defined(SIMULATOR) && CONFIG_CODEC != SWCODEC
+/* Data source */
+static int pm_src_left = MAS_REG_DQPEAK_L;
+static int pm_src_right = MAS_REG_DQPEAK_R;
+#endif
 
 /* Current values and cumulation */
 static int pm_cur_left;        /* current values (last peak_meter_peek) */
@@ -58,8 +69,6 @@ static int pm_max_right;
 #if defined(HAVE_AGC) || defined(HAVE_HISTOGRAM)
 static int pm_peakhold_left;   /* max. peak values between peakhold calls */
 static int pm_peakhold_right;  /* used for AGC and histogram display */
-#endif
-#ifdef HAVE_HISTOGRAM
 static long next_histogram_update;
 #endif
 
@@ -543,7 +552,19 @@ void pm_reset_clipcount(void)
  */
 void peak_meter_playback(bool playback)
 {
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+    (void)playback;
+#elif CONFIG_CODEC == SWCODEC
     pm_playback = playback;
+#else
+    if (playback) {
+        pm_src_left = MAS_REG_DQPEAK_L;
+        pm_src_right = MAS_REG_DQPEAK_R;
+    } else {
+        pm_src_left = MAS_REG_QPEAK_L;
+        pm_src_right = MAS_REG_QPEAK_R;
+    }
+#endif
     /* reset the scales just in case recording and playback
        use different viewport sizes. Normally we should be checking viewport
        sizes every time but this will do for now */
@@ -578,6 +599,7 @@ void peak_meter_peek(void)
     bool was_clipping = pm_clip_left || pm_clip_right;
 #endif
    /* read current values */
+#if CONFIG_CODEC == SWCODEC
     if (pm_playback)
     {
         static struct pcm_peaks chan_peaks; /* *MUST* be static */
@@ -592,6 +614,15 @@ void peak_meter_peek(void)
 #endif
     left  = pm_cur_left;
     right = pm_cur_right;
+#else
+#if (CONFIG_PLATFORM & PLATFORM_NATIVE)
+    pm_cur_left  = left  = mas_codec_readreg(pm_src_left);
+    pm_cur_right = right = mas_codec_readreg(pm_src_right);
+#else
+    pm_cur_left  = left  = 8000;
+    pm_cur_right = right = 9000;
+#endif
+#endif
 
     /* check for clips
        An clip is assumed when two consecutive readouts
@@ -601,12 +632,22 @@ void peak_meter_peek(void)
        a real clip. For software codecs, the peak is already
        the max of a bunch of samples, so use one max value
        or you fail to detect clipping! */
+#if CONFIG_CODEC == SWCODEC
     if (left == MAX_PEAK - 1) {
+#else
+    if ((left == pm_max_left) &&
+        (left == MAX_PEAK - 1)) {
+#endif
         pm_clip_left = true;
         pm_clip_timeout_l = current_tick + pm_clip_hold;
     }
 
+#if CONFIG_CODEC == SWCODEC
     if (right == MAX_PEAK - 1) {
+#else
+    if ((right == pm_max_right) &&
+        (right == MAX_PEAK - 1)) {
+#endif
         pm_clip_right = true;
         pm_clip_timeout_r = current_tick + pm_clip_hold;
     }
@@ -627,12 +668,14 @@ void peak_meter_peek(void)
     pm_max_right = MAX(pm_max_right, right);
 
 #ifdef HAVE_RECORDING
+#if CONFIG_CODEC == SWCODEC
     /* Ignore any unread peakmeter data */
 #define MAX_DROP_TIME HZ/7 /* this value may need tweaking. Increase if you are
                               getting trig events when you shouldn't with
                               trig_stp_hold = 0 */
     if (!trig_stp_hold)
         trig_stp_hold = MAX_DROP_TIME;
+#endif
 
     switch (trig_status) {
         case TRIG_READY:
@@ -692,7 +735,11 @@ void peak_meter_peek(void)
                 || (right > trig_stp_threshold)) {
                 /* restart hold time countdown */
                 trig_lowtime = current_tick;
+#if CONFIG_CODEC == SWCODEC
             } else if (current_tick - trig_lowtime > MAX_DROP_TIME){
+#else
+            } else {
+#endif
                 set_trig_status(TRIG_POSTREC);
                 trig_hightime = current_tick;
             }
@@ -750,9 +797,11 @@ void peak_meter_peek(void)
             }
             break;
     }
+#if CONFIG_CODEC == SWCODEC
     /* restore stop hold value */
     if (trig_stp_hold == MAX_DROP_TIME)
         trig_stp_hold = 0;
+#endif
 #endif
     /* check levels next time peakmeter drawn */
     level_check = true;
@@ -772,6 +821,11 @@ static int peak_meter_read_l(void)
     /* pm_max_left contains the maximum of all peak values that were read
        by peak_meter_peek since the last call of peak_meter_read_l */
     int retval;
+
+#if defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+    srand(current_tick);
+    pm_max_left = rand()%MAX_PEAK;
+#endif
 
     retval = pm_max_left;
 
@@ -800,6 +854,11 @@ static int peak_meter_read_r(void)
     /* peak_meter_r contains the maximum of all peak values that were read
        by peak_meter_peek since the last call of peak_meter_read_r */
     int retval;
+
+#if defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+    srand(current_tick);
+    pm_max_right = rand()%MAX_PEAK;
+#endif
 
     retval = pm_max_right;
 
@@ -1067,10 +1126,13 @@ static void peak_meter_draw(struct screen *display, struct meter_scales *scales,
 
 #ifdef HAVE_BACKLIGHT
     /* cliplight */
-    if ((pm_clip_left || pm_clip_right) &&
-        global_settings.cliplight
-        && !pm_playback
-	    )
+    if ((pm_clip_left || pm_clip_right) && 
+        global_settings.cliplight &&
+#if CONFIG_CODEC == SWCODEC        
+        !pm_playback)
+#else
+        !(audio_status() & (AUDIO_STATUS_PLAY | AUDIO_STATUS_ERROR)))
+#endif
     {
         /* if clipping, cliplight setting on and in recording screen */
         if (global_settings.cliplight <= 2)
@@ -1300,7 +1362,7 @@ void peak_meter_draw_trig(int xpos[], int ypos[],
                                HORIZONTAL);
 
         screens[i].mono_bitmap(bitmap_icons_7x8[icon], ixpos[i], ypos[i],
-                        ICON_PLAY_STATE_WIDTH, SB_ICON_HEIGHT);
+                        ICON_PLAY_STATE_WIDTH, STATUSBAR_HEIGHT);
     }
 }
 #endif
@@ -1313,7 +1375,16 @@ int peak_meter_draw_get_btn(int action_context, int x[], int y[],
     long next_refresh = current_tick;
     long next_big_refresh = current_tick + HZ / 10;
     int i;
+#if (CONFIG_CODEC == SWCODEC)
     bool highperf = false;
+#else
+    /* On MAS targets, we need to poll as often as possible in order to not
+     * miss a peak, as the MAS does only provide a quasi-peak. When the disk
+     * is active, it must not draw too much CPU power or a buffer overrun can
+     * happen when saving a recording. As a compromise, poll only once per tick
+     * when the disk is active, otherwise spin around as fast as possible. */
+    bool highperf = !storage_disk_is_active();
+#endif
     bool dopeek = true;
 
     while (TIME_BEFORE(current_tick, next_big_refresh)) {

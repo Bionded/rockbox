@@ -63,7 +63,7 @@ int usb_screen(void)
 }
 
 /* Reset the cookie for the crt0 crash check */
-static inline void __reset_cookie(void)
+inline void __reset_cookie(void)
 {
     asm(" move.l #0,%d0");
     asm(" move.l %d0,0x10017ffc");
@@ -211,4 +211,10 @@ void main(void)
         error(EBOOTFILE, rc, true);
 
     start_firmware();
+}
+
+/* These functions are present in the firmware library, but we reimplement
+   them here because the originals do a lot more than we want */
+void screen_dump(void)
+{
 }

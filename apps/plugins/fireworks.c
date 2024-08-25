@@ -35,16 +35,9 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
 /* We use PLA */
 #define BTN_EXIT           PLA_EXIT
+#define BTN_MENU           PLA_CANCEL
 #define BTN_FIRE           PLA_SELECT
 #define BTN_FIRE_REPEAT    PLA_SELECT_REPEAT
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define BTN_MENU           PLA_UP
-#else
-#define BTN_MENU           PLA_CANCEL
-#endif
 
 /* The lowdown on source terminology:
  * a ROCKET is launched from the LCD bottom.
@@ -312,32 +305,32 @@ static void fireworks_menu(void)
                 break;
 
             case 1:
-                rb->set_option("Auto-Fire", &autofire_delay, RB_INT,
+                rb->set_option("Auto-Fire", &autofire_delay, INT,
                                 autofire_delay_settings, 15, NULL);
                 break;
 
             case 2:
                 rb->set_option("Particles Per Firework", &particles_per_firework,
-                                RB_INT, particle_settings, 8, NULL);
+                                INT, particle_settings, 8, NULL);
                 break;
 
             case 3:
-                rb->set_option("Particle Life", &particle_life, RB_INT,
+                rb->set_option("Particle Life", &particle_life, INT,
                                 particle_life_settings, 9, NULL);
                 break;
 
             case 4:
-                rb->set_option("Gravity", &gravity, RB_INT,
+                rb->set_option("Gravity", &gravity, INT,
                                 gravity_settings, 4, NULL);
                 break;
 
             case 5:
-                rb->set_option("Show Rockets", &show_rockets, RB_INT,
+                rb->set_option("Show Rockets", &show_rockets, INT,
                                 rocket_settings, 3, NULL);
                 break;
 
             case 6:
-                rb->set_option("FPS (Speed)", &frames_per_second, RB_INT,
+                rb->set_option("FPS (Speed)", &frames_per_second, INT,
                                 fps_settings, 9, NULL);
                 break;
 
@@ -365,9 +358,7 @@ enum plugin_status plugin_start(const void* parameter)
 
     /* set everything up.. no BL timeout, no backdrop,
        white-text-on-black-background. */
-
     backlight_ignore_timeout();
-
 #if LCD_DEPTH > 1
     rb->lcd_set_backdrop(NULL);
     rb->lcd_set_background(LCD_BLACK);
@@ -531,7 +522,6 @@ enum plugin_status plugin_start(const void* parameter)
                 break;
         }
     }
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
 

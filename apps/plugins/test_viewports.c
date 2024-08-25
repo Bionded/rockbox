@@ -21,6 +21,10 @@
 
 #include "plugin.h"
 
+
+
+#ifdef HAVE_LCD_BITMAP
+
 #ifdef HAVE_LCD_COLOR
 #define BGCOLOR_1 LCD_RGBPACK(255,255,0)
 #define BGCOLOR_2 LCD_RGBPACK(0,255,0)
@@ -35,7 +39,7 @@ static struct viewport vp0 =
 {
     .x        = 0,
     .y        = 0,
-    .width    = LCD_WIDTH/ 2 + LCD_WIDTH / 3,
+    .width    = LCD_WIDTH,
     .height   = 20,
     .font     = FONT_UI,
     .drawmode = DRMODE_SOLID,
@@ -120,24 +124,6 @@ static struct viewport rvp1 =
 
 #endif
 
-static void *test_address_fn(int x, int y)
-{
-/* Address lookup function
- * core will use this to get an address from x/y coord
- * depending on the lcd function core sometimes uses this for
- * only the first and last address
- * and handles subsequent address based on stride */
-
-    struct frame_buffer_t *fb = vp0.buffer;
-/* LCD_STRIDEFORMAT & LCD_NATIVE_STRIDE macros allow Horiz screens to work with RB */
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
-    size_t element = (x * LCD_NATIVE_STRIDE(fb->stride)) + y;
-#else
-    size_t element = (y * LCD_NATIVE_STRIDE(fb->stride)) + x;
-#endif
-    /* use mod fb->elems to protect from buffer ovfl */
-    return fb->fb_ptr + (element % fb->elems);
-}
 
 enum plugin_status plugin_start(const void* parameter)
 {
@@ -145,41 +131,8 @@ enum plugin_status plugin_start(const void* parameter)
     char buf[80];
     int i,y;
 
-    size_t plugin_buf_len;
-    void* plugin_buf = (unsigned char *)rb->plugin_get_buffer(&plugin_buf_len);
-
-/* Here we will test if viewports of non standard size work with the rb core */
-    struct frame_buffer_t fb;
-
-    rb->font_getstringsize("W", NULL, &vp0.height, vp0.font);
-    fb.elems = LCD_NBELEMS(vp0.width, vp0.height);
-
-    /* set stride based on the with or height of our buffer (macro picks the proper one) */
-    fb.stride = STRIDE_MAIN(vp0.width, vp0.height);
-
-    /*set the framebuffer pointer to our buffer (union - pick appropriate data type) */
-    fb.data = plugin_buf;
-    /* Valid data types for fb union
-      void*          - data
-      char*          - ch_ptr,
-      fb_data*       - fb_ptr,
-      fb_remote_data - fb_remote_ptr;
-    */
-    if (fb.elems * sizeof(fb_data) > plugin_buf_len)
-        return PLUGIN_ERROR;
-
-    plugin_buf += fb.elems * sizeof(fb_data);
-    plugin_buf_len -= fb.elems * sizeof(fb_data); /* buffer bookkeeping */
-
-    /* set a frame buffer address lookup function */
-    fb.get_address_fn = &test_address_fn;
-
-    /* set our newly built buffer to the viewport */
-    rb->viewport_set_buffer(&vp0, &fb, SCREEN_MAIN);
-
     rb->screens[SCREEN_MAIN]->set_viewport(&vp0);
     rb->screens[SCREEN_MAIN]->clear_viewport();
-
     rb->screens[SCREEN_MAIN]->puts_scroll(0,0,"Viewport testing plugin - this is a scrolling title");
 
     rb->screens[SCREEN_MAIN]->set_viewport(&vp1);
@@ -243,19 +196,72 @@ enum plugin_status plugin_start(const void* parameter)
 
     rb->screens[SCREEN_REMOTE]->update();
 #endif
-    rb->button_clear_queue();
-    while(rb->button_get(true) <= BUTTON_NONE)
-    {;;}
 
     rb->button_get(true);
 
-    rb->screens[SCREEN_MAIN]->scroll_stop();
     /* Restore the default viewport */
     rb->screens[SCREEN_MAIN]->set_viewport(NULL);
 #ifdef HAVE_REMOTE_LCD
-    rb->screens[SCREEN_REMOTE]->scroll_stop();
     rb->screens[SCREEN_REMOTE]->set_viewport(NULL);
 #endif
 
     return PLUGIN_OK;
 }
+
+
+#else
+
+/* Charcell version of plugin */
+
+static struct viewport vp0 =
+{
+    .x        = 0,
+    .y        = 0,
+    .width    = 5,
+    .height   = 1,
+};
+
+static struct viewport vp1 =
+{
+    .x        = 6,
+    .y        = 0,
+    .width    = 5,
+    .height   = 1,
+};
+
+static struct viewport vp2 =
+{
+    .x        = 0,
+    .y        = 1,
+    .width    = LCD_WIDTH,
+    .height   = 1,
+};
+
+
+enum plugin_status plugin_start(const void* parameter)
+{
+    (void)parameter;
+
+    rb->screens[SCREEN_MAIN]->set_viewport(&vp0);
+    rb->screens[SCREEN_MAIN]->clear_viewport();
+    rb->screens[SCREEN_MAIN]->puts_scroll(0,0,"Rockbox");
+
+    rb->screens[SCREEN_MAIN]->set_viewport(&vp1);
+    rb->screens[SCREEN_MAIN]->clear_viewport();
+    rb->screens[SCREEN_MAIN]->puts_scroll(0,0,"Viewports");
+
+    rb->screens[SCREEN_MAIN]->set_viewport(&vp2);
+    rb->screens[SCREEN_MAIN]->clear_viewport();
+    rb->screens[SCREEN_MAIN]->puts_scroll(0,0,"Demonstration");
+
+    rb->screens[SCREEN_MAIN]->update();
+
+    rb->button_get(true);
+
+    /* Restore the default viewport */
+    rb->screens[SCREEN_MAIN]->set_viewport(NULL);
+
+    return PLUGIN_OK;
+}
+
+#endif /* !HAVE_LCD_BITMAP */

@@ -83,8 +83,8 @@ union uint8_rgbyuv {
 
 static inline int clamp_component(int x)
 {
-    if(x > 255) return 255;
-    if(x < 0)   return 0;
+    if ((unsigned)x > 255)
+        x = x < 0 ? 0 : 255;
     return x;
 }
 #include <debug.h>

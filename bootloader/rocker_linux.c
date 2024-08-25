@@ -9,12 +9,10 @@
  *
  * Copyright (C) 2016 by Amaury Pouly
  *               2018 by Marcin Bukat
- *               2018 by Roman Stolyarov
- *               2020 by Solomon Peachy
  *
  * Based on Rockbox iriver bootloader by Linus Nielsen Feltzing
  * and the ipodlinux bootloader by Daniel Palffy and Bernard Leach
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -47,62 +45,13 @@
 #include <stdarg.h>
 #include "version.h"
 
-/* Basic configuration */
-#if defined(AGPTEK_ROCKER)
+/* all images must have the following size */
 #define ICON_WIDTH  70
 #define ICON_HEIGHT 70
-#define ICON_NAME bm_hibyicon
-#define OF_NAME "HIBY PLAYER"
-#include "bitmaps/hibyicon.h"
-#elif defined(XDUOO_X3II)
-#define ICON_WIDTH  130
-#define ICON_HEIGHT 130
-#define ICON_NAME bm_hibyicon
-#define OF_NAME "HIBY PLAYER"
-#define BUTTON_UP     BUTTON_OPTION
-#define BUTTON_DOWN   BUTTON_HOME
-#define BUTTON_SELECT BUTTON_PLAY
-#include "bitmaps/hibyicon.h"
-#elif defined(XDUOO_X20)
-#define ICON_WIDTH  130
-#define ICON_HEIGHT 130
-#define ICON_NAME bm_hibyicon
-#define OF_NAME "HIBY PLAYER"
-#define BUTTON_UP     BUTTON_OPTION
-#define BUTTON_DOWN   BUTTON_HOME
-#define BUTTON_SELECT BUTTON_PLAY
-#include "bitmaps/hibyicon.h"
-#elif defined(FIIO_M3K_LINUX)
-#define ICON_WIDTH  130
-#define ICON_HEIGHT 130
-#define ICON_NAME bm_fiioicon
-#define BUTTON_LEFT    BUTTON_PREV
-#define BUTTON_RIGHT   BUTTON_NEXT
-#define BUTTON_SELECT BUTTON_PLAY
-#define OF_NAME "FIIO PLAYER"
-#include "bitmaps/fiioicon.h"
-#elif defined(EROS_Q)
-#define ICON_WIDTH  130
-#define ICON_HEIGHT 130
-#define ICON_NAME bm_hibyicon
-#define OF_NAME "HIBY PLAYER"
-#define BUTTON_UP     BUTTON_SCROLL_BACK
-#define BUTTON_DOWN   BUTTON_SCROLL_FWD
-#define BUTTON_SELECT BUTTON_PLAY
-#include "bitmaps/hibyicon.h"
-#else
-#error "must define ICON_WIDTH/HEIGHT"
-#endif
-
-#define BASE_DIR PIVOT_ROOT
-//#ifdef FIIO_M3K_LINUX
-//#define BASE_DIR "/mnt"
-//#else
-//#define BASE_DIR "/mnt/sd_0"
-//#endif
 
 /* images */
 #include "bitmaps/rockboxicon.h"
+#include "bitmaps/hibyicon.h"
 #include "bitmaps/toolsicon.h"
 
 /* don't issue an error when parsing the file for dependencies */
@@ -114,17 +63,20 @@
     BMPHEIGHT_hibyicon != ICON_HEIGHT)
 #error hibyicon has the wrong resolution
 #endif
-#if defined(BMPWIDTH_fiioicon) && (BMPWIDTH_fiioicon != ICON_WIDTH || \
-    BMPHEIGHT_fiioicon != ICON_HEIGHT)
-#error fiioicon has the wrong resolution
-#endif
 #if defined(BMPWIDTH_toolsicon) && (BMPWIDTH_toolsicon != ICON_WIDTH || \
     BMPHEIGHT_toolsicon != ICON_HEIGHT)
 #error toolsicon has the wrong resolution
 #endif
 
-/* If we started ADB, don't immediately boot into USB mode if we plug in. */
-static int adb_running = 0;
+#ifndef BUTTON_REW
+#define BUTTON_REW  BUTTON_LEFT
+#endif
+#ifndef BUTTON_FF
+#define BUTTON_FF   BUTTON_RIGHT
+#endif
+#ifndef BUTTON_PLAY
+#define BUTTON_PLAY BUTTON_SELECT
+#endif
 
 /* return icon y position (x is always centered) */
 static int get_icon_y(void)
@@ -144,8 +96,8 @@ enum boot_mode
     BOOT_TOOLS,
     BOOT_OF,
     BOOT_COUNT,
+    BOOT_USB, /* special */
     BOOT_STOP, /* power down/suspend */
-    BOOT_CANARY,
 };
 
 static void display_text_center(int y, const char *text)
@@ -166,17 +118,14 @@ static void display_text_centerf(int y, const char *format, ...)
 }
 
 /* get timeout before taking action if the user doesn't touch the device */
-static int get_inactivity_tmo(int same_as_last)
+static int get_inactivity_tmo(void)
 {
 #if defined(HAS_BUTTON_HOLD)
     if(button_hold())
         return 5 * HZ; /* Inactivity timeout when on hold */
     else
 #endif
-        if (same_as_last)
-            return 1 * HZ; /* Timeout when mode is the same as the previous mode */
-        else
-            return 10 * HZ; /* Default timeout */
+        return 10 * HZ; /* Inactivity timeout when not on hold */
 }
 
 /* return action on idle timeout */
@@ -190,27 +139,11 @@ static enum boot_mode inactivity_action(enum boot_mode cur_selection)
         return cur_selection; /* return last choice */
 }
 
-static int mounted = 0;
-
-static void mount_storage(int enable)
-{
-    if (enable && !mounted) {
-        system("/bin/mkdir -p " BASE_DIR);
-        if (system("/bin/mount /dev/mmcblk0 " BASE_DIR))
-            system("/bin/mount /dev/mmcblk0p1 " BASE_DIR);
-        // XXX possibly invoke sys_serv -> "MOUNT:MOUNT:%s %s", blkdev, mntpoint
-    } else if (!enable && mounted) {
-        system("/bin/unmount " BASE_DIR);
-        // XXX possibly invoke sys_serv -> "MOUNT:UNMOUNT:%s %s", mntpoint
-    }
-    mounted = enable;
-}
-
-/* we store the boot mode in a file so we can reload it between 'boots' */
+/* we store the boot mode in a file in /tmp so we can reload it between 'boots'
+ * (since the mostly suspends instead of powering down) */
 static enum boot_mode load_boot_mode(enum boot_mode mode)
 {
-    mount_storage(true);
-    int fd = open(BASE_DIR "/.rockbox/rb_bl_mode.txt", O_RDONLY);
+    int fd = open("/data/rb_bl_mode.txt", O_RDONLY);
     if(fd >= 0)
     {
         read(fd, &mode, sizeof(mode));
@@ -221,8 +154,7 @@ static enum boot_mode load_boot_mode(enum boot_mode mode)
 
 static void save_boot_mode(enum boot_mode mode)
 {
-    mount_storage(true);
-    int fd = open(BASE_DIR "/.rockbox/rb_bl_mode.txt", O_RDWR | O_CREAT | O_TRUNC);
+    int fd = open("/data/rb_bl_mode.txt", O_RDWR | O_CREAT | O_TRUNC);
     if(fd >= 0)
     {
         write(fd, &mode, sizeof(mode));
@@ -233,24 +165,25 @@ static void save_boot_mode(enum boot_mode mode)
 static enum boot_mode get_boot_mode(void)
 {
     /* load previous mode, or start with rockbox if none */
-    enum boot_mode init_mode = load_boot_mode(BOOT_CANARY);
+    enum boot_mode init_mode = load_boot_mode(BOOT_ROCKBOX);
     /* wait for user action */
-    enum boot_mode mode = (init_mode == BOOT_CANARY) ? BOOT_ROCKBOX : init_mode;
+    enum boot_mode mode = init_mode;
     int last_activity = current_tick;
 #if defined(HAS_BUTTON_HOLD)
     bool hold_status = button_hold();
 #endif
     while(true)
     {
-        /* on usb detect, immediately boot with last choice */
-        if(!adb_running && power_input_status() & POWER_INPUT_USB_CHARGER)
+        /* on usb detect, return to usb
+         * FIXME this is a hack, we need proper usb detection */
+        if(power_input_status() & POWER_INPUT_USB_CHARGER)
         {
             /* save last choice */
             save_boot_mode(mode);
-            return mode;
+            return BOOT_USB;
         }
         /* inactivity detection */
-        int timeout = last_activity + get_inactivity_tmo(init_mode == mode);
+        int timeout = last_activity + get_inactivity_tmo();
         if(TIME_AFTER(current_tick, timeout))
         {
             /* save last choice */
@@ -274,11 +207,11 @@ static enum boot_mode get_boot_mode(void)
         }
         lcd_set_foreground(LCD_RGBPACK(255, 201, 0));
         /* display icon */
-        const struct bitmap *icon = (mode == BOOT_OF) ? &ICON_NAME :
+        const struct bitmap *icon = (mode == BOOT_OF) ? &bm_hibyicon :
             (mode == BOOT_ROCKBOX) ? &bm_rockboxicon : &bm_toolsicon;
         lcd_bmp(icon, (LCD_WIDTH - ICON_WIDTH) / 2, get_icon_y());
         /* display bottom description */
-        const char *desc = (mode == BOOT_OF) ? OF_NAME :
+        const char *desc = (mode == BOOT_OF) ? "HIBY PLAYER" :
             (mode == BOOT_ROCKBOX) ? "ROCKBOX" : "TOOLS";
 
         int desc_height;
@@ -317,17 +250,13 @@ static enum boot_mode get_boot_mode(void)
         if(btn & BUTTON_REPEAT)
             btn &= ~BUTTON_REPEAT;
         /* play -> stop loop and return mode */
-        if(btn == BUTTON_SELECT)
+        if(btn == BUTTON_PLAY)
             break;
         /* left/right/up/down: change mode */
-        if(btn == BUTTON_LEFT || btn == BUTTON_DOWN) {
+        if(btn == BUTTON_LEFT || btn == BUTTON_DOWN || btn == BUTTON_REW)
             mode = (mode + BOOT_COUNT - 1) % BOOT_COUNT;
-            init_mode = BOOT_CANARY;
-        }
-        if(btn == BUTTON_RIGHT || btn == BUTTON_UP) {
+        if(btn == BUTTON_RIGHT || btn == BUTTON_UP || btn == BUTTON_FF)
             mode = (mode + 1) % BOOT_COUNT;
-            init_mode = BOOT_CANARY;
-        }
     }
 
     /* save mode */
@@ -342,7 +271,7 @@ void error_screen(const char *msg)
     lcd_update();
 }
 
-int choice_screen(const char *title, bool center, int nr_choices, const char *choices[], int nr_extra, const char *extra[])
+int choice_screen(const char *title, bool center, int nr_choices, const char *choices[])
 {
     int choice = 0;
     int max_len = 0;
@@ -384,14 +313,6 @@ int choice_screen(const char *title, bool center, int nr_choices, const char *ch
             line++;
         }
 
-        lcd_set_foreground(LCD_RGBPACK(255, 201, 0));
-        line++;
-        for (int i = 0 ; i < nr_extra && line < nr_lines ; i++) {
-            sprintf(buf, "%s", extra[i]);
-            display_text_center(top_y + h * line, buf);
-            line++;
-	}
-
         lcd_update();
 
         /* wait for a key  */
@@ -402,22 +323,22 @@ int choice_screen(const char *title, bool center, int nr_choices, const char *ch
         if(btn & BUTTON_REPEAT)
             btn &= ~BUTTON_REPEAT;
         /* play -> stop loop and return mode */
-        if (btn == BUTTON_SELECT)
+        if(btn == BUTTON_PLAY || btn == BUTTON_LEFT)
         {
             free(buf);
-            return btn == BUTTON_SELECT ? choice : -1;
+            return btn == BUTTON_PLAY ? choice : -1;
         }
         /* left/right/up/down: change mode */
-        if (btn == BUTTON_UP || btn == BUTTON_LEFT)
+        if(btn == BUTTON_UP)
             choice = (choice + nr_choices - 1) % nr_choices;
-        if(btn == BUTTON_DOWN || btn == BUTTON_RIGHT)
+        if(btn == BUTTON_DOWN)
             choice = (choice + 1) % nr_choices;
     }
 }
 
 void run_file(const char *name)
 {
-    char *dirname = BASE_DIR;
+    char *dirname = "/mnt/sd_0/";
     char *buf = malloc(strlen(dirname) + strlen(name) + 1);
     sprintf(buf, "%s%s", dirname, name);
 
@@ -459,7 +380,7 @@ void run_script_menu(void)
 {
     const char **entries = NULL;
     int nr_entries = 0;
-    DIR *dir = opendir(BASE_DIR);
+    DIR *dir = opendir("/mnt/sd_0");
     struct dirent *ent;
     while((ent = readdir(dir)))
     {
@@ -469,7 +390,7 @@ void run_script_menu(void)
         entries[nr_entries++] = strdup(ent->d_name);
     }
     closedir(dir);
-    int idx = choice_screen("RUN SCRIPT", false, nr_entries, entries, 0, NULL);
+    int idx = choice_screen("RUN SCRIPT", false, nr_entries, entries);
     if(idx >= 0)
         run_file(entries[idx]);
     for(int i = 0; i < nr_entries; i++)
@@ -479,12 +400,6 @@ void run_script_menu(void)
 
 static void adb(int start)
 {
-#if defined(FIIO_M3K_LINUX)
-    lcd_set_foreground(LCD_RGBPACK(255, 0, 0));
-    lcd_putsf(0, 1, "ADB not supported!");
-    sleep(2*HZ);
-    (void)start;
-#else
     pid_t pid = fork();
     if(pid == 0)
     {
@@ -493,7 +408,6 @@ static void adb(int start)
     }
     int status;
     waitpid(pid, &status, 0);
-    adb_running = start;
 #if 0
     if(WIFEXITED(status))
     {
@@ -506,16 +420,12 @@ static void adb(int start)
         lcd_putsf(0, 1, "an error occured: %x", status);
     }
 #endif
-#endif
 }
 
 static void tools_screen(void)
 {
-    const char *extra[] = { MODEL_NAME, rbversion };
-    printf("Version: %s\n", rbversion);
-    printf("%s\n", MODEL_NAME);
-    const char *choices[] = {"ADB start", "ADB stop", "Run script", "Remount SD", "Restart", "Shutdown", "Recovery", "Back"};
-    int choice = choice_screen("TOOLS MENU", true, 8, choices, 2, extra);
+    const char *choices[] = {"ADB start", "ADB stop", "Run script", "Restart", "Shutdown"};
+    int choice = choice_screen("TOOLS MENU", true, 5, choices);
     if(choice == 0)
     {
         /* run service menu */
@@ -533,32 +443,10 @@ static void tools_screen(void)
     {
         run_script_menu();
     }
-    else if(choice == 3)
-    {
-        mount_storage(false);
-        mount_storage(true);
-    }
+//    else if(choice == 2)
+//        nwz_power_restart();
     else if(choice == 4)
-    {
-        system_reboot();
-    }
-    else if(choice == 5)
-    {
         power_off();
-    }
-    else if(choice == 6)
-    {
-        int fd = open("/proc/jz/reset/reset", O_WRONLY);
-        if (fd >= 0) {
-            const char *buf = "recovery\n";
-            write(fd, buf, strlen(buf));
-            close(fd);
-        }
-    }
-    else if (choice == 7)
-    {
-        return;
-    }
 }
 
 #if 0
@@ -566,7 +454,7 @@ static void tools_screen(void)
 static int open_log(void)
 {
     /* open regular log file */
-    int fd = open(BASE_DIR "/rockbox.log", O_RDWR | O_CREAT | O_APPEND);
+    int fd = open("/mnt/sd_0/rockbox.log", O_RDWR | O_CREAT | O_APPEND);
     /* get its size */
     struct stat stat;
     if(fstat(fd, &stat) != 0)
@@ -576,9 +464,9 @@ static int open_log(void)
         return fd;
     close(fd);
     /* move file */
-    rename(BASE_DIR "/rockbox.log", BASE_DIR "/rockbox.log.1");
+    rename("/mnt/sd_0/rockbox.log", "/mnt_sd0/rockbox.log.1");
     /* re-open the file, truncate in case the move was unsuccessful */
-    return open(BASE_DIR "/rockbox.log", O_RDWR | O_CREAT | O_APPEND | O_TRUNC);
+    return open("/mnt/sd_0/rockbox.log", O_RDWR | O_CREAT | O_APPEND | O_TRUNC);
 }
 #endif
 
@@ -616,13 +504,11 @@ int main(int argc, char **argv)
 //    if(font_id >= 0)
 //        lcd_setfont(font_id);
 
-    mount_storage(true);
-
     /* run all tools menu */
     while(true)
     {
         enum boot_mode mode = get_boot_mode();
-        if (mode == BOOT_OF)
+        if(mode == BOOT_USB || mode == BOOT_OF)
         {
 #if 0
             fflush(stdout);
@@ -630,13 +516,9 @@ int main(int argc, char **argv)
             close(fileno(stdout));
             close(fileno(stderr));
 #endif
-            mount_storage(false);
+            /* for now the only way we have to trigger USB mode it to run the OF */
             /* boot OF */
-#if defined(FIIO_M3K_LINUX)
-            execvp("/usr/project/bin/player_daemon", argv);
-#else
             execvp("/usr/bin/hiby_player", argv);
-#endif
             error_screen("Cannot boot OF");
             sleep(5 * HZ);
         }
@@ -647,14 +529,12 @@ int main(int argc, char **argv)
         else if(mode == BOOT_ROCKBOX)
         {
             fflush(stdout);
-            mount_storage(true);
-            system("/bin/cp " BASE_DIR "/.rockbox/" BOOTFILE " /tmp");
-            system("/bin/chmod +x /tmp/" BOOTFILE);
-            execl("/tmp/" BOOTFILE, BOOTFILE, NULL);
+            system("/bin/cp /mnt/sd_0/.rockbox/rockbox.rocker /tmp");
+            execl("/tmp/rockbox.rocker", "rockbox.rocker", NULL);
             printf("execvp failed: %s\n", strerror(errno));
-            error_screen("Cannot boot Rockbox!");
-            mode = BOOT_TOOLS;
-            sleep(2 * HZ);
+            /* fallback to OF in case of failure */
+            error_screen("Cannot boot Rockbox");
+            sleep(5 * HZ);
         }
         else
         {

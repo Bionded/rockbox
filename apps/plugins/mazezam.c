@@ -27,9 +27,7 @@
 /* Include standard plugin macro */
 
 
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
+#if (CONFIG_KEYPAD == IPOD_3G_PAD)
 #   define MAZEZAM_MENU    BUTTON_MENU
 #   define MAZEZAM_RIGHT   BUTTON_RIGHT
 #   define MAZEZAM_LEFT    BUTTON_LEFT
@@ -855,11 +853,8 @@ static void resume_save_data (struct resume_data *r, struct resume_data *old)
 * Manages the main menu 
 ******************************************************************************/
 static bool have_continue;
-static int main_menu_cb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int main_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     if(action == ACTION_REQUEST_MENUITEM
        && !have_continue && ((intptr_t)this_item)==0)
         return ACTION_EXIT_MENUITEM;

@@ -4,9 +4,9 @@ database.c
 ../../apps/tagcache.c
 ../../firmware/common/crc32.c
 ../../firmware/common/pathfuncs.c
-../../firmware/common/strmemccpy.c
 ../../firmware/common/strlcpy.c
 ../../firmware/common/strcasestr.c
+../../firmware/common/structec.c
 ../../firmware/common/unicode.c
 ../../firmware/target/hosted/debug-hosted.c
 ../../firmware/logf.c
@@ -20,4 +20,10 @@ database.c
 #else /* !APPLICATION */
 ../../uisimulator/common/filesystem-sim.c
 #endif /* APPLICATION */
+#if CONFIG_CODEC != SWCODEC
+../../lib/rbcodec/metadata/id3tags.c
+../../lib/rbcodec/metadata/metadata.c
+../../lib/rbcodec/metadata/mp3.c
+../../lib/rbcodec/metadata/mp3data.c
+#endif
 /* Caution. metadata files do not add!! */

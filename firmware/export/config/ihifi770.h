@@ -19,8 +19,8 @@
 #define HAVE_WM8740
 #define CODEC_SLAVE
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 /* #define HAVE_LCD_FLIP */
@@ -50,13 +50,13 @@
 #define HAVE_FLASH_STORAGE
 
 #define CONFIG_STORAGE (STORAGE_SD | STORAGE_NAND)
-#define NUM_DRIVES 1  /* NAND doesn't work yet */
 
 #define CONFIG_NAND NAND_RK27XX
 #define HAVE_SW_TONE_CONTROLS
 
-// #define HAVE_HOTSWAP
+#define HAVE_HOTSWAP
 
+#define NUM_DRIVES 1
 #define SECTOR_SIZE 512
 
 /* for small(ish) SD cards */
@@ -91,8 +91,8 @@
 /* Define this if a programmable hotkey is mapped */
 /* #define HAVE_HOTKEY */
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 /* #define CONFIG_RTC RTC_NANO2G */
@@ -144,6 +144,14 @@
 /* Define this if your LCD can set contrast */
 /* #define HAVE_LCD_CONTRAST */
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
+#define STORAGE_NEEDS_ALIGN
+
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ
 
@@ -182,5 +190,8 @@
 #define BOOTFILE_EXT "rkw"
 #define BOOTFILE "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
+
+/* disabled for now */
+#undef HAVE_HOTSWAP
 
 #endif /* SIMULATOR */

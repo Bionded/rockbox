@@ -619,6 +619,7 @@ enum plugin_status plugin_start(const void* parameter)
         switch (button)
         {
         case PERIODIC_KEY_SELECT:
+            break;
         case PERIODIC_KEY_MENU:
             return PLUGIN_OK;
             break;

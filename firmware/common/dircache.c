@@ -249,6 +249,7 @@ static struct dircache_runinfo
     /* cache buffer info */
     int          handle;           /* buflib buffer handle */
     size_t       bufsize;          /* size of buflib allocation - 1 */
+    int          buflocked;        /* don't move due to other allocs */
     union {
     void                  *p;      /* address of buffer - ENTRYSIZE */
     struct dircache_entry *pentry; /* alias of .p to assist entry resolution */
@@ -328,9 +329,29 @@ static inline void dumpster_clean_buffer(void *p, size_t size)
  */
 static int move_callback(int handle, void *current, void *new)
 {
-    (void)handle; (void)current;
+    if (dircache_runinfo.buflocked)
+        return BUFLIB_CB_CANNOT_MOVE;
+
     dircache_runinfo.p = new - ENTRYSIZE;
+
     return BUFLIB_CB_OK;
+    (void)handle; (void)current;
+}
+
+/**
+ * add a "don't move" lock count
+ */
+static inline void buffer_lock(void)
+{
+    dircache_runinfo.buflocked++;
+}
+
+/**
+ * remove a "don't move" lock count
+ */
+static inline void buffer_unlock(void)
+{
+    dircache_runinfo.buflocked--;
 }
 
 
@@ -479,7 +500,7 @@ static void binding_dissolve_volume(struct dircache_runinfo_volume *dcrivolp)
 static int alloc_cache(size_t size)
 {
     /* pad with one extra-- see alloc_name() and free_name() */
-    return core_alloc_ex(size + 1, &dircache_runinfo.ops);
+    return core_alloc_ex("dircache", size + 1, &dircache_runinfo.ops);
 }
 
 /**
@@ -509,14 +530,14 @@ static void set_buffer(int handle, size_t size)
 
 /**
  * remove the allocation from dircache control and return the handle
- * Note that dircache must not be using the buffer!
  */
 static int reset_buffer(void)
 {
     int handle = dircache_runinfo.handle;
     if (handle > 0)
     {
-        /* don't mind .p; buffer presence is determined by the following: */
+        /* don't mind .p; it might get changed by the callback even after
+           this call; buffer presence is determined by the following: */
         dircache_runinfo.handle  = 0;
         dircache_runinfo.bufsize = 0;
     }
@@ -1452,7 +1473,7 @@ static void sab_process_volume(struct dircache_volume *dcvolp)
  */
 int dircache_readdir_dirent(struct filestr_base *stream,
                             struct dirscan_info *scanp,
-                            struct DIRENT *entry)
+                            struct dirent *entry)
 {
     struct file_base_info *dirinfop = stream->infop;
 
@@ -1707,8 +1728,8 @@ static int sab_process_dir(struct dircache_entry *ce)
             /* save current paths size */
             int pathpos = strlen(sab_path);
             /* append entry */
-            strmemccpy(&sab_path[pathpos], "/", sizeof(sab_path) - pathpos);
-            strmemccpy(&sab_path[pathpos+1], entry->d_name, sizeof(sab_path) - pathpos - 1);
+            strlcpy(&sab_path[pathpos], "/", sizeof(sab_path) - pathpos);
+            strlcpy(&sab_path[pathpos+1], entry->d_name, sizeof(sab_path) - pathpos - 1);
 
             int rc = sab_process_dir(ce->down);
             /* restore path */
@@ -1735,11 +1756,11 @@ static int sab_process_dir(struct dircache_entry *ce)
 static int sab_process_volume(IF_MV(int volume,) struct dircache_entry *ce)
 {
     memset(ce, 0, sizeof(struct dircache_entry));
-    strmemccpy(sab_path, "/", sizeof sab_path);
+    strlcpy(sab_path, "/", sizeof sab_path);
     return sab_process_dir(ce);
 }
 
-int dircache_readdir_r(struct dircache_dirscan *dir, struct DIRENT *result)
+int dircache_readdir_r(struct dircache_dirscan *dir, struct dirent *result)
 {
     if (dircache_state != DIRCACHE_READY)
         return readdir_r(dir->###########3, result, &result);
@@ -1755,7 +1776,7 @@ int dircache_readdir_r(struct dircache_dirscan *dir, struct DIRENT *result)
 
     dir->scanidx = ce - dircache_root;
 
-    strmemccpy(result->d_name, ce->d_name, sizeof (result->d_name));
+    strlcpy(result->d_name, ce->d_name, sizeof (result->d_name));
     result->info = ce->dirinfo;
 
     return 1;
@@ -1836,7 +1857,7 @@ static void reset_cache(void)
  */
 static void build_volumes(void)
 {
-    core_pin(dircache_runinfo.handle);
+    buffer_lock();
 
     for (int i = 0; i < NUM_VOLUMES; i++)
     {
@@ -1882,15 +1903,12 @@ static void build_volumes(void)
 
     logf("Done, %ld KiB used", dircache.size / 1024);
 
-    if (dircache_runinfo.handle > 0) /* dircache may have been disabled */
-        core_unpin(dircache_runinfo.handle);
+    buffer_unlock();
 }
 
 /**
  * allocate buffer and return whether or not a synchronous build should take
  * place; if 'realloced' is NULL, it's just a query about what will happen
- *
- * Note this must be called with the dircache_lock() active.
  */
 static int prepare_build(bool *realloced)
 {
@@ -1940,14 +1958,17 @@ static int prepare_build(bool *realloced)
     *realloced = true;
     reset_cache();
 
-    int handle = reset_buffer();
-    dircache_unlock(); /* release lock held by caller */
+    buffer_lock();
 
-    core_free(handle);
+    int handle = reset_buffer();
+    dircache_unlock();
+
+    if (handle > 0)
+        core_free(handle);
 
     handle = alloc_cache(size);
 
-    dircache_lock(); /* reacquire lock */
+    dircache_lock();
 
     if (dircache_runinfo.suspended && handle > 0)
     {
@@ -1959,9 +1980,13 @@ static int prepare_build(bool *realloced)
     }
 
     if (handle <= 0)
+    {
+        buffer_unlock();
         return -1;
+    }
 
     set_buffer(handle, size);
+    buffer_unlock();
 
     return syncbuild;
 }
@@ -2139,7 +2164,8 @@ static void dircache_suspend_internal(bool freeit)
 
     dircache_unlock();
 
-    core_free(handle);
+    if (handle > 0)
+        core_free(handle);
 
     thread_wait(thread_id);
 
@@ -2360,9 +2386,9 @@ void dircache_fileop_create(struct file_base_info *dirinfop,
     if ((dinp->attr & ATTR_DIRECTORY) && !is_dotdir_name(basename))
     {
         /* scan-in the contents of the new directory at this level only */
-        core_pin(dircache_runinfo.handle);
+        buffer_lock();
         sab_process_dir(infop, false);
-        core_unpin(dircache_runinfo.handle);
+        buffer_unlock();
     }
 }
 
@@ -2515,10 +2541,13 @@ static ssize_t get_path_sub(int idx, struct get_path_sub_data *data)
         cename = "";
 
     #ifdef HAVE_MULTIVOLUME
-        /* prepend the volume specifier */
         int volume = IF_MV_VOL(-idx - 1);
-        cename = alloca(VOL_MAX_LEN+1);
-        get_volume_name(volume, cename);
+        if (volume > 0)
+        {
+            /* prepend the volume specifier for volumes > 0 */
+            cename = alloca(VOL_MAX_LEN+1);
+            get_volume_name(volume, cename);
+        }
     #endif /* HAVE_MULTIVOLUME */
 
         data->serialhash = dc_hash_serialnum(get_idx_dcvolp(idx)->serialnum,
@@ -2583,8 +2612,7 @@ static dc_serial_t get_file_serialhash(const struct dircache_file *dcfilep)
         idx = ce->up;
     }
 
-    if (idx < 0)
-        h = dc_hash_serialnum(get_idx_dcvolp(idx)->serialnum, h);
+    h = dc_hash_serialnum(get_idx_dcvolp(idx)->serialnum, h);
 
     return h;
 }
@@ -2891,7 +2919,7 @@ void dircache_dump(void)
 
     if (dircache_runinfo.handle)
     {
-        core_pin(dircache_runinfo.handle);
+        buffer_lock();
 
         /* bin */
         write(fdbin, dircache_runinfo.p + ENTRYSIZE,
@@ -2927,7 +2955,7 @@ void dircache_dump(void)
         FOR_EACH_CACHE_ENTRY(ce)
         {
         #ifdef DIRCACHE_NATIVE
-            time_t mtime = dostime_mktime(ce->wrtdate, ce->wrttime);
+            time_t mtime = fattime_mktime(ce->wrtdate, ce->wrttime);
         #else
             time_t mtime = ce->mtime;
         #endif
@@ -2961,7 +2989,7 @@ void dircache_dump(void)
                      tm.tm_hour, tm.tm_min, tm.tm_sec);
         }
 
-        core_unpin(dircache_runinfo.handle);
+        buffer_unlock();
     }
 
     dircache_unlock();
@@ -3080,6 +3108,7 @@ int dircache_load(void)
     }
 
     dircache_lock();
+    buffer_lock();
 
     if (!dircache_is_clean(false))
         goto error;
@@ -3088,7 +3117,6 @@ int dircache_load(void)
     dircache = maindata.dircache;
 
     set_buffer(handle, bufsize);
-    core_pin(handle);
     hasbuffer = true;
 
     /* convert back to in-RAM representation */
@@ -3143,17 +3171,17 @@ int dircache_load(void)
     dircache_enable_internal(false);
 
     /* cache successfully loaded */
-    core_unpin(handle);
     logf("Done, %ld KiB used", dircache.size / 1024);
     rc = 0;
 error:
     if (rc < 0 && hasbuffer)
         reset_buffer();
 
+    buffer_unlock();
     dircache_unlock();
 
 error_nolock:
-    if (rc < 0)
+    if (rc < 0 && handle > 0)
         core_free(handle);
 
     if (fd >= 0)
@@ -3175,9 +3203,8 @@ int dircache_save(void)
     if (fd < 0)
         return -1;
 
-    /* it seems the handle *must* exist if this function is called */
     dircache_lock();
-    core_pin(dircache_runinfo.handle);
+    buffer_lock();
 
     int rc = -1;
 
@@ -3246,7 +3273,7 @@ int dircache_save(void)
        that makes what was saved completely invalid */
     rc = 0;
 error:
-    core_unpin(dircache_runinfo.handle);
+    buffer_unlock();
     dircache_unlock();
 
     if (rc < 0)

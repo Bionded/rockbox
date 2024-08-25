@@ -222,7 +222,6 @@ static void cb_wt_callback ( void ) {
     button = rb->button_get(false);
     switch (button) {
         case SYS_POWEROFF:
-        case SYS_REBOOT:
             cb_sysevent = button;
 #ifdef CB_RC_QUIT
         case CB_RC_QUIT:
@@ -555,7 +554,7 @@ static int cb_menu_viewer(void)
 {
     int selection;
 
-    MENUITEM_STRINGLIST(menu, ID2P(LANG_CHESSBOX_MENU), NULL,
+    MENUITEM_STRINGLIST(menu,"Chessbox Menu",NULL,
                         ID2P(LANG_CHESSBOX_MENU_RESTART_GAME),
                         ID2P(LANG_CHESSBOX_MENU_SELECT_OTHER_GAME),
                         ID2P(LANG_CHESSBOX_MENU_RESUME_GAME),
@@ -586,7 +585,6 @@ static struct cb_command cb_get_viewer_command (void) {
         button = rb->button_get(true);
         switch (button) {
             case SYS_POWEROFF:
-            case SYS_REBOOT:
                 cb_sysevent = button;
 #ifdef CB_RC_QUIT
             case CB_RC_QUIT:
@@ -782,7 +780,6 @@ static bool cb_start_viewer(const char* filename){
                         break;
                     case COMMAND_QUIT:
                         exit_app = true;
-                        /* fallthrough */
                     case COMMAND_RETURN:
                         exit_viewer = true;
                         break;
@@ -800,7 +797,7 @@ static int cb_menu(void)
 {
     int selection;
 
-    MENUITEM_STRINGLIST(menu,ID2P(LANG_CHESSBOX_MENU), NULL,
+    MENUITEM_STRINGLIST(menu,"Chessbox Menu",NULL,
                         ID2P(LANG_CHESSBOX_MENU_NEW_GAME),
                         ID2P(LANG_CHESSBOX_MENU_RESUME_GAME),
                         ID2P(LANG_CHESSBOX_MENU_SAVE_GAME),
@@ -850,7 +847,6 @@ static struct cb_command cb_getcommand (void) {
         button = rb->button_get(true);
         switch (button) {
             case SYS_POWEROFF:
-            case SYS_REBOOT:
                 cb_sysevent = button;
 #ifdef CB_RC_QUIT
             case CB_RC_QUIT:

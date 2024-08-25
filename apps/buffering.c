@@ -20,6 +20,7 @@
  ****************************************************************************/
 #include "config.h"
 #include <string.h>
+#include "strlcpy.h"
 #include "system.h"
 #include "storage.h"
 #include "thread.h"
@@ -69,6 +70,8 @@
 
 /* amount of data to read in one read() call */
 #define BUFFERING_DEFAULT_FILECHUNK      (1024*32)
+
+#define BUF_HANDLE_MASK                  0x7FFFFFFF
 
 enum handle_flags
 {
@@ -292,11 +295,12 @@ static int next_handle_id(void)
 {
     static int cur_handle_id = 0;
 
-    int next_hid = cur_handle_id + 1;
-    if (next_hid == INT_MAX)
-        cur_handle_id = 0; /* next would overflow; reset the counter */
-    else
-        cur_handle_id = next_hid;
+    /* Wrap signed int is safe and 0 doesn't happen */
+    int next_hid = (cur_handle_id + 1) & BUF_HANDLE_MASK;
+    if (next_hid == 0)
+        next_hid = 1;
+
+    cur_handle_id = next_hid;
 
     return next_hid;
 }
@@ -416,8 +420,7 @@ add_handle(unsigned int flags, size_t data_size, const char *path,
     h->signaled = 0; /* Data can be waited for */
 
     /* Save the provided path */
-    if (path)
-        memcpy(h->path, path, pathsize);
+    memcpy(h->path, path, pathsize);
 
     /* Return the start of the data area */
     *data_out = ringbuf_add(index, handlesize);
@@ -652,9 +655,11 @@ static bool buffer_handle(int handle_id, size_t to_buffer)
     trigger_cpu_boost();
 
     if (h->type == TYPE_ID3) {
-        get_metadata_ex(ringbuf_ptr(h->data),
-                        h->fd, h->path, METADATA_CLOSE_FD_ON_EXIT);
-        h->fd = -1; /* with above, behavior same as close_fd */
+        if (!get_metadata(ringbuf_ptr(h->data), h->fd, h->path)) {
+            /* metadata parsing failed: clear the buffer. */
+            wipe_mp3entry(ringbuf_ptr(h->data));
+        }
+        close_fd(&h->fd);
         h->widx = ringbuf_add(h->data, h->filesize);
         h->end  = h->filesize;
         send_event(BUFFER_EVENT_FINISHED, &handle_id);
@@ -846,9 +851,8 @@ static bool fill_buffer(void)
    Return value is the total size (struct + data). */
 static int load_image(int fd, const char *path,
                       struct bufopen_bitmap_data *data,
-                      size_t bufidx, size_t max_size)
+                      size_t bufidx)
 {
-    (void)path;
     int rc;
     struct bitmap *bmp = ringbuf_ptr(bufidx);
     struct dim *dim = data->dim;
@@ -862,20 +866,25 @@ static int load_image(int fd, const char *path,
 #if (LCD_DEPTH > 1) || defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1)
     bmp->maskdata = NULL;
 #endif
-    const int format = FORMAT_NATIVE | FORMAT_DITHER |
-                       FORMAT_RESIZE | FORMAT_KEEP_ASPECT;
+    int free = (int)MIN(buffer_len - bytes_used(), buffer_len - bufidx)
+                        - sizeof(struct bitmap);
+
 #ifdef HAVE_JPEG
     if (aa != NULL) {
         lseek(fd, aa->pos, SEEK_SET);
-        rc = clip_jpeg_fd(fd, aa->size, bmp, (int)max_size, format, NULL);
+        rc = clip_jpeg_fd(fd, aa->size, bmp, free, FORMAT_NATIVE|FORMAT_DITHER|
+                         FORMAT_RESIZE|FORMAT_KEEP_ASPECT, NULL);
     }
     else if (strcmp(path + strlen(path) - 4, ".bmp"))
-        rc = read_jpeg_fd(fd, bmp, (int)max_size, format, NULL);
+        rc = read_jpeg_fd(fd, bmp, free, FORMAT_NATIVE|FORMAT_DITHER|
+                          FORMAT_RESIZE|FORMAT_KEEP_ASPECT, NULL);
     else
 #endif
-        rc = read_bmp_fd(fd, bmp, (int)max_size, format, NULL);
+        rc = read_bmp_fd(fd, bmp, free, FORMAT_NATIVE|FORMAT_DITHER|
+                         FORMAT_RESIZE|FORMAT_KEEP_ASPECT, NULL);
 
     return rc + (rc > 0 ? sizeof(struct bitmap) : 0);
+    (void)path;
 }
 #endif /* HAVE_ALBUMART */
 
@@ -961,36 +970,20 @@ int bufopen(const char *file, off_t offset, enum data_type type,
     size_t size = 0;
 #ifdef HAVE_ALBUMART
     if (type == TYPE_BITMAP) {
-        /* Bitmaps are resized to the requested dimensions when loaded,
-         * so the file size should not be used as it may be too large
-         * or too small */
+        /* If albumart is embedded, the complete file is not buffered,
+         * but only the jpeg part; filesize() would be wrong */
         struct bufopen_bitmap_data *aa = user_data;
-        size = BM_SIZE(aa->dim->width, aa->dim->height, FORMAT_NATIVE, false);
-        size += sizeof(struct bitmap);
-
-#ifdef HAVE_JPEG
-        /* JPEG loading requires extra memory
-         * TODO: don't add unncessary overhead for .bmp images! */
-        size += JPEG_DECODE_OVERHEAD;
-#endif
-       /* resize_on_load requires space for 1 line + 2 spare lines */
-#ifdef HAVE_LCD_COLOR
-        size += sizeof(struct uint32_argb) * 3 * aa->dim->width;
-#else
-        size += sizeof(uint32_t) * 3 * aa->dim->width;
-#endif
+        if (aa->embedded_albumart)
+            size = aa->embedded_albumart->size;
     }
-#endif /* HAVE_ALBUMART */
+#endif
 
     if (size == 0)
         size = filesize(fd);
 
     unsigned int hflags = 0;
     if (type == TYPE_PACKET_AUDIO || type == TYPE_CODEC)
-        hflags |= H_CANWRAP;
-    /* Bitmaps need their space allocated up front */
-    if (type == TYPE_BITMAP)
-        hflags |= H_ALLOCALL;
+        hflags = H_CANWRAP;
 
     size_t adjusted_offset = offset;
     if (adjusted_offset > size)
@@ -1006,14 +999,7 @@ int bufopen(const char *file, off_t offset, enum data_type type,
         DEBUGF("%s(): failed to add handle\n", __func__);
         mutex_unlock(&llist_mutex);
         close(fd);
-
-        /*warn playback.c if it is trying to buffer too large of an image*/
-        if(type == TYPE_BITMAP && padded_size >= buffer_len - 64*1024)
-        {
-            return ERR_BITMAP_TOO_LARGE;
-        }
         return ERR_BUFFER_FULL;
-
     }
 
     handle_id = h->id;
@@ -1041,7 +1027,7 @@ int bufopen(const char *file, off_t offset, enum data_type type,
 #ifdef HAVE_ALBUMART
     if (type == TYPE_BITMAP) {
         /* Bitmap file: we load the data instead of the file */
-        int rc = load_image(fd, file, user_data, data, padded_size);
+        int rc = load_image(fd, file, user_data, data);
         if (rc <= 0) {
             handle_id = ERR_FILE_ERROR;
         } else {
@@ -1439,6 +1425,62 @@ ssize_t bufgetdata(int handle_id, size_t size, void **data)
 
     return size;
 }
+
+ssize_t bufgettail(int handle_id, size_t size, void **data)
+{
+    if (thread_self() != buffering_thread_id)
+        return ERR_WRONG_THREAD; /* only from buffering thread */
+
+    /* We don't support tail requests of > guardbuf_size, for simplicity */
+    if (size > GUARD_BUFSIZE)
+        return ERR_INVALID_VALUE;
+
+    const struct memory_handle *h = find_handle(handle_id);
+    if (!h)
+        return ERR_HANDLE_NOT_FOUND;
+
+    if (h->end >= h->filesize) {
+        size_t tidx = ringbuf_sub_empty(h->widx, size);
+
+        if (tidx + size > buffer_len) {
+            size_t copy_n = tidx + size - buffer_len;
+            memcpy(guard_buffer, ringbuf_ptr(0), copy_n);
+        }
+
+        *data = ringbuf_ptr(tidx);
+    }
+    else {
+        size = ERR_HANDLE_NOT_DONE;
+    }
+
+    return size;
+}
+
+ssize_t bufcuttail(int handle_id, size_t size)
+{
+    if (thread_self() != buffering_thread_id)
+        return ERR_WRONG_THREAD; /* only from buffering thread */
+
+    struct memory_handle *h = find_handle(handle_id);
+    if (!h)
+        return ERR_HANDLE_NOT_FOUND;
+
+    if (h->end >= h->filesize) {
+        /* Cannot trim to before read position */
+        size_t available = h->end - MAX(h->start, h->pos);
+        if (available < size)
+            size = available;
+
+        h->widx = ringbuf_sub_empty(h->widx, size);
+        h->filesize -= size;
+        h->end -= size;
+    } else {
+        size = ERR_HANDLE_NOT_DONE;
+    }
+
+    return size;
+}
+
 
 /*
 SECONDARY EXPORTED FUNCTIONS

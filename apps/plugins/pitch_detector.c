@@ -503,19 +503,19 @@ static bool main_menu(void)
                 rb->set_option(
                     "Algorithm Pickiness (Lower -> more discriminating)",
                     &settings.yin_threshold,
-                    RB_INT, yin_threshold_text,
+                    INT, yin_threshold_text,
                     sizeof(yin_threshold_text) / sizeof(yin_threshold_text[0]),
                     NULL);
                 break;
             case 5:
                 rb->set_option("Display Accidentals As",
                                &settings.use_sharps,
-                               RB_BOOL, accidental_text, 2, NULL);
+                               BOOL, accidental_text, 2, NULL);
                 break;
             case 6:
                 rb->set_option("Key Transposition",
                               &settings.key_transposition,
-                              RB_INT, transpose_text, 12, NULL);
+                              INT, transpose_text, 12, NULL);
                 break;
             case 7:
                 rb->set_bool("Display Frequency (Hz)",
@@ -1013,11 +1013,6 @@ static void record_and_get_pitch(void)
                     break;
 
                 case PLA_CANCEL:
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-                case PLA_UP:
-#endif
                     rb->pcm_stop_recording();
                     quit = main_menu();
                     if(!quit)

@@ -30,17 +30,13 @@
 #if !defined(__ASSEMBLER__) && !defined(__LD__)
 /* These variables are created during linking (app/boot.lds) */
 extern unsigned long _lcdbuf;
-#ifdef MROBE_500
 extern unsigned long _lcdbuf2;
-#endif
 extern unsigned long _ttbstart;
 #endif
 
 #define TTB_BASE_ADDR    (_ttbstart) /* End of memory */
 #define FRAME            ((short *) (&_lcdbuf))  /* Right after TTB */
-#ifdef MROBE_500
 #define FRAME2            ((short *) (&_lcdbuf2))  /* Right after FRAME */
-#endif
 
 #define PHY_IO_BASE      0x00030000
 #define DM320_REG(addr)  (*(volatile unsigned short *)(PHY_IO_BASE + (addr)))
@@ -934,27 +930,11 @@ extern unsigned long _ttbstart;
 #define MMC_ST1_DXFULL                 (1 << 3)
 #define MMC_ST1_DAT3ST                 (1 << 4)
 
-#define MMC_IE_EDATDNE                 (1 << 0)
-#define MMC_IE_EBSYDNE                 (1 << 1)
-#define MMC_IE_ERSPDNE                 (1 << 2)
-#define MMC_IE_ETOUTRD                 (1 << 3)
-#define MMC_IE_ETOUTRS                 (1 << 4)
-#define MMC_IE_ECRCWR                  (1 << 5)
-#define MMC_IE_ECRCRD                  (1 << 6)
-#define MMC_IE_ECRCRS                  (1 << 7)
-#define MMC_IE_EDXRDY                  (1 << 9)
-#define MMC_IE_EDRRDY                  (1 << 10)
-#define MMC_IE_EDATED                  (1 << 11)
-
 #define MMC_DMAMODE_RD_WORDSWAP        (1 << 10)
 #define MMC_DMAMODE_WR_WORDSWAP        (1 << 11)
 #define MMC_DMAMODE_WRITE              (1 << 12)
 #define MMC_DMAMODE_ENABLE             (1 << 13)
 #define MMC_DMAMODE_TIMEOUTIRQ_EN      (1 << 14)
-
-#define MMC_DMASTAT1_RUNST             (1 << 12)
-#define MMC_DMASTAT1_TOUTDT            (1 << 13)
-
 /*
  *  IO_EINTx bits
  */
@@ -1021,7 +1001,6 @@ extern unsigned long _ttbstart;
 #define INTR_IRQ1_EXT0        INTR_EINT1_EXT0
 #define INTR_IRQ1_EXT2        INTR_EINT1_EXT2
 #define INTR_IRQ1_EXT7        INTR_EINT1_EXT7
-#define INTR_IRQ1_MMCSDMS0    INTR_EINT1_MMCSDMS0
 #define INTR_IRQ1_MTC0        INTR_EINT1_MTC0
 
 /*

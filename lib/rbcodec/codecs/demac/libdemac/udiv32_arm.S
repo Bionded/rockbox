@@ -29,9 +29,6 @@
  ****************************************************************************/
 
 #include "config.h"
-
-.syntax unified
-
 /* On targets with codec iram, a header file will be generated after an initial
    link of the APE codec, stating the amount of IRAM remaining for use by the
    reciprocal lookup table. */
@@ -228,7 +225,7 @@ udiv32_arm:
     mov     \inv, \divisor, lsl \bits
     add     \neg, pc, \inv, lsr #25
     cmp     \inv, #1<<31
-    ldrbhi  \inv, [\neg, #.L_udiv_est_table-.-64]
+    ldrhib  \inv, [\neg, #.L_udiv_est_table-.-64]
     bls     20f
     subs    \bits, \bits, #7
     rsb     \neg, \divisor, #0

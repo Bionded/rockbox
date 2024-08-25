@@ -14,7 +14,7 @@
 
 /* Define bitmask of input sources - recordable bitmask can be defined
    explicitly if different */
-#define INPUT_SRC_CAPS (SRC_CAP_LINEIN|SRC_CAP_FMRADIO)
+#define INPUT_SRC_CAPS (SRC_CAP_LINEIN)
 
 /* define the bitmask of hardware sample rates */
 #define HW_SAMPR_CAPS   (SAMPR_CAP_88 | SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11 \
@@ -26,8 +26,8 @@
                        | SAMPR_CAP_96 | SAMPR_CAP_48 | SAMPR_CAP_24 | SAMPR_CAP_12 \
                        | SAMPR_CAP_64 | SAMPR_CAP_32 | SAMPR_CAP_16 | SAMPR_CAP_8)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 //#define HAVE_LCD_FLIP
@@ -111,8 +111,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_NANO2G
@@ -162,9 +162,9 @@
 //#define HAVE_LCD_CONTRAST
 
 /* Define Apple remote tuner */
-#define CONFIG_TUNER IPOD_REMOTE_TUNER
-#define HAVE_RDS_CAP
-#define CONFIG_RDS RDS_CFG_PUSH
+//#define CONFIG_TUNER IPOD_REMOTE_TUNER
+//#define HAVE_RDS_CAP
+//#define CONFIG_RDS RDS_CFG_PUSH
 
 /* The exact type of CPU */
 #define CONFIG_CPU S5L8701
@@ -182,6 +182,12 @@
 
 /* define this if the hardware can be powered off while charging */
 #define HAVE_POWEROFF_WHILE_CHARGING
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you can read an absolute wheel position */
 #define HAVE_WHEEL_POSITION

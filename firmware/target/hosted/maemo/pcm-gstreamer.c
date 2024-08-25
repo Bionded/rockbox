@@ -65,6 +65,8 @@
 extern bool debug_audio;
 #endif
 
+#if CONFIG_CODEC == SWCODEC
+
 /* Declarations for libplayblack */
 pb_playback_t *playback = NULL;
 void playback_state_req_handler(pb_playback_t *pb,
@@ -154,6 +156,28 @@ void pcm_play_dma_stop(void)
         gst_element_set_state (GST_ELEMENT(gst_pipeline), GST_STATE_NULL);
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (inside_feed_data)
+    {
+        if (pause)
+            g_signal_emit_by_name (gst_appsrc, "end-of-stream", NULL);
+        else
+            DEBUGF("ERROR: Called dma_pause(0) while inside feed_data\n");
+    } else
+    {
+        if (pause)
+            gst_element_set_state (GST_ELEMENT(gst_pipeline), GST_STATE_NULL);
+        else
+            gst_element_set_state (GST_ELEMENT(gst_pipeline), GST_STATE_PLAYING);
+    }
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return pcm_data_size;
+}
+
 static void feed_data(GstElement * appsrc, guint size_hint, void *unused)
 {
     (void)size_hint;
@@ -190,6 +214,14 @@ static void feed_data(GstElement * appsrc, guint size_hint, void *unused)
 
     unlock_audio();
 }
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    uintptr_t addr = (uintptr_t)pcm_data;
+    *count = pcm_data_size / 4;
+    return (void *)((addr + 2) & ~3);
+}
+
 
 static gboolean
 gst_bus_message (GstBus * bus, GstMessage * message, void *unused)
@@ -449,3 +481,5 @@ unsigned long spdif_measure_frequency(void)
 #endif
 
 #endif /* HAVE_RECORDING */
+
+#endif /* CONFIG_CODEC == SWCODEC */

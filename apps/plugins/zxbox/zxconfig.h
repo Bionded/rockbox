@@ -29,7 +29,7 @@ extern int intkeys[5];
 #define SPECT_MEM 1
 
 /* Define if sound driver is available. */
-#if !defined SIMULATOR
+#if CONFIG_CODEC == SWCODEC && !defined SIMULATOR
 #define HAVE_SOUND
 #endif
 

@@ -43,7 +43,9 @@
 
 #include "metadata.h"
 #include "mp3data.h"
+#if CONFIG_CODEC == SWCODEC
 #include "metadata_common.h"
+#endif
 #include "metadata_parsers.h"
 #include "misc.h"
 
@@ -89,6 +91,9 @@ static const char* const genres[] = {
     "Synthpop"
 };
 
+#if CONFIG_CODEC != SWCODEC
+static
+#endif
 char* id3_get_num_genre(unsigned int genre_num)
 {
     if (genre_num < ARRAYLEN(genres))
@@ -308,27 +313,24 @@ static int parsealbumart( struct mp3entry* entry, char* tag, int bufferpos )
     char *start = tag;
     /* skip text encoding */
     tag += 1;
-    static const char *img_options[] = {"jpeg", "jpg", "png", NULL};
 
     if (memcmp(tag, "image/", 6) == 0)
     {
         /* ID3 v2.3+ */
         tag += 6;
-        int tg_op = string_option(tag, img_options, false);
-
-        if (tg_op == 0) /*jpeg*/
+        if (strcmp(tag, "jpeg") == 0)
         {
             entry->albumart.type = AA_TYPE_JPG;
             tag += 5;
         }
-        else if (tg_op == 1) /*jpg*/
+        else if (strcmp(tag, "jpg") == 0)
         {
             /* image/jpg is technically invalid, but it does occur in
              * the wild */
             entry->albumart.type = AA_TYPE_JPG;
             tag += 4;
         }
-        else if (tg_op == 2) /*png*/
+        else if (strcmp(tag, "png") == 0)
         {
             entry->albumart.type = AA_TYPE_PNG;
             tag += 4;
@@ -374,20 +376,23 @@ static int parseuser( struct mp3entry* entry, char* tag, int bufferpos )
         /* At least part of the value was read, so we can safely try to
          * parse it */
         value = tag + desc_len + 1;
-
+        
         if (!strcasecmp(tag, "ALBUM ARTIST")) {
             length = strlen(value) + 1;
             strlcpy(tag, value, length);
             entry->albumartist = tag;
+#if CONFIG_CODEC == SWCODEC
         } else {
             /* Call parse_replaygain(). */
             parse_replaygain(tag, value, entry);
+#endif
         }
     }
 
     return tag - entry->id3v2buf + length;
 }
 
+#if CONFIG_CODEC == SWCODEC
 /* parse RVA2 binary data and convert to replaygain information. */
 static int parserva2( struct mp3entry* entry, char* tag, int bufferpos)
 {
@@ -437,11 +442,9 @@ static int parserva2( struct mp3entry* entry, char* tag, int bufferpos)
             }
         }
     
-        static const char *tg_options[] = {"album", "track", NULL};
-        int tg_op = string_option(tag, tg_options, true);
-        if (tg_op == 0) { /*album*/
+        if (strcasecmp(tag, "album") == 0) {
             album = true;
-        } else if (tg_op != 1) { /*!track*/
+        } else if (strcasecmp(tag, "track") != 0) {
             /* Only accept non-track values if we don't have any previous
              * value.
              */
@@ -449,12 +452,13 @@ static int parserva2( struct mp3entry* entry, char* tag, int bufferpos)
                 return start_pos;
             }
         }
-
+            
         parse_replaygain_int(album, gain, peak * 2, entry);
     }
 
     return start_pos;
 }
+#endif
 
 static int parsembtid( struct mp3entry* entry, char* tag, int bufferpos )
 {
@@ -510,7 +514,9 @@ static const struct tag_resolver taglist[] = {
     { "PIC",  3, 0, &parsealbumart, true },
 #endif
     { "TXXX", 4, 0, &parseuser, false },
+#if CONFIG_CODEC == SWCODEC
     { "RVA2", 4, 0, &parserva2, true },
+#endif
     { "UFID", 4, 0, &parsembtid, false },
 };
 
@@ -711,9 +717,6 @@ bool setid3v1title(int fd, struct mp3entry *entry)
  *            entry - the entry to set the title in
  *
  * Returns: true if a title was found and created, else false
- *
- * Assumes that the offset of file is at the start of the ID3 header.
- * (if the header is at the begining of the file getid3v2len() will ensure this.)
  */
 void setid3v2title(int fd, struct mp3entry *entry)
 {
@@ -732,7 +735,9 @@ void setid3v2title(int fd, struct mp3entry *entry)
     bool unsynch = false;
     int i, j;
     int rc;
+#if CONFIG_CODEC == SWCODEC
     bool itunes_gapless = false;
+#endif
 
 #ifdef HAVE_ALBUMART
     entry->has_embedded_albumart = false;
@@ -744,9 +749,8 @@ void setid3v2title(int fd, struct mp3entry *entry)
     if(entry->id3v2len < 10)
         return;
 
-
-    /* Read the ID3 tag version from the header.
-       Assumes fd is already at the begining of the header */
+    /* Read the ID3 tag version from the header */
+    lseek(fd, 0, SEEK_SET);
     if(10 != read(fd, header, 10))
         return;
 
@@ -975,15 +979,15 @@ void setid3v2title(int fd, struct mp3entry *entry)
                 if((tr->tag_length == 4 && !memcmp( header, "COMM", 4)) ||
                    (tr->tag_length == 3 && !memcmp( header, "COM", 3))) {
                     int offset;
-                    if (buffersize - bufferpos <= 4)
-                        return; /* Error ?? */
-
                     if(bytesread >= 8 && !strncmp(tag+4, "iTun", 4)) {
+#if CONFIG_CODEC == SWCODEC
                         /* check for iTunes gapless information */
                         if(bytesread >= 12 && !strncmp(tag+4, "iTunSMPB", 8))
                             itunes_gapless = true;
                         else
-                            break; /* ignore other with iTunes tags */
+#endif
+                        /* ignore other with iTunes tags */
+                        break;
                     }
 
                     offset = 3 + unicode_len(*tag, tag + 4);
@@ -1063,6 +1067,7 @@ void setid3v2title(int fd, struct mp3entry *entry)
                 tag[bytesread] = 0;
                 bufferpos += bytesread + 1;
 
+#if CONFIG_CODEC == SWCODEC
                 /* parse the tag if it contains iTunes gapless info */
                 if (itunes_gapless)
                 {
@@ -1070,6 +1075,7 @@ void setid3v2title(int fd, struct mp3entry *entry)
                     entry->lead_trim = get_itunes_int32(tag, 1);
                     entry->tail_trim = get_itunes_int32(tag, 2);
                 }
+#endif
 
                 /* Note that parser functions sometimes set *ptag to NULL, so
                  * the "!*ptag" check here doesn't always have the desired
@@ -1171,15 +1177,12 @@ int getid3v2len(int fd)
 
     /* Now check what the ID3v2 size field says */
     else
-    {
         if(read(fd, buf, 4) != 4)
             offset = 0;
         else
             offset = unsync(buf[0], buf[1], buf[2], buf[3]) + 10;
-    }
 
     logf("ID3V2 Length: 0x%x", offset);
-    lseek(fd, -10, SEEK_CUR);
     return offset;
 }
 
@@ -1200,7 +1203,7 @@ int main(int argc, char **argv)
     for(i=1; i<argc; i++) {
         struct mp3entry mp3;
         mp3.album = "Bogus";
-        if(!get_metadata(&mp3, -1, argv[i])) {
+        if(mp3info(&mp3, argv[i], false)) {
             printf("Failed to get %s\n", argv[i]);
             return 0;
         }

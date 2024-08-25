@@ -20,7 +20,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[a4paper,11pt,hyphens]{scrreprt}
-\usepackage[utf8]{inputenc}
+\usepackage[utf8]{inputenx}
 \usepackage[T1]{fontenc}
 % load ix-utf8enc.dfu to get additional characters from the inputenx package.
 \makeatletter\input{ix-utf8enc.dfu}\makeatother
@@ -33,7 +33,6 @@
 \usepackage{multirow}
 \usepackage{multicol}
 
-\usepackage{scrhack}
 \usepackage{float}
 \floatstyle{ruled}
 
@@ -77,15 +76,7 @@
 \usepackage{makeidx}
 \usepackage{fancyvrb}
 \usepackage{color}
-
-% Ifpdfoutput is part of KOMAscript 3.28, in earlier versions it's ifpdfoutput.
-% We use Ifpdfoutput, so redefine it here for old KOMAscript versions.
-% See also https://ctan.org/ctan-ann/id/mailman.2801.1577740444.2586.ctan-ann@ctan.org
-\ifdefined\Ifpdfoutput%
-\else\newcommand{\Ifpdfoutput}{\ifpdfoutput}%
-\fi
-
-\Ifpdfoutput{\usepackage{booktabs}}%
+\ifpdfoutput{\usepackage{booktabs}}%
   {\newcommand{%
     \toprule}{}\newcommand{\midrule}{\hline}\newcommand{\bottomrule}{}%
   }
@@ -99,7 +90,7 @@
 % pdf output: try pdf first, then png and jpg as file format
 % html output: try png first, then jpg. Ignore pdf files
 % this only applies if no file extension is given!
-\Ifpdfoutput{\DeclareGraphicsExtensions{.pdf,.png,.jpg}}%
+\ifpdfoutput{\DeclareGraphicsExtensions{.pdf,.png,.jpg}}%
     {\DeclareGraphicsExtensions{.png,.jpg}}
 
 % fancy header style adjustments
@@ -116,7 +107,7 @@
 \setlength{\headheight}{18.5pt}
 \newcounter{example}[chapter]
 
-\Ifpdfoutput{%
+\ifpdfoutput{%
   \renewcommand{\toprule}{\specialrule{\heavyrulewidth}{\abovetopsep}{0pt}}
   \renewcommand{\midrule}{\specialrule{\lightrulewidth}{0pt}{\belowrulesep}}
   }{}
@@ -126,7 +117,7 @@
 %% \newenvironment{example}
 %%     {\stepcounter{example}\paragraph{Example \theexample:}}
 %%     {\hfill$\Box$
-
+    
 %%     \bigskip
 %%     \noindent}
 
@@ -146,7 +137,7 @@
 \long\gdef\nil#1{\IfN@Ught#1* {#1}!}% if null
 \long\gdef\IfN@Ught#1 #2!{\blank{#2}}
 \long\gdef\Ifbl@nk#1#2Q#3!{\ifx#3}% same as above
-}
+} 
 
 % environment for setting the changelog.
 \newenvironment{changelog}%
@@ -178,21 +169,19 @@
     \newcommand{\seriesimg}{\specimg}
 \fi
 
-\newcommand{\includescreenshot}{\Ifpdfoutput{\includegraphics[width=\screenshotsize]}{\includegraphics}}
-
 \newcommand{\screenshot}[3]{
   \begin{figure}[H]
     \begin{center}
       \IfFileExists{#1-\genericimg-\specimg.png}
-        {\includescreenshot{#1-\genericimg-\specimg.png}
+        {\includegraphics[width=\screenshotsize]{#1-\genericimg-\specimg.png}
          \typeout{Note: device specific image used}}
         {\IfFileExists{#1-\genericimg-\seriesimg.png}
-          {\includescreenshot{#1-\genericimg-\seriesimg.png}
+          {\includegraphics[width=\screenshotsize]{#1-\genericimg-\seriesimg.png}
            \typeout{Note: series specific image used}}
           {\IfFileExists{#1-\genericimg.png}
-            {\includescreenshot{#1-\genericimg.png}}
+            {\includegraphics[width=\screenshotsize]{#1-\genericimg.png}}
             {\IfFileExists{#1}
-              {\includescreenshot{#1}
+              {\includegraphics[width=\screenshotsize]{#1}
                \typeout{Warning: deprecated plain image name used}}%
               {\typeout{Missing image: #1 (\genericimg) (\specimg)}%
                \color{red}{\textbf{WARNING!} Image not found}%
@@ -209,7 +198,7 @@
 % command to display a note.
 % Usage: \note{text of your note}
 % Note: do NOT use \textbf or similar to emphasize text, use \emph!
-\Ifpdfoutput{
+\ifpdfoutput{
 \newcommand{\note}[1]{
   \ifinner\else\vspace{1ex}\par\noindent\fi
   \textbf{Note:}\ %
@@ -220,7 +209,7 @@
 % command to display a warning.
 % Usage: \warn{text of your warning}
 % Note: do NOT use \textbf or similar to emphasize text!
-\Ifpdfoutput{
+\ifpdfoutput{
 \newcommand{\warn}[1]{
   \ifinner\else\par\noindent\fi
   \textbf{Warning:\ }%
@@ -230,7 +219,7 @@
 
 % command to mark a text block as intended especially for blind people
 % Usage: \blind{text}
-\Ifpdfoutput{
+\ifpdfoutput{
 \newcommand{\blind}[1]{\mbox{}\marginpar{\raisebox{-1ex}{\Huge{\ForwardToEnd}}}#1}
 }
 {\newcommand{\blind}[1]{\ifinner\else\par\noindent\fi#1}}
@@ -262,7 +251,7 @@
 % B1 & B2\\
 % C1 & C2\\
 % \end{rbtabular}
-%
+%    
 \newenvironment{rbtabular}[5]{%
   \rowcolors{2}{tbloddrowbgcolor}{tblevenrowbgcolor}
   \expandafter\let\expandafter\SavedEndTab\csname endtabular*\endcsname
@@ -310,25 +299,25 @@
 % When creating HTML, use the soul package.
 % This produces much nicer HTML code (textsc results in each character being
 % put in a separate <span>).
-\Ifpdfoutput{\newcommand{\caps}[1]{\textsc{#1}}}{\usepackage{soul}}
+\ifpdfoutput{\newcommand{\caps}[1]{\textsc{#1}}}{\usepackage{soul}}
 \newcommand{\setting}[1]{\caps{#1}}
 
 \newcommand{\config}[1]{\texttt{#1}}
 
 % set link to download server
 % Usage: \download{bootloader/bootloader-ipodnano.ipod}
-%        gets expanded to
-%        "https://download.rockbox.org/bootloader/bootloader-ipodnano.ipod"
-\newcommand{\download}[1]{\url{https://download.rockbox.org/#1}}
+%        gets expanded to 
+%        "http://download.rockbox.org/bootloader/bootloader-ipodnano.ipod"
+\newcommand{\download}[1]{\url{http://download.rockbox.org/#1}}
 
 % set link to the wiki.
 % Usage: \wikilink{WebHome}
 %        with "WebHome" being the wiki page name
-\newcommand{\wikibaseurl}{https://www.rockbox.org/wiki/}
-\Ifpdfoutput{\newcommand{\wikiicon}{\Pointinghand}}
+\newcommand{\wikibaseurl}{http://www.rockbox.org/wiki/}
+\ifpdfoutput{\newcommand{\wikiicon}{\Pointinghand}}
     {\newcommand{\wikiicon}{}}
 \newcommand{\wikilink}[1]{\wikiicon{}\href{\wikibaseurl#1}{#1}}
-%\newcommand{\wikilink}[1]{\url{https://www.rockbox.org/wiki/#1}}
+%\newcommand{\wikilink}[1]{\url{http://www.rockbox.org/wiki/#1}}
 
 % define environment "code" based on fancyvrb.
 % use it to set code the user should type / see on his screen.
@@ -366,15 +355,15 @@
 
 % Use the reference to handle get a flexible reference command
 % usage \reference{ref_section}
-\Ifpdfoutput{%
+\ifpdfoutput{%
   \newcommand{\reference}[1]{%
     section~\ref{#1} (page~\pageref{#1})%
 }}
 {\newcommand{\reference}[1]{section~\ref{#1}}}
 
 % special HTML output adjustments
-\Ifpdfoutput{}{\setlength{\parindent}{0mm}}
-\Ifpdfoutput{}{\renewcommand{\Forward}[1]{$\triangleright${}#1}}
+\ifpdfoutput{}{\setlength{\parindent}{0mm}}
+\ifpdfoutput{}{\renewcommand{\Forward}[1]{$\triangleright${}#1}}
 
 \newcommand{\btnfnt}[1]{\textbf{#1}}
 %\hfuzz=2pt

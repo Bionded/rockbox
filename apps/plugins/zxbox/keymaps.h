@@ -47,6 +47,38 @@
 #define ZX_SELECT     BUTTON_SELECT
 #define ZX_MENU    BUTTON_PLAY
 
+#elif CONFIG_KEYPAD == RECORDER_PAD
+#define ZX_SELECT BUTTON_PLAY
+#define ZX_MENU BUTTON_F1
+#define ZX_LEFT BUTTON_LEFT
+#define ZX_RIGHT BUTTON_RIGHT
+#define ZX_UP BUTTON_UP
+#define ZX_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define ZX_SELECT BUTTON_SELECT
+#define ZX_MENU BUTTON_OFF
+#define ZX_LEFT BUTTON_LEFT
+#define ZX_RIGHT BUTTON_RIGHT
+#define ZX_UP BUTTON_UP
+#define ZX_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define ZX_SELECT BUTTON_MENU
+#define ZX_MENU BUTTON_OFF
+#define ZX_LEFT BUTTON_LEFT
+#define ZX_RIGHT BUTTON_RIGHT
+#define ZX_UP BUTTON_UP
+#define ZX_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define ZX_SELECT BUTTON_SELECT 
+#define ZX_MENU BUTTON_PLAY
+#define ZX_LEFT BUTTON_LEFT
+#define ZX_RIGHT BUTTON_RIGHT
+#define ZX_UP BUTTON_UP
+#define ZX_DOWN BUTTON_DOWN
+
 #elif CONFIG_KEYPAD == IRIVER_H10_PAD
 #define ZX_SELECT BUTTON_REW
 #define ZX_MENU BUTTON_FF
@@ -101,6 +133,14 @@
 
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define ZX_MENU         (BUTTON_MENU|BUTTON_REL)
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define ZX_UP           BUTTON_STOP
+#define ZX_DOWN         BUTTON_PLAY
+#define ZX_LEFT         BUTTON_LEFT
+#define ZX_RIGHT        BUTTON_RIGHT
+#define ZX_SELECT       BUTTON_VOLUP
+#define ZX_MENU         BUTTON_MENU
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define ZX_UP      BUTTON_UP
@@ -250,23 +290,7 @@
 #define ZX_UP           BUTTON_HOME
 #define ZX_DOWN         BUTTON_OPTION
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define ZX_SELECT       BUTTON_PLAY
-#define ZX_MENU         BUTTON_POWER
-#define ZX_LEFT         BUTTON_PREV
-#define ZX_RIGHT        BUTTON_NEXT
-#define ZX_UP           BUTTON_HOME
-#define ZX_DOWN         BUTTON_OPTION
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define ZX_SELECT       BUTTON_PLAY
-#define ZX_MENU         BUTTON_POWER
-#define ZX_LEFT         BUTTON_PREV
-#define ZX_RIGHT        BUTTON_NEXT
-#define ZX_UP           BUTTON_HOME
-#define ZX_DOWN         BUTTON_OPTION
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define ZX_SELECT       BUTTON_PLAY
 #define ZX_MENU         BUTTON_POWER
 #define ZX_LEFT         BUTTON_HOME
@@ -274,24 +298,13 @@
 #define ZX_UP           BUTTON_PREV
 #define ZX_DOWN         BUTTON_NEXT
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define ZX_SELECT       BUTTON_PLAY
-#define ZX_MENU         BUTTON_MENU
-#define ZX_LEFT         BUTTON_SCROLL_BACK
-#define ZX_RIGHT        BUTTON_SCROLL_FWD
+#define ZX_MENU         BUTTON_POWER
+#define ZX_LEFT         BUTTON_HOME
+#define ZX_RIGHT        BUTTON_VOL_DOWN
 #define ZX_UP           BUTTON_PREV
 #define ZX_DOWN         BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define ZX_SELECT       BUTTON_SELECT
-#define ZX_MENU         BUTTON_MENU
-#define ZX_LEFT         BUTTON_LEFT
-#define ZX_RIGHT        BUTTON_RIGHT
-#define ZX_UP           BUTTON_UP
-#define ZX_DOWN         BUTTON_DOWN
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error Keymap not defined!

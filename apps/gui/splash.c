@@ -29,100 +29,102 @@
 #include "talk.h"
 #include "splash.h"
 #include "viewport.h"
-#include "strptokspn_r.h"
-#include "scrollbar.h"
-#include "font.h"
+#include "strtok_r.h"
 
-static long progress_next_tick = 0;
+#ifdef HAVE_LCD_BITMAP
 
 #define MAXLINES  (LCD_HEIGHT/6)
 #define MAXBUFFER 512
 #define RECT_SPACING 2
 #define SPLASH_MEMORY_INTERVAL (HZ)
 
-static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
-                            struct viewport *vp, int addl_lines)
+#else /* HAVE_LCD_CHARCELLS */
+
+#define MAXLINES  2
+#define MAXBUFFER 64
+#define RECT_SPACING 0
+
+#endif
+
+
+static void splash_internal(struct screen * screen, const char *fmt, va_list ap)
 {
     char splash_buf[MAXBUFFER];
-    struct splash_lines {
-        const char *str;
-        size_t len;
-    } lines[MAXLINES];
-    const char *next;
-    const char *lastbreak = NULL;
-    const char *store = NULL;
+    char *lines[MAXLINES];
+
+    char *next;
+    char *lastbreak = NULL;
+    char *store = NULL;
     int line = 0;
     int x = 0;
     int y, i;
-    int space_w, w, chr_h;
+    int space_w, w, h;
+    struct viewport vp;
+#ifdef HAVE_LCD_BITMAP
     int width, height;
     int maxw = 0;
-    int fontnum = vp->font;
 
-    char lastbrkchr;
-    size_t len, next_len;
-    const char matchstr[] = "\r\n\f\v\t ";
-    font_getstringsize(" ", &space_w, &chr_h, fontnum);
-    y = chr_h + (addl_lines * chr_h);
+    viewport_set_defaults(&vp, screen->screen_type);
+    screen->set_viewport(&vp);
+    
+    screen->getstringsize(" ", &space_w, &h);
+#else /* HAVE_LCD_CHARCELLS */
+    vp.width = screen->lcdwidth;
+    vp.height = screen->lcdheight;
+
+    space_w = h = 1;
+    screen->double_height (false);
+#endif
+    y = h;
 
     vsnprintf(splash_buf, sizeof(splash_buf), fmt, ap);
     va_end(ap);
 
     /* break splash string into display lines, doing proper word wrap */
-    next = strptokspn_r(splash_buf, matchstr, &next_len, &store);
-    if (!next)
-        return false; /* nothing to display */
 
-    lines[line].len = next_len;
-    lines[line].str = next;
+    next = strtok_r(splash_buf, " ", &store);
+    if (!next)
+        goto end; /* nothing to display */
+
+    lines[0] = next;
     while (true)
     {
-        w = font_getstringnsize(next, next_len, NULL, NULL, fontnum);
+#ifdef HAVE_LCD_BITMAP
+        screen->getstringsize(next, &w, NULL);
+#else
+        w = utf8length(next);
+#endif
         if (lastbreak)
         {
-            len = next - lastbreak;
-            int next_w = len * space_w;
-            if (x + next_w + w > vp->width - RECT_SPACING*2 || lastbrkchr != ' ')
-            {   /* too wide, or control character wrap */
+            if (x + (next - lastbreak) * space_w + w
+                    > vp.width - RECT_SPACING*2)
+            {   /* too wide, wrap */
+#ifdef HAVE_LCD_BITMAP
                 if (x > maxw)
                     maxw = x;
-                if ((y + chr_h * 2 > vp->height) || (line >= (MAXLINES-1)))
+#endif
+                if ((y + h > vp.height) || (line >= (MAXLINES-1)))
                     break;  /* screen full or out of lines */
                 x = 0;
-                y += chr_h;
-
-                /* split when it fits since we didn't find a valid token to break on */
-                size_t nl = next_len;
-                while (w > vp->width && --nl > 0)
-                    w = font_getstringnsize(next, nl, NULL, NULL, fontnum);
-
-                if (nl > 1 && nl != next_len)
-                {
-                    next_len = nl;
-                    store = next + nl; /* move the start pos for the next token read */
-                }
-
-                lines[++line].len = next_len;
-                lines[line].str = next;
+                y += h;
+                lines[++line] = next;
             }
             else
             {
                 /*  restore & calculate spacing */
-                lines[line].len += next_len + 1;
-                x += next_w;
+                *lastbreak = ' ';
+                x += (next - lastbreak) * space_w;
             }
         }
         x += w;
-
-        lastbreak = next + next_len;
-        lastbrkchr = *lastbreak;
-
-        next = strptokspn_r(NULL, matchstr, &next_len, &store);
-
+        lastbreak = next + strlen(next);
+        next = strtok_r(NULL, " ", &store);
         if (!next)
         {   /* no more words */
+#ifdef HAVE_LCD_BITMAP
             if (x > maxw)
                 maxw = x;
+#endif
             break;
         }
     }
@@ -133,51 +135,66 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
 
     screen->scroll_stop();
 
+#ifdef HAVE_LCD_BITMAP
+
     width = maxw + 2*RECT_SPACING;
     height = y + 2*RECT_SPACING;
 
-    if (width > vp->width)
-        width = vp->width;
-    if (height > vp->height)
-        height = vp->height;
+    if (width > vp.width)
+        width = vp.width;
+    if (height > vp.height)
+        height = vp.height;
 
-    vp->x += (vp->width - width) / 2;
-    vp->y += (vp->height - height) / 2;
-    vp->width = width;
-    vp->height = height;
-
-    vp->flags |=  VP_FLAG_ALIGN_CENTER;
+    vp.x += (vp.width - width) / 2;
+    vp.y += (vp.height - height) / 2;
+    vp.width = width;
+    vp.height = height;
+    
+    vp.flags |=  VP_FLAG_ALIGN_CENTER;
 #if LCD_DEPTH > 1
     if (screen->depth > 1)
     {
-        vp->drawmode = DRMODE_FG;
-        /* can't do vp->fg_pattern here, since set_foreground does a bit more on
+        vp.drawmode = DRMODE_FG;
+        /* can't do vp.fg_pattern here, since set_foreground does a bit more on
          * greyscale */
         screen->set_foreground(SCREEN_COLOR_TO_NATIVE(screen, LCD_LIGHTGRAY));
     }
     else
 #endif
-        vp->drawmode = (DRMODE_SOLID|DRMODE_INVERSEVID);
+        vp.drawmode = (DRMODE_SOLID|DRMODE_INVERSEVID);
 
     screen->fill_viewport();
 
 #if LCD_DEPTH > 1
     if (screen->depth > 1)
-        /* can't do vp->fg_pattern here, since set_foreground does a bit more on
+        /* can't do vp.fg_pattern here, since set_foreground does a bit more on
          * greyscale */
         screen->set_foreground(SCREEN_COLOR_TO_NATIVE(screen, LCD_BLACK));
     else
 #endif
-        vp->drawmode = DRMODE_SOLID;
+        vp.drawmode = DRMODE_SOLID;
 
     screen->draw_border_viewport();
 
+    /* prepare putting the text */
+    y = RECT_SPACING;
+#else /* HAVE_LCD_CHARCELLS */
+    y = 0;    /* vertical centering on 2 lines would be silly */
+    screen->clear_display();
+#endif
+
     /* print the message to screen */
-    for(i = 0, y = RECT_SPACING; i <= line; i++, y+= chr_h)
+    for (i = 0; i <= line; i++, y+=h)
     {
-        screen->putsxyf(0, y, "%.*s", lines[i].len, lines[i].str);
+#ifdef HAVE_LCD_BITMAP
+        screen->putsxy(0, y, lines[i]);
+#else
+        screen->puts(0, y, lines[i]);
+#endif
     }
-    return true; /* needs update */
+    screen->update_viewport();
+end:
+    screen->set_viewport(NULL);
 }
 
 void splashf(int ticks, const char *fmt, ...)
@@ -189,17 +206,9 @@ void splashf(int ticks, const char *fmt, ...)
     fmt = P2STR((unsigned char *)fmt);
     FOR_NB_SCREENS(i)
     {
-        struct screen * screen = &(screens[i]);
-        struct viewport vp;
-        viewport_set_defaults(&vp, screen->screen_type);
-        struct viewport *last_vp = screen->set_viewport(&vp);
-
         va_start(ap, fmt);
-        if (splash_internal(screen, fmt, ap, &vp, 0))
-            screen->update_viewport();
+        splash_internal(&(screens[i]), fmt, ap);
         va_end(ap);
-
-        screen->set_viewport(last_vp);
     }
     if (ticks)
         sleep(ticks);
@@ -207,7 +216,7 @@ void splashf(int ticks, const char *fmt, ...)
 
 void splash(int ticks, const char *str)
 {
-#if !defined(SIMULATOR)
+#if !defined(SIMULATOR) || CONFIG_CODEC == SWCODEC
     long id;
     /* fmt may be a so called virtual pointer. See settings.h. */
     if((id = P2ID((const unsigned char*)str)) >= 0)
@@ -216,60 +225,4 @@ void splash(int ticks, const char *str)
         cond_talk_ids_fq(id);
 #endif
     splashf(ticks, "%s", P2STR((const unsigned char*)str));
-}
-
-/* set delay before progress meter is shown */
-void splash_progress_set_delay(long delay_ticks)
-{
-    progress_next_tick = current_tick + delay_ticks;
-}
-
-/* splash a progress meter */
-void splash_progress(int current, int total, const char *fmt, ...)
-{
-    va_list ap;
-    int vp_flag = VP_FLAG_VP_DIRTY;
-    /* progress update tick */
-    long now = current_tick;
-
-    if (current < total)
-    {
-        if(TIME_BEFORE(now, progress_next_tick))
-            return;
-        /* limit to 20fps */
-        progress_next_tick = now + HZ/20;
-        vp_flag = 0; /* don't mark vp dirty to prevent flashing */
-    }
-
-    /* If fmt is a lang ID then get the corresponding string (which
-       still might contain % place holders). */
-    fmt = P2STR((unsigned char *)fmt);
-    FOR_NB_SCREENS(i)
-    {
-        struct screen * screen = &(screens[i]);
-        struct viewport vp;
-        viewport_set_defaults(&vp, screen->screen_type);
-        struct viewport *last_vp = screen->set_viewport_ex(&vp, vp_flag);
-
-        va_start(ap, fmt);
-        if (splash_internal(screen, fmt, ap, &vp, 1))
-        {
-            int size = screen->getcharheight();
-            int x = RECT_SPACING;
-            int y = vp.height - size - RECT_SPACING;
-            int w = vp.width - RECT_SPACING * 2;
-            int h = size;
-#ifdef HAVE_LCD_COLOR
-            const int sb_flags = HORIZONTAL | FOREGROUND;
-#else
-            const int sb_flags = HORIZONTAL;
-#endif
-            gui_scrollbar_draw(screen, x, y, w, h, total, 0, current, sb_flags);
-
-            screen->update_viewport();
-        }
-        va_end(ap);
-
-        screen->set_viewport(last_vp);
-    }
 }

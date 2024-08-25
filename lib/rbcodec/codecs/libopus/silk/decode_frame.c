@@ -42,8 +42,7 @@ opus_int silk_decode_frame(
     opus_int16                  pOut[],                         /* O    Pointer to output speech frame              */
     opus_int32                  *pN,                            /* O    Pointer to size of output frame             */
     opus_int                    lostFlag,                       /* I    0: no loss, 1 loss, 2 decode fec            */
-    opus_int                    condCoding,                     /* I    The type of conditional coding to use       */
-    int                         arch                            /* I    Run-time architecture                       */
+    opus_int                    condCoding                      /* I    The type of conditional coding to use       */
 )
 {
     VARDECL( silk_decoder_control, psDecCtrl );
@@ -55,7 +54,7 @@ opus_int silk_decode_frame(
     psDecCtrl->LTP_scale_Q14 = 0;
 
     /* Safety checks */
-    celt_assert( L > 0 && L <= MAX_FRAME_LENGTH );
+    silk_assert( L > 0 && L <= MAX_FRAME_LENGTH );
 
     if(   lostFlag == FLAG_DECODE_NORMAL ||
         ( lostFlag == FLAG_DECODE_LBRR && psDec->LBRR_flags[ psDec->nFramesDecoded ] == 1 ) )
@@ -82,29 +81,28 @@ opus_int silk_decode_frame(
         /********************************************************/
         /* Run inverse NSQ                                      */
         /********************************************************/
-        silk_decode_core( psDec, psDecCtrl, pOut, pulses, arch );
+        silk_decode_core( psDec, psDecCtrl, pOut, pulses );
 
         /********************************************************/
         /* Update PLC state                                     */
         /********************************************************/
-        silk_PLC( psDec, psDecCtrl, pOut, 0, arch );
+        silk_PLC( psDec, psDecCtrl, pOut, 0 );
 
         psDec->lossCnt = 0;
         psDec->prevSignalType = psDec->indices.signalType;
-        celt_assert( psDec->prevSignalType >= 0 && psDec->prevSignalType <= 2 );
+        silk_assert( psDec->prevSignalType >= 0 && psDec->prevSignalType <= 2 );
 
         /* A frame has been decoded without errors */
         psDec->first_frame_after_reset = 0;
     } else {
         /* Handle packet loss by extrapolation */
-        psDec->indices.signalType = psDec->prevSignalType;
-        silk_PLC( psDec, psDecCtrl, pOut, 1, arch );
+        silk_PLC( psDec, psDecCtrl, pOut, 1 );
     }
 
     /*************************/
     /* Update output buffer. */
     /*************************/
-    celt_assert( psDec->ltp_mem_length >= psDec->frame_length );
+    silk_assert( psDec->ltp_mem_length >= psDec->frame_length );
     mv_len = psDec->ltp_mem_length - psDec->frame_length;
     silk_memmove( psDec->outBuf, &psDec->outBuf[ psDec->frame_length ], mv_len * sizeof(opus_int16) );
     silk_memcpy( &psDec->outBuf[ mv_len ], pOut, psDec->frame_length * sizeof( opus_int16 ) );

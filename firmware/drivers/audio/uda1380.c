@@ -227,11 +227,11 @@ void audiohw_set_frequency(int fsel)
             MIX_CTL_SEL_NS,
             WSPLL_25_50 | SYSCLK_256FS
         },
-        HW_HAVE_88_([HW_FREQ_88] =
+        [HW_FREQ_88] =
         {
             MIX_CTL_SEL_NS,
             WSPLL_50_100 | SYSCLK_256FS
-        },)
+        },
     };
 
     const unsigned short *ent;
@@ -243,7 +243,6 @@ void audiohw_set_frequency(int fsel)
 
 #ifdef USE_WSPLL
     /* Enable WSPLL if needed (for Iriver H100 and H300 series) */
-HW_HAVE_88_(
     if (fsel == HW_FREQ_88)
     {
       /* Only at this case we need use WSPLL on DAC part for Iriver H100 and H300 series, because Coldfire work
@@ -252,7 +251,6 @@ HW_HAVE_88_(
       if (!wspll_enable) wspll_on(true);
     }
     else
-)
     {
       /* At this case WSPLL clock and SYSCLK has same value and we don't use WSPLL to avoid WSPLL errors */
       if (wspll_enable) wspll_on(false);

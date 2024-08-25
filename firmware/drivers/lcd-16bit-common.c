@@ -31,15 +31,38 @@
 /* Clear the current viewport */
 void lcd_clear_viewport(void)
 {
-    struct viewport *vp = lcd_current_viewport;
     fb_data *dst, *dst_end;
     int x, y, width, height;
     int len, step;
 
-    x = vp->x;
-    y = vp->y;
-    width = vp->width;
-    height = vp->height;
+    x = current_vp->x;
+    y = current_vp->y;
+    width = current_vp->width;
+    height = current_vp->height;
+
+#if defined(HAVE_VIEWPORT_CLIP)
+    /********************* Viewport on screen clipping ********************/
+    /* nothing to draw? */
+    if ((x >= LCD_WIDTH) || (y >= LCD_HEIGHT)
+        || (x + width <= 0) || (y + height <= 0))
+        return;
+
+    /* clip image in viewport in screen */
+    if (x < 0)
+    {
+        width += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        y = 0;
+    }
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
+#endif
 
     len  = STRIDE_MAIN(width, height);
     step = STRIDE_MAIN(ROW_INC, COL_INC);
@@ -47,18 +70,27 @@ void lcd_clear_viewport(void)
     dst = FBADDR(x, y);
     dst_end = FBADDR(x + width - 1 , y + height - 1);
 
-    if (vp->drawmode & DRMODE_INVERSEVID)
+    if (current_vp->drawmode & DRMODE_INVERSEVID)
     {
         do
         {
-            memset16(dst, vp->fg_pattern, len);
+            memset16(dst, current_vp->fg_pattern, len);
             dst += step;
         }
         while (dst <= dst_end);
     }
     else
     {
-        if (lcd_backdrop && vp->buffer == &lcd_framebuffer_default)
+        if (!lcd_backdrop)
+        {
+            do
+            {
+                memset16(dst, current_vp->bg_pattern, len);
+                dst += step;
+            }
+            while (dst <= dst_end);
+        }
+        else
         {
             do
             {
@@ -68,35 +100,24 @@ void lcd_clear_viewport(void)
             }
             while (dst <= dst_end);
         }
-        else
-        {
-            do
-            {
-                memset16(dst, vp->bg_pattern, len);
-                dst += step;
-            }
-            while (dst <= dst_end);
-        }
     }
 
-    if (vp == &default_vp)
+    if (current_vp == &default_vp)
         lcd_scroll_stop();
     else
-        lcd_scroll_stop_viewport(vp);
-
-    vp->flags &= ~(VP_FLAG_VP_SET_CLEAN);
+        lcd_scroll_stop_viewport(current_vp);
 }
 
 /*** low-level drawing functions ***/
 
 static void ICODE_ATTR setpixel(fb_data *address)
 {
-    *address = lcd_current_viewport->fg_pattern;
+    *address = current_vp->fg_pattern;
 }
 
 static void ICODE_ATTR clearpixel(fb_data *address)
 {
-    *address = lcd_current_viewport->bg_pattern;
+    *address = current_vp->bg_pattern;
 }
 
 static void ICODE_ATTR clearimgpixel(fb_data *address)
@@ -129,24 +150,69 @@ lcd_fastpixelfunc_type* const * lcd_fastpixelfuncs = lcd_fastpixelfuncs_bgcolor;
 /* Fill a rectangular area */
 void lcd_fillrect(int x, int y, int width, int height)
 {
-    struct viewport *vp = lcd_current_viewport;
     unsigned bits = 0;
     enum fill_opt fillopt = OPT_NONE;
     fb_data *dst, *dst_end;
     int len, step;
 
-    if (!clip_viewport_rect(vp, &x, &y, &width, &height, NULL, NULL))
+    /******************** In viewport clipping **********************/
+    /* nothing to draw? */
+    if ((width <= 0) || (height <= 0) || (x >= current_vp->width) ||
+        (y >= current_vp->height) || (x + width <= 0) || (y + height <= 0))
         return;
 
-    /* drawmode and optimisation */
-    if (vp->drawmode & DRMODE_INVERSEVID)
+    if (x < 0)
     {
-        if (vp->drawmode & DRMODE_BG)
+        width += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        y = 0;
+    }
+    if (x + width > current_vp->width)
+        width = current_vp->width - x;
+    if (y + height > current_vp->height)
+        height = current_vp->height - y;
+
+    /* adjust for viewport */
+    x += current_vp->x;
+    y += current_vp->y;
+
+#if defined(HAVE_VIEWPORT_CLIP)
+    /********************* Viewport on screen clipping ********************/
+    /* nothing to draw? */
+    if ((x >= LCD_WIDTH) || (y >= LCD_HEIGHT)
+        || (x + width <= 0) || (y + height <= 0))
+        return;
+
+    /* clip image in viewport in screen */
+    if (x < 0)
+    {
+        width += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        y = 0;
+    }
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
+#endif
+
+    /* drawmode and optimisation */
+    if (current_vp->drawmode & DRMODE_INVERSEVID)
+    {
+        if (current_vp->drawmode & DRMODE_BG)
         {
             if (!lcd_backdrop)
             {
                 fillopt = OPT_SET;
-                bits = vp->bg_pattern;
+                bits = current_vp->bg_pattern;
             }
             else
                 fillopt = OPT_COPY;
@@ -154,13 +220,13 @@ void lcd_fillrect(int x, int y, int width, int height)
     }
     else
     {
-        if (vp->drawmode & DRMODE_FG)
+        if (current_vp->drawmode & DRMODE_FG)
         {
             fillopt = OPT_SET;
-            bits = vp->fg_pattern;
+            bits = current_vp->fg_pattern;
         }
     }
-    if (fillopt == OPT_NONE && vp->drawmode != DRMODE_COMPLEMENT)
+    if (fillopt == OPT_NONE && current_vp->drawmode != DRMODE_COMPLEMENT)
         return;
 
     dst = FBADDR(x, y);
@@ -215,20 +281,74 @@ void ICODE_ATTR lcd_mono_bitmap_part(const unsigned char *src, int src_x,
                                      int src_y, int stride, int x, int y,
                                      int width, int height)
 {
-    struct viewport *vp = lcd_current_viewport;
-    if (!clip_viewport_rect(vp, &x, &y, &width, &height, &src_x, &src_y))
+    const unsigned char *src_end;
+    fb_data *dst, *dst_col;
+    unsigned dmask = 0x100; /* bit 8 == sentinel */
+    int drmode = current_vp->drawmode;
+    int row;
+
+    /******************** Image in viewport clipping **********************/
+    /* nothing to draw? */
+    if ((width <= 0) || (height <= 0) || (x >= current_vp->width) ||
+        (y >= current_vp->height) || (x + width <= 0) || (y + height <= 0))
         return;
 
-    /* move starting point */
-    src += stride * (src_y >> 3) + src_x;
-    src_y &= 7;
+    if (x < 0)
+    {
+        width += x;
+        src_x -= x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        src_y -= y;
+        y = 0;
+    }
+    if (x + width > current_vp->width)
+        width = current_vp->width - x;
+    if (y + height > current_vp->height)
+        height = current_vp->height - y;
 
-    unsigned dmask = 0;
-    int drmode = vp->drawmode;
+    /* adjust for viewport */
+    x += current_vp->x;
+    y += current_vp->y;
+
+#if defined(HAVE_VIEWPORT_CLIP)
+    /********************* Viewport on screen clipping ********************/
+    /* nothing to draw? */
+    if ((x >= LCD_WIDTH) || (y >= LCD_HEIGHT)
+        || (x + width <= 0) || (y + height <= 0))
+        return;
+
+    /* clip image in viewport in screen */
+    if (x < 0)
+    {
+        width += x;
+        src_x -= x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        src_y -= y;
+        y = 0;
+    }
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
+#endif
+
+    src += stride * (src_y >> 3) + src_x; /* move starting point */
+    src_y  &= 7;
+    src_end = src + width;
+    dst_col = FBADDR(x, y);
+
 
     if (drmode & DRMODE_INVERSEVID)
     {
-        dmask = 0xff;
+        dmask = 0x1ff;          /* bit 8 == sentinel */
         drmode &= DRMODE_SOLID; /* mask out inversevid */
     }
 
@@ -236,107 +356,115 @@ void ICODE_ATTR lcd_mono_bitmap_part(const unsigned char *src, int src_x,
     if ((drmode & DRMODE_BG) && lcd_backdrop)
         drmode |= DRMODE_INT_BD;
 
-    fb_data* dst = FBADDR(x, y);
-    while(height > 0)
+    /* go through each column and update each pixel  */
+    do
     {
-        const unsigned char* src_col = src;
-        const unsigned char* src_end = src + width;
-        fb_data* dst_col = dst;
-
-        unsigned data;
+        const unsigned char *src_col = src++;
+        unsigned data = (*src_col ^ dmask) >> src_y;
         int fg, bg;
         uintptr_t bo;
 
-        switch (drmode) {
-        case DRMODE_COMPLEMENT:
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(data & 0x01)
-                    *dst_col = ~(*dst_col);
+        dst = dst_col;
+        dst_col += COL_INC;
+        row = height;
 
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+#define UPDATE_SRC  do {                  \
+            data >>= 1;                   \
+            if (data == 0x001) {          \
+                src_col += stride;        \
+                data = *src_col ^ dmask;  \
+            }                             \
+        } while (0)
+
+        switch (drmode)
+        {
+          case DRMODE_COMPLEMENT:
+            do
+            {
+                if (data & 0x01)
+                    *dst = ~(*dst);
+
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
 
-        case DRMODE_BG|DRMODE_INT_BD:
+          case DRMODE_BG|DRMODE_INT_BD:
             bo = lcd_backdrop_offset;
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(!(data & 0x01))
-                    *dst_col = *PTR_ADD(dst_col, bo);
+            do
+            {
+                if (!(data & 0x01))
+                    *dst = *PTR_ADD(dst, bo);
 
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
 
         case DRMODE_BG:
-            bg = vp->bg_pattern;
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(!(data & 0x01))
-                    *dst_col = bg;
+            bg = current_vp->bg_pattern;
+            do
+            {
+                if (!(data & 0x01))
+                    *dst = bg;
 
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
 
-        case DRMODE_FG:
-            fg = vp->fg_pattern;
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(data & 0x01)
-                    *dst_col = fg;
+          case DRMODE_FG:
+            fg = current_vp->fg_pattern;
+            do
+            {
+                if (data & 0x01)
+                    *dst = fg;
 
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
 
-        case DRMODE_SOLID|DRMODE_INT_BD:
-            fg = vp->fg_pattern;
+          case DRMODE_SOLID|DRMODE_INT_BD:
+            fg = current_vp->fg_pattern;
             bo = lcd_backdrop_offset;
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(data & 0x01)
-                    *dst_col = fg;
-                else
-                    *dst_col = *PTR_ADD(dst_col, bo);
-
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+            do
+            {
+                *dst = (data & 0x01) ? fg
+                           : *PTR_ADD(dst, bo);
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
 
-        case DRMODE_SOLID:
-            fg = vp->fg_pattern;
-            bg = vp->bg_pattern;
-            do {
-                data = (*src_col++ ^ dmask) >> src_y;
-                if(data & 0x01)
-                    *dst_col = fg;
-                else
-                    *dst_col = bg;
-
-                dst_col += COL_INC;
-            } while(src_col != src_end);
+          case DRMODE_SOLID:
+            fg = current_vp->fg_pattern;
+            bg = current_vp->bg_pattern;
+            do
+            {
+                *dst = (data & 0x01) ? fg : bg;
+                dst += ROW_INC;
+                UPDATE_SRC;
+            }
+            while (--row);
             break;
         }
-
-        src_y = (src_y + 1) & 7;
-        if(src_y == 0)
-            src += stride;
-
-        dst += ROW_INC;
-        height--;
     }
+    while (src < src_end);
 }
-
 /* Draw a full monochrome bitmap */
 void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int height)
 {
     lcd_mono_bitmap_part(src, 0, 0, width, x, y, width, height);
 }
 
-#ifndef DISABLE_ALPHA_BITMAP
-/* About Rockbox' internal alpha channel format (for ALPHA_BPP == 4)
+
+/* About Rockbox' internal alpha channel format (for ALPHA_COLOR_FONT_DEPTH == 2)
  *
  * For each pixel, 4bit of alpha information is stored in a byte-stream,
  * so two pixels are packed into one byte.
@@ -355,15 +483,11 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
  * so lcd_bmp() do expect even rows.
  */
 
-#define ALPHA_BPP               4
-#define ALPHA_MASK              ((1 << ALPHA_BPP) - 1)
-#define ALPHA_PIXELS_PER_BYTE   (CHAR_BIT / ALPHA_BPP)
-
-#define ALPHA_WORD_T            uint32_t
-#define ALPHA_WORD_LOAD         load_le32
-#define ALPHA_WORDSIZE          sizeof(ALPHA_WORD_T)
-#define ALPHA_PIXELS_PER_WORD   (ALPHA_WORDSIZE * CHAR_BIT / ALPHA_BPP)
-
+#define ALPHA_COLOR_FONT_DEPTH 2
+#define ALPHA_COLOR_LOOKUP_SHIFT (1 << ALPHA_COLOR_FONT_DEPTH)
+#define ALPHA_COLOR_LOOKUP_SIZE ((1 << ALPHA_COLOR_LOOKUP_SHIFT) - 1)
+#define ALPHA_COLOR_PIXEL_PER_BYTE (8 >> ALPHA_COLOR_FONT_DEPTH)
+#define ALPHA_COLOR_PIXEL_PER_WORD (32 >> ALPHA_COLOR_FONT_DEPTH)
 #ifdef CPU_ARM
 #define BLEND_INIT do {} while (0)
 #define BLEND_FINISH do {} while(0)
@@ -372,7 +496,6 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
 #define BLEND_CONT(acc, color, alpha) \
     asm volatile("mla %0, %1, %2, %0" : "+&r" (acc) : "r" (color), "r" (alpha))
 #define BLEND_OUT(acc) do {} while (0)
-
 #elif defined(CPU_COLDFIRE)
 #define ALPHA_BITMAP_READ_WORDS
 #define BLEND_INIT \
@@ -384,7 +507,6 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
     asm volatile("mac.l %0, %1, %%acc0" :: "%d" (color), "d" (alpha))
 #define BLEND_CONT BLEND_START
 #define BLEND_OUT(acc) asm volatile("movclr.l %%acc0, %0" : "=d" (acc))
-
 #else
 #define BLEND_INIT do {} while (0)
 #define BLEND_FINISH do {} while(0)
@@ -396,7 +518,7 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
 /* Blend the given two colors */
 static inline unsigned blend_two_colors(unsigned c1, unsigned c2, unsigned a)
 {
-    a += a >> (ALPHA_BPP - 1);
+    a += a >> (ALPHA_COLOR_LOOKUP_SHIFT - 1);
 #if (LCD_PIXELFORMAT == RGB565SWAPPED)
     c1 = swap16(c1);
     c2 = swap16(c2);
@@ -405,9 +527,9 @@ static inline unsigned blend_two_colors(unsigned c1, unsigned c2, unsigned a)
     unsigned c2l = (c2 | (c2 << 16)) & 0x07e0f81f;
     unsigned p;
     BLEND_START(p, c1l, a);
-    BLEND_CONT(p, c2l, ALPHA_MASK + 1 - a);
+    BLEND_CONT(p, c2l, ALPHA_COLOR_LOOKUP_SIZE + 1 - a);
     BLEND_OUT(p);
-    p = (p >> ALPHA_BPP) & 0x07e0f81f;
+    p = (p >> ALPHA_COLOR_LOOKUP_SHIFT) & 0x07e0f81f;
     p |= (p >> 16);
 #if (LCD_PIXELFORMAT == RGB565SWAPPED)
     return swap16(p);
@@ -416,242 +538,301 @@ static inline unsigned blend_two_colors(unsigned c1, unsigned c2, unsigned a)
 #endif
 }
 
-static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
-    const fb_data* image, const unsigned char *alpha,
-    int src_x, int src_y,
-    int x, int y, int width, int height,
-    int stride_image, int stride_alpha)
+/* Blend an image with an alpha channel
+ * if image is NULL, drawing will happen according to the drawmode
+ * src is the alpha channel (4bit per pixel) */
+static void ICODE_ATTR lcd_alpha_bitmap_part_mix(const fb_data* image,
+                                      const unsigned char *src, int src_x,
+                                      int src_y, int x, int y,
+                                      int width, int height,
+                                      int stride_image, int stride_src)
 {
-    struct viewport *vp = lcd_current_viewport;
-    unsigned int dmask = 0;
-    int drmode = vp->drawmode;
-    fb_data *dst;
-#ifdef ALPHA_BITMAP_READ_WORDS
-    ALPHA_WORD_T alpha_data, *alpha_word;
-    size_t alpha_offset = 0, alpha_pixels;
-#else
-    unsigned char alpha_data;
-    size_t alpha_pixels;
-#endif
-
-    if (!clip_viewport_rect(vp, &x, &y, &width, &height, &src_x, &src_y))
+    fb_data *dst, *dst_row;
+    unsigned dmask = 0x00000000;
+    int drmode = current_vp->drawmode;
+    /* nothing to draw? */
+    if ((width <= 0) || (height <= 0) || (x >= current_vp->width) ||
+         (y >= current_vp->height) || (x + width <= 0) || (y + height <= 0))
         return;
+    /* initialize blending */
+    BLEND_INIT;
 
-    if (drmode & DRMODE_INVERSEVID)
+    /* clipping */
+    if (x < 0)
     {
-        dmask = 0xFFFFFFFFu;
-        drmode &= ~DRMODE_INVERSEVID;
+        width += x;
+        src_x -= x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        src_y -= y;
+        y = 0;
+    }
+    if (x + width > current_vp->width)
+        width = current_vp->width - x;
+    if (y + height > current_vp->height)
+        height = current_vp->height - y;
+
+    /* adjust for viewport */
+    x += current_vp->x;
+    y += current_vp->y;
+
+#if defined(HAVE_VIEWPORT_CLIP)
+    /********************* Viewport on screen clipping ********************/
+    /* nothing to draw? */
+    if ((x >= LCD_WIDTH) || (y >= LCD_HEIGHT)
+        || (x + width <= 0) || (y + height <= 0))
+    {
+        BLEND_FINISH;
+        return;
     }
 
+    /* clip image in viewport in screen */
+    if (x < 0)
+    {
+        width += x;
+        src_x -= x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        src_y -= y;
+        y = 0;
+    }
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
+#endif
+
+    /* the following drawmode combinations are possible:
+     * 1) COMPLEMENT: just negates the framebuffer contents
+     * 2) BG and BG+backdrop: draws _only_ background pixels with either
+     *    the background color or the backdrop (if any). The backdrop
+     *    is an image in native lcd format
+     * 3) FG and FG+image: draws _only_ foreground pixels with either
+     *    the foreground color or an image buffer. The image is in
+     *    native lcd format
+     * 4) SOLID, SOLID+backdrop, SOLID+image, SOLID+backdrop+image, i.e. all
+     *    possible combinations of 2) and 3). Draws both, fore- and background,
+     *    pixels. The rules of 2) and 3) apply.
+     *
+     * INVERSEVID swaps fore- and background pixels, i.e. background pixels
+     * become foreground ones and vice versa.
+     */
+    if (drmode & DRMODE_INVERSEVID)
+    {
+        dmask = 0xffffffff;
+        drmode &= DRMODE_SOLID; /* mask out inversevid */
+    }
+
+    /* Use extra bits to avoid if () in the switch-cases below */
     if (image != NULL)
         drmode |= DRMODE_INT_IMG;
 
     if ((drmode & DRMODE_BG) && lcd_backdrop)
         drmode |= DRMODE_INT_BD;
 
+    dst_row = FBADDR(x, y);
+
+    int col, row = height;
+    unsigned data, pixels;
+    unsigned skip_end = (stride_src - width);
+    unsigned skip_start = src_y * stride_src + src_x;
+    unsigned skip_start_image = STRIDE_MAIN(src_y * stride_image + src_x,
+                                            src_x * stride_image + src_y);
+
 #ifdef ALPHA_BITMAP_READ_WORDS
-#define INIT_ALPHA() \
-    do { \
-        alpha_offset = src_y * stride_alpha + src_x; \
-    } while(0)
-#define START_ALPHA() \
-    do { \
-        size_t __byteskip = (uintptr_t)alpha % ALPHA_WORDSIZE; \
-        size_t __byteoff = alpha_offset / ALPHA_PIXELS_PER_BYTE; \
-        alpha_word = (ALPHA_WORD_T *)ALIGN_DOWN(alpha + __byteoff, ALPHA_WORDSIZE); \
-        alpha_data = ALPHA_WORD_LOAD(alpha_word++) ^ dmask; \
-        alpha_pixels = ((__byteoff + __byteskip) % ALPHA_WORDSIZE) * ALPHA_PIXELS_PER_BYTE; \
-        alpha_pixels += alpha_offset % ALPHA_PIXELS_PER_BYTE; \
-        alpha_data >>= alpha_pixels * ALPHA_BPP; \
-        alpha_pixels = ALPHA_PIXELS_PER_WORD - alpha_pixels; \
-    } while(0)
-#define END_ALPHA() \
-    do { \
-        alpha_offset += stride_alpha; \
-    } while(0)
-#define READ_ALPHA() \
-    ({ \
-        if (alpha_pixels == 0) { \
-            alpha_data = ALPHA_WORD_LOAD(alpha_word++) ^ dmask; \
-            alpha_pixels = ALPHA_PIXELS_PER_WORD; \
-        } \
-        ALPHA_WORD_T __ret = alpha_data & ALPHA_MASK; \
-        alpha_data >>= ALPHA_BPP; \
-        alpha_pixels--; \
-        __ret; \
-    })
-#elif ALPHA_BPP == 4
-#define INIT_ALPHA() \
-    do { \
-        alpha_pixels = src_y * stride_alpha + src_x; \
-        stride_alpha = stride_alpha - width; \
-        alpha += alpha_pixels / ALPHA_PIXELS_PER_BYTE; \
-        alpha_pixels &= 1; \
-        if (alpha_pixels) { \
-            alpha_data = *alpha++ ^ dmask; \
-            alpha_data >>= ALPHA_BPP; \
-        } \
-    } while(0)
-#define START_ALPHA() do { } while(0)
-#define END_ALPHA() \
-    do { \
-        if (stride_alpha) { \
-            alpha_pixels = stride_alpha - alpha_pixels; \
-            alpha += alpha_pixels / ALPHA_PIXELS_PER_BYTE; \
-            alpha_pixels &= 1; \
-            if (alpha_pixels) { \
-                alpha_data = *alpha++ ^ dmask; \
-                alpha_data >>= ALPHA_BPP; \
-            } \
-        } \
-    } while(0)
-#define READ_ALPHA() \
-    ({ \
-        if (alpha_pixels == 0) \
-            alpha_data = *alpha++ ^ dmask; \
-        unsigned char __ret = alpha_data & ALPHA_MASK; \
-        alpha_data >>= ALPHA_BPP; \
-        alpha_pixels ^= 1; \
-        __ret; \
-    })
+    uint32_t *src_w = (uint32_t *)((uintptr_t)src & ~3);
+    skip_start += ALPHA_COLOR_PIXEL_PER_BYTE * ((uintptr_t)src & 3);
+    src_w += skip_start / ALPHA_COLOR_PIXEL_PER_WORD;
+    data = letoh32(*src_w++) ^ dmask;
+    pixels = skip_start % ALPHA_COLOR_PIXEL_PER_WORD;
 #else
-#define INIT_ALPHA() \
-    do { \
-        alpha_pixels = src_y * stride_alpha + src_x; \
-        stride_alpha = stride_alpha - width; \
-        alpha += alpha_pixels / ALPHA_PIXELS_PER_BYTE; \
-        alpha_data = *alpha++ ^ dmask; \
-        alpha_pixels %= ALPHA_PIXELS_PER_BYTE; \
-        alpha_data >>= ALPHA_BPP * alpha_pixels; \
-        alpha_pixels = ALPHA_PIXELS_PER_BYTE - alpha_pixels; \
-    } while(0)
-#define START_ALPHA() do { } while(0)
-#define END_ALPHA() \
-    do { \
-        if ((size_t)stride_alpha <= alpha_pixels) \
-            alpha_pixels -= stride_alpha; \
-        else { \
-            alpha_pixels = stride_alpha - alpha_pixels; \
-            alpha += alpha_pixels / ALPHA_PIXELS_PER_BYTE; \
-            alpha_data = *alpha++ ^ dmask; \
-            alpha_pixels %= ALPHA_PIXELS_PER_BYTE; \
-            alpha_data >>= ALPHA_BPP * alpha_pixels; \
-            alpha_pixels = ALPHA_PIXELS_PER_BYTE - alpha_pixels; \
-        } \
-    } while(0)
-#define READ_ALPHA() \
-    ({ \
-        if (alpha_pixels == 0) { \
-            alpha_data = *alpha++ ^ dmask; \
-            alpha_pixels = ALPHA_PIXELS_PER_BYTE; \
-        } \
-        unsigned char __ret = alpha_data & ALPHA_MASK; \
-        alpha_data >>= ALPHA_BPP; \
-        alpha_pixels--; \
-        __ret; \
-    })
+    src += skip_start / ALPHA_COLOR_PIXEL_PER_BYTE;
+    data = *src ^ dmask;
+    pixels = skip_start % ALPHA_COLOR_PIXEL_PER_BYTE;
+#endif
+    data >>= pixels * ALPHA_COLOR_LOOKUP_SHIFT;
+#ifdef ALPHA_BITMAP_READ_WORDS
+    pixels = 8 - pixels;
 #endif
 
-    dst = FBADDR(x, y);
-    image += STRIDE_MAIN(src_y * stride_image + src_x,
-                         src_x * stride_image + src_y);
-
-    INIT_ALPHA();
-    BLEND_INIT;
-
+    /* image is only accessed in DRMODE_INT_IMG cases, i.e. when non-NULL.
+     * Therefore NULL accesses are impossible and we can increment
+     * unconditionally (applies for stride at the end of the loop as well) */
+    image += skip_start_image;
+    /* go through the rows and update each pixel */
     do
     {
-        intptr_t bo, io;
-        unsigned int fg, bg;
-        int col = width;
-        fb_data *dst_row = dst;
-
-        START_ALPHA();
+        /* saving current_vp->fg/bg_pattern and lcd_backdrop_offset into these
+         * temp vars just before the loop helps gcc to opimize the loop better
+         * (testing showed ~15% speedup) */
+        unsigned fg, bg;
+        ptrdiff_t bo, img_offset;
+        col = width;
+        dst = dst_row;
+        dst_row += ROW_INC;
+#ifdef ALPHA_BITMAP_READ_WORDS
+#define UPDATE_SRC_ALPHA    do { \
+            if (--pixels) \
+                data >>= ALPHA_COLOR_LOOKUP_SHIFT; \
+            else \
+            { \
+                data = letoh32(*src_w++) ^ dmask; \
+                pixels = ALPHA_COLOR_PIXEL_PER_WORD; \
+            } \
+        } while (0)
+#elif ALPHA_COLOR_PIXEL_PER_BYTE == 2
+#define UPDATE_SRC_ALPHA    do { \
+            if (pixels ^= 1) \
+                data >>= ALPHA_COLOR_LOOKUP_SHIFT; \
+            else \
+                data = *(++src) ^ dmask; \
+        } while (0)
+#else
+#define UPDATE_SRC_ALPHA    do { \
+            if (pixels = (++pixels % ALPHA_COLOR_PIXEL_PER_BYTE)) \
+                data >>= ALPHA_COLOR_LOOKUP_SHIFT; \
+            else \
+                data = *(++src) ^ dmask; \
+        } while (0)
+#endif
 
         switch (drmode)
         {
-        case DRMODE_COMPLEMENT:
-            do
-            {
-                *dst = blend_two_colors(*dst, ~(*dst), READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_BG|DRMODE_INT_BD:
-            bo = lcd_backdrop_offset;
-            do
-            {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), *dst, READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_BG:
-            bg = vp->bg_pattern;
-            do
-            {
-                *dst = blend_two_colors(bg, *dst, READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_FG|DRMODE_INT_IMG:
-            io = image - dst;
-            do
-            {
-                *dst = blend_two_colors(*dst, *(dst + io), READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_FG:
-            fg = vp->fg_pattern;
-            do
-            {
-                *dst = blend_two_colors(*dst, fg, READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_SOLID|DRMODE_INT_BD:
-            fg = vp->fg_pattern;
-            bo = lcd_backdrop_offset;
-            do
-            {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), fg, READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_SOLID|DRMODE_INT_IMG:
-            bg = vp->bg_pattern;
-            io = image - dst;
-            do
-            {
-                *dst = blend_two_colors(bg, *(dst + io), READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_SOLID|DRMODE_INT_BD|DRMODE_INT_IMG:
-            bo = lcd_backdrop_offset;
-            io = image - dst;
-            do
-            {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), *(dst + io), READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
-        case DRMODE_SOLID:
-            fg = vp->fg_pattern;
-            bg = vp->bg_pattern;
-            do
-            {
-                *dst = blend_two_colors(bg, fg, READ_ALPHA());
-                dst += COL_INC;
-            } while (--col);
-            break;
+            case DRMODE_COMPLEMENT:
+                do
+                {
+                    *dst = blend_two_colors(*dst, ~(*dst),
+                                data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_BG|DRMODE_INT_BD:
+                bo = lcd_backdrop_offset;
+                do
+                {
+                    fb_data c = *(fb_data *)((uintptr_t)dst +  bo);
+                    *dst = blend_two_colors(c, *dst, data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    image += STRIDE_MAIN(1, stride_image);
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_BG:
+                bg = current_vp->bg_pattern;
+                do
+                {
+                    *dst = blend_two_colors(bg, *dst, data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_FG|DRMODE_INT_IMG:
+                img_offset = image - dst;
+                do
+                {
+                    *dst = blend_two_colors(*dst, *(dst + img_offset), data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_FG:
+                fg = current_vp->fg_pattern;
+                do
+                {
+                    *dst = blend_two_colors(*dst, fg, data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_SOLID|DRMODE_INT_BD:
+                bo = lcd_backdrop_offset;
+                fg = current_vp->fg_pattern;
+                do
+                {
+                    fb_data *c = (fb_data *)((uintptr_t)dst +  bo);
+                    *dst = blend_two_colors(*c, fg, data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_SOLID|DRMODE_INT_IMG:
+                bg = current_vp->bg_pattern;
+                img_offset = image - dst;
+                do
+                {
+                    *dst = blend_two_colors(bg, *(dst + img_offset), data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_SOLID|DRMODE_INT_BD|DRMODE_INT_IMG:
+                bo = lcd_backdrop_offset;
+                img_offset = image - dst;
+                do
+                {
+                    fb_data *c = (fb_data *)((uintptr_t)dst +  bo);
+                    *dst = blend_two_colors(*c, *(dst + img_offset), data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
+            case DRMODE_SOLID:
+                bg = current_vp->bg_pattern;
+                fg = current_vp->fg_pattern;
+                do
+                {
+                    *dst = blend_two_colors(bg, fg, data & ALPHA_COLOR_LOOKUP_SIZE );
+                    dst += COL_INC;
+                    UPDATE_SRC_ALPHA;
+                }
+                while (--col);
+                break;
         }
+#ifdef ALPHA_BITMAP_READ_WORDS
+        if (skip_end < pixels)
+        {
+            pixels -= skip_end;
+            data >>= skip_end * ALPHA_COLOR_LOOKUP_SHIFT;
+        } else {
+            pixels = skip_end - pixels;
+            src_w += pixels / ALPHA_COLOR_PIXEL_PER_WORD;
+            pixels %= ALPHA_COLOR_PIXEL_PER_WORD;
+            data = letoh32(*src_w++) ^ dmask;
+            data >>= pixels * ALPHA_COLOR_LOOKUP_SHIFT;
+            pixels = 8 - pixels;
+        }
+#else
+        if (skip_end)
+        {
+            pixels += skip_end;
+            if (pixels >= ALPHA_COLOR_PIXEL_PER_BYTE)
+            {
+                src += pixels / ALPHA_COLOR_PIXEL_PER_BYTE;
+                pixels %= ALPHA_COLOR_PIXEL_PER_BYTE;
+                data = *src ^ dmask;
+                data >>= pixels * ALPHA_COLOR_LOOKUP_SHIFT;
+            } else
+                data >>= skip_end * ALPHA_COLOR_LOOKUP_SHIFT;
+        }
+#endif
 
-        END_ALPHA();
-        image += STRIDE_MAIN(stride_image, 1);
-        dst = dst_row + ROW_INC;
-    } while (--height);
+        image += STRIDE_MAIN(stride_image,1);
+    } while (--row);
 
     BLEND_FINISH;
 }
-#endif /* !DISABLE_ALPHA_BITMAP */

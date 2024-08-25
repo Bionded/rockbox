@@ -11,8 +11,7 @@
 
 /* Define bitmask of input sources - recordable bitmask can be defined
    explicitly if different */
-#define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_LINEIN | SRC_CAP_FMRADIO)
-
+#define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_LINEIN )
 
 /* define the bitmask of hardware sample rates */
 #define HW_SAMPR_CAPS   (SAMPR_CAP_48 | SAMPR_CAP_44 | SAMPR_CAP_32 | \
@@ -67,8 +66,8 @@
 /* put the lcd frame buffer in IRAM */
 /* #define IRAM_LCDFRAMEBUFFER IDATA_ATTR */
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -93,8 +92,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #ifndef BOOTLOADER
@@ -133,12 +132,6 @@
 
 /* AK4537 has no tone controls, so we use the software ones */
 #define HAVE_SW_TONE_CONTROLS
-
-/* FM Tuner */
-#define CONFIG_TUNER      TEA5767
-#define CONFIG_TUNER_XTAL 32768
-/* Define this if the tuner uses 3-wire bus instead of classic i2c */
-#define CONFIG_TUNER_3WIRE
 
 #define AB_REPEAT_ENABLE
 
@@ -190,6 +183,12 @@
 #define BOOTFILE_EXT    "mi4"
 #define BOOTFILE        "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC    0x00
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA   0x00
 
 #define ICODE_ATTR_TREMOR_NOT_MDCT
 

@@ -41,9 +41,10 @@
 #include "skin_engine/skin_engine.h"
 #include "playlist.h"
 #include "misc.h"
-#include "icons.h"
 
+#ifdef HAVE_LCD_BITMAP
 #include "bitmaps/usblogo.h"
+#endif
 
 #ifdef HAVE_REMOTE_LCD
 #include "bitmaps/remote_usblogo.h"
@@ -121,12 +122,15 @@ static int handle_usb_events(void)
 struct usb_screen_vps_t
 {
     struct viewport parent;
+#ifdef HAVE_LCD_BITMAP
     struct viewport logo;
 #ifdef USB_ENABLE_HID
     struct viewport title;
 #endif
+#endif
 };
 
+#ifdef HAVE_LCD_BITMAP
 static void usb_screen_fix_viewports(struct screen *screen,
         struct usb_screen_vps_t *usb_screen_vps)
 {
@@ -156,24 +160,7 @@ static void usb_screen_fix_viewports(struct screen *screen,
 
     *logo = *parent;
     logo->x = parent->x + parent->width - logo_width;
-#ifdef HAVE_LCD_SPLIT
-    switch (statusbar_position(screen))
-    {
-         /* start beyond split */
-         case STATUSBAR_OFF:
-             logo->y = parent->y + LCD_SPLIT_POS;
-             break;
-         case STATUSBAR_TOP:
-             logo->y = parent->y + LCD_SPLIT_POS - STATUSBAR_HEIGHT;
-             break;
-         /* start at the top for maximum space */
-         default:
-             logo->y = parent->y;
-             break;
-    }
-#else
     logo->y = parent->y + (parent->height - logo_height) / 2;
-#endif
     logo->width = logo_width;
     logo->height = logo_height;
 
@@ -194,16 +181,18 @@ static void usb_screen_fix_viewports(struct screen *screen,
     }
 #endif
 }
+#endif
 
 static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
 {
-    struct viewport *last_vp;
+#ifdef HAVE_LCD_BITMAP
     static const struct bitmap* logos[NB_SCREENS] = {
         &bm_usblogo,
 #ifdef HAVE_REMOTE_LCD
         &bm_remote_usblogo,
 #endif
     };
+#endif
 
     FOR_NB_SCREENS(i)
     {
@@ -211,12 +200,15 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
 
         struct usb_screen_vps_t *usb_screen_vps = &usb_screen_vps_ar[i];
         struct viewport *parent = &usb_screen_vps->parent;
+#ifdef HAVE_LCD_BITMAP
         struct viewport *logo = &usb_screen_vps->logo;
+#endif
 
-        last_vp = screen->set_viewport(parent);
+        screen->set_viewport(parent);
         screen->clear_viewport();
         screen->backlight_on();
 
+#ifdef HAVE_LCD_BITMAP
         screen->set_viewport(logo);
         screen->bmp(logos[i], 0, 0);
         if (i == SCREEN_MAIN)
@@ -236,20 +228,22 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
         }
         screen->set_viewport(parent);
 
-        screen->set_viewport(last_vp);
+#else /* !HAVE_LCD_BITMAP */
+        screen->double_height(false);
+        screen->puts_scroll(0, 0, "[USB Mode]");
+        status_set_param(false);
+        status_set_audio(false);
+        status_set_usb(true);
+#endif /* HAVE_LCD_BITMAP */
+
+        screen->set_viewport(NULL);
         screen->update_viewport();
     }
 }
 
 void gui_usb_screen_run(bool early_usb)
 {
-#ifdef SIMULATOR /* the sim allows toggling USB fast enough to overflow viewportmanagers stack */
-    static bool in_usb_screen = false;
-    if (in_usb_screen)
-        return;
-    in_usb_screen = true;
-#endif
-
+    (void) early_usb;
     struct usb_screen_vps_t usb_screen_vps_ar[NB_SCREENS];
 #if defined HAVE_TOUCHSCREEN
     enum touchscreen_mode old_mode = touchscreen_get_mode();
@@ -275,17 +269,24 @@ void gui_usb_screen_run(bool early_usb)
          * generic cleanup here */
         screen->set_viewport(NULL);
         screen->scroll_stop();
+#ifdef HAVE_LCD_CHARCELLS
+        /* Quick fix. Viewports should really be enabled proper for charcell */
+        viewport_set_defaults(&usb_screen_vps_ar[i].parent, i);
+#else
         usb_screen_fix_viewports(screen, &usb_screen_vps_ar[i]);
+#endif
     }
 
     /* update the UI before disabling fonts, this maximizes the propability
      * that font cache lookups succeed during USB */
     send_event(GUI_EVENT_ACTIONUPDATE, NULL);
+#ifdef HAVE_LCD_BITMAP
     if(!early_usb)
     {
         /* The font system leaves the .fnt fd's open, so we need for force close them all */
         font_disable_all();
     }
+#endif
 
     usb_acknowledge(SYS_USB_CONNECTED_ACK);
 
@@ -306,8 +307,10 @@ void gui_usb_screen_run(bool early_usb)
     {
         const struct viewport* vp = NULL;
 
-#if defined(USB_ENABLE_HID)
+#if defined(HAVE_LCD_BITMAP) && defined(USB_ENABLE_HID)
         vp = usb_hid ? &usb_screen_vps_ar[i].title : NULL;
+#elif !defined(HAVE_LCD_BITMAP)
+        vp = &usb_screen_vps_ar[i].parent;
 #endif
         if (vp)
             screens[i].scroll_stop_viewport(vp);
@@ -324,6 +327,11 @@ void gui_usb_screen_run(bool early_usb)
     touchscreen_set_mode(old_mode);
 #endif
 
+#ifdef HAVE_LCD_CHARCELLS
+    status_set_usb(false);
+#endif /* HAVE_LCD_CHARCELLS */
+
+#ifdef HAVE_LCD_BITMAP
     if(!early_usb)
     {
         font_enable_all();
@@ -332,6 +340,7 @@ void gui_usb_screen_run(bool early_usb)
         /* Reload playlist */
         playlist_resume();
     }
+#endif
 
     FOR_NB_SCREENS(i)
     {
@@ -340,7 +349,4 @@ void gui_usb_screen_run(bool early_usb)
     }
 
     pop_current_activity();
-#ifdef SIMULATOR
-    in_usb_screen = false;
-#endif
 }

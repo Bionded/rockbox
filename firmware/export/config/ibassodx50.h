@@ -24,11 +24,7 @@
 /* This config file is for Rockbox as an application on Android without JVM. */
 
 /* We don't run on hardware directly */
-#ifndef SIMULATOR
 #define CONFIG_PLATFORM PLATFORM_HOSTED
-#define PIVOT_ROOT "/mnt/sdcard"
-#endif
-#define HAVE_FPU
 
 /* For Rolo and boot loader */
 #define MODEL_NUMBER 94
@@ -36,7 +32,9 @@
 #define MODEL_NAME "iBasso DX50"
 
 #define USB_NONE
-#define HAVE_USB_POWER
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -97,9 +95,12 @@
 /* Which backlight fading type? */
 #define CONFIG_BACKLIGHT_FADING BACKLIGHT_FADING_SW_SETTING
 
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 #define HAVE_SW_TONE_CONTROLS
 #define HAVE_SW_VOLUME_CONTROL
-#define HW_SAMPR_CAPS SAMPR_CAP_ALL_192
+#define HW_SAMPR_CAPS SAMPR_CAP_ALL
+#define HAVE_PLAY_FREQ
 
 //#define HAVE_MULTIMEDIA_KEYS
 #define CONFIG_KEYPAD DX50_PAD
@@ -109,7 +110,7 @@
 
 #define BATTERY_CAPACITY_DEFAULT 2100 /* default battery capacity */
 #define BATTERY_CAPACITY_MIN     1700 /* min. capacity selectable */
-#define BATTERY_CAPACITY_MAX     7300 /* max. capacity selectable */
+#define BATTERY_CAPACITY_MAX     3200 /* max. capacity selectable */
 #define BATTERY_CAPACITY_INC       50 /* capacity increment */
 #define BATTERY_TYPES_COUNT         1 /* only one type */
 
@@ -127,20 +128,17 @@
 /* define this if the hardware can be powered off while charging */
 #define HAVE_POWEROFF_WHILE_CHARGING
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
 #define CONFIG_LCD LCD_COWOND2
 
 /* Define this if a programmable hotkey is mapped */
 #define HAVE_HOTKEY
 
-/* Supports internal and microSD storage */
-#define CONFIG_STORAGE (STORAGE_HOSTFS|STORAGE_SD)
-#define HOSTFS_VOL_DEC "Internal"
+/* No special storage */
+#define CONFIG_STORAGE STORAGE_HOSTFS
 #define HAVE_STORAGE_FLUSH
-#define HAVE_MULTIDRIVE  /* But _not_ CONFIG_STORAGE_MULTI */
-#define NUM_DRIVES 2
-#define HAVE_HOTSWAP
-#define MULTIDRIVE_DIR "/mnt/external_sd"
-
-/* More common stuff */
-#define BATTERY_DEV_NAME "battery"
-#define POWER_DEV_NAME "usb"

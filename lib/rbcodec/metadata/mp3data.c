@@ -115,6 +115,11 @@ static bool is_mp3frameheader(unsigned long head)
         return false;
     if (!(head & LAYER_MASK)) /* no layer? */
         return false;
+#if CONFIG_CODEC != SWCODEC
+    /* The MAS can't decode layer 1, so treat layer 1 data as invalid */
+    if ((head & LAYER_MASK) == LAYER_MASK)
+        return false;
+#endif
     if ((head & BITRATE_MASK) == BITRATE_MASK) /* bad bitrate? */
         return false;
     if (!(head & BITRATE_MASK)) /* no bitrate? */
@@ -215,11 +220,10 @@ static bool headers_have_same_type(unsigned long header1,
 /* Helper function to read 4-byte in big endian format. */
 static void read_uint32be_mp3data(int fd, unsigned long *data)
 {
-    *data = 0;
-    unsigned long ret;
-    if (read(fd, (char*)&ret, sizeof(ret)) == sizeof(ret))
-        *data = ret;
-#ifndef ROCKBOX_BIG_ENDIAN
+#ifdef ROCKBOX_BIG_ENDIAN
+    (void)read(fd, (char*)data, 4);
+#else
+    (void)read(fd, (char*)data, 4);
     *data = betoh32(*data);
 #endif
 }
@@ -261,29 +265,26 @@ static unsigned long __find_next_frame(int fd, long *offset, long max_offset,
                  * seek to this byte position and check if there is another
                  * valid MPEG frame header of the same type. */
                 struct mp3info info;
-
+                
                 /* Gather frame size from given header and seek to next
                  * frame header. */
-                if (!mp3headerinfo(&info, header)) continue;
+                mp3headerinfo(&info, header);
                 lseek(fd, info.frame_size-4, SEEK_CUR);
-
+                
                 /* Read possible next frame header and seek back to last frame
                  * headers byte position. */
                 reference_header = 0;
                 read_uint32be_mp3data(fd, &reference_header);
-
-                /* If the current header is of the same type as the previous
-                 * header we are finished.  Rewind to frame data start. */
-                if (headers_have_same_type(header, reference_header)) {
-                    lseek(fd, -info.frame_size, SEEK_CUR);
+                //
+                lseek(fd, -info.frame_size, SEEK_CUR);
+                
+                /* If the current header is of the same type as the previous 
+                 * header we are finished. */
+                if (headers_have_same_type(header, reference_header))
                     break;
-                }
-                /* Otherwise keep going. Rewind to to start of "next" frame. */
-                lseek(fd, -4, SEEK_CUR);
-                pos += info.frame_size - 4;
             }
         }
-
+  
     } while (true);
 
     *offset = pos - 4;
@@ -453,6 +454,7 @@ static void get_xing_info(struct mp3info *info, unsigned char *buf)
         /* We don't care about this, but need to skip it */
         i += 4;
     }
+#if CONFIG_CODEC==SWCODEC
     i += 21;
     info->enc_delay   = ((int)buf[i  ] << 4) | (buf[i+1] >> 4);
     info->enc_padding = ((int)(buf[i+1]&0xF) << 8) |  buf[i+2];
@@ -465,6 +467,7 @@ static void get_xing_info(struct mp3info *info, unsigned char *buf)
        info->enc_delay   = -1;
        info->enc_padding = -1;
     }
+#endif
 }
 
 /* Extract information from a 'VBRI' header. */
@@ -515,8 +518,8 @@ static int get_next_header_info(int fd, long *bytecount, struct mp3info *info,
 {
     long tmp;
     unsigned long header = 0;
-
-    header = __find_next_frame(fd, &tmp, 0x100000, 0, fileread, single_header);
+    
+    header = __find_next_frame(fd, &tmp, 0x20000, 0, fileread, single_header);
     if(header == 0)
         return -1;
 
@@ -538,16 +541,18 @@ int get_mp3file_info(int fd, struct mp3info *info)
     /* Initialize info and frame */
     memset(info,  0, sizeof(struct mp3info));
     memset(frame, 0, sizeof(frame));
-
+    
+#if CONFIG_CODEC==SWCODEC
     /* These two are needed for proper LAME gapless MP3 playback */
     info->enc_delay   = -1;
     info->enc_padding = -1;
+#endif
 
     /* Get the very first single MPEG frame. */
     result = get_next_header_info(fd, &bytecount, info, true);
     if(result)
         return result;
-
+    
     /* Read the amount of frame data to the buffer that is required for the 
      * vbr tag parsing. Skip the rest. */
     buf_size = MIN(info->frame_size-4, (int)sizeof(frame));
@@ -771,11 +776,7 @@ int create_xing_header(int fd, long startpos, long filesize,
             last_pos = pos;
         }
     }
-    else
-    {
-        memset(toc, 0, sizeof(toc));
-    }
-
+    
     /* Use the template header and create a new one.
        We ignore the Protection bit even if the rest of the stream is
        protected. */

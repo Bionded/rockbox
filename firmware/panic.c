@@ -32,21 +32,15 @@
 #include "system.h"
 #include "logf.h"
 
-#ifdef HAVE_RB_BACKTRACE
+#if defined(CPU_ARM)
 #include "gcc_extensions.h"
-#include "backtrace.h"
+#include <backtrace.h>
 #endif
 
-#if (defined(CPU_MIPS) && (CONFIG_PLATFORM & PLATFORM_NATIVE))
-/* TODO: see comment above exception_dump in system-mips.c */
-char panic_buf[128];
-#else
 static char panic_buf[128];
-#endif
-
 #define LINECHARS (LCD_WIDTH/SYSFONT_WIDTH) - 2
 
-#if defined(CPU_ARM) && defined(HAVE_RB_BACKTRACE)
+#if defined(CPU_ARM)
 void panicf_f( const char *fmt, ...);
 
 /* we wrap panicf() here with naked function to catch SP value */
@@ -71,12 +65,6 @@ void panicf_f( const char *fmt, ...)
                  );
 
     int pc = (int)__builtin_return_address(0);
-#elif defined(BACKTRACE_MIPSUNWINDER)
-void panicf( const char *fmt, ... )
-{
-    /* NOTE: these are obtained by the backtrace lib */
-    const int pc = 0;
-    const int sp = 0;
 #else
 void panicf( const char *fmt, ...)
 {
@@ -98,6 +86,11 @@ void panicf( const char *fmt, ...)
 
     lcd_set_viewport(NULL);
 
+#ifdef HAVE_LCD_CHARCELLS
+    lcd_double_height(false);
+    lcd_puts(0, 0, "*PANIC*");
+    lcd_puts(0, 1, panic_buf);
+#elif defined(HAVE_LCD_BITMAP)
     int y = 1;
 
 #if LCD_DEPTH > 1
@@ -126,6 +119,9 @@ void panicf( const char *fmt, ...)
 #endif
 #ifdef ROCKBOX_HAS_LOGF
     logf_panic_dump(&y);
+#endif
+#else
+    /* no LCD */
 #endif
 
     lcd_update();

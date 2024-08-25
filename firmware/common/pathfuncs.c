@@ -23,14 +23,10 @@
 #include "system.h"
 #include "pathfuncs.h"
 #include "string-extra.h"
-#include <stdio.h>
-#include "file_internal.h"
-#include "debug.h"
 
 #ifdef HAVE_MULTIVOLUME
+#include <stdio.h>
 #include "storage.h"
-
-static char vol_dec_strings[NUM_VOLUMES][ALIGN_UP(VOL_MAX_LEN+2, 4)] = {{0}};
 
 enum storage_name_dec_indexes
 {
@@ -48,9 +44,6 @@ enum storage_name_dec_indexes
 #endif
 #if (CONFIG_STORAGE & STORAGE_RAMDISK)
     STORAGE_DEC_IDX_RAMDISK,
-#endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-    STORAGE_DEC_IDX_USB,
 #endif
 #if (CONFIG_STORAGE & STORAGE_HOSTFS)
     STORAGE_DEC_IDX_HOSTFS,
@@ -74,9 +67,6 @@ static const char * const storage_dec_names[STORAGE_NUM_DEC_IDX+1] =
 #endif
 #if (CONFIG_STORAGE & STORAGE_RAMDISK)
     [STORAGE_DEC_IDX_RAMDISK] = RAMDISK_VOL_DEC,
-#endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-    [STORAGE_DEC_IDX_USB]     = USB_VOL_DEC,
 #endif
 #if (CONFIG_STORAGE & STORAGE_HOSTFS)
     [STORAGE_DEC_IDX_HOSTFS]  = HOSTFS_VOL_DEC,
@@ -102,71 +92,20 @@ static const unsigned char storage_dec_indexes[STORAGE_NUM_TYPES+1] =
 #if (CONFIG_STORAGE & STORAGE_RAMDISK)
     [STORAGE_RAMDISK_NUM] = STORAGE_DEC_IDX_RAMDISK,
 #endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-    [STORAGE_USB_NUM]     = STORAGE_DEC_IDX_USB,
-#endif
 #if (CONFIG_STORAGE & STORAGE_HOSTFS)
     [STORAGE_HOSTFS_NUM]  = STORAGE_DEC_IDX_HOSTFS,
 #endif
 };
 
-/* builds a list of drive/volume specifiers <volstr#> */
-void init_volume_names(void)
-{
-    DEBUGF("%s: ", __func__);
-    FOR_EACH_VOLUME(-1, volume)
-    {
-        const char *voldec = "";
-        char *buffer = vol_dec_strings[volume];
-
-        int type = storage_driver_type(volume_drive(volume));
-        if (type < 0 || type > STORAGE_NUM_TYPES)
-            type = STORAGE_NUM_TYPES;
-        voldec = storage_dec_names[storage_dec_indexes[type]];
-        snprintf(buffer, VOL_MAX_LEN + 1, "%c%s%d%c",
-                VOL_START_TOK, voldec, volume, VOL_END_TOK);
-        DEBUGF("vol<%d> = %s ", volume, buffer);
-    }
-    DEBUGF("\n");
-}
-
-#include <stdio.h>
-
-int path_get_volume_id(const char *name)
-{
-    int v = -1;
-
-    if (!name || *name != VOL_START_TOK)
-        goto bail;
-
-    do {
-        switch (*name)
-        {
-        case '0' ... '9':       /* digit; parse volume number */
-            v = (v * 10 + *name - '0') % VOL_NUM_MAX;
-            break;
-        case '\0':
-        case PATH_SEPCH:        /* no closing bracket; no volume */
-            v = -1;
-            goto bail;
-        default:                /* something else; reset volume */
-            v = 0;
-        }
-    } while (*++name != VOL_END_TOK);  /* found end token? */
-
-bail:
-    return v;
-}
-
 /* Returns on which volume this is and sets *nameptr to the portion of the
  * path after the volume specifier, which could be the null if the path is
  * just a volume root. If *nameptr > name, then a volume specifier was
- * found. If 'greedy' is 'true', then all separators after the volume
- * specifier are consumed.
+ * found. If 'greedy' is 'true', then it all separators after the volume
+ * specifier are consumed, if one was found.
  */
 int path_strip_volume(const char *name, const char **nameptr, bool greedy)
 {
-    int volume = ROOT_VOLUME;
+    int volume = 0;
     const char *t = name;
     int c, v = 0;
 
@@ -175,15 +114,9 @@ int path_strip_volume(const char *name, const char **nameptr, bool greedy)
      * digits within the brackets is parsed as the volume number and of
      * those, only the last ones VOL_MUM_MAX allows.
      */
-    t = GOBBLE_PATH_SEPCH(t);   /* skip all leading slashes */
-    if (t == name)
-    {
-        volume = -1;            /* relative path; don't know */
-        goto psv_out;
-    }
-    c = *t;
+    c = *(t = GOBBLE_PATH_SEPCH(t)); /* skip all leading slashes */
     if (c != VOL_START_TOK)     /* missing start token? no volume */
-        goto psv_out;
+        goto volume0;
 
     do
     {
@@ -194,7 +127,7 @@ int path_strip_volume(const char *name, const char **nameptr, bool greedy)
             break;
         case '\0':
         case PATH_SEPCH:        /* no closing bracket; no volume */
-            goto psv_out;
+            goto volume0;
         default:                /* something else; reset volume */
             v = 0;
         }
@@ -204,7 +137,7 @@ int path_strip_volume(const char *name, const char **nameptr, bool greedy)
     if (!(c = *++t))            /* no more path and no '/' is ok */
         ;
     else if (c != PATH_SEPCH)   /* more path and no separator after end */
-        goto psv_out;
+        goto volume0;
     else if (greedy)
         t = GOBBLE_PATH_SEPCH(++t); /* strip remaining separators */
 
@@ -213,80 +146,34 @@ int path_strip_volume(const char *name, const char **nameptr, bool greedy)
 
     volume = v;
     name = t;
-psv_out:
+volume0:
     if (nameptr)
         *nameptr = name;
     return volume;
 }
 
-/* Strip the last volume component in the path and return the remainder of
- * the path in *nameptr. If 'greedy' is 'true', then all separators after
- * the volume specifier are consumed.
- */
-int path_strip_last_volume(const char *name, const char **nameptr, bool greedy)
-{
-    const char *p = name + strlen(name);
-
-    while (p > name)
-    {
-        /* skip the component */
-        while (p > name && p[-1] != PATH_SEPCH)
-            --p;
-
-        /* bail if we reached the beginning */
-        if (p <= name+1)
-            break;
-
-        /* point at the seprator */
-        --p;
-
-        /* try to strip the volume and return it if found */
-        int volume = path_strip_volume(p, nameptr, greedy);
-        if (volume != ROOT_VOLUME)
-            return volume;
-
-        /* skip any extra separators */
-        while (p > name && p[-1] == PATH_SEPCH)
-            --p;
-    }
-
-    /* return whatever is at the beginning of the path */
-    return path_strip_volume(name, nameptr, greedy);
-}
-
 /* Returns the volume specifier decorated with the storage type name.
- * Assumes the supplied buffer size is at least {VOL_MAX_LEN}+1,
- * vol_dec_strings has been initialized by init_volume_names().
+ * Assumes the supplied buffer size is at least {VOL_MAX_LEN}+1.
  */
 int get_volume_name(int volume, char *buffer)
 {
-    if (volume < 0 || volume == ROOT_VOLUME)
+    if (volume < 0)
     {
-        char *t = buffer;
-        if (volume == ROOT_VOLUME)
-            *t++ = PATH_ROOTCHR;
-        *t = '\0';
-        return t - buffer;
+        *buffer = '\0';
+        return 0;
     }
 
     volume %= VOL_NUM_MAX; /* as path parser would have it */
 
-    return strlcpy(buffer, vol_dec_strings[volume], VOL_MAX_LEN + 1);
-}
+    int type = storage_driver_type(volume_drive(volume));
+    if (type < 0 || type > STORAGE_NUM_TYPES)
+        type = STORAGE_NUM_TYPES;
 
-/* Returns volume name formatted with the root. Assumes buffer size is at
- * least {VOL_MAX_LEN}+2, vol_dec_strings has been initialized by init_volume_names().
- */
-int make_volume_root(int volume, char *buffer)
-{
-    char *t = buffer;
-    if (volume >= 0 && volume != ROOT_VOLUME)
-        *t++ = PATH_ROOTCHR;
-    t += get_volume_name(volume, t);
-    return t - buffer;
+    const char *voldec = storage_dec_names[storage_dec_indexes[type]];
+    return snprintf(buffer, VOL_MAX_LEN + 1, "%c%s%d%c",
+                    VOL_START_TOK, voldec, volume, VOL_END_TOK);
 }
 #endif /* HAVE_MULTIVOLUME */
-
 
 /* Just like path_strip_volume() but strips a leading drive specifier and
  * returns the drive number (A=0, B=1, etc.). -1 means no drive was found.
@@ -444,62 +331,7 @@ void path_correct_separators(char *dstpath, const char *path)
         strcpy(dstp, p);
 }
 
-/* Remove dot segments from the path
- *
- * 'path' and 'dstpath' may either be the same buffer or non-overlapping
- */
-void path_remove_dot_segments (char *dstpath, const char *path)
-{
-    char *dstp = dstpath;
-    char *odstp = dstpath;
-    const char *p = path;
-
-    while (*p)
-    {
-        if (p[0] == '.' && p[1] == PATH_SEPCH)
-            p += 2;
-        else if (p[0] == '.' && p[1] == '.' && p[2] == PATH_SEPCH)
-            p += 3;
-        else if (p[0] == PATH_SEPCH && p[1] == '.' && p[2] == PATH_SEPCH)
-            p += 2;
-        else if (p[0] == PATH_SEPCH && p[1] == '.' && !p[2])
-        {
-            *dstp++ = PATH_SEPCH;
-            break;
-        }
-        else if (p[0] == PATH_SEPCH && p[1] == '.' &&
-            p[2] == '.' && p[3] == PATH_SEPCH)
-        {
-            dstp = odstp;
-            p += 3;
-        }
-        else if (p[0] == PATH_SEPCH && p[1] == '.' && p[2] == '.' && !p[3])
-        {
-            dstp = odstp;
-            *dstp++ = PATH_SEPCH;
-            break;
-        }
-        else if (p[0] == '.' && !p[1])
-            break;
-        else if (p[0] == '.' && p[1] == '.' && !p[2])
-            break;
-        else
-        {
-            odstp = dstp;
-            if (p[0] == PATH_SEPCH)
-                *dstp++ = *p++;
-            while (p[0] && p[0] != PATH_SEPCH)
-                *dstp++ = *p++;
-        }
-    }
-    *dstp = 0;
-}
-
 /* Appends one path to another, adding separators between components if needed.
- * basepath_max can be used to truncate the basepath if desired
- * NOTE: basepath is truncated after copying to the buffer so there must be enough
- * free space for the entirety of the basepath even if the resulting string would fit
- *
  * Return value and behavior is otherwise as strlcpy so that truncation may be
  * detected.
  *
@@ -507,11 +339,9 @@ void path_remove_dot_segments (char *dstpath, const char *path)
  * PA_SEP_HARD adds a separator even if the base path is empty
  * PA_SEP_SOFT adds a separator only if the base path is not empty
  */
-size_t path_append_ex(char *buf, const char *basepath, size_t basepath_max,
+size_t path_append(char *buf, const char *basepath,
                    const char *component, size_t bufsize)
 {
-    size_t len = 0;
-    bool separate = false;
     const char *base = basepath && basepath[0] ? basepath : buf;
     if (!base)
         return bufsize; /* won't work to get lengths from buf */
@@ -519,33 +349,20 @@ size_t path_append_ex(char *buf, const char *basepath, size_t basepath_max,
     if (!buf)
         bufsize = 0;
 
-    if (path_is_absolute(component)) /* starts with a '/' path separator */
+    if (path_is_absolute(component))
     {
         /* 'component' is absolute; replace all */
         basepath = component;
         component = "";
-        basepath_max = -1u;
     }
 
     /* if basepath is not null or empty, buffer contents are replaced,
        otherwise buf contains the base path */
+    size_t len = base == buf ? strlen(buf) : strlcpy(buf, basepath, bufsize);
 
-    if (base == buf)
-        len = strlen(buf);
-    else if (basepath)
-    {
-        /* strip extra leading separators */
-        while (*basepath == PATH_SEPCH && *(basepath + 1) == PATH_SEPCH)
-            basepath++;
-        len = strlcpy(buf, basepath, bufsize);
-        if (basepath_max < len) /*if needed truncate basepath to basepath_max */
-        {
-            len = basepath_max;
-            buf[basepath_max] = '\0';
-        }
-    }
+    bool separate = false;
 
-    if (!basepath || !component || basepath_max == 0)
+    if (!basepath || !component)
         separate = !len || base[len-1] != PATH_SEPCH;
     else if (component[0])
         separate = len && base[len-1] != PATH_SEPCH;
@@ -563,12 +380,6 @@ size_t path_append_ex(char *buf, const char *basepath, size_t basepath_max,
     return len + strlcpy(buf, component ?: "", bufsize);
 }
 
-
-size_t path_append(char *buf, const char *basepath,
-                   const char *component, size_t bufsize)
-{
-    return path_append_ex(buf, basepath, -1u, component, bufsize);
-}
 /* Returns the location and length of the next path component, consuming the
  * input in the process.
  *

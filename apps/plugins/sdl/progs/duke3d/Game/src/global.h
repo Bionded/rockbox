@@ -31,7 +31,6 @@ void Shutdown(void);
 #endif
 
 #ifdef ROCKBOX
-#undef BYTE_ORDER
 #ifdef ROCKBOX_LITTLE_ENDIAN
 #define BYTE_ORDER LITTLE_ENDIAN
 #else

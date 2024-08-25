@@ -38,81 +38,31 @@ extern void lcd_bidir_scroll(int threshold);
 extern void lcd_scroll_speed(int speed);
 extern void lcd_scroll_delay(int ms);
 
-#ifdef HAVE_REMOTE_LCD
-extern void lcd_remote_scroll_speed(int speed);
-extern void lcd_remote_scroll_delay(int ms);
-#endif
-
-#ifdef BOOTLOADER
-static inline void lcd_scroll_stop(void)
-{
-}
-
-static inline void lcd_scroll_stop_viewport(const struct viewport *vp)
-{
-    (void)vp;
-}
-
-static inline void lcd_scroll_stop_viewport_rect(const struct viewport *vp, int x, int y, int width, int height)
-{
-    (void)vp;
-    (void)x;
-    (void)y;
-    (void)width;
-    (void)height;
-}
-
-static inline bool lcd_scroll_now(struct scrollinfo *scroll)
-{
-    (void)scroll;
-    return false;
-}
-
-#ifdef HAVE_REMOTE_LCD
-static inline void lcd_remote_scroll_stop(void)
-{
-}
-
-static inline void lcd_remote_scroll_stop_viewport(const struct viewport *vp)
-{
-    (void)vp;
-}
-
-static inline void lcd_remote_scroll_stop_viewport_rect(const struct viewport *vp, int x, int y, int width, int height)
-{
-    (void)vp;
-    (void)x;
-    (void)y;
-    (void)width;
-    (void)height;
-}
-
-static inline bool lcd_remote_scroll_now(struct scrollinfo *scroll)
-{
-    (void)scroll;
-    return false;
-}
-#endif /* HAVE_REMOTE_LCD */
-#else
 extern void lcd_scroll_stop(void);
 extern void lcd_scroll_stop_viewport(const struct viewport *vp);
 extern void lcd_scroll_stop_viewport_rect(const struct viewport *vp, int x, int y, int width, int height);
 extern bool lcd_scroll_now(struct scrollinfo *scroll);
-
 #ifdef HAVE_REMOTE_LCD
+extern void lcd_remote_scroll_speed(int speed);
+extern void lcd_remote_scroll_delay(int ms);
+
 extern void lcd_remote_scroll_stop(void);
 extern void lcd_remote_scroll_stop_viewport(const struct viewport *vp);
 extern void lcd_remote_scroll_stop_viewport_rect(const struct viewport *vp, int x, int y, int width, int height);
 extern bool lcd_remote_scroll_now(struct scrollinfo *scroll);
-#endif /* HAVE_REMOTE_LCD */
-#endif /* BOOTLOADER */
+#endif
+
 
 
 /* internal usage, but in multiple drivers
  * larger than the normal linebuffer since it holds the line a second
  * time (+3 spaces) for non-bidir scrolling */
 #define SCROLL_SPACING   3
+#ifdef HAVE_LCD_BITMAP
 #define SCROLL_LINE_SIZE (MAX_PATH + SCROLL_SPACING + 3*LCD_WIDTH/2 + 2)
+#else
+#define SCROLL_LINE_SIZE (MAX_PATH + SCROLL_SPACING + 3*LCD_WIDTH + 2)
+#endif
 
 struct scrollinfo
 {
@@ -145,14 +95,24 @@ struct scroll_screen_info
     long ticks; /* # of ticks between updates*/
     long delay; /* ticks delay before start */
     int bidir_limit;  /* percent */
+#ifdef HAVE_LCD_CHARCELLS
+    long jump_scroll_delay; /* delay between jump scroll jumps */
+    int jump_scroll; /* 0=off, 1=once, ..., JUMP_SCROLL_ALWAYS */
+#endif
+#if defined(HAVE_LCD_BITMAP) || defined(HAVE_REMOTE_LCD)
     int step;  /* pixels per scroll step */
+#endif
 #if defined(HAVE_REMOTE_LCD)
     long last_scroll;
 #endif
 };
 
 /** main lcd **/
+#ifdef HAVE_LCD_BITMAP
 #define LCD_SCROLLABLE_LINES ((LCD_HEIGHT+4)/5 < 32 ? (LCD_HEIGHT+4)/5 : 32)
+#else
+#define LCD_SCROLLABLE_LINES LCD_HEIGHT * 2
+#endif
 
 extern struct scroll_screen_info lcd_scroll_info;
 

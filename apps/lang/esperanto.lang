@@ -615,13 +615,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Transmikso"
+    *: none
+    swcodec: "Transmikso"
   </dest>
   <voice>
-    *: "Transmikso"
+    *: none
+    swcodec: "Transmikso"
   </voice>
 </phrase>
 <phrase>
@@ -629,13 +632,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Egalilo"
+    *: none
+    swcodec: "Egalilo"
   </dest>
   <voice>
-    *: "Egalilo"
+    *: none
+    swcodec: "Egalilo"
   </voice>
 </phrase>
 <phrase>
@@ -814,13 +820,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Ebligi EQ"
+    *: none
+    swcodec: "Ebligi EQ"
   </dest>
   <voice>
-    *: "Ebligi egalilon"
+    *: none
+    swcodec: "Ebligi egalilon"
   </voice>
 </phrase>
 <phrase>
@@ -828,13 +837,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Grafika EQ"
+    *: none
+    swcodec: "Grafika EQ"
   </dest>
   <voice>
-    *: "Grafika egalilo"
+    *: none
+    swcodec: "Grafika egalilo"
   </voice>
 </phrase>
 <phrase>
@@ -842,13 +854,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Antaŭtranĉo"
+    *: none
+    swcodec: "Antaŭtranĉo"
   </dest>
   <voice>
-    *: "Antaŭtranĉo"
+    *: none
+    swcodec: "Antaŭtranĉo"
   </voice>
 </phrase>
 <phrase>
@@ -856,13 +871,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Simpla EQ Agordaĵoj"
+    *: none
+    swcodec: "Simpla EQ Agordaĵoj"
   </dest>
   <voice>
-    *: "Simpla egalilo Agordaĵoj"
+    *: none
+    swcodec: "Simpla egalilo Agordaĵoj"
   </voice>
 </phrase>
 <phrase>
@@ -870,13 +888,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Progresinta EQ Agordaĵoj"
+    *: none
+    swcodec: "Progresinta EQ Agordaĵoj"
   </dest>
   <voice>
-    *: "Progresinta EQ Agordaĵoj"
+    *: none
+    swcodec: "Progresinta EQ Agordaĵoj"
   </voice>
 </phrase>
 <phrase>
@@ -884,13 +905,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Surdiskigi EQ Agordaĵojn"
+    *: none
+    swcodec: "Surdiskigi EQ Agordaĵojn"
   </dest>
   <voice>
-    *: "Surdiskigi egalilon Agordaĵojn"
+    *: none
+    swcodec: "Surdiskigi egalilon Agordaĵojn"
   </voice>
 </phrase>
 <phrase>
@@ -898,13 +922,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Foliumi EQ Agordaĵojn"
+    *: none
+    swcodec: "Foliumi EQ Agordaĵojn"
   </dest>
   <voice>
-    *: "Foliumi EQ Agordaĵojn"
+    *: none
+    swcodec: "Foliumi EQ Agordaĵojn"
   </voice>
 </phrase>
 <phrase>
@@ -912,13 +939,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Eldona Reĝimo: %s"
+    *: none
+    swcodec: "Eldona Reĝimo: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: "Eldona Reĝimo: %s"
   </voice>
 </phrase>
 <phrase>
@@ -926,13 +956,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz Strio Gajno"
+    *: none
+    swcodec: "%d Hz Strio Gajno"
   </dest>
   <voice>
-    *: "herco strio gajno"
+    *: none
+    swcodec: "herco strio gajno"
   </voice>
 </phrase>
 <phrase>
@@ -940,13 +973,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Malakuta Filtrilo"
+    *: none
+    swcodec: "Malakuta Filtrilo"
   </dest>
   <voice>
-    *: "Malakuta Filtrilo"
+    *: none
+    swcodec: "Malakuta Filtrilo"
   </voice>
 </phrase>
 <phrase>
@@ -954,13 +990,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Pinta Filtrilo %d"
+    *: none
+    swcodec: "Pinta Filtrilo %d"
   </dest>
   <voice>
-    *: "Pinta filtrilo"
+    *: none
+    swcodec: "Pinta filtrilo"
   </voice>
 </phrase>
 <phrase>
@@ -968,13 +1007,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Akuta Filtrilo"
+    *: none
+    swcodec: "Akuta Filtrilo"
   </dest>
   <voice>
-    *: "Akuta Filtrilo"
+    *: none
+    swcodec: "Akuta Filtrilo"
   </voice>
 </phrase>
 <phrase>
@@ -982,13 +1024,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Tranĉa Frekvenco"
+    *: none
+    swcodec: "Tranĉa Frekvenco"
   </dest>
   <voice>
-    *: "Tranĉa Frekvenco"
+    *: none
+    swcodec: "Tranĉa Frekvenco"
   </voice>
 </phrase>
 <phrase>
@@ -996,13 +1041,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Centro Frekvenco"
+    *: none
+    swcodec: "Centro Frekvenco"
   </dest>
   <voice>
-    *: "Centro Frekvenco"
+    *: none
+    swcodec: "Centro Frekvenco"
   </voice>
 </phrase>
 <phrase>
@@ -1010,13 +1058,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -1296,13 +1347,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Malforta"
+    *: none
+    swcodec: "Malforta"
   </dest>
   <voice>
-    *: "Malforta"
+    *: none
+    swcodec: "Malforta"
   </voice>
 </phrase>
 <phrase>
@@ -1310,13 +1364,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Meza"
+    *: none
+    swcodec: "Meza"
   </dest>
   <voice>
-    *: "Meza"
+    *: none
+    swcodec: "Meza"
   </voice>
 </phrase>
 <phrase>
@@ -1324,13 +1381,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Forta"
+    *: none
+    swcodec: "Forta"
   </dest>
   <voice>
-    *: "Forta"
+    *: none
+    swcodec: "Forta"
   </voice>
 </phrase>
 <phrase>
@@ -1624,13 +1684,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Tiparo"
+    *: none
+    lcd_bitmap: "Tiparo"
   </dest>
   <voice>
-    *: "Tiparo"
+    *: none
+    lcd_bitmap: "Tiparo"
   </voice>
 </phrase>
 <phrase>
@@ -1711,13 +1774,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Stato-/Rulumskalo"
+    *: none
+    lcd_bitmap: "Stato-/Rulumskalo"
   </dest>
   <voice>
-    *: "Stato kaj Rulumskalo"
+    *: none
+    lcd_bitmap: "Stato kaj Rulumskalo"
   </voice>
 </phrase>
 <phrase>
@@ -1784,13 +1850,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Hebreo (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebreo (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Hebreo"
+    *: none
+    lcd_bitmap: "Hebreo"
   </voice>
 </phrase>
 <phrase>
@@ -1812,13 +1881,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Tajo (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Tajo (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Tajo"
+    *: none
+    lcd_bitmap: "Tajo"
   </voice>
 </phrase>
 <phrase>
@@ -1826,13 +1898,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Arabo (CP1256)"
+    *: none
+    lcd_bitmap: "Arabo (CP1256)"
   </dest>
   <voice>
-    *: "Arabo"
+    *: none
+    lcd_bitmap: "Arabo"
   </voice>
 </phrase>
 <phrase>
@@ -1868,13 +1943,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Japano (SJIS)"
+    *: none
+    lcd_bitmap: "Japano (SJIS)"
   </dest>
   <voice>
-    *: "Japano"
+    *: none
+    lcd_bitmap: "Japano"
   </voice>
 </phrase>
 <phrase>
@@ -1882,13 +1960,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Simpligata Ĉino (GB2312)"
+    *: none
+    lcd_bitmap: "Simpligata Ĉino (GB2312)"
   </dest>
   <voice>
-    *: "Simpligata Ĉino"
+    *: none
+    lcd_bitmap: "Simpligata Ĉino"
   </voice>
 </phrase>
 <phrase>
@@ -1896,13 +1977,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Koreujo (KSX1001)"
+    *: none
+    lcd_bitmap: "Koreujo (KSX1001)"
   </dest>
   <voice>
-    *: "Koreujo"
+    *: none
+    lcd_bitmap: "Koreujo"
   </voice>
 </phrase>
 <phrase>
@@ -1910,13 +1994,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Tradicia Ĉino (BIG5)"
+    *: none
+    lcd_bitmap: "Tradicia Ĉino (BIG5)"
   </dest>
   <voice>
-    *: "Tradicia Ĉino"
+    *: none
+    lcd_bitmap: "Tradicia Ĉino"
   </voice>
 </phrase>
 <phrase>
@@ -2043,15 +2130,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Analoga Enigaĵo"
+    recording,archosplayer: "Analoga Enigaĵo"
   </dest>
   <voice>
     *: none
-    recording: "Analoga Enigaĵo"
+    recording,archosplayer: "Analoga Enigaĵo"
   </voice>
 </phrase>
 <phrase>
@@ -2262,15 +2349,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Frekvenco"
+    recording,play_frequency: "Frekvenco"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frekvenco"
+    recording,play_frequency: "Frekvenco"
   </voice>
 </phrase>
 <phrase>
@@ -2640,13 +2727,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Preventi Tromoduladon"
+    *: none
+    swcodec: "Preventi Tromoduladon"
   </dest>
   <voice>
-    *: "Preventi Tromoduladon"
+    *: none
+    swcodec: "Preventi Tromoduladon"
   </voice>
 </phrase>
 <phrase>
@@ -2879,13 +2969,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "180-Gradoja Rotacio"
+    *: none
+    lcd_bitmap: "180-Gradoja Rotacio"
   </dest>
   <voice>
-    *: "180-Gradoja Rotacio"
+    *: none
+    lcd_bitmap: "180-Gradoja Rotacio"
   </voice>
 </phrase>
 <phrase>
@@ -2907,13 +3000,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Pintigo"
+    *: none
+    lcd_bitmap: "Pintigo"
   </dest>
   <voice>
-    *: "Pintigo"
+    *: none
+    lcd_bitmap: "Pintigo"
   </voice>
 </phrase>
 <phrase>
@@ -2921,13 +3017,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Substreka Linio"
+    *: none
+    lcd_bitmap: "Substreka Linio"
   </dest>
   <voice>
-    *: "Substreka Linio"
+    *: none
+    lcd_bitmap: "Substreka Linio"
   </voice>
 </phrase>
 <phrase>
@@ -3104,13 +3203,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Ekrano Rulumas Ekster Vido"
+    *: none
+    lcd_bitmap: "Ekrano Rulumas Ekster Vido"
   </dest>
   <voice>
-    *: "Ekrano Rulumas Ekster Vido"
+    *: none
+    lcd_bitmap: "Ekrano Rulumas Ekster Vido"
   </voice>
 </phrase>
 <phrase>
@@ -3118,13 +3220,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Ekrana Rulumo Ŝtupo Grando"
+    *: none
+    lcd_bitmap: "Ekrana Rulumo Ŝtupo Grando"
   </dest>
   <voice>
-    *: "Ekrana Rulumo Ŝtupo Grando"
+    *: none
+    lcd_bitmap: "Ekrana Rulumo Ŝtupo Grando"
   </voice>
 </phrase>
 <phrase>
@@ -3394,7 +3499,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -3408,7 +3513,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
@@ -4088,24 +4193,24 @@
   user: core
   <source>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "MSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "MSD:"
     xduoox3: "MSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    archosondio*: "Aŭdvida karto"
     multivolume: "H D 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "micro S D"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "micro S D"
     xduoox3: "micro S D 2"
+    archosondio*: "Aŭdvida karto"
   </voice>
 </phrase>
 <phrase>
@@ -4226,15 +4331,15 @@
   user: core
   <source>
     *: "OFF To Revert"
+    vibe500: "CANCEL To Revert"
     mpiohd300: "MENU To Revert"
     samsungyh*: "REW = Revert"
-    vibe500: "CANCEL To Revert"
   </source>
   <dest>
     *: "OFF Por Malvalidigi"
+    vibe500: "C Por Malvalidigi"
     mpiohd300: "MENU Por Malvalidigi"
     samsungyh*: "REW Por Malvalidigi"
-    vibe500: "C Por Malvalidigi"
   </dest>
   <voice>
     *: ""
@@ -4458,15 +4563,15 @@
   user: core
   <source>
     *: "PLAY=Set OFF=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: "LEGI=Validigi OFF=Malvalidigi"
+    vibe500: "OK=Validigi C=Malvalidigi"
     mpiohd300: "ENTER=Validigi MENU=Malvalidigi"
     sansafuzeplus: "SELECT=Validigi  BACK=Malvalidigi"
-    vibe500: "OK=Validigi C=Malvalidigi"
   </dest>
   <voice>
     *: ""
@@ -6869,6 +6974,34 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_KEYBOARD_LOADED
   desc: shown when a keyboard has been loaded from the dir browser
   user: core
@@ -7135,6 +7268,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_PIXELS
   desc: In the settings menu
   user: core
@@ -7161,18 +7308,18 @@
   <voice>
     *: "Rekta Gajno"
   </voice>
-</phrase>
+</phrase>   
 <phrase>
   id: LANG_CROSSFEED_CROSS_GAIN
   desc: in crossfeed settings
   user: core
-  <source>
+  <source>  
     *: "Cross Gain"
   </source>
-  <dest>
+  <dest>  
     *: "Transgajno"
   </dest>
-  <voice>
+  <voice>  
     *: "Transgajno"
   </voice>
 </phrase>

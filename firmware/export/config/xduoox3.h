@@ -5,11 +5,20 @@
 #define MODEL_NAME   "xDuoo X3"
 #define MODEL_NUMBER 96
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC  0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
 /* Support FAT16 for SD cards <= 2GB */
 #define HAVE_FAT16SUPPORT
 
 /* ChinaChip NAND FTL */
 #define CONFIG_NAND NAND_CC
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have access to the quickscreen */
 #define HAVE_QUICKSCREEN
@@ -35,13 +44,6 @@
 #define LCD_BRIGHTCOLOR      0x000000
 #define LCD_BL_DARKCOLOR     0x000000
 #define LCD_BL_BRIGHTCOLOR   0x0de2e5
-
-/* Define this if your LCD can set contrast */
-#define HAVE_LCD_CONTRAST
-
-#define MIN_CONTRAST_SETTING        -9
-#define MAX_CONTRAST_SETTING        -1
-#define DEFAULT_CONTRAST_SETTING    -6
 
 /* define this if you have LCD enable function */
 #define HAVE_LCD_ENABLE
@@ -79,6 +81,9 @@
 /* Define this if a programmable hotkey is mapped */
 #define HAVE_HOTKEY
 
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
+
 #ifndef BOOTLOADER
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_JZ4760
@@ -100,7 +105,7 @@
 #define HAVE_SW_TONE_CONTROLS
 
 /* define the bitmask of hardware sample rates */
-#define HW_SAMPR_CAPS  SAMPR_CAP_ALL_192
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 #define AB_REPEAT_ENABLE
 
@@ -108,11 +113,7 @@
 #define BATTERY_CAPACITY_MIN 500      /* min. capacity selectable */
 #define BATTERY_CAPACITY_MAX 2000     /* max. capacity selectable */
 #define BATTERY_CAPACITY_INC 100      /* capacity increment */
-#define BATTERY_TYPES_COUNT  2        /* Two types (2000mAh and 1500mAh) */
-
-#define CURRENT_NORMAL 167      // 2.78mA * 60s
-#define CURRENT_BACKLIGHT 180   // 15mA * 60s
-#define CURRENT_MAX_CHG 500     // bursts higher if needed
+#define BATTERY_TYPES_COUNT  1        /* only one type */
 
 #define CONFIG_BATTERY_MEASURE VOLTAGE_MEASURE
 
@@ -146,22 +147,8 @@
 /* Define this if you have a Ingenic JZ4760B */
 #define CONFIG_CPU JZ4760B
 
-/* If we have adjustable frequency */
-#define CPUFREQ_MAX      480000000  // datasheet sez 600MHz max.  Must be multiple of 48!
-#define CPUFREQ_MIN      192000000
-#define CPUFREQ_NORMAL   CPUFREQ_MIN
-
-#ifndef BOOTLOADER
-//#define HAVE_ADJUSTABLE_CPU_FREQ
-//#define HAVE_GUI_BOOST
-#endif
-
-#ifdef HAVE_ADJUSTABLE_CPU_FREQ
-#define CPUFREQ_DEFAULT  CPUFREQ_MIN
-#else
-#define CPUFREQ_DEFAULT  CPUFREQ_MAX
-#define CPU_FREQ         CPUFREQ_MAX
-#endif
+/* Define this to the CPU frequency */
+#define CPU_FREQ 492000000    /* CPU clock: 492 MHz */
 
 /* Define this if you want to use the JZ47XX i2c interface */
 #define CONFIG_I2C I2C_JZ47XX
@@ -174,13 +161,12 @@
 /* Type of LCD */
 #define CONFIG_LCD LCD_XDUOOX3
 
-#ifndef BOOTLOADER
 /* USB On-the-go */
 #define CONFIG_USBOTG     USBOTG_JZ4760
 
 /* enable these for the experimental usb stack */
 #define HAVE_USBSTACK
-//#define HAVE_BOOTLOADER_USB_MODE
+#define HAVE_BOOTLOADER_USB_MODE
 
 /* Connect by events, not by tick polling */
 #define USB_STATUS_BY_EVENT
@@ -190,7 +176,6 @@
 
 #define USB_NUM_ENDPOINTS  3
 #define USB_DEVBSS_ATTR    IBSS_ATTR
-#endif /* !BOOTLOADER */
 
 #define BOOTFILE_EXT "x3"
 #define BOOTFILE     "rockbox." BOOTFILE_EXT
@@ -200,7 +185,7 @@
 
 #define ICODE_ATTR_TREMOR_NOT_MDCT
 
-#endif /* !SIMULATOR */
+#endif /* SIMULATOR */
 
 /** Port-specific settings **/
 

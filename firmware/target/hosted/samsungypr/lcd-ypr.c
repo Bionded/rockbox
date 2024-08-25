@@ -23,11 +23,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include "config.h"
+#include "file.h"
 #include "debug.h"
 #include "system.h"
 #include "screendump.h"
@@ -66,17 +66,17 @@ void lcd_init_device(void)
         exit(2);
     }
 
-    /* Now we get the settable settings */
+    /* Now we get the settable settings, and we set 16 bit bpp */
     if (ioctl(dev_fd, FBIOGET_VSCREENINFO, &vinfo) == -1) {
         perror("Error reading variable information");
         exit(3);
     }
 
-    vinfo.bits_per_pixel = LCD_DEPTH; /* Explicitly set our desired depth */
+    vinfo.bits_per_pixel = LCD_DEPTH;
 
     if (ioctl(dev_fd, FBIOPUT_VSCREENINFO, &vinfo)) {
-        perror("fbset(ioctl)");
-        exit(4);
+            perror("fbset(ioctl)");
+            exit(4);
     }
 
     printf("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
@@ -84,17 +84,17 @@ void lcd_init_device(void)
     /* Figure out the size of the screen in bytes */
     screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
     if (screensize != FRAMEBUFFER_SIZE) {
+        exit(4);
         perror("Display and framebuffer mismatch!\n");
-        exit(5);
     }
 
     /* Map the device to memory */
     dev_fb = mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, dev_fd, 0);
     if ((int)dev_fb == -1) {
         perror("Error: failed to map framebuffer device to memory");
-        exit(6);
+        exit(4);
     }
-    printf("Framebuffer device successfully mapped into memory.\n");
+    printf("The framebuffer device was mapped to memory successfully.\n");
 
     /* Be sure to turn on display at startup */
     ioctl(dev_fd, FBIOBLANK, VESA_NO_BLANKING);

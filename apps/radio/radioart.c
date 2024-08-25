@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "system.h"
-#include "rbpaths.h"
+#include "settings.h"
 #include "radio.h"
 #include "buffering.h"
 #include "playback.h" /* bufopen_user_data */
@@ -33,7 +33,6 @@
 #include "string-extra.h"
 #include "pathfuncs.h"
 #include "core_alloc.h"
-#include "splash.h"
 
 #define MAX_RADIOART_IMAGES 10
 struct radioart {
@@ -82,14 +81,14 @@ static int load_radioart_image(struct radioart *ra, const char* preset_name,
 #endif
         return -1;
     }
-    strmemccpy(ra->name, preset_name, MAX_FMPRESET_LEN+1);
+    strlcpy(ra->name, preset_name, MAX_FMPRESET_LEN+1);
     ra->dim.height = dim->height;
     ra->dim.width = dim->width;
     ra->last_tick = current_tick;
     user_data.embedded_albumart = NULL;
     user_data.dim = &ra->dim;
     ra->handle = bufopen(path, 0, TYPE_BITMAP, &user_data);
-    if (ra->handle == ERR_BUFFER_FULL || ra->handle == ERR_BITMAP_TOO_LARGE)
+    if (ra->handle == ERR_BUFFER_FULL)
     {
         int i = find_oldest_image_index();
         if (i != -1)
@@ -202,13 +201,7 @@ void radioart_init(bool entering_screen)
     {
         /* grab control over buffering */
         size_t bufsize;
-        int handle = core_alloc_maximum(&bufsize, &radioart_ops);
-        if (handle <0)
-        {
-            splash(HZ, "Radioart Failed - OOM");
-            return;
-        }
-
+        int handle = core_alloc_maximum("radioart", &bufsize, &radioart_ops);
         buffering_reset(core_get_data(handle), bufsize);
         buf = core_get_data(handle);
         /* one-shot */

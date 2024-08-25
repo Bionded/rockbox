@@ -42,7 +42,37 @@ enum {
     BJ_END,
 };
 
-#if CONFIG_KEYPAD == IRIVER_H10_PAD
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define BJACK_SELECT_NAME   "PLAY"
+#define BJACK_STAY_NAME     "F1"
+#define BJACK_QUIT_NAME     "OFF"
+#define BJACK_DOUBLE_NAME   "F2"
+#define BJACK_SELECT        BUTTON_PLAY
+#define BJACK_QUIT          BUTTON_OFF
+#define BJACK_MAX           (BUTTON_ON|BUTTON_UP)
+#define BJACK_MIN           (BUTTON_ON|BUTTON_DOWN)
+#define BJACK_STAY          BUTTON_F1
+#define BJACK_DOUBLEDOWN    BUTTON_F2
+#define BJACK_UP            BUTTON_UP
+#define BJACK_DOWN          BUTTON_DOWN
+#define BJACK_RIGHT         BUTTON_RIGHT
+#define BJACK_LEFT          BUTTON_LEFT
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define BJACK_SELECT_NAME    "MENU"
+#define BJACK_STAY_NAME     "RIGHT"
+#define BJACK_QUIT_NAME     "OFF"
+#define BJACK_DOUBLE_NAME   "UP"
+#define BJACK_SELECT        BUTTON_MENU
+#define BJACK_QUIT          BUTTON_OFF
+#define BJACK_STAY          BUTTON_RIGHT
+#define BJACK_DOUBLEDOWN    BUTTON_UP
+#define BJACK_UP            BUTTON_UP
+#define BJACK_DOWN          BUTTON_DOWN
+#define BJACK_RIGHT         BUTTON_RIGHT
+#define BJACK_LEFT          BUTTON_LEFT
+
+#elif CONFIG_KEYPAD == IRIVER_H10_PAD
 #define BJACK_SELECT_NAME    "PLAY"
 #define BJACK_STAY_NAME     ">>|"
 #define BJACK_QUIT_NAME     "POWER"
@@ -99,6 +129,22 @@ enum {
 #define BJACK_MIN           (BUTTON_PLAY|BUTTON_DOWN)
 #define BJACK_STAY          BUTTON_REC
 #define BJACK_DOUBLEDOWN    BUTTON_PLAY
+#define BJACK_UP            BUTTON_UP
+#define BJACK_DOWN          BUTTON_DOWN
+#define BJACK_RIGHT         BUTTON_RIGHT
+#define BJACK_LEFT          BUTTON_LEFT
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define BJACK_SELECT_NAME    "MODE"
+#define BJACK_STAY_NAME     "MODE"
+#define BJACK_QUIT_NAME     "PLAY"
+#define BJACK_DOUBLE_NAME   "SELECT"
+#define BJACK_SELECT        BUTTON_MODE
+#define BJACK_QUIT          BUTTON_PLAY
+#define BJACK_MAX           (BUTTON_EQ|BUTTON_UP)
+#define BJACK_MIN           (BUTTON_EQ|BUTTON_DOWN)
+#define BJACK_STAY          BUTTON_MODE
+#define BJACK_DOUBLEDOWN    BUTTON_SELECT
 #define BJACK_UP            BUTTON_UP
 #define BJACK_DOWN          BUTTON_DOWN
 #define BJACK_RIGHT         BUTTON_RIGHT
@@ -180,6 +226,22 @@ enum {
 #define BJACK_MIN           BUTTON_VOL_DOWN
 #define BJACK_STAY          BUTTON_RIGHT
 #define BJACK_DOUBLEDOWN    BUTTON_LEFT
+#define BJACK_UP            BUTTON_UP
+#define BJACK_DOWN          BUTTON_DOWN
+#define BJACK_RIGHT         BUTTON_RIGHT
+#define BJACK_LEFT          BUTTON_LEFT
+
+#elif CONFIG_KEYPAD == TATUNG_TPJ1022_PAD
+#define BJACK_SELECT_NAME    "MAIN"
+#define BJACK_STAY_NAME     "MENU"
+#define BJACK_QUIT_NAME     "POWER"
+#define BJACK_DOUBLE_NAME   "DOWN"
+#define BJACK_SELECT        BUTTON_MAIN
+#define BJACK_QUIT          BUTTON_POWER
+#define BJACK_MAX           (BUTTON_REC|BUTTON_UP)
+#define BJACK_MIN           (BUTTON_REC|BUTTON_DOWN)
+#define BJACK_STAY          BUTTON_MENU
+#define BJACK_DOUBLEDOWN    BUTTON_DOWN
 #define BJACK_UP            BUTTON_UP
 #define BJACK_DOWN          BUTTON_DOWN
 #define BJACK_RIGHT         BUTTON_RIGHT
@@ -511,7 +573,7 @@ enum {
 #define BJACK_QUIT_NAME     "Volume up"
 #define BJACK_DOUBLE_NAME   "Option+Down"
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define BJACK_SELECT_NAME   "PLAY"
 #define BJACK_STAY_NAME     "NEXT"
 #define BJACK_QUIT_NAME     "POWER"
@@ -527,23 +589,7 @@ enum {
 #define BJACK_RIGHT         BUTTON_NEXT
 #define BJACK_LEFT          BUTTON_PREV
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define BJACK_SELECT_NAME   "PLAY"
-#define BJACK_STAY_NAME     "NEXT"
-#define BJACK_QUIT_NAME     "POWER"
-#define BJACK_DOUBLE_NAME   "PREV"
-#define BJACK_SELECT        BUTTON_PLAY
-#define BJACK_QUIT          BUTTON_POWER
-#define BJACK_MAX           BUTTON_VOL_UP
-#define BJACK_MIN           BUTTON_VOL_DOWN
-#define BJACK_STAY          BUTTON_NEXT
-#define BJACK_DOUBLEDOWN    BUTTON_PREV
-#define BJACK_UP            BUTTON_HOME
-#define BJACK_DOWN          BUTTON_OPTION
-#define BJACK_RIGHT         BUTTON_NEXT
-#define BJACK_LEFT          BUTTON_PREV
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define BJACK_SELECT_NAME   "PLAY"
 #define BJACK_STAY_NAME     "NEXT"
 #define BJACK_QUIT_NAME     "POWER"
@@ -559,7 +605,7 @@ enum {
 #define BJACK_RIGHT         BUTTON_NEXT
 #define BJACK_LEFT          BUTTON_PREV
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define BJACK_SELECT_NAME   "PLAY"
 #define BJACK_STAY_NAME     "NEXT"
 #define BJACK_QUIT_NAME     "POWER"
@@ -568,32 +614,12 @@ enum {
 #define BJACK_QUIT          BUTTON_POWER
 #define BJACK_MAX           BUTTON_VOL_UP
 #define BJACK_MIN           BUTTON_VOL_DOWN
-#define BJACK_STAY          BUTTON_MENU
-#define BJACK_DOUBLEDOWN    BUTTON_BACK
-#define BJACK_UP            BUTTON_PREV
-#define BJACK_DOWN          BUTTON_NEXT
-#define BJACK_RIGHT         BUTTON_SCROLL_FWD
-#define BJACK_LEFT          BUTTON_SCROLL_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define BJACK_SELECT_NAME   "SELECT"
-#define BJACK_STAY_NAME     "PLAY"
-#define BJACK_QUIT_NAME     "POWER"
-#define BJACK_DOUBLE_NAME   "MENU"
-#define BJACK_SELECT        BUTTON_SELECT
-#define BJACK_QUIT          BUTTON_POWER
-#define BJACK_MAX           BUTTON_VOL_UP
-#define BJACK_MIN           BUTTON_VOL_DOWN
-#define BJACK_STAY          BUTTON_PLAY
-#define BJACK_DOUBLEDOWN    BUTTON_MENU
-#define BJACK_UP            BUTTON_UP
-#define BJACK_DOWN          BUTTON_DOWN
-#define BJACK_RIGHT         BUTTON_RIGHT
-#define BJACK_LEFT          BUTTON_LEFT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#define BJACK_QUIT          BUTTON_POWER
-#define BJACK_QUIT_NAME     "QUIT"
+#define BJACK_STAY          BUTTON_NEXT
+#define BJACK_DOUBLEDOWN    BUTTON_PREV
+#define BJACK_UP            BUTTON_HOME
+#define BJACK_DOWN          (BUTTON_POWER | BUTTON_HOME)
+#define BJACK_RIGHT         BUTTON_NEXT
+#define BJACK_LEFT          BUTTON_PREV
 
 #else
 #error No keymap defined!
@@ -1057,7 +1083,7 @@ static void blackjack_savegame(struct game_context* bj) {
 /*****************************************************************************
 * blackjack_get_yes_no() gets a yes/no answer from the user
 ******************************************************************************/
-static unsigned int blackjack_get_yes_no(const char *message) {
+static unsigned int blackjack_get_yes_no(char message[20]) {
     int button;
     unsigned int w, h, b, choice = 0;
     bool breakout = false;
@@ -1118,7 +1144,7 @@ static unsigned int blackjack_get_yes_no(const char *message) {
 /*****************************************************************************
 * blackjack_get_amount() gets an amount from the player to be used
 ******************************************************************************/
-static signed int blackjack_get_amount(const char *message,
+static signed int blackjack_get_amount(const char message[20],
                                        signed int lower_limit,
                                        signed int upper_limit,
                                        signed int start) {
@@ -1360,11 +1386,8 @@ static bool blackjack_help(void) {
     return false;
 }
 
-static int blackjack_menu_cb(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int blackjack_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM
        && !resume && (i==0 || i==5))

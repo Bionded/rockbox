@@ -14,29 +14,22 @@ STARTUP(target/arm/tms320dm320/crt0.o)
 #define LCD_NATIVE_HEIGHT LCD_HEIGHT
 #endif
 
+#define LCD_FUDGE       LCD_NATIVE_WIDTH%32
+
+#define LCD_BUFFER_SIZE ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
+
 /* must be 16Kb (0x4000) aligned */
 #define TTB_SIZE        0x4000
 
-#define DRAMSIZE        (MEMORYSIZE * 0x100000)
-#define DRAMORIG        CONFIG_SDRAM_START
-
-
-#ifdef MROBE_500
-#define LCD_FUDGE       LCD_NATIVE_WIDTH%32
-#define LCD_BUFFER_SIZE ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
 /* Give this some memory to allow it to align to the MMU boundary.
  * Note that since there are two buffers (YUV/RGB) it calculates the approximate
  * memory needed in steps of 1 Meg.
  */
-#define LCD_TTB_AREA    (0x100000*((LCD_BUFFER_SIZE>>19)+1))
-#else
-#define LCD_BUFFER_SIZE (LCD_NATIVE_WIDTH*LCD_NATIVE_HEIGHT*2)
-#define LCD_TTB_AREA    (TTB_SIZE + LCD_BUFFER_SIZE)
-#endif
+#define LCD_TTB_AREA    0x100000*((LCD_BUFFER_SIZE>>19)+1)
 
-/* End of the audio buffer, where the codec buffer starts */
-#define ENDAUDIOADDR  \
-    (DRAMORIG + DRAMSIZE - PLUGIN_BUFFER_SIZE - CODEC_SIZE - LCD_TTB_AREA)
+#define DRAMSIZE (MEMORYSIZE * 0x100000)
+
+#define DRAMORIG        CONFIG_SDRAM_START
 
 #define FLASHORIG       0x00100000
 #define FLASHSIZE       0x00800000
@@ -50,6 +43,10 @@ STARTUP(target/arm/tms320dm320/crt0.o)
 PRO_STACK_SIZE =  0x2000;
 IRQ_STACK_SIZE =  0x600;
 FIQ_STACK_SIZE =  0x400;
+
+/* End of the audio buffer, where the codec buffer starts */
+#define ENDAUDIOADDR  \
+    (DRAMORIG + DRAMSIZE - PLUGIN_BUFFER_SIZE - CODEC_SIZE - LCD_TTB_AREA)
 
 MEMORY
 {
@@ -108,7 +105,7 @@ SECTIONS
         *(.rodata*)
     } > DRAM
 
-    .data :
+    .data : 
     {
         . = ALIGN(0x4);
         *(.data*)
@@ -145,12 +142,12 @@ SECTIONS
     } > ITCM
 
     /* Program stack space */
-    .pro_stack (NOLOAD):
+    .pro_stack (NOLOAD): 
     {
         . = ALIGN(0x4);
         *(.stack)
         stackbegin = .;        /* Variable for thread.c */
-        _pro_stack_end = .;
+        _pro_stack_end = .;       
         . += PRO_STACK_SIZE;
         _pro_stack_start = .;
         stackend = .;          /* Variable for tread.c */
@@ -196,48 +193,31 @@ SECTIONS
         pluginbuf = .;
         . += PLUGIN_BUFFER_SIZE;
     } > DRAM
-
+    
     _endsdram = .;
 
-#ifdef MROBE_500
     .ttbtable (NOLOAD) :
     {
         . = ALIGN (0x4000);
         _ttbstart = .;
         . += TTB_SIZE;
     } > DRAM
-
+    
     /* The LCD buffer should be at the end of memory to protect against
-     * overflowing something else when the YUV blitter is fudging the screen
+     * overflowing something else when the YUV blitter is fudging the screen 
      * size.
      */
-
+    
     .lcdbuffer (NOLOAD) :
     {
         _lcdbuf = .;
         . += LCD_BUFFER_SIZE;
     } > DRAM
-
+    
     .lcdbuffer2 (NOLOAD) :
     {
         _lcdbuf2 = .;
         . += LCD_BUFFER_SIZE;
     } > DRAM
-#else
-    .lcdbuffer (NOLOAD) :
-    {
-        . = ALIGN(32);
-        _lcdbuf = .;
-        . += LCD_BUFFER_SIZE;
-    } > DRAM
-
-    /* Place TTB at the end of RAM to minimize alignment losses */
-    .ttbtable (NOLOAD) :
-    {
-        . = ALIGN (0x4000);
-        _ttbstart = .;
-        . += TTB_SIZE;
-    } > DRAM
-#endif
 }
 

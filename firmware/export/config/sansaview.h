@@ -19,8 +19,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -71,8 +71,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 /* There is no hardware tone control */
 /* #define HAVE_SW_TONE_CONTROLS*/
 #define HAVE_WM8731
@@ -153,6 +153,12 @@
 
 /* Type of LCD */
 #define CONFIG_LCD LCD_VIEW
+
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file
+   Required for bootloader/common.c to compile */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
 
 #ifndef BOOTLOADER
 #define HAVE_MULTIDRIVE

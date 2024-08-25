@@ -153,7 +153,7 @@
     *: "Учитавам... %d%% завршено (%s)"
   </dest>
   <voice>
-    *: "Учитавам"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -247,18 +247,22 @@
   <source>
     *: "PLAY = Yes"
     cowond2*: "MENU, or top-right = Yes"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
+    creativezen*: "Select = Yes"
   </source>
   <dest>
     *: "PLAY = Да"
     cowond2*: "MENU, или горе-десно = Да"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Да"
     iriverh100,iriverh120,iriverh300: "NAVI = Да"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Да"
     mrobe500: "PLAY, POWER, или горе-десно = Да"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Да"
+    creativezen*: "Select = Да"
   </dest>
   <voice>
     *: ""
@@ -270,12 +274,15 @@
   user: core
   <source>
     *: "Any Other = No"
+    archosplayer: none
   </source>
   <dest>
     *: "Било које друго = Не"
+    archosplayer: none
   </dest>
   <voice>
     *: ""
+    archosplayer: none
   </voice>
 </phrase>
 <phrase>
@@ -793,13 +800,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Кросфид"
+    *: none
+    swcodec: "Crossfeed"
   </dest>
   <voice>
-    *: "Кросфид"
+    *: none
+    swcodec: "Crossfeed"
   </voice>
 </phrase>
 <phrase>
@@ -807,13 +817,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Појачање директног сигнала"
+    *: none
+    swcodec: "Појачање директног сигнала"
   </dest>
   <voice>
-    *: "Појачање директног сигнала"
+    *: none
+    swcodec: "Појачање директног сигнала"
   </voice>
 </phrase>
 <phrase>
@@ -821,13 +834,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "Појачање унакрсног сигнала"
+    *: none
+    swcodec: "Појачање унакрсног сигнала"
   </dest>
   <voice>
-    *: "Појачање унакрсног сигнала"
+    *: none
+    swcodec: "Појачање унакрсног сигнала"
   </voice>
 </phrase>
 <phrase>
@@ -835,13 +851,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Слабљење високих фрекв."
+    *: none
+    swcodec: "Слабљење високих фрекв."
   </dest>
   <voice>
-    *: "Слабљење високих фреквенција"
+    *: none
+    swcodec: "Слабљење високих фреквенција"
   </voice>
 </phrase>
 <phrase>
@@ -849,13 +868,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Гранична фрекв. ВФ филтра"
+    *: none
+    swcodec: "Гранична фрекв. ВФ филтра"
   </dest>
   <voice>
-    *: "Гранична фрекв ВФ филтра"
+    *: none
+    swcodec: "Гранична фрекв ВФ филтра"
   </voice>
 </phrase>
 <phrase>
@@ -863,13 +885,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Еквилајзер"
+    *: none
+    swcodec: "Еквилајзер"
   </dest>
   <voice>
-    *: "Еквилајзер"
+    *: none
+    swcodec: "Еквилајзер"
   </voice>
 </phrase>
 <phrase>
@@ -877,13 +902,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Укључи EQ"
+    *: none
+    swcodec: "Укључи EQ"
   </dest>
   <voice>
-    *: "Укључи еквилајзер"
+    *: none
+    swcodec: "Укључи еквилајзер"
   </voice>
 </phrase>
 <phrase>
@@ -891,13 +919,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Графички EQ"
+    *: none
+    swcodec: "Графички EQ"
   </dest>
   <voice>
-    *: "Графички еквилајзер"
+    *: none
+    swcodec: "Графички еквилајзер"
   </voice>
 </phrase>
 <phrase>
@@ -905,13 +936,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Предслабљење"
+    *: none
+    swcodec: "Предслабљење"
   </dest>
   <voice>
-    *: "Предслабљење"
+    *: none
+    swcodec: "Предслабљење"
   </voice>
 </phrase>
 <phrase>
@@ -919,13 +953,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Једноставна EQ подешавања"
+    *: none
+    swcodec: "Једноставна EQ подешавања"
   </dest>
   <voice>
-    *: "Једноставна подешавања еквилајзера"
+    *: none
+    swcodec: "Једноставна подешавања еквилајзера"
   </voice>
 </phrase>
 <phrase>
@@ -933,13 +970,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Напредна EQ подешавања"
+    *: none
+    swcodec: "Напредна EQ подешавања"
   </dest>
   <voice>
-    *: "Напредна подешавања еквилајзера"
+    *: none
+    swcodec: "Напредна подешавања еквилајзера"
   </voice>
 </phrase>
 <phrase>
@@ -947,13 +987,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Сними EQ поставку"
+    *: none
+    swcodec: "Сними EQ поставку"
   </dest>
   <voice>
-    *: "Сними поставку еквилајзера"
+    *: none
+    swcodec: "Сними поставку еквилајзера"
   </voice>
 </phrase>
 <phrase>
@@ -961,13 +1004,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Прегледај EQ поставке"
+    *: none
+    swcodec: "Прегледај EQ поставке"
   </dest>
   <voice>
-    *: "Прегледај поставке еквилајзера"
+    *: none
+    swcodec: "Прегледај поставке еквилајзера"
   </voice>
 </phrase>
 <phrase>
@@ -975,13 +1021,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Режим уређивања: %s"
+    *: none
+    swcodec: "Мод подешавања: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -989,13 +1038,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "Појачање у %d Hz појасу"
+    *: none
+    swcodec: "Појачање у %d Hz појасу"
   </dest>
   <voice>
-    *: "херц појас појачање"
+    *: none
+    swcodec: "херц појас појачање"
   </voice>
 </phrase>
 <phrase>
@@ -1003,13 +1055,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Low Shelf филтер"
+    *: none
+    swcodec: "Low Shelf филтер"
   </dest>
   <voice>
-    *: "Low shelf филтер"
+    *: none
+    swcodec: "Low shelf филтер"
   </voice>
 </phrase>
 <phrase>
@@ -1017,13 +1072,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Вршни филтер %d"
+    *: none
+    swcodec: "Вршни филтер %d"
   </dest>
   <voice>
-    *: "Вршни филтер"
+    *: none
+    swcodec: "Вршни филтер"
   </voice>
 </phrase>
 <phrase>
@@ -1031,13 +1089,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "High Shelf филтер"
+    *: none
+    swcodec: "High Shelf филтер"
   </dest>
   <voice>
-    *: "High shelf филтер"
+    *: none
+    swcodec: "High shelf филтер"
   </voice>
 </phrase>
 <phrase>
@@ -1045,13 +1106,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Гранична фреквенција"
+    *: none
+    swcodec: "Гранична фреквенција"
   </dest>
   <voice>
-    *: "Гранична фреквенција"
+    *: none
+    swcodec: "Гранична фреквенција"
   </voice>
 </phrase>
 <phrase>
@@ -1059,13 +1123,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Централна фреквенција"
+    *: none
+    swcodec: "Централна фреквенција"
   </dest>
   <voice>
-    *: "Централна фреквенција"
+    *: none
+    swcodec: "Централна фреквенција"
   </voice>
 </phrase>
 <phrase>
@@ -1073,27 +1140,186 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q-фактор"
+    *: none
+    swcodec: "Q-фактор"
   </dest>
   <voice>
-    *: "Q-фактор"
+    *: none
+    swcodec: "Q-фактор"
   </voice>
 </phrase>
 <phrase>
   id: LANG_DITHERING
-  desc: in the sound settings and some other menus
+  desc: in the sound settings menu
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </source>
   <dest>
-    *: "Дитер"
+    *: none
+    swcodec: "Дитер"
   </dest>
   <voice>
-    *: "Дитер"
+    *: none
+    swcodec: "Дитер"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_LOUDNESS
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Loudness"
+  </source>
+  <dest>
+    *: none
+    masf: "Гласност"
+  </dest>
+  <voice>
+    *: none
+    masf: "Гласност"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTOVOL
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Auto Volume"
+  </source>
+  <dest>
+    *: none
+    masf: "Ауто јачина"
+  </dest>
+  <voice>
+    *: none
+    masf: "Ауто јачина"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_DECAY
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "AV Decay Time"
+  </source>
+  <dest>
+    *: none
+    masf: "Време опадања за AV"
+  </dest>
+  <voice>
+    *: none
+    masf: "Време опадања за AV"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SUPERBASS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "Super Bass"
+  </source>
+  <dest>
+    *: none
+    masf: "Супер Бас"
+  </dest>
+  <voice>
+    *: none
+    masf: "Супер Бас"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_ENABLE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Enable"
+  </source>
+  <dest>
+    *: none
+    masf: "Укључи MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Укључи MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_STRENGTH
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Strength"
+  </source>
+  <dest>
+    *: none
+    masf: "Јачина MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Јачина MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_HARMONICS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Harmonics"
+  </source>
+  <dest>
+    *: none
+    masf: "Хармоници MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Хармоници MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_CENTER
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Centre Frequency"
+  </source>
+  <dest>
+    *: none
+    masf: "Централна фреквенција MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Централна фреквенција MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_SHAPE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Shape"
+  </source>
+  <dest>
+    *: none
+    masf: "Облик MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Облик MDB"
   </voice>
 </phrase>
 <phrase>
@@ -1289,10 +1515,10 @@
     *: "Party Mode"
   </source>
   <dest>
-    *: "Режим за журке"
+    *: "Мод за журке"
   </dest>
   <voice>
-    *: "Режим за журке"
+    *: "Мод за журке"
   </voice>
 </phrase>
 <phrase>
@@ -1305,11 +1531,11 @@
   </source>
   <dest>
     *: none
-    crossfade: "Претапање"
+    crossfade: "Crossfade"
   </dest>
   <voice>
     *: none
-    crossfade: "Претапање"
+    crossfade: "Crossfade"
   </voice>
 </phrase>
 <phrase>
@@ -1322,11 +1548,11 @@
   </source>
   <dest>
     *: none
-    crossfade: "Укључи претапање"
+    crossfade: "Укључи Crossfade"
   </dest>
   <voice>
     *: none
-    crossfade: "Укључи претапање"
+    crossfade: "Укључи Crossfade"
   </voice>
 </phrase>
 <phrase>
@@ -1441,11 +1667,11 @@
   </source>
   <dest>
     *: none
-    crossfade: "Fade-Out режим"
+    crossfade: "Fade-Out мод"
   </dest>
   <voice>
     *: none
-    crossfade: "Fade-Out режим"
+    crossfade: "Fade-Out мод"
   </voice>
 </phrase>
 <phrase>
@@ -1458,11 +1684,11 @@
   </source>
   <dest>
     *: none
-    crossfade: "Микс"
+    crossfade: "Mix"
   </dest>
   <voice>
     *: none
-    crossfade: "Микс"
+    crossfade: "Mix"
   </voice>
 </phrase>
 <phrase>
@@ -1476,7 +1702,7 @@
     *: "Replaygain"
   </dest>
   <voice>
-    *: "Риплејгејн"
+    *: "Replaygain"
   </voice>
 </phrase>
 <phrase>
@@ -1484,13 +1710,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Спречи клиповање"
+    *: none
+    swcodec: "Спречи клиповање"
   </dest>
   <voice>
-    *: "Спречи клиповање"
+    *: none
+    swcodec: "Спречи клиповање"
   </voice>
 </phrase>
 <phrase>
@@ -1515,10 +1744,10 @@
     *: "Album Gain"
   </source>
   <dest>
-    *: "Појачање албума"
+    *: "Album Gain"
   </dest>
   <voice>
-    *: "Појачање албума"
+    *: "Album Gain"
   </voice>
 </phrase>
 <phrase>
@@ -1529,10 +1758,10 @@
     *: "Track Gain"
   </source>
   <dest>
-    *: "Појачање нумере"
+    *: "Track Gain"
   </dest>
   <voice>
-    *: "Појачање нумере"
+    *: "Track Gain"
   </voice>
 </phrase>
 <phrase>
@@ -1543,10 +1772,10 @@
     *: "Track Gain if Shuffling"
   </source>
   <dest>
-    *: "Појачање нумере ако се меша"
+    *: "Track Gain ако се меша"
   </dest>
   <voice>
-    *: "Појачање нумере ако се меша"
+    *: "Track Gain ако се меша"
   </voice>
 </phrase>
 <phrase>
@@ -1568,13 +1797,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Бип код прескакања нумера"
+    *: none
+    swcodec: "Бип код прескакања нумера"
   </dest>
   <voice>
-    *: "Бип код прескакања нумера"
+    *: none
+    swcodec: "Бип код прескакања нумера"
   </voice>
 </phrase>
 <phrase>
@@ -1582,13 +1814,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Тихо"
+    *: none
+    swcodec: "Тихо"
   </dest>
   <voice>
-    *: "Тихо"
+    *: none
+    swcodec: "Тихо"
   </voice>
 </phrase>
 <phrase>
@@ -1596,13 +1831,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Средње"
+    *: none
+    swcodec: "Средње"
   </dest>
   <voice>
-    *: "Средње"
+    *: none
+    swcodec: "Средње"
   </voice>
 </phrase>
 <phrase>
@@ -1610,13 +1848,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Јако"
+    *: none
+    swcodec: "Јако"
   </dest>
   <voice>
-    *: "Јако"
+    *: none
+    swcodec: "Јако"
   </voice>
 </phrase>
 <phrase>
@@ -1666,16 +1907,16 @@
 </phrase>
 <phrase>
   id: LANG_AUDIOSCROBBLER
-  desc: "Last.fm Logger" in Plugin/apps/scrobbler
+  desc: "Last.fm Log" in the playback menu
   user: core
   <source>
-    *: "Last.fm Logger"
+    *: "Last.fm Log"
   </source>
   <dest>
-    *: "Креатор Last.fm дневника"
+    *: "Last.fm дневник"
   </dest>
   <voice>
-    *: "Креатор Last.fm дневника"
+    *: "Last.fm дневник"
   </voice>
 </phrase>
 <phrase>
@@ -1724,6 +1965,20 @@
   <voice>
     *: none
     headphone_detection: "Паузирај и настави"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -1959,17 +2214,21 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Креирам базу података... %d пронађено (OFF за повратак)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Креирам базу података... %d пронађено (LEFT за повратак)"
-    gogearsa9200: "Креирам базу података... %d пронађено (REW за повратак)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Креирам базу података... %d пронађено (PREV за повратак)"
     iriverh100,iriverh120,iriverh300: "Креирам базу података... %d пронађено (STOP за повратак)"
+    ipod*: "Креирам базу података... %d пронађено (PREV за повратак)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Креирам базу података... %d пронађено (LEFT за повратак)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Креирам базу података... %d пронађено (PREV за повратак)"
+    gogearsa9200: "Креирам базу података... %d пронађено (REW за повратак)"
+    archosplayer: "Креирам БП %d пронађено"
   </dest>
   <voice>
     *: "пронађене ставке за базу"
@@ -2151,13 +2410,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Фонт"
+    *: none
+    lcd_bitmap: "Фонт"
   </dest>
   <voice>
-    *: "Фонт"
+    *: none
+    lcd_bitmap: "Фонт"
   </voice>
 </phrase>
 <phrase>
@@ -2241,16 +2503,16 @@
   desc: in lcd settings
   user: core
   <source>
-    *: "Backlight on Lock"
+    *: none
     hold_button: "Backlight on Hold"
   </source>
   <dest>
-    *: "Позадинско осветљење на Lock"
+    *: none
     hold_button: "Позадинско осветљење на Hold"
   </dest>
   <voice>
-    *: "Позадинско осветљење на Лок"
-    hold_button: "Позадинско осветљење на Холд"
+    *: none
+    hold_button: "Позадинско осветљење на Hold"
   </voice>
 </phrase>
 <phrase>
@@ -2333,6 +2595,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_NEVER
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_sleep: ""
+  </source>
+  <dest>
+    *: none
+    lcd_sleep: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_sleep: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BRIGHTNESS
   desc: in settings_menu
   user: core
@@ -2373,11 +2652,11 @@
   </source>
   <dest>
     *: none
-    lcd_invert,remote_lcd_invert: "LCD режим"
+    lcd_invert,remote_lcd_invert: "LCD мод"
   </dest>
   <voice>
     *: none
-    lcd_invert,remote_lcd_invert: "LCD режим"
+    lcd_invert,remote_lcd_invert: "LCD мод"
   </voice>
 </phrase>
 <phrase>
@@ -2402,13 +2681,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Изврнуто"
+    *: none
+    lcd_bitmap: "Изврнуто"
   </dest>
   <voice>
-    *: "Изврнуто"
+    *: none
+    lcd_bitmap: "Изврнуто"
   </voice>
 </phrase>
 <phrase>
@@ -2416,13 +2698,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Тип селектора линије"
+    *: none
+    lcd_bitmap: "Тип селектора линије"
   </dest>
   <voice>
-    *: "Тип селектора линије"
+    *: none
+    lcd_bitmap: "Тип селектора линије"
   </voice>
 </phrase>
 <phrase>
@@ -2430,13 +2715,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Показивач"
+    *: none
+    lcd_bitmap: "Показивач"
   </dest>
   <voice>
-    *: "Показивач"
+    *: none
+    lcd_bitmap: "Показивач"
   </voice>
 </phrase>
 <phrase>
@@ -2444,13 +2732,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Трака (инверзно)"
+    *: none
+    lcd_bitmap: "Трака (инверзно)"
   </dest>
   <voice>
-    *: "Трака инверзно"
+    *: none
+    lcd_bitmap: "Трака инверзно"
   </voice>
 </phrase>
 <phrase>
@@ -2740,13 +3031,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Екран скролује ван погледа"
+    *: none
+    lcd_bitmap: "Екран скролује ван погледа"
   </dest>
   <voice>
-    *: "Екран скролује ван погледа"
+    *: none
+    lcd_bitmap: "Екран скролује ван погледа"
   </voice>
 </phrase>
 <phrase>
@@ -2754,13 +3048,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Величина корака скроловања"
+    *: none
+    lcd_bitmap: "Величина корака скроловања"
   </dest>
   <voice>
-    *: "Величина корака скроловања"
+    *: none
+    lcd_bitmap: "Величина корака скроловања"
   </voice>
 </phrase>
 <phrase>
@@ -2816,13 +3113,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Статусна-/Скрол-линија"
+    *: none
+    lcd_bitmap: "Статусна-/Скрол-линија"
   </dest>
   <voice>
-    *: "Статусна- и скрол-линија"
+    *: none
+    lcd_bitmap: "Статусна- и скрол-линија"
   </voice>
 </phrase>
 <phrase>
@@ -2830,13 +3130,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Скрол линија"
+    *: none
+    lcd_bitmap: "Скрол линија"
   </dest>
   <voice>
-    *: "Скрол линија"
+    *: none
+    lcd_bitmap: "Скрол линија"
   </voice>
 </phrase>
 <phrase>
@@ -2844,13 +3147,33 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Статусна линија"
+    *: none
+    lcd_bitmap: "Статусна линија"
   </dest>
   <voice>
-    *: "Статусна линија"
+    *: none
+    lcd_bitmap: "Статусна линија"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BUTTON_BAR
+  desc: in settings menu
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Button Bar"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Линија са дугмићима"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Линија са дугмићима"
   </voice>
 </phrase>
 <phrase>
@@ -2858,13 +3181,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Приказ јачине"
+    *: none
+    lcd_bitmap: "Приказ јачине"
   </dest>
   <voice>
-    *: "Приказ јачине"
+    *: none
+    lcd_bitmap: "Приказ јачине"
   </voice>
 </phrase>
 <phrase>
@@ -2872,13 +3198,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Приказ батерије"
+    *: none
+    lcd_bitmap: "Приказ батерије"
   </dest>
   <voice>
-    *: "Приказ батерије"
+    *: none
+    lcd_bitmap: "Приказ батерије"
   </voice>
 </phrase>
 <phrase>
@@ -2886,13 +3215,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Графички"
+    *: none
+    lcd_bitmap: "Графички"
   </dest>
   <voice>
-    *: "Графички"
+    *: none
+    lcd_bitmap: "Графички"
   </voice>
 </phrase>
 <phrase>
@@ -2900,13 +3232,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Бројчано"
+    *: none
+    lcd_bitmap: "Бројчано"
   </dest>
   <voice>
-    *: "Бројчано"
+    *: none
+    lcd_bitmap: "Бројчано"
   </voice>
 </phrase>
 <phrase>
@@ -2915,12 +3250,15 @@
   user: core
   <source>
     *: "Peak Meter"
+    masd: none
   </source>
   <dest>
     *: "Мерач вршног нивоа"
+    masd: none
   </dest>
   <voice>
     *: "Мерач вршног нивоа"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2929,12 +3267,15 @@
   user: core
   <source>
     *: "Clip Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Време задржавања клип индикатора"
+    masd: none
   </dest>
   <voice>
     *: "Време задржавања клип индикатора"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2943,12 +3284,15 @@
   user: core
   <source>
     *: "Peak Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Време задржавања вршног нивоа"
+    masd: none
   </dest>
   <voice>
     *: "Време задржавања вршног нивоа"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2957,12 +3301,15 @@
   user: core
   <source>
     *: "Eternal"
+    masd: none
   </source>
   <dest>
     *: "Заувек"
+    masd: none
   </dest>
   <voice>
     *: "Заувек"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2971,12 +3318,15 @@
   user: core
   <source>
     *: "Peak Release"
+    masd: none
   </source>
   <dest>
     *: "Враћање врхова"
+    masd: none
   </dest>
   <voice>
     *: "Враћање врхова"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2985,12 +3335,15 @@
   user: core
   <source>
     *: "Scale"
+    masd: none
   </source>
   <dest>
     *: "Скала"
+    masd: none
   </dest>
   <voice>
     *: "Скала"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2999,12 +3352,15 @@
   user: core
   <source>
     *: "Logarithmic (dB)"
+    masd: none
   </source>
   <dest>
     *: "Логаритамска (dB)"
+    masd: none
   </dest>
   <voice>
     *: "Логаритамска децибели"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3013,12 +3369,15 @@
   user: core
   <source>
     *: "Linear (%)"
+    masd: none
   </source>
   <dest>
     *: "Линеарна (%)"
+    masd: none
   </dest>
   <voice>
     *: "Линеарна проценти"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3027,12 +3386,15 @@
   user: core
   <source>
     *: "Minimum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Минимум опсега"
+    masd: none
   </dest>
   <voice>
     *: "Минимум опсега"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3041,12 +3403,15 @@
   user: core
   <source>
     *: "Maximum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Максимум опсега"
+    masd: none
   </dest>
   <voice>
     *: "Максимум опсега"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3096,13 +3461,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "хебрејска (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "хебрејска (ISO-8859-8)"
   </dest>
   <voice>
-    *: "хебрејска"
+    *: none
+    lcd_bitmap: "хебрејска"
   </voice>
 </phrase>
 <phrase>
@@ -3124,13 +3492,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "тајландска (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "тајландска (ISO-8859-11)"
   </dest>
   <voice>
-    *: "тајландска"
+    *: none
+    lcd_bitmap: "тајландска"
   </voice>
 </phrase>
 <phrase>
@@ -3138,13 +3509,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "арапска (CP1256)"
+    *: none
+    lcd_bitmap: "арапска (CP1256)"
   </dest>
   <voice>
-    *: "арапска"
+    *: none
+    lcd_bitmap: "арапска"
   </voice>
 </phrase>
 <phrase>
@@ -3180,13 +3554,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "јапанска (SJIS)"
+    *: none
+    lcd_bitmap: "јапанска (SJIS)"
   </dest>
   <voice>
-    *: "јапанска"
+    *: none
+    lcd_bitmap: "јапанска"
   </voice>
 </phrase>
 <phrase>
@@ -3194,13 +3571,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "кинеска упрошћена (GB2312)"
+    *: none
+    lcd_bitmap: "кинеска упрошћена (GB2312)"
   </dest>
   <voice>
-    *: "кинеска упрошћена"
+    *: none
+    lcd_bitmap: "кинеска упрошћена"
   </voice>
 </phrase>
 <phrase>
@@ -3208,13 +3588,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "корејска (KSX1001)"
+    *: none
+    lcd_bitmap: "корејска (KSX1001)"
   </dest>
   <voice>
-    *: "корејска"
+    *: none
+    lcd_bitmap: "корејска"
   </voice>
 </phrase>
 <phrase>
@@ -3222,13 +3605,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "кинеска традиционална (BIG5)"
+    *: none
+    lcd_bitmap: "кинеска традиционална (BIG5)"
   </dest>
   <voice>
-    *: "кинеска традиционална"
+    *: none
+    lcd_bitmap: "кинеска традиционална"
   </voice>
 </phrase>
 <phrase>
@@ -3252,17 +3638,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Тајмаут светла за дугмиће"
-    sansae200*,sansafuze*: "Тајмаут светла за точак"
+    sansafuze*,sansae200*: "Тајмаут светла за точак"
   </dest>
   <voice>
     *: none
     button_light: "Тајмаут светла за дугмиће"
-    sansae200*,sansafuze*: "Тајмаут светла за точак"
+    sansafuze*,sansae200*: "Тајмаут светла за точак"
   </voice>
 </phrase>
 <phrase>
@@ -3370,43 +3756,37 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "Alkaline"
-    xduoox3: "Newer (2000 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "Алкална"
-    xduoox3: "Новија (2000 mAh)"
   </dest>
   <voice>
     *: none
     battery_types: "Алкална"
-    xduoox3: "Новија двехиљаде милиампер часова"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Older (1500 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Старија (1500 mAh)"
   </dest>
   <voice>
     *: none
     battery_types: "Никл метал хидридна"
-    xduoox3: "Старија хиљадупетсто милиампер часова"
   </voice>
 </phrase>
 <phrase>
@@ -3539,27 +3919,27 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Постави"
-    gogearsa9200,samsungyh*: "PLAY = Постави"
-    iriverh100,iriverh120,iriverh300: "NAVI = Постави"
-    mpiohd300: "ENTER = Постави"
-    mrobe500: "HEART = Постави"
     rtc: "ON = Постави"
+    mrobe500: "HEART = Постави"
+    iriverh100,iriverh120,iriverh300: "NAVI = Постави"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Постави"
+    gogearsa9200,samsungyh*: "PLAY = Постави"
     vibe500: "OK = Постави"
+    mpiohd300: "ENTER = Постави"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,iriverh10,iriverh10_5gb,iaudiox5,iaudiom5,ipod*,sansae200*,sansac200*,gigabeat*,mrobe100,gogearsa9200,samsungyh*: ""
   </voice>
 </phrase>
 <phrase>
@@ -3568,35 +3948,39 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Врати на старо"
-    gigabeats,sansafuzeplus: "BACK = Врати на старо"
-    gogearsa9200: "LEFT = Врати на старо"
-    iaudiom5,iaudiox5: "RECORD = Врати на старо"
-    ipod*,mpiohd300,sansac200*: "MENU = Врати на старо"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Врати на старо"
-    iriverh100,iriverh120,iriverh300: "STOP = Врати на старо"
-    mrobe100: "DISPLAY = Врати на старо"
     rtc: "OFF = Врати на старо"
-    samsungyh*: "REW = Врати на старо"
+    mrobe500: "POWER = Врати на старо"
+    iriverh100,iriverh120,iriverh300: "STOP = Врати на старо"
+    ipod*,sansac200*,mpiohd300: "MENU = Врати на старо"
+    iaudiox5,iaudiom5: "RECORD = Врати на старо"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Врати на старо"
+    gigabeatfx: "POWER = Врати на старо"
+    sansafuzeplus: "BACK = Врати на старо"
+    mrobe100: "DISPLAY = Врати на старо"
+    gigabeats: "BACK = Врати на старо"
+    gogearsa9200: "LEFT = Врати на старо"
     vibe500: "CANCEL = Врати на старо"
+    samsungyh*: "REW = Врати на старо"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,ipod*,sansae200*,sansac200*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,gigabeat*,mrobe100,gogearsa9200: ""
   </voice>
 </phrase>
 <phrase>
@@ -3966,11 +4350,11 @@
   </source>
   <dest>
     *: none
-    charging: "Режим за адаптер у аутомобилу"
+    charging: "Мод за адаптер у аутомобилу"
   </dest>
   <voice>
     *: none
-    charging: "Режим за адаптер у аутомобилу"
+    charging: "Мод за адаптер у аутомобилу"
   </voice>
 </phrase>
 <phrase>
@@ -4021,7 +4405,7 @@
   </dest>
   <voice>
     *: none
-    alarm: ""
+    alarm: "Време аларма"
   </voice>
 </phrase>
 <phrase>
@@ -4077,16 +4461,31 @@
 </phrase>
 <phrase>
   id: LANG_ALARM_MOD_KEYS
-  desc: deprecated
+  desc: Shown key functions in alarm menu (for the RTC alarm mod).
   user: core
   <source>
-    *: ""
+    *: none
+    alarm: "PLAY=Set OFF=Cancel"
+    ipod*: "SELECT=Set MENU=Cancel"
+    iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
+    mpiohd300: "ENTER=Set MENU=Cancel"
+    sansafuzeplus: "SELECT=Set  BACK=Cancel"
   </source>
   <dest>
-    *: ""
+    *: none
+    alarm: "PLAY=Постави OFF=Одустани"
+    ipod*: "SELECT=Постави MENU=Одустани"
+    iriverh10,iriverh10_5gb: "SELECT=Постави PREV=Одустани"
+    gigabeats: "SELECT=Постави POWER=Одустани"
+    vibe500: "OK=Постави C=Одустани"
+    mpiohd300: "ENTER=Постави MENU=Одустани"
+    sansafuzeplus: "SELECT=Постави  BACK=Одустани"
   </dest>
   <voice>
-    *: ""
+    *: none
+    alarm,ipod*: ""
   </voice>
 </phrase>
 <phrase>
@@ -4188,6 +4587,20 @@
   </dest>
   <voice>
     *: "Да одржавам листу скорашњих маркера?"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BOOKMARK_SETTINGS_UNIQUE_ONLY
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -4607,6 +5020,57 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BUTTONBAR_MENU
+  desc: in button bar
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Menu"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Мени"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_EXIT
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Exit"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Излаз"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ACTION
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Action"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Акција"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_PRESET
   desc: in button bar and radio screen / menu
   user: core
@@ -4621,6 +5085,40 @@
   <voice>
     *: none
     radio: "Станица"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ADD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Add"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Додај"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_RECORD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Record"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Снимај"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
   </voice>
 </phrase>
 <phrase>
@@ -4828,6 +5326,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_REGION
   desc: fm tuner region setting
   user: core
@@ -4913,17 +5428,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Формат"
+    *: none
+    recording: "Формат"
   </dest>
   <voice>
-    *: "Формат"
+    *: none
+    recording: "Формат"
   </voice>
 </phrase>
 <phrase>
@@ -4940,7 +5458,7 @@
   </dest>
   <voice>
     *: none
-    recording: "Епмег лејер три"
+    recording: "MPEG Layer 3"
   </voice>
 </phrase>
 <phrase>
@@ -4957,7 +5475,7 @@
   </dest>
   <voice>
     *: none
-    recording: "пи си ем вејв"
+    recording: "PCM Wave"
   </voice>
 </phrase>
 <phrase>
@@ -4966,15 +5484,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "вавпак"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -4991,7 +5509,7 @@
   </dest>
   <voice>
     *: none
-    recording: "еј ај еф еф"
+    recording: "AIFF"
   </voice>
 </phrase>
 <phrase>
@@ -5017,15 +5535,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Битски проток"
+    recording_swcodec: "Битски проток"
   </dest>
   <voice>
     *: none
-    recording: "Битски проток"
+    recording_swcodec: "Битски проток"
   </voice>
 </phrase>
 <phrase>
@@ -5046,20 +5564,37 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Квалитет"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Квалитет"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FREQUENCY
   desc: in recording and playback settings
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Фреквенција"
+    recording,play_frequency: "Фреквенција"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Фреквенција"
+    recording,play_frequency: "Фреквенција"
   </voice>
 </phrase>
 <phrase>
@@ -5102,18 +5637,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Уграђени микрофон"
     recording: "Микрофон"
+    iriverh100,iriverh120,iriverh300: "Уграђени микрофон"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Уграђени микрофон"
     recording: "Микрофон"
+    iriverh100,iriverh120,iriverh300: "Уграђени микрофон"
   </voice>
 </phrase>
 <phrase>
@@ -5139,15 +5674,32 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Линијски улаз"
+    recording,archosplayer: "Линијски улаз"
   </dest>
   <voice>
     *: none
-    recording: "Линијски улаз"
+    recording,archosplayer: "Линијски улаз"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_RECORDING_EDITABLE
+  desc: Editable recordings setting
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Independent Frames"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Независни фрејмови"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Независни фрејмови"
   </voice>
 </phrase>
 <phrase>
@@ -5305,17 +5857,19 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_REC_DIR
-  desc: deprecated
+  desc: used in the onplay menu to set a recording dir
   user: core
   <source>
     *: none
-    recording: ""
+    recording: "Set As Recording Directory"
   </source>
   <dest>
-    *: ""
+    *: none
+    recording: "Постави као директоријум за снимање"
   </dest>
   <voice>
-    *: ""
+    *: none
+    recording: "Постави као директоријум за снимање"
   </voice>
 </phrase>
 <phrase>
@@ -5920,6 +6474,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SHUTDOWN
+  desc: in main menu
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Искључивање"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: "Искључивање"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ROCKBOX_INFO
   desc: displayed topmost on the info screen and in the info menu
   user: core
@@ -5939,9 +6510,11 @@
   user: core
   <source>
     *: "Buffer:"
+    archosplayer: "Buf:"
   </source>
   <dest>
     *: "Бафер:"
+    archosplayer: "Баф:"
   </dest>
   <voice>
     *: "Величина бафера"
@@ -5953,11 +6526,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Батерија: %d%% %dч %dм"
-    ipodmini1g,ipodmini2g,iriverh10: "Бат: %d%% %dч %dм"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dч %dм"
+    iriverh10,ipodmini1g,ipodmini2g: "Бат: %d%% %dч %dм"
   </dest>
   <voice>
     *: "Ниво батерије"
@@ -5997,44 +6572,41 @@
   user: core
   <source>
     *: "Int:"
-    hibylinux: "mSD:"
     xduoox3: "mSD1:"
   </source>
   <dest>
     *: "Инт:"
-    hibylinux: "mSD:"
     xduoox3: "mSD1:"
   </dest>
   <voice>
     *: "Интерни"
-    hibylinux: "мајкро Ес Де"
-    xduoox3: "мајкро Ес Де један"
+    xduoox3: "мајкро Ес Де 1"
   </voice>
 </phrase>
 <phrase>
   id: LANG_DISK_NAME_MMC
-  desc: in info menu;  name for external disk with multivolume (keep short!)
+  desc: in info menu;  name for external disk with multivolume (Ondio; keep short!)
   user: core
   <source>
     *: none
-    hibylinux: "USB:"
-    multivolume: "HD1:"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    multivolume: "HD1"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    hibylinux: "USB:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    hibylinux: "У Ес Бе"
-    multivolume: "Ха Де један"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "мајкро Ес Де"
-    xduoox3: "мајкро Ес Де два"
+    multivolume: "H D 1"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "мајкро Ес Де"
+    xduoox3: "мајкро Ес Де 2"
+    archosondio*: "M M C"
   </voice>
 </phrase>
 <phrase>
@@ -6123,58 +6695,58 @@
 </phrase>
 <phrase>
   id: LANG_INSERT
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert"
   </source>
   <dest>
-    *: ""
+    *: "Уметни"
   </dest>
   <voice>
-    *: ""
+    *: "Уметни"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_FIRST
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert Next"
   </source>
   <dest>
-    *: ""
+    *: "Уметни наредну"
   </dest>
   <voice>
-    *: ""
+    *: "Уметни наредну"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_LAST
-  desc: deprecated
+  desc: in onplay menu.  append a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert Last"
   </source>
   <dest>
-    *: ""
+    *: "Уметни последњу"
   </dest>
   <voice>
-    *: ""
+    *: "Уметни последњу"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_SHUFFLED
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist randomly into dynamic playlist
   user: core
   <source>
-    *: ""
+    *: "Insert Shuffled"
   </source>
   <dest>
-    *: ""
+    *: "Уметни промешано"
   </dest>
   <voice>
-    *: ""
+    *: "Уметни промешано"
   </voice>
 </phrase>
 <phrase>
@@ -6235,16 +6807,16 @@
 </phrase>
 <phrase>
   id: LANG_REPLACE
-  desc: deprecated
+  desc: in onplay menu.  Replace the current playlist with a new one.
   user: core
   <source>
-    *: ""
+    *: "Play Next"
   </source>
   <dest>
-    *: ""
+    *: "Репродукуј следећу"
   </dest>
   <voice>
-    *: ""
+    *: "Репродукуј следећу"
   </voice>
 </phrase>
 <phrase>
@@ -6314,7 +6886,7 @@
     *: "Тражим... %d пронађено (%s)"
   </dest>
   <voice>
-    *: "пронађено"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -6347,16 +6919,16 @@
 </phrase>
 <phrase>
   id: LANG_CATALOG_ADD_TO
-  desc: deprecated
+  desc: in onplay playlist catalogue submenu
   user: core
   <source>
-    *: ""
+    *: "Add to Playlist"
   </source>
   <dest>
-    *: ""
+    *: "Додај у плејлисту"
   </dest>
   <voice>
-    *: ""
+    *: "Додај у плејлисту"
   </voice>
 </phrase>
 <phrase>
@@ -6703,10 +7275,10 @@
     *: "Track Gain"
   </source>
   <dest>
-    *: "Појачање нумере"
+    *: "Track појачање"
   </dest>
   <voice>
-    *: "Појачање нумере"
+    *: "Track појачање"
   </voice>
 </phrase>
 <phrase>
@@ -6717,10 +7289,10 @@
     *: "Album Gain"
   </source>
   <dest>
-    *: "Појачање албума"
+    *: "Album појачање"
   </dest>
   <voice>
-    *: "Појачање албума"
+    *: "Album појачање"
   </voice>
 </phrase>
 <phrase>
@@ -6937,6 +7509,40 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ONPLAY_OPEN_WITH
   desc: Onplay open with
   user: core
@@ -7097,9 +7703,11 @@
   user: core
   <source>
     *: "End of Song List"
+    archosplayer: "End of List"
   </source>
   <dest>
     *: "Крај листе песама"
+    archosplayer: "Крај листе"
   </dest>
   <voice>
     *: "Крај листе песама"
@@ -7225,10 +7833,10 @@
     *: "Mode:"
   </source>
   <dest>
-    *: "Режим:"
+    *: "Мод:"
   </dest>
   <voice>
-    *: "Режим:"
+    *: "Мод:"
   </voice>
 </phrase>
 <phrase>
@@ -7287,7 +7895,7 @@
     *: "Тастери откључани"
   </dest>
   <voice>
-    *: ""
+    *: "Тастери откључани"
   </voice>
 </phrase>
 <phrase>
@@ -7304,7 +7912,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Време"
   </voice>
 </phrase>
 <phrase>
@@ -7313,23 +7921,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "Диск је пун. Притисните POWER за наставак."
-    iriverh100,iriverh120,iriverh300: "Диск је пун. Притисните STOP за наставак."
     recording: "Диск је пун. Притисните OFF за наставак."
+    iriverh100,iriverh120,iriverh300: "Диск је пун. Притисните STOP за наставак."
+    iaudiom5,iaudiox5: "Диск је пун. Притисните POWER за наставак."
+    sansae200*,sansac200*,vibe500: "Диск је пун. Притисните PREV за наставак."
     samsungyh*: "Диск је пун. Притисните LEFT за наставак."
-    sansac200*,sansae200*,vibe500: "Диск је пун. Притисните PREV за наставак."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,samsungyh*,sansac200*,sansae200*,vibe500: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -7347,6 +7955,40 @@
   <voice>
     *: none
     recording: "минус бесконачно"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_CONFIRM_SHUTDOWN
+  desc: in shutdown screen
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Press OFF to shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Притисните OFF за искључивање"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_REMOVE_MMC
+  desc: before acknowledging usb in case an MMC is inserted (Ondio)
+  user: core
+  <source>
+    *: none
+    archosondio*: "Please remove inserted MMC"
+  </source>
+  <dest>
+    *: none
+    archosondio*: "Молим уклоните уметнуту MMC"
+  </dest>
+  <voice>
+    *: none
+    archosondio*: "Молим уклоните мултимедија картицу"
   </voice>
 </phrase>
 <phrase>
@@ -7379,25 +8021,27 @@
 </phrase>
 <phrase>
   id: LANG_OFF_ABORT
-  desc: Used on many models
+  desc: Used on archosrecorder models
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF за прекид"
-    gigabeatfx: "POWER за прекид"
-    gigabeats,sansafuzeplus: "BACK за прекид"
-    iaudiom5,iaudiox5: "Long PLAY за прекид"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP за прекид"
     ipod*: "PLAY/PAUSE за прекид"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV за прекид"
-    iriverh100,iriverh120,iriverh300: "STOP за прекид"
+    iaudiox5,iaudiom5: "Long PLAY за прекид"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV за прекид"
+    gigabeats: "BACK за прекид"
+    gigabeatfx: "POWER за прекид"
+    sansafuzeplus: "BACK за прекид"
   </dest>
   <voice>
     *: ""
@@ -7461,16 +8105,16 @@
 </phrase>
 <phrase>
   id: LANG_PLUGIN_WRONG_MODEL
-  desc: The plugin is not compatible with the player model trying to run it
+  desc: The plugin is not compatible with the archos model trying to run it
   user: core
   <source>
     *: "Incompatible model"
   </source>
   <dest>
-    *: "Овај модел није подржан"
+    *: "Модел није одговарајући"
   </dest>
   <voice>
-    *: "Неодговарајући модел"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7484,7 +8128,7 @@
     *: "Верзија није одговарајућа"
   </dest>
   <voice>
-    *: "Неодговарајућа верзија"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7498,7 +8142,7 @@
     *: "Додатак је вратио грешку"
   </dest>
   <voice>
-    *: "Додатак је вратио грешку"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7575,6 +8219,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BATTERY_TOPOFF_CHARGE
+  desc: in info display, shows that top off charge is running Only for V1 archosrecorder
+  user: core
+  <source>
+    *: none
+    archosrecorder: "Battery: Top-Off Chg"
+  </source>
+  <dest>
+    *: none
+    archosrecorder: "Батерија: Top-Off Chg"
+  </dest>
+  <voice>
+    *: none
+    archosrecorder: "Top off пуњење"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BATTERY_TRICKLE_CHARGE
   desc: in info display, shows that trickle charge is running
   user: core
@@ -7628,6 +8289,48 @@
   </source>
   <dest>
     *: "Б"
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_KILOBYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MEGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_GIGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
   </dest>
   <voice>
     *: ""
@@ -8288,7 +8991,7 @@
     *: ""
   </dest>
   <voice>
-    *: "пиксела"
+    *: "pixel"
   </voice>
 </phrase>
 <phrase>
@@ -8316,7 +9019,7 @@
     *: ""
   </dest>
   <voice>
-    *: "херца"
+    *: "херц"
   </voice>
 </phrase>
 <phrase>
@@ -8792,7 +9495,7 @@
     *: ""
   </dest>
   <voice>
-    *: "екран-током-репродукције"
+    *: "while-playing-screen"
   </voice>
 </phrase>
 <phrase>
@@ -8848,7 +9551,7 @@
     *: ""
   </dest>
   <voice>
-    *: "фирмвер"
+    *: "firmware"
   </voice>
 </phrase>
 <phrase>
@@ -8893,7 +9596,7 @@
     *: ""
   </dest>
   <voice>
-    *: "кјулиста"
+    *: "cuesheet"
   </voice>
 </phrase>
 <phrase>
@@ -8932,13 +9635,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Mod izmene: %s %s"
+    *: none
+    swcodec: "Mod izmene: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -8946,13 +9652,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Granicna"
+    *: none
+    swcodec: "Granicna"
   </dest>
   <voice>
-    *: "Granicna"
+    *: none
+    swcodec: "Granicna"
   </voice>
 </phrase>
 <phrase>
@@ -8960,13 +9669,254 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Pojacanje"
+    *: none
+    swcodec: "Pojacanje"
   </dest>
   <voice>
-    *: "Pojacanje"
+    *: none
+    swcodec: "Pojacanje"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_MODE
+  desc: in wps F2 pressed
+  user: core
+  <source>
+    *: none
+    lcd_bitmap: "Mode:"
+  </source>
+  <dest>
+    *: none
+    lcd_bitmap: "Mod:"
+  </dest>
+  <voice>
+    *: none
+    lcd_bitmap: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F1
+  desc: in dir browser, F1 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Menu"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Meni"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F2
+  desc: in dir browser, F2 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Option"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Opcija"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F3
+  desc: in dir browser, F3 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "LCD"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "LCD"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_STEREO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Stereo"
+  </source>
+  <dest>
+    *: none
+    recording: "Stereo"
+  </dest>
+  <voice>
+    *: none
+    recording: "Stereo"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_MONO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Mono"
+  </source>
+  <dest>
+    *: none
+    recording: "Mono"
+  </dest>
+  <voice>
+    *: none
+    recording: "Mono"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Kvalitet"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Kvalitet"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_FREQUENCY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Frequency"
+  </source>
+  <dest>
+    *: none
+    recording: "Frekvencija"
+  </dest>
+  <voice>
+    *: none
+    recording: "Frekvencija"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SOURCE
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Source"
+  </source>
+  <dest>
+    *: none
+    recording: "Izvor"
+  </dest>
+  <voice>
+    *: none
+    recording: "Izvor"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_MIC
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Int. Mic"
+  </source>
+  <dest>
+    *: none
+    recording: "Int. mik"
+  </dest>
+  <voice>
+    *: none
+    recording: "Interni mikrofon"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_LINE_IN
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Line In"
+  </source>
+  <dest>
+    *: none
+    recording: "Linijski ulaz"
+  </dest>
+  <voice>
+    *: none
+    recording: "Linijski ulaz"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_DIGITAL
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Digital"
+  </source>
+  <dest>
+    *: none
+    recording: "Digitalni"
+  </dest>
+  <voice>
+    *: none
+    recording: "Digitalni"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNELS
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Channels"
+  </source>
+  <dest>
+    *: none
+    recording: "Kanali"
+  </dest>
+  <voice>
+    *: none
+    recording: "Kanali"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORD_TRIGGER
+  desc: in recording settings_menu
+  user: core
+  <source>
+    *: none
+    recording: "Trigger"
+  </source>
+  <dest>
+    *: none
+    recording: "Okidac"
+  </dest>
+  <voice>
+    *: none
+    recording: "Okidac"
   </voice>
 </phrase>
 <phrase>
@@ -9092,7 +10042,7 @@
     *: ""
   </dest>
   <voice>
-    *: "јединица по подеоку"
+    *: "units per tick"
   </voice>
 </phrase>
 <phrase>
@@ -9106,7 +10056,7 @@
     *: ""
   </dest>
   <voice>
-    *: "сати"
+    *: "o'clock"
   </voice>
 </phrase>
 <phrase>
@@ -9120,7 +10070,7 @@
     *: ""
   </dest>
   <voice>
-    *: "поподне"
+    *: "P M"
   </voice>
 </phrase>
 <phrase>
@@ -9134,7 +10084,7 @@
     *: ""
   </dest>
   <voice>
-    *: "преподне"
+    *: "A M"
   </voice>
 </phrase>
 <phrase>
@@ -9148,7 +10098,7 @@
     *: ""
   </dest>
   <voice>
-    *: "о"
+    *: "oh"
   </voice>
 </phrase>
 <phrase>
@@ -9326,7 +10276,7 @@
     *: ""
   </dest>
   <voice>
-    *: "Уреди"
+    *: "Edit"
   </voice>
 </phrase>
 <phrase>
@@ -9340,7 +10290,7 @@
     *: ""
   </dest>
   <voice>
-    *: "Празно"
+    *: "Blank"
   </voice>
 </phrase>
 <phrase>
@@ -9354,7 +10304,7 @@
     *: ""
   </dest>
   <voice>
-    *: "Празна листа"
+    *: "Empty list"
   </voice>
 </phrase>
 <phrase>
@@ -9408,15 +10358,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Гранична фрекв. за ниске"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Гранична фрекв. за ниске"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Гранична фреквенција за ниске"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Гранична фреквенција за ниске"
   </voice>
 </phrase>
 <phrase>
@@ -9425,15 +10375,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Гранична фрекв. за високе"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Гранична фрекв. за високе"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Гранична фреквенција за високе"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Гранична фреквенција за високе"
   </voice>
 </phrase>
 <phrase>
@@ -9469,13 +10419,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Клик тастера"
+    *: none
+    swcodec: "Клик тастера"
   </dest>
   <voice>
-    *: "Клик тастера"
+    *: none
+    swcodec: "Клик тастера"
   </voice>
 </phrase>
 <phrase>
@@ -9483,13 +10436,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Клик тастера се понавља"
+    *: none
+    swcodec: "Клик тастера се понавља"
   </dest>
   <voice>
-    *: "Клик тастера се понавља"
+    *: none
+    swcodec: "Клик тастера се понавља"
   </voice>
 </phrase>
 <phrase>
@@ -9520,7 +10476,7 @@
     *: ""
   </dest>
   <voice>
-    *: "Брзи екран"
+    *: "Quick screen"
   </voice>
 </phrase>
 <phrase>
@@ -9548,7 +10504,7 @@
     *: ""
   </dest>
   <voice>
-    *: "О Кеј"
+    *: "OK"
   </voice>
 </phrase>
 <phrase>
@@ -9608,15 +10564,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Осетљивост Touchpad-а"
+    gigabeatfx,sansafuzeplus: "Осетљивост Touchpad-а"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Осетљивост Touchpad-а"
+    gigabeatfx,sansafuzeplus: "Осетљивост Touchpad-а"
   </voice>
 </phrase>
 <phrase>
@@ -9675,7 +10631,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Време дељења"
   </voice>
 </phrase>
 <phrase>
@@ -9706,7 +10662,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "КЛИП"
   </voice>
 </phrase>
 <phrase>
@@ -9736,11 +10692,11 @@
   </source>
   <dest>
     *: none
-    recording: "Име фајла:"
+    recording: "Фајл:"
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Фајл"
   </voice>
 </phrase>
 <phrase>
@@ -9798,7 +10754,7 @@
   </source>
   <dest>
     *: none
-    agc: "АРП"
+    agc: "AGC"
   </dest>
   <voice>
     *: none
@@ -9815,11 +10771,11 @@
   </source>
   <dest>
     *: none
-    agc: "АРП време клиповања"
+    agc: "AGC време клиповања"
   </dest>
   <voice>
     *: none
-    agc: "AРП време клиповања"
+    agc: "AGC време клиповања"
   </voice>
 </phrase>
 <phrase>
@@ -9859,15 +10815,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Моно Леви + Десни"
+    recording_swcodec: "Моно Леви + Десни"
   </dest>
   <voice>
     *: none
-    recording: "Моно Леви плус Десни"
+    recording_swcodec: "Моно Леви плус Десни"
   </voice>
 </phrase>
 <phrase>
@@ -9955,15 +10911,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Моно режим"
+    recording_swcodec: "Моно мод"
   </dest>
   <voice>
     *: none
-    recording: "Моно режим"
+    recording_swcodec: "Моно мод"
   </voice>
 </phrase>
 <phrase>
@@ -9974,11 +10930,11 @@
     *: none
     serial_port: "19200"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "19200"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "19200"
   </voice>
@@ -9991,11 +10947,11 @@
     *: none
     serial_port: "Serial Bitrate"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Серијски битски проток"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Серијски битски проток"
   </voice>
@@ -10008,11 +10964,11 @@
     *: none
     serial_port: "9600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "9600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "9600"
   </voice>
@@ -10025,11 +10981,11 @@
     *: none
     serial_port: "38400"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "38400"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "38400"
   </voice>
@@ -10042,11 +10998,11 @@
     *: none
     serial_port: "57600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "57600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "57600"
   </voice>
@@ -10073,11 +11029,11 @@
     *: none
     serial_port: "Auto"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Ауто"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Аутоматски"
   </voice>
@@ -10185,11 +11141,11 @@
   </source>
   <dest>
     *: none
-    touchscreen: "Тачскрин режим"
+    touchscreen: "Тачскрин мод"
   </dest>
   <voice>
     *: none
-    touchscreen: "Тачскрин режим"
+    touchscreen: "Тачскрин мод"
   </voice>
 </phrase>
 <phrase>
@@ -10231,7 +11187,7 @@
     *: ""
   </dest>
   <voice>
-    *: "изглед статусне линије"
+    *: "statusbar skin"
   </voice>
 </phrase>
 <phrase>
@@ -10239,13 +11195,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Release време"
+    *: none
+    swcodec: "Release време"
   </dest>
   <voice>
-    *: "Release време"
+    *: none
+    swcodec: "Release време"
   </voice>
 </phrase>
 <phrase>
@@ -10253,13 +11212,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Праг"
+    *: none
+    swcodec: "Праг"
   </dest>
   <voice>
-    *: "Праг"
+    *: none
+    swcodec: "Праг"
   </voice>
 </phrase>
 <phrase>
@@ -10267,13 +11229,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Појачање за надокнаду"
+    *: none
+    swcodec: "Појачање за надокнаду"
   </dest>
   <voice>
-    *: "Појачање за надокнаду"
+    *: none
+    swcodec: "Појачање за надокнаду"
   </voice>
 </phrase>
 <phrase>
@@ -10281,13 +11246,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Позиција скрол линије"
+    *: none
+    lcd_bitmap: "Позиција скрол линије"
   </dest>
   <voice>
-    *: "Позиција скрол линије"
+    *: none
+    lcd_bitmap: "Позиција скрол линије"
   </voice>
 </phrase>
 <phrase>
@@ -10321,7 +11289,7 @@
   </dest>
   <voice>
     *: none
-    remote: "изглед удаљене статусне линије"
+    remote: "remote statusbar skin"
   </voice>
 </phrase>
 <phrase>
@@ -10329,13 +11297,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Колено"
+    *: none
+    swcodec: "Knee"
   </dest>
   <voice>
-    *: "колено"
+    *: none
+    swcodec: "Ни"
   </voice>
 </phrase>
 <phrase>
@@ -10343,27 +11314,30 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Ауто"
+    *: none
+    swcodec: "Ауто"
   </dest>
   <voice>
-    *: "Ауто"
+    *: none
+    swcodec: "Ауто"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_LAST_SHUFFLED
-  desc: deprecated
+  desc: in onplay menu.  insert a playlist randomly at end of dynamic playlist
   user: core
   <source>
-    *: ""
+    *: "Insert Last Shuffled"
   </source>
   <dest>
-    *: ""
+    *: "Уметни на крај промешану"
   </dest>
   <voice>
-    *: ""
+    *: "Уметни на крај промешану"
   </voice>
 </phrase>
 <phrase>
@@ -10371,13 +11345,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Меко колено"
+    *: none
+    swcodec: "Soft Knee"
   </dest>
   <voice>
-    *: "меко колено"
+    *: none
+    swcodec: "Софт ни"
   </voice>
 </phrase>
 <phrase>
@@ -10399,13 +11376,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Однос"
+    *: none
+    swcodec: "Однос"
   </dest>
   <voice>
-    *: "Однос"
+    *: none
+    swcodec: "Однос"
   </voice>
 </phrase>
 <phrase>
@@ -10418,11 +11398,11 @@
   </source>
   <dest>
     *: none
-    usb_hid: "Режим USB тастатуре"
+    usb_hid: "Мод USB тастатуре"
   </dest>
   <voice>
     *: none
-    usb_hid: "режим у ес бе тастатуре"
+    usb_hid: "Мод USB тастатуре"
   </voice>
 </phrase>
 <phrase>
@@ -10430,13 +11410,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Тврдо колено"
+    *: none
+    swcodec: "Hard Knee"
   </dest>
   <voice>
-    *: "тврдо колено"
+    *: none
+    swcodec: "Хард ни"
   </voice>
 </phrase>
 <phrase>
@@ -10466,11 +11449,11 @@
   </source>
   <dest>
     *: none
-    pitchscreen: "Стопа"
+    pitchscreen: "Rate"
   </dest>
   <voice>
     *: none
-    pitchscreen: "Стопа"
+    pitchscreen: "Рејт"
   </voice>
 </phrase>
 <phrase>
@@ -10504,7 +11487,7 @@
   </dest>
   <voice>
     *: none
-    usb_hid: "У ес бе хјуман интерфејс дивајс"
+    usb_hid: "USB Human Interface Device"
   </voice>
 </phrase>
 <phrase>
@@ -10523,7 +11506,7 @@
 </phrase>
 <phrase>
   id: LANG_SEMITONE
-  desc:
+  desc: 
   user: core
   <source>
     *: none
@@ -10611,13 +11594,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 према 1"
+    *: none
+    swcodec: "10 према 1"
   </voice>
 </phrase>
 <phrase>
@@ -10659,13 +11645,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 према 1"
+    *: none
+    swcodec: "2 према 1"
   </voice>
 </phrase>
 <phrase>
@@ -10690,13 +11679,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Лимит"
+    *: none
+    swcodec: "Лимит"
   </dest>
   <voice>
-    *: "Лимит"
+    *: none
+    swcodec: "Лимит"
   </voice>
 </phrase>
 <phrase>
@@ -10735,13 +11727,30 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Ширина скрол линије"
+    *: none
+    lcd_bitmap: "Ширина скрол линије"
   </dest>
   <voice>
-    *: "Ширина скрол линије"
+    *: none
+    lcd_bitmap: "Ширина скрол линије"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -10794,13 +11803,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Временско растезање"
+    *: none
+    swcodec: "Timestretch"
   </dest>
   <voice>
-    *: "Временско растезање"
+    *: none
+    swcodec: "Timestretch"
   </voice>
 </phrase>
 <phrase>
@@ -10808,13 +11820,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 према 1"
+    *: none
+    swcodec: "6 према 1"
   </voice>
 </phrase>
 <phrase>
@@ -10822,13 +11837,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Компресор"
+    *: none
+    swcodec: "Компресор"
   </dest>
   <voice>
-    *: "Компресор"
+    *: none
+    swcodec: "Компресор"
   </voice>
 </phrase>
 <phrase>
@@ -10881,13 +11899,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Брзина"
+    *: none
+    swcodec: "Брзина"
   </dest>
   <voice>
-    *: "Брзина"
+    *: none
+    swcodec: "Брзина"
   </voice>
 </phrase>
 <phrase>
@@ -10909,13 +11930,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 према 1"
+    *: none
+    swcodec: "4 према 1"
   </voice>
 </phrase>
 <phrase>
@@ -10959,11 +11983,11 @@
   </source>
   <dest>
     *: none
-    touchscreen: "ОК"
+    touchscreen: "OK"
   </dest>
   <voice>
     *: none
-    touchscreen: "О Кеј"
+    touchscreen: "OK"
   </voice>
 </phrase>
 <phrase>
@@ -11022,13 +12046,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Основни Skin"
+    *: none
+    lcd_bitmap: "Основни Skin"
   </dest>
   <voice>
-    *: "Основни Skin"
+    *: none
+    lcd_bitmap: "Основни Skin"
   </voice>
 </phrase>
 <phrase>
@@ -11096,7 +12123,7 @@
   </dest>
   <voice>
     *: none
-    touchscreen: "Дел"
+    touchscreen: "Del"
   </voice>
 </phrase>
 <phrase>
@@ -11104,13 +12131,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Основни скин на даљинском"
+    *: none
+    lcd_bitmap: "Основни скин на даљинском"
   </dest>
   <voice>
-    *: "Основни скин на даљинском"
+    *: none
+    lcd_bitmap: "Основни скин на даљинском"
   </voice>
 </phrase>
 <phrase>
@@ -11186,13 +12216,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Премотај уназад пре настављања"
+    *: none
+    swcodec: "Премотај уназад пре настављања"
   </dest>
   <voice>
-    *: "Премотај уназад пре настављања"
+    *: none
+    swcodec: "Премотај уназад пре настављања"
   </voice>
 </phrase>
 <phrase>
@@ -11468,21 +12501,21 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_START_DIR
-  desc: deprecated
+  desc: used in the onplay menu to set a starting browser dir
   user: core
   <source>
-    *: ""
+    *: "Start File Browser Here"
   </source>
   <dest>
-    *: ""
+    *: "Покрени прегледач фајлова у овом фолдеру"
   </dest>
   <voice>
-    *: ""
+    *: "Покрени прегледач фајлова у овом фолдеру"
   </voice>
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -11551,6 +12584,34 @@
   </dest>
   <voice>
     *: "Само у одређеним фолдерима"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11648,16 +12709,16 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_PLAYLISTCAT_DIR
-  desc: deprecated
+  desc: used in the onplay menu to set a playlist catalogue dir
   user: core
   <source>
-    *: ""
+    *: "Set As Playlist Catalogue Directory"
   </source>
   <dest>
-    *: ""
+    *: "Постави као директоријум каталога плејлисти"
   </dest>
   <voice>
-    *: ""
+    *: "Постави као директоријум каталога плејлисти"
   </voice>
 </phrase>
 <phrase>
@@ -11693,16 +12754,16 @@
 </phrase>
 <phrase>
   id: LANG_AUTOMATIC
-  desc: deprecated
+  desc: generic automatic
   user: core
   <source>
-    *: ""
+    *: "Automatic"
   </source>
   <dest>
-    *: ""
+    *: "Аутоматски"
   </dest>
   <voice>
-    *: ""
+    *: "Аутоматски"
   </voice>
 </phrase>
 <phrase>
@@ -11780,13 +12841,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Једноставан (Мајер)"
+    *: none
+    swcodec: "Једноставан (Meier)"
   </dest>
   <voice>
-    *: "Једноставан Мајеров"
+    *: none
+    swcodec: "Једноставан Мејеров"
   </voice>
 </phrase>
 <phrase>
@@ -11822,13 +12886,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Подесиви"
+    *: none
+    swcodec: "Подесиви"
   </dest>
   <voice>
-    *: "Подесиви"
+    *: none
+    swcodec: "Подесиви"
   </voice>
 </phrase>
 <phrase>
@@ -11957,13 +13024,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Ку фактор"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -11988,13 +13058,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </source>
   <dest>
-    *: "Attack време"
+    *: none
+    swcodec: "Attack време"
   </dest>
   <voice>
-    *: "Attack време"
+    *: none
+    swcodec: "Attack време"
   </voice>
 </phrase>
 <phrase>
@@ -12003,15 +13076,15 @@
   user: core
   <source>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </source>
   <dest>
     *: none
-    filter_roll_off: "Стрмина ДАК филтра"
+    filter_roll_off: "Стрмина DAC филтра"
   </dest>
   <voice>
     *: none
-    filter_roll_off: "Стрмина ДАК филтра"
+    filter_roll_off: "Стрмина DAC филтра"
   </voice>
 </phrase>
 <phrase>
@@ -12022,10 +13095,10 @@
     *: "Line Separator"
   </source>
   <dest>
-    *: "Граничник линија"
+    *: "Сепаратор линија"
   </dest>
   <voice>
-    *: "Граничник линија"
+    *: "Сепаратор линија"
   </voice>
 </phrase>
 <phrase>
@@ -12050,10 +13123,10 @@
     *: "Line Separator Colour"
   </source>
   <dest>
-    *: "Боја граничника линија"
+    *: "Боја сепаратора линија"
   </dest>
   <voice>
-    *: "Боја граничника линија"
+    *: "Боја сепаратора линија"
   </voice>
 </phrase>
 <phrase>
@@ -12062,15 +13135,18 @@
   user: core
   <source>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </source>
   <dest>
     *: none
-    ibassodx50,ibassodx90: "Управљач скалирањем фрекв"
+    ibassodx50: "Управљач скалирањем фрекв"
+    ibassodx90: "Управљач скалирањем фрекв"
   </dest>
   <voice>
     *: none
-    ibassodx50,ibassodx90: "Управљач скалирањем фрекв"
+    ibassodx50: "Управљач скалирањем фрекв"
+    ibassodx90: "Управљач скалирањем фрекв"
   </voice>
 </phrase>
 <phrase>
@@ -12078,13 +13154,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </source>
   <dest>
-    *: "САМО SIDE"
+    *: none
+    swcodec: "САМО SIDE"
   </dest>
   <voice>
-    *: "САМО SIDE"
+    *: none
+    swcodec: "САМО SIDE"
   </voice>
 </phrase>
 <phrase>
@@ -12106,13 +13185,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Play"
+    *: "Play"
   </source>
   <dest>
-    *: "Изузми репродукцију"
+    *: "Репродукуј"
   </dest>
   <voice>
-    *: "Изузми репродукцију"
+    *: "Репродукуј"
   </voice>
 </phrase>
 <phrase>
@@ -12120,13 +13199,13 @@
   desc: Softlock behaviour setting
   user: core
   <source>
-    *: "Disable Locked Reminders"
+    *: "Disable Notify"
   </source>
   <dest>
-    *: "Онемогући закључана обавештења"
+    *: "Онемогући обавештење"
   </dest>
   <voice>
-    *: "Онемогући закључана обавештења"
+    *: "Онемогући обавештење"
   </voice>
 </phrase>
 <phrase>
@@ -12148,27 +13227,36 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </source>
   <dest>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </dest>
   <voice>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE
+  id: LANG_IBASSO_USB_MODE
   desc: in Settings -> General -> System -> USB Mode
   user: core
   <source>
-    *: "USB Mode"
+    *: none
+    ibassodx50: "USB Mode"
+    ibassodx90: "USB Mode"
   </source>
   <dest>
-    *: "USB режим"
+    *: none
+    ibassodx50: "USB Мод"
+    ibassodx90: "USB Мод"
   </dest>
   <voice>
-    *: "USB режим"
+    *: none
+    ibassodx50: "USB Мод"
+    ibassodx90: "USB Мод"
   </voice>
 </phrase>
 <phrase>
@@ -12186,17 +13274,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_ADB
+  id: LANG_IBASSO_USB_MODE_ADB
   desc: in Settings -> General -> System -> USB Mode: Android Debug Bridge
   user: core
   <source>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </source>
   <dest>
-    *: "Андроид дибаг мост"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </dest>
   <voice>
-    *: "Андроид дибаг мост"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </voice>
 </phrase>
 <phrase>
@@ -12204,13 +13298,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </source>
   <dest>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </dest>
   <voice>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </voice>
 </phrase>
 <phrase>
@@ -12232,13 +13329,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Skip"
+    *: "Skip"
   </source>
   <dest>
-    *: "Изузми прескакање"
+    *: "Прескочи"
   </dest>
   <voice>
-    *: "Изузми прескакање"
+    *: "Прескочи"
   </voice>
 </phrase>
 <phrase>
@@ -12246,13 +13343,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </source>
   <dest>
-    *: "Хас окружујући звук"
+    *: none
+    swcodec: "Haas Surround"
   </dest>
   <voice>
-    *: "Хас окружујући звук"
+    *: none
+    swcodec: "Haas Surround"
   </voice>
 </phrase>
 <phrase>
@@ -12260,13 +13360,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Seek"
+    *: "Seek"
   </source>
   <dest>
-    *: "Изузми премотавање"
+    *: "Премотај"
   </dest>
   <voice>
-    *: "Изузми премотавање"
+    *: "Премотај"
   </voice>
 </phrase>
 <phrase>
@@ -12274,13 +13374,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </source>
   <dest>
-    *: "Редукција слушног замора"
+    *: none
+    swcodec: "Редукција слушног замора"
   </dest>
   <voice>
-    *: "Редукција слушног замора"
+    *: none
+    swcodec: "Редукција слушног замора"
   </voice>
 </phrase>
 <phrase>
@@ -12298,17 +13401,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_MASS_STORAGE
+  id: LANG_IBASSO_USB_MODE_MASS_STORAGE
   desc: in Settings -> General -> System -> USB Mode: Mass Storage
   user: core
   <source>
-    *: "Mass Storage"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </source>
   <dest>
-    *: "Масовно Складиште"
+    *: none
+    ibassodx50: "Масовно Складиште"
+    ibassodx90: "Масовно Складиште"
   </dest>
   <voice>
-    *: "Масовно Складиште"
+    *: none
+    ibassodx50: "Масовно Складиште"
+    ibassodx90: "Масовно Складиште"
   </voice>
 </phrase>
 <phrase>
@@ -12316,13 +13425,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </source>
   <dest>
-    *: "Однос Чист / Процесиран"
+    *: none
+    swcodec: "Однос Чист / Процесиран"
   </dest>
   <voice>
-    *: "Однос Чист / Процесиран"
+    *: none
+    swcodec: "Однос Чист / Процесиран"
   </voice>
 </phrase>
 <phrase>
@@ -12344,13 +13456,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Perceptual Bass Enhancement"
+    *: none
+    swcodec: "Perceptual Bass Enhancement"
   </source>
   <dest>
-    *: "Перцептуално побољшавање басова"
+    *: none
+    swcodec: "Перцептуално побољшавање басова"
   </dest>
   <voice>
-    *: "Перцептуално побољшавање басова"
+    *: none
+    swcodec: "Перцептуално побољшавање басова"
   </voice>
 </phrase>
 <phrase>
@@ -12382,17 +13497,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_CHARGE
+  id: LANG_IBASSO_USB_MODE_CHARGE
   desc: in Settings -> General -> System -> USB Mode: Charge Only
   user: core
   <source>
-    *: "Charge Only"
+    *: none
+    ibassodx50: "Charge Only"
+    ibassodx90: "Charge Only"
   </source>
   <dest>
-    *: "Само пуњење"
+    *: none
+    ibassodx50: "Само пуњење"
+    ibassodx90: "Само пуњење"
   </dest>
   <voice>
-    *: "Само пуњење"
+    *: none
+    ibassodx50: "Само пуњење"
+    ibassodx90: "Само пуњење"
   </voice>
 </phrase>
 <phrase>
@@ -12442,16 +13563,13 @@
   desc: in sound settings
   user: core
   <source>
-    *: none
-    es9018: "Short"
+    *: "Short"
   </source>
   <dest>
-    *: none
-    es9018: "Кратко"
+    *: "Кратко"
   </dest>
   <voice>
-    *: none
-    es9018: "Кратко"
+    *: "Кратко"
   </voice>
 </phrase>
 <phrase>
@@ -12556,7 +13674,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_NEVER
+  id: LANG__NEVER
   desc: in lcd settings
   user: core
   <source>
@@ -12779,16 +13897,13 @@
   desc: in sound settings
   user: core
   <source>
-    *: none
-    es9018: "Bypass"
+    *: "Bypass"
   </source>
   <dest>
-    *: none
-    es9018: "Премошћење"
+    *: "Премошћење"
   </dest>
   <voice>
-    *: none
-    es9018: "Премошћење"
+    *: "Премошћење"
   </voice>
 </phrase>
 <phrase>
@@ -12805,4067 +13920,4 @@
     *: "Грешка током прикупљања инфо"
   </voice>
 </phrase>
-<phrase>
-  id: LANG_VIA_TRACK_LIST
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Via Track list"
-  </source>
-  <dest>
-    *: "Преко листе нумера"
-  </dest>
-  <voice>
-    *: "Преко листе нумера"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WPS_INTEGRATION
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "WPS Integration"
-  </source>
-  <dest>
-    *: "WPS интеграција"
-  </dest>
-  <voice>
-    *: "WPS интеграција"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_WHITE
-  desc: spoken only, for announcing chess piece color
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Бела"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESUME_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Resume Game"
-  </source>
-  <dest>
-    *: "Настави игру"
-  </dest>
-  <voice>
-    *: "Настави игру"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BLACK
-  desc: spoken only, for announcing chess piece color
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Црна"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALWAYS_ON
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Always On"
-  </source>
-  <dest>
-    *: "Увек укључено"
-  </dest>
-  <voice>
-    *: "Увек укључено"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DIRECTORY_PROPERTIES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "Directory properties"
-  </source>
-  <dest>
-    *: "Особине директоријума"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_PATH
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Path]"
-  </source>
-  <dest>
-    *: "[Путања]"
-  </dest>
-  <voice>
-    *: "Путања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_RESUME_TIME
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Set resume time (min)"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Постави време настављања (мин)"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Постави време настављања у минутама"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFUSION
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Diffusion"
-  </source>
-  <dest>
-    *: "Дифузија"
-  </dest>
-  <voice>
-    *: "Дифузија"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NEXTTRACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Next Track"
-  </source>
-  <dest>
-    *: "Наредна нумера"
-  </dest>
-  <voice>
-    *: "Наредна нумера"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARGHS_PER_FOOD
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Arghs Per Food"
-  </source>
-  <dest>
-    *: "Аргхова по храни"
-  </dest>
-  <voice>
-    *: "Аргхова по храни"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_AUTO_RESUME
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Resume automatically"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Настави аутоматски"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Настави аутоматски"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_7
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 7: 40 moves / 240 min"
-  </source>
-  <dest>
-    *: "Ниво 7: 40 потеза / 240 мин"
-  </dest>
-  <voice>
-    *: "Ниво 7: 40 потеза за 240 мин"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_KING
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Краљ"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CASTLE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Топ"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SKIP_FRAMES
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Skip frames"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Прескачи фрејмове"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Прескачи фрејмове"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PLAYER
-  desc: spoken only, for announcing player's id
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Играч"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALBUM_TITLE
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Show album title"
-  </source>
-  <dest>
-    *: "Прикажи наслов албума"
-  </dest>
-  <voice>
-    *: "Прикажи наслов албума"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TOGGLE_ITEM
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Toggle Item"
-  </source>
-  <dest>
-    *: "Преклопи ставку"
-  </dest>
-  <voice>
-    *: "Преклопи ставку"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MAIN_MENU_ORDER
-  desc: main_menu_config plugin title
-  user: core
-  <source>
-    *: "Rockbox Main Menu Order"
-  </source>
-  <dest>
-    *: "Редослед Rockbox главног менија"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILE_PROPERTIES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "File properties"
-  </source>
-  <dest>
-    *: "Особине фајла"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_PLAYERS
-  desc: For game menus
-  user: core
-  <source>
-    *: "Number of Players"
-  </source>
-  <dest>
-    *: "Број играча"
-  </dest>
-  <voice>
-    *: "Број играча"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARGH_SIZE
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Argh Size"
-  </source>
-  <dest>
-    *: "Величина аргха"
-  </dest>
-  <voice>
-    *: "Величина аргха"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CHECK
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Шах!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CACHE_REBUILT_NEXT_RESTART
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Cache will be rebuilt on next restart"
-  </source>
-  <dest>
-    *: "Кеш ће да се изгради при наредном поновном покретању"
-  </dest>
-  <voice>
-    *: "Кеш ће да се изгради при наредном поновном покретању"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_CLEARED
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Playlist Cleared"
-  </source>
-  <dest>
-    *: "Плејлиста је очишћена"
-  </dest>
-  <voice>
-    *: "Плејлиста је очишћена"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_3
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 3: 60 moves / 30 min"
-  </source>
-  <dest>
-    *: "Ниво 3: 60 потеза / 30 мин"
-  </dest>
-  <voice>
-    *: "Ниво 3: 60 потеза за 30 minutes"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILE_ERROR
-  desc: in vbrfix plugin
-  user: core
-  <source>
-    *: "File error: %d"
-  </source>
-  <dest>
-    *: "Грешка у фајлу: %d"
-  </dest>
-  <voice>
-    *: "Грешка у фајлу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TONE_CONTROLS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Tone controls"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Тонске контроле"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Тонске контроле"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OUT_OF_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "Out of Control"
-  </source>
-  <dest>
-    *: "Ван контроле"
-  </dest>
-  <voice>
-    *: "Ван контроле"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_4
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 4: 40 moves / 30 min"
-  </source>
-  <dest>
-    *: "Ниво 4: 40 потеза / 30 мин"
-  </dest>
-  <voice>
-    *: "Ниво 4: 40 потеза за 30 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_PLAYLIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_2_KEY_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "2 Key Control"
-  </source>
-  <dest>
-    *: "2 тастерска контрола"
-  </dest>
-  <voice>
-    *: "2 тастерска контрола"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_QUEENSIDE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "краљичина страна"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NOT_A_VBR_FILE
-  desc: in vbrfix plugin
-  user: core
-  <source>
-    *: "Not a VBR file"
-  </source>
-  <dest>
-    *: "Није VBR фајл"
-  </dest>
-  <voice>
-    *: "Није VBR фајл"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_CHECKMATE
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Checkmate!"
-  </source>
-  <dest>
-    *: "Шах-мат!"
-  </dest>
-  <voice>
-    *: "Шах-мат!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TITLE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYPAUSE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Pause / Play"
-  </source>
-  <dest>
-    *: "Пауза / Пуштање"
-  </dest>
-  <voice>
-    *: "Пауза / Пуштање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CENTRE_MARGIN
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Centre margin"
-  </source>
-  <dest>
-    *: "Централна маргина"
-  </dest>
-  <voice>
-    *: "Централна маргина"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREVTRACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Previous Track"
-  </source>
-  <dest>
-    *: "Претходна нумера"
-  </dest>
-  <voice>
-    *: "Претходна нумера"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_6
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 6: 40 moves / 120 min"
-  </source>
-  <dest>
-    *: "Ниво 6: 40 потеза / 120 мин"
-  </dest>
-  <voice>
-    *: "Ниво 6: 40 потеза за 120 minutes"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_PGN_PARSE_ERROR
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "Error parsing game !"
-  </source>
-  <dest>
-    *: "Грешка при парсирању игре!"
-  </dest>
-  <voice>
-    *: "Грешка при парсирању игре!"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BATTERY_BENCH_IS_ALREADY_RUNNING
-  desc: Spoken if battery bench is already running
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Тест батерије се већ извршава"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_DISPLAY_OPTIONS
-  desc: in various menus
-  user: core
-  <source>
-    *: "Display Options"
-  </source>
-  <dest>
-    *: "Опције дисплеја"
-  </dest>
-  <voice>
-    *: "Опције дисплеја"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_PLAY_MODE
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Play Mode"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Режим репродукције"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Режим репродукције"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SPACING
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Spacing"
-  </source>
-  <dest>
-    *: "Размак"
-  </dest>
-  <voice>
-    *: "Размак"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAMES
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Games"
-  </source>
-  <dest>
-    *: "Игре"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_SAVING_POSITION
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Saving position"
-  </source>
-  <dest>
-    *: "Чување позиције"
-  </dest>
-  <voice>
-    *: "Чување позиције"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_KINGSIDE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "краљева страна"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WORM_SPEED
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Worm Speed"
-  </source>
-  <dest>
-    *: "Брзина црва"
-  </dest>
-  <voice>
-    *: "Брзина црва"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Files]"
-  </source>
-  <dest>
-    *: "[Фајлови]"
-  </dest>
-  <voice>
-    *: "Фајлови"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_2
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 2: 60 moves / 15 min"
-  </source>
-  <dest>
-    *: "Ниво 2: 60 потеза / 15 мин"
-  </dest>
-  <voice>
-    *: "Ниво 2: 60 потеза за 15 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_GNUCHESS
-  desc: spoken only, for announcing player's id
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "ГНУ Шах"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FOOD_SIZE
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Food Size"
-  </source>
-  <dest>
-    *: "Величина хране"
-  </dest>
-  <voice>
-    *: "Величина хране"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYBACK_CONTROL
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Playback Control"
-  </source>
-  <dest>
-    *: "Контрола репродукције"
-  </dest>
-  <voice>
-    *: "Контрола репродукције"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GRAYSCALE
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Grayscale"
-  </source>
-  <dest>
-    *: "Сиви тонови"
-  </dest>
-  <voice>
-    *: "Сиви тонови"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_QUEEN
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Краљица"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CAPTURES
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "хвата"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_REPEAT_MODE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Change Repeat Mode"
-  </source>
-  <dest>
-    *: "Промена режима понављања"
-  </dest>
-  <voice>
-    *: "Промена режима понављања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SLIDESHOW_TIME
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Slideshow Time"
-  </source>
-  <dest>
-    *: "Време слајд шоуа"
-  </dest>
-  <voice>
-    *: "Време слајд шоуа"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_RESUME_OPTIONS
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Resume Options"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Опције настављања"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Опције настављања"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_NEW_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "New Game"
-  </source>
-  <dest>
-    *: "Нова игра"
-  </dest>
-  <voice>
-    *: "Нова игра"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_VIEW_GAMES
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "View Played Games"
-  </source>
-  <dest>
-    *: "Преглед одиграних игара"
-  </dest>
-  <voice>
-    *: "Преглед одиграних игара"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_SURROUND
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Surround"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Окружујуће"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Окружујуће"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MOVE_ITEM_UP
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Move Item Up"
-  </source>
-  <dest>
-    *: "Помери ставку навише"
-  </dest>
-  <voice>
-    *: "Помери ставку навише"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ARTIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_SIZE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Size]"
-  </source>
-  <dest>
-    *: "[Величина]"
-  </dest>
-  <voice>
-    *: "Величина"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RESTART_PLAYBACK
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Play from beginning"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Играј од почетка"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Играј од почетка"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESTART_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Restart Game"
-  </source>
-  <dest>
-    *: "Поново покрени игру"
-  </dest>
-  <voice>
-    *: "Поново покрени игру"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANNOT_RESTART_PLAYBACK
-  desc: cannot restart playback splash in imageviewer
-  user: core
-  <source>
-    *: "Cannot restart playback"
-  </source>
-  <dest>
-    *: "Приказивање не може поново да се покрене"
-  </dest>
-  <voice>
-    *: "Приказивање не може поново да се покрене"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMOTE_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "Remote Control"
-  </source>
-  <dest>
-    *: "Даљинска контрола"
-  </dest>
-  <voice>
-    *: "Даљинска контрола"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_COMMON_SETTING
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Use common setting"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Користи уобичајено подешавање"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Користи уобичајено подешавање"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DURATION
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MOVE_ITEM_DOWN
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Move Item Down"
-  </source>
-  <dest>
-    *: "Помери ставку наниже"
-  </dest>
-  <voice>
-    *: "Помери ставку наниже"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ORDERED
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Ordered"
-  </source>
-  <dest>
-    *: "Поређано"
-  </dest>
-  <voice>
-    *: "Поређано"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show at the top"
-  </source>
-  <dest>
-    *: "Прикажи на врху"
-  </dest>
-  <voice>
-    *: "Прикажи на врху"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BISHOP
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Ловац"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PAWN
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Пијун"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RESIZE_COVERS
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Resize Covers"
-  </source>
-  <dest>
-    *: "Промени величину омота"
-  </dest>
-  <voice>
-    *: "Промени величину омота"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_STOP_PLAYBACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Stop Playback"
-  </source>
-  <dest>
-    *: "Заустави репродукцију"
-  </dest>
-  <voice>
-    *: "Заустави репродукцију"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ZOOM
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Zoom"
-  </source>
-  <dest>
-    *: "Зум"
-  </dest>
-  <voice>
-    *: "Зум"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_INTERPOLATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Interpolation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Интерполација"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Интерполација"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RETURN
-  desc: in various plugin menus
-  user: core
-  <source>
-    *: "Return"
-  </source>
-  <dest>
-    *: "Назад"
-  </dest>
-  <voice>
-    *: "Назад"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DATE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Date]"
-  </source>
-  <dest>
-    *: "[Датум]"
-  </dest>
-  <voice>
-    *: "Датум"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LOADING_POSITION
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Loading position"
-  </source>
-  <dest>
-    *: "Учитавање позиције"
-  </dest>
-  <voice>
-    *: "Учитавање позиције"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GOTO_WPS
-  desc: in the pictureflow main menu
-  user: core
-  <source>
-    *: "Go to WPS"
-  </source>
-  <dest>
-    *: "Иди на WPS"
-  </dest>
-  <voice>
-    *: "Иди на WPS"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CPU_BOOST
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "CPU Boost"
-    lowmem: none
-  </source>
-  <dest>
-    *: "CPU убрзање"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "CPU убрзање"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show at the bottom"
-  </source>
-  <dest>
-    *: "Прикажи на дну"
-  </dest>
-  <voice>
-    *: "Прикажи на дну"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide album title"
-  </source>
-  <dest>
-    *: "Сакриј наслов албума"
-  </dest>
-  <voice>
-    *: "Сакриј наслов албума"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIMIT_FPS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Limit FPS"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Ограничи FPS"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Ограничи FPS"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NO_ALBUMART_FOUND
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "No album art found"
-  </source>
-  <dest>
-    *: "Није пронађена ниједна слика албума"
-  </dest>
-  <voice>
-    *: "Није пронађена ниједна слика албума"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NO_REM_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "No Rem. Control"
-  </source>
-  <dest>
-    *: "Без даљ. контроле"
-  </dest>
-  <voice>
-    *: "Без даљинске контроле"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SWAP_CHANNELS
-  desc: in sound_settings
-  user: core
-  <source>
-    *: "Swap Channels"
-  </source>
-  <dest>
-    *: "Замени места каналима"
-  </dest>
-  <voice>
-    *: "Замени места каналима"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REBUILD_CACHE
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Rebuild cache"
-  </source>
-  <dest>
-    *: "Поново изгради кеш"
-  </dest>
-  <voice>
-    *: "Поново изгради кеш"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REVERT_TO_DEFAULT_SETTINGS
-  desc: In various menus
-  user: core
-  <source>
-    *: "Revert to Default Settings"
-  </source>
-  <dest>
-    *: "Врати на подразумевана подешавања"
-  </dest>
-  <voice>
-    *: "Врати на подразумевана подешавања"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_ROOK
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Коњ"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_ILLEGAL_MOVE
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Illegal move!"
-  </source>
-  <dest>
-    *: "Недозвољен потез!"
-  </dest>
-  <voice>
-    *: "Недозвољен потез!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADDED_TO_PLAYLIST
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Added to playlist"
-  </source>
-  <dest>
-    *: "Додато у плејлисту"
-  </dest>
-  <voice>
-    *: "Додато у плејлисту"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIRECT
-  desc: in the pictureflow settings, also a volume adjustment mode
-  user: core
-  <source>
-    *: "Direct"
-  </source>
-  <dest>
-    *: "Директно"
-  </dest>
-  <voice>
-    *: "Директно"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UNAVAILABLE
-  desc: in mpegplayer settings
-  user: core
-  <source>
-    *: "Unavailable"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Недоступно"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Недоступно"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BAT_BENCH_KEYS
-  desc: Battery bench start up message
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Притисните репродукцију за покретање теста батерије или стоп за отказивање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_SOUND_SETTING
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Use sound setting"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Користи подешавање звука"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Користи подешавање звука"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILENAME
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Filename]"
-  </source>
-  <dest>
-    *: "[Име фајла]"
-  </dest>
-  <voice>
-    *: "Име фајла"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REVERBERATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Reverberation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Реверберација"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Реверберација"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PANNING_SEPARATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Panning Separation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Сепарација панирања"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Сепарација панирања"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_VOLUME
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Change Volume"
-  </source>
-  <dest>
-    *: "Промени јачину"
-  </dest>
-  <voice>
-    *: "Промени јачину"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_8
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 8: 1 move / 15 min"
-  </source>
-  <dest>
-    *: "Ниво 8: 1 потез / 15 минута"
-  </dest>
-  <voice>
-    *: "Ниво 8: 1 потез за 15 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL_RESUMES
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Clear all resumes"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Очисти сва настављања"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Очисти сва настављања"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESTORE_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Restore Game"
-  </source>
-  <dest>
-    *: "Врати игру"
-  </dest>
-  <voice>
-    *: "Врати игру"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FORCE_START_MENU
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Start menu"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Старт мени"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Старт мени"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_NO_GAMES
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "No games found !"
-  </source>
-  <dest>
-    *: "Није пронађена ниједна игра!"
-  </dest>
-  <voice>
-    *: "Није пронађена ниједна игра!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_5
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 5: 40 moves / 60 min"
-  </source>
-  <dest>
-    *: "Ниво 5: 40 потеза / 60 мин"
-  </dest>
-  <voice>
-    *: "Ниво 5: 40 потеза за 60 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WORM_GROWTH_PER_FOOD
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Worm Growth Per Food"
-  </source>
-  <dest>
-    *: "Раст црва по храни"
-  </dest>
-  <voice>
-    *: "Раст црва по храни"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_KNIGHT
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Витез"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TIME
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Time]"
-  </source>
-  <dest>
-    *: "[Време]"
-  </dest>
-  <voice>
-    *: "Време"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAME_BEGINNING
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "At the beginning of the game"
-  </source>
-  <dest>
-    *: "На почетку игре"
-  </dest>
-  <voice>
-    *: "На почетку игре"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Single"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Сингл"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Сингл"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_QUIT
-  desc: in various menus
-  user: core
-  <source>
-    *: "Quit"
-  </source>
-  <dest>
-    *: "Излаз"
-  </dest>
-  <voice>
-    *: "Излаз"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_WORMS
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Number of Worms"
-  </source>
-  <dest>
-    *: "Број црва"
-  </dest>
-  <voice>
-    *: "Број црва"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_MARKED
-  desc: spoken only, for announcing chess piece marking
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Обележено"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DISPLAY_FPS
-  desc: in the mpegplayer and pictureflow settings menus
-  user: core
-  <source>
-    *: "Display FPS"
-  </source>
-  <dest>
-    *: "Прикажи FPS"
-  </dest>
-  <voice>
-    *: "Прикажи FPS"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE_EXIT
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Save and Exit"
-  </source>
-  <dest>
-    *: "Сачувај и изађи"
-  </dest>
-  <voice>
-    *: "Сачувај и изађи"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CONDITIONAL_START_MENU
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Start menu if not completed"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Старт мени ако није завршено"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Старт мени ако није завршено"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAME_END
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "At the end of the game"
-  </source>
-  <dest>
-    *: "На крај игре"
-  </dest>
-  <voice>
-    *: "На крај игре"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_4_KEY_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "4 Key Control"
-  </source>
-  <dest>
-    *: "4 тастерска контрола"
-  </dest>
-  <voice>
-    *: "4 тастерска контрола"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_SHUFFLE_MODE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Shuffle Mode"
-  </source>
-  <dest>
-    *: "Режим мешања"
-  </dest>
-  <voice>
-    *: "Режим мешања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_SUBDIRS
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Subdirs]"
-  </source>
-  <dest>
-    *: "[Поддир]"
-  </dest>
-  <voice>
-    *: "Поддир"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ERROR_WRITING_CONFIG
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Error writing config"
-  </source>
-  <dest>
-    *: "Грешка при упису конфигурације"
-  </dest>
-  <voice>
-    *: "Грешка при упису конфигурације"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_THINKING
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Thinking..."
-  </source>
-  <dest>
-    *: "Мислим..."
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SLIDESHOW_MODE
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Toggle Slideshow Mode"
-  </source>
-  <dest>
-    *: "Преклапај слајдшоу режим"
-  </dest>
-  <voice>
-    *: "Преклапај слајдшоу режим"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_SAVE_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Save Game"
-  </source>
-  <dest>
-    *: "Сачувај игру"
-  </dest>
-  <voice>
-    *: "Сачувај игру"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_10
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 10: 1 move / 600 min"
-  </source>
-  <dest>
-    *: "Ниво 10: 1 потез / 600 мин"
-  </dest>
-  <voice>
-    *: "Ниво 10: 1 потез за 600 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_SLIDES
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Number of slides"
-  </source>
-  <dest>
-    *: "Број слајдова"
-  </dest>
-  <voice>
-    *: "Број слајдова"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_AUDIO_OPTIONS
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Audio Options"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Аудио опције"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Аудио опције"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_UNMARKED
-  desc: spoken only, for announcing chess piece unmarking
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Уклоњен маркер"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_1
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 1: 60 moves / 5 min"
-  </source>
-  <dest>
-    *: "Ниво 1: 60 потеза / 5 мин"
-  </dest>
-  <voice>
-    *: "Ниво 1: 60 потеза за 5 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CONTROL_STYLE
-  desc: In various menus
-  user: core
-  <source>
-    *: "Control Style"
-  </source>
-  <dest>
-    *: "Стил контроле"
-  </dest>
-  <voice>
-    *: "Стил контроле"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACKLIGHT_BRIGHTNESS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Backlight brightness"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Јачина позадинског светла"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Јачина позадинског светла"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_9
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 9: 1 move / 60 min"
-  </source>
-  <dest>
-    *: "Ниво 9: 1 потез / 60 мин"
-  </dest>
-  <voice>
-    *: "Ниво 9: 1 потез за 60 минута"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_WORMLET
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Play Wormlet!"
-  </source>
-  <dest>
-    *: "Играј Вормлет!"
-  </dest>
-  <voice>
-    *: "Играј Вормлет!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_SELECT_OTHER_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Select Other Game"
-  </source>
-  <dest>
-    *: "Избор друге игре"
-  </dest>
-  <voice>
-    *: "Избор друге игре"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LOAD_DEFAULT_CONFIGURATION
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Load Default Configuration"
-  </source>
-  <dest>
-    *: "Учитај подразумевану конфигурацију"
-  </dest>
-  <voice>
-    *: "Учитај подразумевану конфигурацију"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FAIL
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "Failed to gather information"
-  </source>
-  <dest>
-    *: "Прибављање информација није успело"
-  </dest>
-  <voice>
-    *: "Прибављање информација није успело"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REC_DIR
-  desc: used in the info screen to show a recording dir
-  user: core
-  <source>
-    *: none
-    recording: "Recording Directory"
-  </source>
-  <dest>
-    *: none
-    recording: "Директоријум за снимање"
-  </dest>
-  <voice>
-    *: none
-    recording: "Директоријум за снимање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UPDATE_CACHE
-  desc: in pictureflow
-  user: core
-  <source>
-    *: "Update cache"
-  </source>
-  <dest>
-    *: "Освежи кеш"
-  </dest>
-  <voice>
-    *: "Освежи кеш"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide information"
-  </source>
-  <dest>
-    *: "Сакриј информације"
-  </dest>
-  <voice>
-    *: "Сакриј информације"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the bottom"
-  </source>
-  <dest>
-    *: "Прикажи албум на дну"
-  </dest>
-  <voice>
-    *: "Прикажи албум на дну"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the bottom"
-  </source>
-  <dest>
-    *: "Прикажи албум и извођача на дну"
-  </dest>
-  <voice>
-    *: "Прикажи албум и извођача на дну"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the top"
-  </source>
-  <dest>
-    *: "Прикажи албум и извођача на врху"
-  </dest>
-  <voice>
-    *: "Прикажи албум и извођача на врху"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the top"
-  </source>
-  <dest>
-    *: "Прикажи албум на врху"
-  </dest>
-  <voice>
-    *: "Прикажи албум на врху"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_HQMIXER
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "HQ Mixer"
-    lowmem: none
-  </source>
-  <dest>
-    *: "ВК миксер"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Миксер високог квалитета"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EDIT
-  desc:
-  user: core
-  <source>
-    *: "Edit"
-  </source>
-  <dest>
-    *: "Уређивање"
-  </dest>
-  <voice>
-    *: "Уређивање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GROUPING
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Grouping"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Груписање"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Груписање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN
-  desc: onplay open plugin
-  user: core
-  <source>
-    *: "Open Plugin"
-  </source>
-  <dest>
-    *: "Отвори додатак"
-  </dest>
-  <voice>
-    *: "Отвори додатак"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EXPORT
-  desc:
-  user: core
-  <source>
-    *: "Export"
-  </source>
-  <dest>
-    *: "Извоз"
-  </dest>
-  <voice>
-    *: "Извоз"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK
-  desc: used in track x of y constructs
-  user: core
-  <source>
-    *: "Track"
-  </source>
-  <dest>
-    *: "Нумера"
-  </dest>
-  <voice>
-    *: "Нумера"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NAME
-  desc:
-  user: core
-  <source>
-    *: "Name"
-  </source>
-  <dest>
-    *: "Име"
-  </dest>
-  <voice>
-    *: "Име"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HOLD_FOR_SETTINGS
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Hold for settings"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Задржи за подешавања"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Задржи за подешавања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_SET_WPS_CONTEXT_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Set Wps Context Plugin"
-  </source>
-  <dest>
-    *: "Постави Wps контекст додатак"
-  </dest>
-  <voice>
-    *: "Постави WPS контекст додатак"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMAIN
-  desc: for constructs such as number of tracks remaining etc
-  user: core
-  <source>
-    *: none
-    hotkey: "Remain"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Преостаје"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Преостаје"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_CHANGE
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Track change"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Промена нумере"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Промена нумере"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RUN
-  desc:
-  user: core
-  <source>
-    *: "Run"
-  </source>
-  <dest>
-    *: "Покрени"
-  </dest>
-  <voice>
-    *: "Покрени"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_SAMPLERATE
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Sample Rate"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Учесталост узорковања"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Учесталост узорковања"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TIMEOUT
-  desc:
-  user: core
-  <source>
-    *: "Timeout"
-  </source>
-  <dest>
-    *: "Тајмаут"
-  </dest>
-  <voice>
-    *: "Тајмаут"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATE
-  desc: for constructing time and date announcements
-  user: core
-  <source>
-    *: "Date"
-  </source>
-  <dest>
-    *: "Датум"
-  </dest>
-  <voice>
-    *: "Датум"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL
-  desc:
-  user: core
-  <source>
-    *: "Clear all"
-  </source>
-  <dest>
-    *: "Обриши све"
-  </dest>
-  <voice>
-    *: "Обриши све"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ELAPSED
-  desc: prefix for elapsed playtime announcement
-  user: core
-  <source>
-    *: "Elapsed"
-  </source>
-  <dest>
-    *: "Протекло"
-  </dest>
-  <voice>
-    *: "Протекло"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACK
-  desc:
-  user: core
-  <source>
-    *: "Back"
-  </source>
-  <dest>
-    *: "Назад"
-  </dest>
-  <voice>
-    *: "Назад"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD
-  desc:
-  user: core
-  <source>
-    *: "Add"
-  </source>
-  <dest>
-    *: "Додај"
-  </dest>
-  <voice>
-    *: "Додај"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_STD_CANCEL
-  desc: standard press x to cancel string
-  user: core
-  <source>
-    *: "Press LEFT to cancel."
-    android,hifietma*,zenvision: "Press BACK to cancel."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Press POWER to cancel."
-    ihifi760,ihifi960: "Double tap RETURN to cancel."
-    ihifi770,ihifi770c,ihifi800: "Press HOME to cancel."
-    iriverh10,samsungyh*: "Double tap LEFT to cancel."
-    mpiohd200: "Double tap REC to cancel."
-    mpiohd300: "Double tap MENU to cancel."
-    rx27generic: "Press VOLUME to cancel."
-    sonynwza860: "Keymaps incomplete."
-    touchscreen: "Press Middle Left to cancel."
-    vibe500: "Press PREV to cancel."
-    xduoox20,xduoox3,xduoox3ii: "Double tap HOME to cancel."
-  </source>
-  <dest>
-    *: "Притисните LEFT за прекид."
-    android,hifietma*,zenvision: "Притисните BACK за прекид."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Притисните POWER за прекид."
-    ihifi760,ihifi960: "Дупли тап RETURN за прекид."
-    ihifi770,ihifi770c,ihifi800: "Притисните HOME за прекид."
-    iriverh10,samsungyh*: "Дупли тап LEFT за прекид."
-    mpiohd200: "Дупли тап REC за прекид."
-    mpiohd300: "Дупли тап MENU за прекид."
-    rx27generic: "Притисните VOLUME за прекид."
-    sonynwza860: "Мапе тастера нису комплетне."
-    touchscreen: "Притисните Middle Left за прекид."
-    vibe500: "Притисните PREV за прекид."
-    xduoox20,xduoox3,xduoox3ii: "Дупли тап HOME за прекид."
-  </dest>
-  <voice>
-    *: "Притисните LEFT за прекид."
-    android,hifietma*,zenvision: "Притисните BACK за прекид."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Притисните POWER за прекид."
-    ihifi760,ihifi960: "Дупли тап RETURN за прекид."
-    ihifi770,ihifi770c,ihifi800: "Притисните HOME за прекид."
-    iriverh10,samsungyh*: "Дупли тап LEFT за прекид."
-    mpiohd200: "Дупли тап REC за прекид."
-    mpiohd300: "Дупли тап MENU за прекид."
-    rx27generic: "Притисните VOLUME за прекид."
-    touchscreen: "Притисните Middle Left за прекид."
-    vibe500: "Притисните PREV за прекид."
-    xduoox20,xduoox3,xduoox3ii: "Дупли тап HOME за прекид."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BROWSE
-  desc:
-  user: core
-  <source>
-    *: "Browse"
-  </source>
-  <dest>
-    *: "Преглед"
-  </dest>
-  <voice>
-    *: "Преглед"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PARAMETER
-  desc:
-  user: core
-  <source>
-    *: "Parameter"
-  </source>
-  <dest>
-    *: "Параметар"
-  </dest>
-  <voice>
-    *: "Параметар"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE
-  desc:
-  user: core
-  <source>
-    *: "Save"
-  </source>
-  <dest>
-    *: "Сачувај"
-  </dest>
-  <voice>
-    *: "Сачувај"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCEMENT_FMT
-  desc: format for wps hotkey announcement
-  user: core
-  <source>
-    *: none
-    hotkey: "Announcement format"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Формат објаве"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Формат објаве"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANCEL_0
-  desc: CANCEL.
-  user: core
-  <source>
-    *: "Cancel"
-  </source>
-  <dest>
-    *: "Отказ"
-  </dest>
-  <voice>
-    *: "Отказ"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_NOT_A_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Not a plugin: %s"
-  </source>
-  <dest>
-    *: "Није додатак: %s"
-  </dest>
-  <voice>
-    *: "Није додатак"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCE_ON
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Announce on"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Објављивање укључено"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Објављивање укључено"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE_MODE
-  desc: single mode
-  user: core
-  <source>
-    *: "Single Mode"
-  </source>
-  <dest>
-    *: "Режим само једне"
-  </dest>
-  <voice>
-    *: "режим само једне"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TALK_MIXER_LEVEL
-  desc: Relative volume of voice prompts
-  user: core
-  <source>
-    *: "Voice prompt volume"
-  </source>
-  <dest>
-    *: "Јачина гласа"
-  </dest>
-  <voice>
-    *: "јачина гласа"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SHARP
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Sharp"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Кратки оштар"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "кратки оштар"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Кратки спори"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Кратки спори"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SUPER_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Super Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Супер спори"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Супер спори"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Линеарни брзи"
-  </dest>
-  <voice>
-    *: none
-    es9218: "линеарни брзи"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Линеарни спори"
-  </dest>
-  <voice>
-    *: none
-    es9218: "линеарни спори"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Минимални брзи"
-  </dest>
-  <voice>
-    *: none
-    es9218: "минимални брзи"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Минимални спори"
-  </dest>
-  <voice>
-    *: none
-    es9218: "минимални спори"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_1
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 1"
-  </source>
-  <dest>
-    *: none
-    es9218: "Аподизациони тип 1"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Аподизациони тип 1"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_2
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 2"
-  </source>
-  <dest>
-    *: none
-    es9218: "Аподизациони тип 2"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Аподизациони тип 2"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_HYBRID_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Hybrid Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Хибридни брзи"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Хибридни брзи"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_BRICK_WALL
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Brick Wall"
-  </source>
-  <dest>
-    *: none
-    es9218: "Зид"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Зид"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_MODE
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Режим напајања ДАК"
-    es9218: "Излазни ниво ДАК"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Режим напајања ДАК"
-    es9218: "Излазни ниво ДАК"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_HIGH
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Високе перформансе"
-    es9218: "Високо појачање (2 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Високе перформансе"
-    es9218: "Високо појачање два волта ефективно"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_LOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Штедња батерије"
-    es9218: "Ниско појачање (1 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Штедња батерије"
-    es9218: "Ниско појачање један волт ефективно"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ENTER_USB_STORAGE_MODE_QUERY
-  desc: upon plugging in USB
-  user: core
-  <source>
-    *: "Enter USB mass storage mode?"
-  </source>
-  <dest>
-    *: "Да пређем у режим USB масовне меморије?"
-  </dest>
-  <voice>
-    *: "Да пређем у режим У Ес Бе масовне меморије?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_NEXT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUEUE_MENU
-  desc: in onplay menu
-  user: core
-  <source>
-    *: "Queue..."
-  </source>
-  <dest>
-    *: "Ред..."
-  </dest>
-  <voice>
-    *: "ред..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_QUEUE_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Queue Options"
-  </source>
-  <dest>
-    *: "Прикажи опције реда"
-  </dest>
-  <voice>
-    *: "Прикажи опције реда"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUFFLED_ADDING_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Shuffled Adding Options"
-  </source>
-  <dest>
-    *: "Прикажи опције измешаног додавања"
-  </dest>
-  <voice>
-    *: "Прикажи опције измешаног додавања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_IN_SUBMENU
-  desc: in Settings
-  user: core
-  <source>
-    *: "In Submenu"
-  </source>
-  <dest>
-    *: "У подменију"
-  </dest>
-  <voice>
-    *: "У подменију"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_SHUFFLED
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SOFTLOCK_DISABLE_ALL_NOTIFY
-  desc: disable all softlock notifications
-  user: core
-  <source>
-    *: "Disable All Lock Notifications"
-  </source>
-  <dest>
-    *: "Искључи сва закључана обавештења"
-  </dest>
-  <voice>
-    *: "Искључи сва закључана обавештења"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_VOLUME
-  desc: exempt volume from softlock
-  user: core
-  <source>
-    *: "Exempt Volume"
-  </source>
-  <dest>
-    *: "Изузми јачину"
-  </dest>
-  <voice>
-    *: "Изузми јачину"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_ALWAYSAUTOLOCK
-  desc: always prime autolock
-  user: core
-  <source>
-    *: "Always Autolock"
-  </source>
-  <dest>
-    *: "Увек аутоматски закључај"
-  </dest>
-  <voice>
-    *: "Увек аутоматски закључај"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_RELOAD_AFTER_SAVE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUMARTIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_GENRE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMMENT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMPOSER
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_YEAR
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TRACKNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DISCNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FREQUENCY
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_BITRATE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_NUMERIC_TENS_SWAP_SEPARATOR
-  desc: voice only, for speaking numbers in languages that swap the tens and ones fields. Leave blank for languages that do not need it, such as English ("231" => "two hundred thirty one") but other languages may speak it as "two hundred one [AND] thirty"
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOICED_DATE_FORMAT
-  desc: format string for how dates will be read back. Y == 4-digit year, A == month name, m == numeric month, d == numeric day. For example, "AdY" will read "January 21 2021"
-  user: core
-  <source>
-    *: "dAY"
-  </source>
-  <dest>
-    *: "dAY"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_WRAPAROUND
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Wraparound"
-  </source>
-  <dest>
-    *: "Обмотавање листе"
-  </dest>
-  <voice>
-    *: "Обмотавање листе"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUTDOWN_MESSAGE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show Shutdown Message"
-  </source>
-  <dest>
-    *: "Прикажи поруку искључивања"
-  </dest>
-  <voice>
-    *: "Прикажи поруку искључивања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Order"
-  </source>
-  <dest>
-    *: "Редослед листе"
-  </dest>
-  <voice>
-    *: "Редослед листе"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ASCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Ascending"
-  </source>
-  <dest>
-    *: "Растући"
-  </dest>
-  <voice>
-    *: "растући"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DESCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Descending"
-  </source>
-  <dest>
-    *: "Опадајући"
-  </dest>
-  <voice>
-    *: "опадајући"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALBUM_ART
-  desc: in Settings
-  user: core
-  <source>
-    *: "Album Art"
-  </source>
-  <dest>
-    *: "Слика омота"
-  </dest>
-  <voice>
-    *: "слика омота"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_EMBEDDED
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Embedded"
-  </source>
-  <dest>
-    *: "Предност има уграђена"
-  </dest>
-  <voice>
-    *: "Предност има уграђена"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_IMAGE_FILE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Image File"
-  </source>
-  <dest>
-    *: "Предност има фајл слике"
-  </dest>
-  <voice>
-    *: "Предност има фајл слике"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FM_SYNC_RDS_TIME
-  desc: in radio screen and Settings
-  user: core
-  <source>
-    *: none
-    rds: "Sync RDS Time"
-  </source>
-  <dest>
-    *: none
-    rds: "Синхронизуј са RDS временом"
-  </dest>
-  <voice>
-    *: none
-    rds: "Синхронизуј са Ер де ес временом"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SORT_ALBUMS_BY
-  desc: in Settings
-  user: core
-  <source>
-    *: "Sort albums by"
-  </source>
-  <dest>
-    *: "Сортирај албуме по"
-  </dest>
-  <voice>
-    *: "Сортирај албуме по"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_NAME
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Name"
-  </source>
-  <dest>
-    *: "Уметник + Име"
-  </dest>
-  <voice>
-    *: "Уметник и име"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_YEAR
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Year"
-  </source>
-  <dest>
-    *: "Уметник + Година"
-  </dest>
-  <voice>
-    *: "Ументик и година"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YEAR_SORT_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Year sort order"
-  </source>
-  <dest>
-    *: "Редослед сортирања године"
-  </dest>
-  <voice>
-    *: "Редослед сортирања године"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_YEAR_IN_ALBUM_TITLE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show year in album title"
-  </source>
-  <dest>
-    *: "Приказуј годину у наслову албума"
-  </dest>
-  <voice>
-    *: "Приказуј годину у наслову албума"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WAIT_FOR_CACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Cache needs to finish updating first!"
-  </source>
-  <dest>
-    *: "Најпре мора да се освежи кеш!"
-  </dest>
-  <voice>
-    *: "Најпре мора да се освежи кеш!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_INFO
-  desc: Track Info Title
-  user: core
-  <source>
-    *: "Track Info"
-  </source>
-  <dest>
-    *: "Инфо о нумери"
-  </dest>
-  <voice>
-    *: "Инфо о нумери"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY
-  desc: play selected file/directory, in playlist context menu
-  user: core
-  <source>
-    *: "Play"
-  </source>
-  <dest>
-    *: "Пусти"
-  </dest>
-  <voice>
-    *: "Пусти"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_SHUFFLED
-  desc: play selected files in shuffled order, in playlist context menu
-  user: core
-  <source>
-    *: "Play Shuffled"
-  </source>
-  <dest>
-    *: "Пусти измешано"
-  </dest>
-  <voice>
-    *: "Пусти измешано"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_KEEP_CURRENT_TRACK_ON_REPLACE
-  desc: used in the playlist settings menu
-  user: core
-  <source>
-    *: "Keep Current Track When Replacing Playlist"
-  </source>
-  <dest>
-    *: "Задржи текућу нумеру када се замењује плејлиста"
-  </dest>
-  <voice>
-    *: "Задржи текућу нумеру када се замењује плејлиста"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_SETTINGS_ON_HOLD
-  desc: in the system sub menu
-  user: core
-  <source>
-    *: none
-    clear_settings_on_hold,iriverh10: "Clear settings when reset button is held during startup"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Clear settings when hold switch is on during startup"
-  </source>
-  <dest>
-    *: none
-    clear_settings_on_hold,iriverh10: "Обриши подешавања када се током покретања држи ресет тастер"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Обриши подешавања када је током покретања укључен тастер hold"
-  </dest>
-  <voice>
-    *: none
-    clear_settings_on_hold,iriverh10: "Обриши подешавања када се током покретања држи ресет тастер"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Обриши подешавања када је током покретања укључен тастер hold"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REWIND_ACROSS_TRACKS
-  desc: in playback settings menu
-  user: core
-  <source>
-    *: "Rewind Across Tracks"
-  </source>
-  <dest>
-    *: "Премотавај преко нумера"
-  </dest>
-  <voice>
-    *: "Премотавај преко нумера"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_AS
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Set As..."
-  </source>
-  <dest>
-    *: "Постави као..."
-  </dest>
-  <voice>
-    *: "Постави као..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playlist Directory"
-  </source>
-  <dest>
-    *: "Директоријум са плејлистама"
-  </dest>
-  <voice>
-    *: "Директоријум са плејлистама"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_START_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Start Directory"
-  </source>
-  <dest>
-    *: "Почетни директоријум"
-  </dest>
-  <voice>
-    *: "Почетни директоријум"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RECORDING_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: none
-    recording: "Recording Directory"
-  </source>
-  <dest>
-    *: none
-    recording: "Директоријум за снимање"
-  </dest>
-  <voice>
-    *: none
-    recording: "Директоријум за снимање"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Playlist..."
-  </source>
-  <dest>
-    *: "Додај у плејлисту..."
-  </dest>
-  <voice>
-    *: "Додај у плејлисту..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_EXISTING_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Existing Playlist"
-  </source>
-  <dest>
-    *: "Додај у постојећу плејлисту"
-  </dest>
-  <voice>
-    *: "Додај у постојећу плејлисту"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYING_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playing Next..."
-  </source>
-  <dest>
-    *: "Пушта се следеће..."
-  </dest>
-  <voice>
-    *: "Пушта се следеће..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Next"
-  </source>
-  <dest>
-    *: "Пусти следећу"
-  </dest>
-  <voice>
-    *: "Пусти следећу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add Shuffled"
-  </source>
-  <dest>
-    *: "Додај промешано"
-  </dest>
-  <voice>
-    *: "Додај промешано"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last"
-  </source>
-  <dest>
-    *: "Пусти последње"
-  </dest>
-  <voice>
-    *: "Пусти последње"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last Shuffled"
-  </source>
-  <dest>
-    *: "Пусти последње промешано"
-  </dest>
-  <voice>
-    *: "Пусти последње промешано"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_MODE
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Volume Adjustment Mode"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Режим подешавања јачине"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Режим подешавања јачине"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_NORM_STEPS
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Number of Volume Steps"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Број корака јачине"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Број корака јачине"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PERCEPTUAL
-  desc: in system settings -> volume adjustment mode
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Perceptual"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Перцептуално"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Перцептуално"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_TRACKS_WHILE_BROWSING
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Show Tracks While Browsing"
-  </source>
-  <dest>
-    *: "Прикажи нумере током прегледа"
-  </dest>
-  <voice>
-    *: "Прикажи нумере током прегледа"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GOTO_LAST_ALBUM
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Go to Last Album"
-  </source>
-  <dest>
-    *: "Иди на последњи албум"
-  </dest>
-  <voice>
-    *: "Иди на последњи албум"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATABASE_DIR
-  desc: in database settings menu
-  user: core
-  <source>
-    *: "Database Directory"
-  </source>
-  <dest>
-    *: "Директоријум базе података"
-  </dest>
-  <voice>
-    *: "Директоријум базе података"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMOVE_QUEUED_TRACKS
-  desc: Confirmation dialog
-  user: core
-  <source>
-    *: "Remove Queued Tracks?"
-  </source>
-  <dest>
-    *: "Да уклоним нумере из реда?"
-  </dest>
-  <voice>
-    *: "Да уклоним нумере из реда?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUICK_IGNORE_DIRACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Quick (Ignore Directory Cache)"
-  </source>
-  <dest>
-    *: "Брзо (игнориши кеш директоријума)"
-  </dest>
-  <voice>
-    *: "Брзо (игнориши кеш директоријума)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WPS
-  desc: in Settings
-  user: core
-  <source>
-    *: "What's Playing Screen"
-  </source>
-  <dest>
-    *: "Екран шта се пушта"
-  </dest>
-  <voice>
-    *: "Екран шта се пушта"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DEFAULT_BROWSER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Default Browser"
-  </source>
-  <dest>
-    *: "Подраз. прегледач"
-  </dest>
-  <voice>
-    *: "Подраз. прегледач"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_AMAZE_MENU
-  desc: Amaze game
-  user: core
-  <source>
-    *: "Amaze Main Menu"
-  </source>
-  <dest>
-    *: "Amaze главни мени"
-  </dest>
-  <voice>
-    *: "Амејз главни мени"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_MAZE_SIZE
-  desc: Maze size in Amaze game
-  user: core
-  <source>
-    *: "Set Maze Size"
-  </source>
-  <dest>
-    *: "Постави величину лавиринта"
-  </dest>
-  <voice>
-    *: "Постави величину лавиринта"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VIEW_MAP
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "View Map"
-  </source>
-  <dest>
-    *: "Погледај мапу"
-  </dest>
-  <voice>
-    *: "Погледај мапу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_COMPASS
-  desc: Compass in Amaze game
-  user: core
-  <source>
-    *: "Show Compass"
-  </source>
-  <dest>
-    *: "Прикажи компас"
-  </dest>
-  <voice>
-    *: "Прикажи компас"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_MAP
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Show Map"
-  </source>
-  <dest>
-    *: "Прикажи мапу"
-  </dest>
-  <voice>
-    *: "Прикажи мапу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMEMBER_PATH
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Remember Path"
-  </source>
-  <dest>
-    *: "Запамти путању"
-  </dest>
-  <voice>
-    *: "Запамти путању"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_LARGE_TILES
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Use Large Tiles"
-  </source>
-  <dest>
-    *: "Користи велике плочице"
-  </dest>
-  <voice>
-    *: "Користи велике плочице"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SOLUTION
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Show Solution"
-  </source>
-  <dest>
-    *: "Прикажи решење"
-  </dest>
-  <voice>
-    *: "Прикажи решење"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUIT_WITHOUT_SAVING
-  desc:
-  user: core
-  <source>
-    *: "Quit without saving"
-  </source>
-  <dest>
-    *: "Напусти без чувања"
-  </dest>
-  <voice>
-    *: "Напусти без чувања"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GENERATING_MAZE
-  desc: Amaze game
-  user: core
-  <source>
-    *: "Generating maze..."
-  </source>
-  <dest>
-    *: "Лавиринт се генерише..."
-  </dest>
-  <voice>
-    *: "Лавиринт се генерише..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YOU_WIN
-  desc: Success in game
-  user: core
-  <source>
-    *: "You win!"
-  </source>
-  <dest>
-    *: "Победили сте!"
-  </dest>
-  <voice>
-    *: "Победили сте!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YOU_CHEATED
-  desc: Cheated in game
-  user: core
-  <source>
-    *: "You cheated!"
-  </source>
-  <dest>
-    *: "Варали сте!"
-  </dest>
-  <voice>
-    *: "Варали сте!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_EASY
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Easy"
-  </source>
-  <dest>
-    *: "Лако"
-  </dest>
-  <voice>
-    *: "Лако"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_MEDIUM
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Medium"
-  </source>
-  <dest>
-    *: "Средње"
-  </dest>
-  <voice>
-    *: "Средње"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_HARD
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Hard"
-  </source>
-  <dest>
-    *: "Тешко"
-  </dest>
-  <voice>
-    *: "Тешко"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_EXPERT
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Expert"
-  </source>
-  <dest>
-    *: "Стручњак"
-  </dest>
-  <voice>
-    *: "Стручњак"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_LANG_NAME
-  desc: Spoken name of the language
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "српски"
-  </voice>
-</phrase>
+

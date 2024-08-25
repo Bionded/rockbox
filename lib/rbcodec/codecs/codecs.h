@@ -34,12 +34,14 @@
 #include "profile.h"
 #include "thread.h"
 #endif
+#if (CONFIG_CODEC == SWCODEC)
 #ifdef HAVE_RECORDING
 #include "enc_base.h"
 #endif
 #include "dsp_core.h"
 #include "dsp_misc.h"
 #include "dsp-util.h"
+#endif
 
 #include "gcc_extensions.h"
 #include "load_code.h"
@@ -60,10 +62,6 @@
 #ifdef ROCKBOX_HAS_LOGF
 #undef LOGF
 #define LOGF ci->logf
-#elif defined(LOGF_ENABLE)
-#include "logf.h"
-#undef LOGF
-#define LOGF logf
 #else
 #define LOGF(...)
 #endif
@@ -75,12 +73,13 @@
 /* magic for encoder codecs */
 #define CODEC_ENC_MAGIC 0x52454E43 /* RENC */
 
-/*
- * Increment this whenever a change breaks the codec ABI,
- * when this happens please take the opportunity to sort in
- * any new functions "waiting" at the end of the list.
- */
-#define CODEC_API_VERSION 50
+/* increase this every time the api struct changes */
+#define CODEC_API_VERSION 48
+
+/* update this to latest version if a change to the api struct breaks
+   backwards compatibility (and please take the opportunity to sort in any
+   new function which are "waiting" at the end of the function table) */
+#define CODEC_MIN_API_VERSION 48
 
 /* reasons for calling codec main entrypoint */
 enum codec_entry_call_reason {
@@ -231,7 +230,6 @@ struct codec_header {
     enum codec_status(*entry_point)(enum codec_entry_call_reason reason);
     enum codec_status(*run_proc)(void);
     struct codec_api **api;
-    size_t api_size;
     void * rec_extension[]; /* extension for encoders */
 };
 
@@ -245,16 +243,15 @@ extern unsigned char plugin_end_addr[];
         const struct codec_header __header \
         __attribute__ ((section (".header")))= { \
         { CODEC_MAGIC, TARGET_ID, CODEC_API_VERSION, \
-          plugin_start_addr, plugin_end_addr }, \
-        codec_start, codec_run, &ci, sizeof(struct codec_api) };
+        plugin_start_addr, plugin_end_addr }, codec_start, \
+        codec_run, &ci };
 /* encoders */
 #define CODEC_ENC_HEADER \
         const struct codec_header __header \
         __attribute__ ((section (".header")))= { \
         { CODEC_ENC_MAGIC, TARGET_ID, CODEC_API_VERSION, \
-          plugin_start_addr, plugin_end_addr }, \
-        codec_start, codec_run, &ci, sizeof(struct codec_api), \
-        { enc_callback } };
+        plugin_start_addr, plugin_end_addr }, codec_start, \
+        codec_run, &ci, { enc_callback } };
 
 #else /* def SIMULATOR */
 /* decoders */
@@ -262,14 +259,13 @@ extern unsigned char plugin_end_addr[];
         const struct codec_header __header \
         __attribute__((visibility("default"))) = { \
         { CODEC_MAGIC, TARGET_ID, CODEC_API_VERSION, NULL, NULL }, \
-        codec_start, codec_run, &ci, sizeof(struct codec_api) };
+        codec_start, codec_run, &ci };
 /* encoders */
 #define CODEC_ENC_HEADER \
         const struct codec_header __header \
         __attribute__((visibility("default"))) = { \
         { CODEC_ENC_MAGIC, TARGET_ID, CODEC_API_VERSION, NULL, NULL }, \
-        codec_start, codec_run, &ci, sizeof(struct codec_api), \
-        { enc_callback } };
+        codec_start, codec_run, &ci, { enc_callback } };
 #endif /* SIMULATOR */
 #endif /* CODEC */
 
@@ -285,18 +281,18 @@ int codec_load_buf(int hid, struct codec_api *api);
 int codec_load_file(const char* codec, struct codec_api *api);
 int codec_run_proc(void);
 int codec_close(void);
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING)
 enc_callback_t codec_get_enc_callback(void);
+#else
+#define codec_get_enc_callback()  NULL
 #endif
 
 /* defined by the codec */
 enum codec_status codec_start(enum codec_entry_call_reason reason);
 enum codec_status codec_main(enum codec_entry_call_reason reason);
 enum codec_status codec_run(void);
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING)
 int enc_callback(enum enc_callback_reason reason, void *params);
-#else
-#define codec_get_enc_callback()  NULL
 #endif
 
 #endif /* _CODECS_H_ */

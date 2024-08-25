@@ -8,13 +8,6 @@
 
 #define HW_SAMPR_CAPS       (SAMPR_CAP_48 | SAMPR_CAP_44 | SAMPR_CAP_32)
 
-/* Define if boot data from bootloader has been enabled for the target */
-#define HAVE_BOOTDATA
-
-/* define boot redirect file name allows booting from external drives */
-#define BOOT_REDIR "rockbox_main.e200"
-#define MULTIBOOT_MIN_VOLUME 1
-
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
 
@@ -31,8 +24,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -89,8 +82,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 /* There is no hardware tone control */
 #define HAVE_SW_TONE_CONTROLS
 /* The PP5024 has a built-in AustriaMicrosystems AS3514 */
@@ -180,9 +173,16 @@
 /* Type of LCD TODO: hopefully the same as the x5 but check this*/
 #define CONFIG_LCD LCD_X5
 
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
+
+#ifndef BOOTLOADER
 #define HAVE_MULTIDRIVE
 #define NUM_DRIVES 2
-#define HAVE_HOTSWAP /* required to access sd from bootloader */
+#define HAVE_HOTSWAP
+#endif
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

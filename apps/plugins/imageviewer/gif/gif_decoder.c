@@ -115,11 +115,6 @@ void gif_decoder_init(struct gif_decoder *d, void *mem, size_t size)
     init_memory_pool(d->mem_size, d->mem);
 }
 
-void gif_decoder_destroy_memory_pool(struct gif_decoder *d)
-{
-    destroy_memory_pool(d->mem);
-}
-
 void gif_open(char *filename, struct gif_decoder *d)
 {
     if ((GifFile = DGifOpenFileName(filename, &d->error)) == NULL)
@@ -141,7 +136,7 @@ static void set_canvas_background(pixel_t *out, GifFileType *GifFile)
      * to reset canvas to global background color specified in gif BUT
      * all renderers I know use transparency instead.
      */
-    memset(out, PIXEL_TRANSPARENT, PIXELS_SZ);
+    memset(out, PIXEL_TRANSPARENT, PIXELS_SZ);    
 }
 
 /* var names adhere to giflib coding style */
@@ -186,7 +181,6 @@ void gif_decode(struct gif_decoder *d,
     {
         /* error allocating temp space */
         d->error = D_GIF_ERR_NOT_ENOUGH_MEM;
-        DGifCloseFile(GifFile);
         return;
     }
 
@@ -202,7 +196,7 @@ void gif_decode(struct gif_decoder *d,
     if (pixels_buffer[0] == NULL)
     {
         d->error = D_GIF_ERR_NOT_ENOUGH_MEM;
-        goto free_and_return;
+        return;
     }
 
     /* Global background color */
@@ -221,7 +215,7 @@ void gif_decode(struct gif_decoder *d,
         if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
         {
             d->error = GifFile->Error;
-            goto free_and_return;
+            return;
         }
 
         switch (RecordType)
@@ -231,7 +225,7 @@ void gif_decode(struct gif_decoder *d,
                 if (DGifGetImageDesc(GifFile) == GIF_ERROR)
                 {
                     d->error = GifFile->Error;
-                    goto free_and_return;
+                    return;
                 }
 
                 /* Image Position relative to canvas */
@@ -245,7 +239,7 @@ void gif_decode(struct gif_decoder *d,
                     GifFile->SColorMap == NULL)
                 {
                     d->error = D_GIF_ERR_NO_COLOR_MAP;
-                    goto free_and_return;
+                    return;
                 }
 
                 /* sanity check */
@@ -253,7 +247,7 @@ void gif_decode(struct gif_decoder *d,
                     GifFile->Image.Top+GifFile->Image.Height>GifFile->SHeight)
                 {
                     d->error = D_GIF_ERR_DATA_TOO_BIG;
-                    goto free_and_return;
+                    return;
                 }
 
                 if (GifFile->Image.GCB &&
@@ -281,15 +275,14 @@ void gif_decode(struct gif_decoder *d,
                             if (DGifGetLine(GifFile, Line, Width) == GIF_ERROR)
                             {
                                 d->error = GifFile->Error;
-                                goto free_and_return;
+                                return;
                             }
 
                             gif2pixels(Line, pixels_buffer[buf_idx],
                                        Row + j, Col, Width);
                         }
 
-                        if (pf_progress != NULL)
-                            pf_progress(25*(i+1), 100);
+                        pf_progress(25*(i+1), 100);
                     }
                 }
                 else
@@ -300,14 +293,13 @@ void gif_decode(struct gif_decoder *d,
                         if (DGifGetLine(GifFile,  Line, Width) == GIF_ERROR)
                         {
                             d->error = GifFile->Error;
-                            goto free_and_return;
+                            return;
                         }
 
                         gif2pixels(Line, pixels_buffer[buf_idx],
                                    Row + i, Col, Width);
 
-                        if (pf_progress != NULL)
-                            pf_progress((i+1), Height);
+                        pf_progress(100*(i+1)/Height, 100);
                     }
                 }
 
@@ -316,7 +308,7 @@ void gif_decode(struct gif_decoder *d,
                 if (out == NULL)
                 {
                     d->error = D_GIF_ERR_NOT_ENOUGH_MEM;
-                    goto free_and_return;
+                    return;
                 }
 
                 bm.data = out + d->native_img_size*d->frames_count;
@@ -356,7 +348,7 @@ void gif_decode(struct gif_decoder *d,
                     GIF_ERROR)
                 {
                     d->error = GifFile->Error;
-                    goto free_and_return;
+                    return;
                 }
 
                 if (ExtCode == GRAPHICS_EXT_FUNC_CODE)
@@ -370,7 +362,7 @@ void gif_decode(struct gif_decoder *d,
                                            GifFile->Image.GCB) == GIF_ERROR)
                     {
                         d->error = GifFile->Error;
-                        goto free_and_return;
+                        return;
                     }
                     d->delay = GifFile->Image.GCB->DelayTime;
                 }
@@ -381,7 +373,7 @@ void gif_decode(struct gif_decoder *d,
                     if (DGifGetExtensionNext(GifFile, &Extension) == GIF_ERROR)
                     {
                         d->error = GifFile->Error;
-                        goto free_and_return;
+                        return;
                     }
                 }
                 break;
@@ -397,10 +389,6 @@ void gif_decode(struct gif_decoder *d,
     if (DGifCloseFile(GifFile) == GIF_ERROR)
     {
         d->error = GifFile->Error;
-        free(pixels_buffer[0]);
-        if (pixels_buffer[1])
-            free(pixels_buffer[1]);
-        free(Line);
         return;
     }
 
@@ -418,7 +406,7 @@ void gif_decode(struct gif_decoder *d,
         free(pixels_buffer[1]);
 
     free(Line);
-
+  
     /* WARNING !!!! */
     /* GifFile object is trashed from now on, DONT use it */
     /* Move bitmap in native format to the front of the buff */
@@ -482,15 +470,4 @@ void gif_decode(struct gif_decoder *d,
         }
     }
 #endif
-    return;
-
-free_and_return:
-    if (Line)
-        free(Line);
-    if (pixels_buffer[0])
-        free(pixels_buffer[0]);
-    if (pixels_buffer[1])
-        free(pixels_buffer[1]);
-    DGifCloseFile(GifFile);
-    return;
 }

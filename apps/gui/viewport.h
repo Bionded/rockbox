@@ -43,6 +43,7 @@ void viewport_set_defaults(struct viewport *vp,
                             const enum screen_type screen);
 void viewport_set_fullscreen(struct viewport *vp,
                               const enum screen_type screen);
+int get_viewport_default_colour(enum screen_type screen, bool fgcolour);
 
 #ifndef __PCTOOL__
 
@@ -52,9 +53,10 @@ void viewport_set_fullscreen(struct viewport *vp,
  */
 void viewportmanager_init(void) INIT_ATTR;
 
+#ifdef HAVE_LCD_BITMAP
 void viewportmanager_theme_enable(enum screen_type screen, bool enable,
                                  struct viewport *viewport);
-/* Force will cause a redraw even if the theme was previously and
+/* Force will cause a redraw even if the theme was previously and 
  * currently enabled (i,e the undo doing nothing).
  * Should almost always be set to false except coming out of fully skinned screens */
 void viewportmanager_theme_undo(enum screen_type screen, bool force_redraw);
@@ -62,12 +64,15 @@ void viewportmanager_theme_undo(enum screen_type screen, bool force_redraw);
 /* call this when a theme changed */
 void viewportmanager_theme_changed(const int);
 
-void viewport_set_buffer(struct viewport *vp, struct frame_buffer_t *buffer,
-                                                const enum screen_type screen);
-
 #ifdef HAVE_TOUCHSCREEN
 bool viewport_point_within_vp(const struct viewport *vp,
                                const int x, const int y);
+#endif
+
+#else /* HAVE_LCD_CHARCELL */
+#define viewportmanager_theme_changed(a)
+#define viewportmanager_theme_enable(...)
+#define viewportmanager_theme_undo(...)
 #endif
 
 #endif /* __PCTOOL__ */

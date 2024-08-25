@@ -69,8 +69,6 @@ static inline void set_dma(const void *addr, size_t size)
     int burst_size;
     logf("%x %d %x", (unsigned int)addr, size, REG_AIC_SR);
 
-    commit_discard_dcache_range(addr, size);
-
     if(size % 16)
     {
         if(size % 4)
@@ -90,6 +88,7 @@ static inline void set_dma(const void *addr, size_t size)
         burst_size = DMAC_DCMD_DS_16BYTE;
     }
 
+    __dcache_writeback_all();
     REG_DMAC_DCCSR(DMA_AIC_TX_CHANNEL) = DMAC_DCCSR_NDES;
     REG_DMAC_DSAR(DMA_AIC_TX_CHANNEL)  = PHYSADDR((unsigned long)addr);
     REG_DMAC_DTAR(DMA_AIC_TX_CHANNEL)  = PHYSADDR((unsigned long)AIC_DR);
@@ -137,8 +136,6 @@ void DMA_CALLBACK(DMA_AIC_TX_CHANNEL)(void)
 
 void pcm_play_dma_start(const void *addr, size_t size)
 {
-    pcm_play_dma_stop();
-
     dma_enable();
 
     set_dma(addr, size);
@@ -182,6 +179,73 @@ void pcm_play_unlock(void)
         __dmac_channel_enable_irq(DMA_AIC_TX_CHANNEL);
 
     restore_irq(flags);
+}
+
+void pcm_play_dma_pause(bool pause)
+{
+    int flags = disable_irq_save();
+
+    if(pause)
+        REG_DMAC_DCCSR(DMA_AIC_TX_CHANNEL) &= ~DMAC_DCCSR_EN;
+    else
+        REG_DMAC_DCCSR(DMA_AIC_TX_CHANNEL) |= DMAC_DCCSR_EN;
+
+    restore_irq(flags);
+}
+
+static int get_dma_count(void)
+{
+    int count = REG_DMAC_DTCR(DMA_AIC_TX_CHANNEL);
+    switch(REG_DMAC_DCMD(DMA_AIC_TX_CHANNEL) & DMAC_DCMD_DS_MASK)
+    {
+        case DMAC_DCMD_DS_16BIT:
+            count *= 2;
+            break;
+        case DMAC_DCMD_DS_32BIT:
+            count *= 4;
+            break;
+        case DMAC_DCMD_DS_16BYTE:
+            count *= 16;
+            break;
+    }
+
+    return count;
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    int bytes, flags = disable_irq_save();
+
+    if(REG_DMAC_DCCSR(DMA_AIC_TX_CHANNEL) & DMAC_DCCSR_EN)
+        bytes = get_dma_count() & ~3;
+    else
+        bytes = 0;
+
+    restore_irq(flags);
+
+    return bytes;
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    int flags = disable_irq_save();
+
+    const void* addr;
+    if(REG_DMAC_DCCSR(DMA_AIC_TX_CHANNEL) & DMAC_DCCSR_EN)
+    {
+        int bytes = get_dma_count();
+        *count = bytes >> 2;
+        addr = (const void*)((int)(playback_address + bytes + 2) & ~3);
+    }
+    else
+    {
+        *count = 0;
+        addr = NULL;
+    }
+
+    restore_irq(flags);
+
+    return addr;
 }
 
 void audiohw_close(void)

@@ -47,7 +47,8 @@ static const struct button_mapping button_context_standard[]  = {
 /*  { ACTION_STD_KEYLOCK,        BUTTON_,                       BUTTON_ }, */
 /*  { ACTION_STD_REC,            BUTTON_,                       BUTTON_ }, */
 /*  { ACTION_STD_HOTKEY,         BUTTON_,                       BUTTON_ }, */
-
+/*  { ACTION_F3,                 BUTTON_,                       BUTTON_ }, */
+  
     LAST_ITEM_IN_LIST
 }; /* button_context_standard */
 
@@ -109,11 +110,8 @@ static const struct button_mapping button_context_settings[]  = {
 static const struct button_mapping button_context_yesno[]  = {
     { ACTION_YESNO_ACCEPT,       BUTTON_ENTER,                  BUTTON_NONE },
     { ACTION_YESNO_ACCEPT,       BUTTON_PLAY,                   BUTTON_NONE },
-    { ACTION_STD_CANCEL,         BUTTON_REW,                    BUTTON_NONE },
-    { ACTION_STD_CANCEL,         BUTTON_FF,                    BUTTON_NONE },
-    { ACTION_STD_CANCEL,         BUTTON_REC,                    BUTTON_NONE },
 
-    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+    LAST_ITEM_IN_LIST
 }; /* button_context_yesno */
 
 static const struct button_mapping button_context_bmark[]  = {

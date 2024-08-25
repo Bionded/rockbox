@@ -23,6 +23,10 @@
 #ifndef OSD_H
 #define OSD_H
 
+#ifndef HAVE_LCD_BITMAP
+#error OSD requires bitmapped LCD
+#endif
+
 /* At this time: assumes use of the default viewport for normal drawing */
 
 /* Callback implemented by user. Paramters are OSD vp-relative coordinates */

@@ -107,7 +107,9 @@
 /* Messages from usb_tick and thread states */
 enum
 {
+#ifdef HAVE_LCD_BITMAP
     USB_SCREENDUMP = -1,     /* State */
+#endif
     USB_EXTRACTED = 0,       /* Event+State */
     USB_INSERTED,            /* Event+State */
     USB_POWERED,             /* State - transitional indicator if no host */
@@ -131,26 +133,17 @@ enum
 #endif
 };
 
-/* Supported usb modes. */
-enum
-{
-    USB_MODE_MASS_STORAGE,
-    USB_MODE_CHARGE,
-    USB_MODE_ADB
-};
-
 #ifdef HAVE_USB_POWER
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define USBPOWER_BUTTON BUTTON_F1
+#define USBPOWER_BTN_IGNORE BUTTON_ON
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define USBPOWER_BUTTON BUTTON_MENU
+#define USBPOWER_BTN_IGNORE BUTTON_OFF
 /*allow people to define this in config-target.h if they need it*/
-#if !defined(USBPOWER_BTN_IGNORE)
+#elif !defined(USBPOWER_BTN_IGNORE) 
 #define USBPOWER_BTN_IGNORE 0
 #endif
-
-#if defined(BOOTLOADER)
-#define USBMODE_DEFAULT USB_MODE_MASS_STORAGE
-#else
-#define USBMODE_DEFAULT USB_MODE_MASS_STORAGE
-#endif
-
 #endif
 
 #ifdef HAVE_USBSTACK
@@ -177,7 +170,7 @@ struct usb_transfer_completion_event_data
     int dir;
     int status;
     int length;
-    void* data[2];
+    void* data;
 };
 #endif /* HAVE_USBSTACK */
 
@@ -185,9 +178,6 @@ struct usb_transfer_completion_event_data
 void usb_init(void) INIT_ATTR;
 /* target must implement this to enable/disable the usb transceiver/core */
 void usb_enable(bool on);
-/* when one or more driver requires exclusive mode, this is called after all threads have acknowledged
- * exclusive mode and disk have been umounted; otherwise it is called immediately after host has
- * been detected */
 void usb_attach(void);
 /* enable usb detection monitoring; before this function is called, all usb
  * detection changes are ignored */
@@ -230,7 +220,6 @@ void usb_charging_maxcurrent_change(int maxcurrent);
 /* returns the maximum allowed USB current, based on USB charging mode and state */
 int usb_charging_maxcurrent(void);
 #endif /* HAVE_USB_CHARGING_ENABLE */
-void usb_set_mode(int mode);
 #endif /* HAVE_USB_POWER */
 #ifdef HAVE_USBSTACK
 /* USB driver call this function to notify that a transfer has completed */

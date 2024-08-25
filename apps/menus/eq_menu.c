@@ -30,8 +30,8 @@
 #include "list.h"
 #include "menu.h"
 #include "action.h"
+#include "mp3_playback.h"
 #include "settings.h"
-#include "rbpaths.h"
 #include "screens.h"
 #include "icons.h"
 #include "font.h"
@@ -49,9 +49,6 @@
 #include "exported_menus.h"
 #include "pcmbuf.h"
 #include "option_select.h"
-#include "string-extra.h"
-
-static void eq_apply(void);
 
 /*
  * Utility functions
@@ -71,12 +68,6 @@ const char* eq_precut_format(char* buffer, size_t buffer_size, int value, const 
     return buffer;
 }
 
-void eq_enabled_option_callback(bool enabled)
-{
-    (void)enabled;
-    eq_apply();
-}
-
 /*
  * Settings functions
  */
@@ -90,19 +81,16 @@ static void eq_apply(void)
     }
 }
 
-static int eq_setting_callback(int action,
-                               const struct menu_item_ex *this_item,
-                               struct gui_synclist *this_list)
+static int eq_setting_callback(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     switch (action)
     {
         case ACTION_ENTER_MENUITEM:
-            action = lowlatency_callback(action, this_item, NULL);
+            action = lowlatency_callback(action, this_item);
             break;
         case ACTION_EXIT_MENUITEM:
             eq_apply();
-            action = lowlatency_callback(action, this_item, NULL);
+            action = lowlatency_callback(action, this_item);
             break;
     }
 
@@ -154,9 +142,9 @@ static int32_t get_dec_talkid(int value, int unit)
 static const struct int_setting gain_int_setting = {
     .option_callback = NULL,
     .unit = UNIT_DB,
-    .step = EQ_GAIN_STEP,
     .min = EQ_GAIN_MIN,
     .max = EQ_GAIN_MAX,
+    .step = EQ_GAIN_STEP,
     .formatter = db_format,
     .get_talk_id = get_dec_talkid,
 };
@@ -164,9 +152,9 @@ static const struct int_setting gain_int_setting = {
 static const struct int_setting q_int_setting = {
     .option_callback = NULL,
     .unit = UNIT_INT,
-    .step = EQ_Q_STEP,
     .min = EQ_Q_MIN,
     .max = EQ_Q_MAX,
+    .step = EQ_Q_STEP,
     .formatter = eq_q_format,
     .get_talk_id = get_dec_talkid,
 };
@@ -174,9 +162,9 @@ static const struct int_setting q_int_setting = {
 static const struct int_setting cutoff_int_setting = {
     .option_callback = NULL,
     .unit = UNIT_HERTZ,
-    .step = EQ_CUTOFF_STEP,
     .min = EQ_CUTOFF_MIN,
     .max = EQ_CUTOFF_MAX,
+    .step = EQ_CUTOFF_STEP,
     .formatter = NULL,
     .get_talk_id = NULL,
 };
@@ -222,8 +210,8 @@ static int eq_do_simple_menu(void * param)
     }
     return 0;
 }
-MENUITEM_FUNCTION(gain_menu, 0, ID2P(LANG_EQUALIZER_GAIN),
-	              eq_do_simple_menu, NULL, Icon_Submenu);
+MENUITEM_FUNCTION(gain_menu, 0, ID2P(LANG_EQUALIZER_GAIN), eq_do_simple_menu,
+                    NULL, NULL, Icon_Submenu);
 
 static void selection_to_banditem(int selection, int expanded_band, int *band, int *item)
 {
@@ -248,12 +236,14 @@ static void selection_to_banditem(int selection, int expanded_band, int *band, i
 
 static char *advancedmenu_item_get_name(int selected_item, void *data, char *buffer, size_t len)
 {
+    (void)len;
     int band;
     int item;
-    int lang = -1;
+    char *lang = NULL;
 
     selection_to_banditem(selected_item, *(intptr_t*)data, &band, &item);
 
+    strcpy(buffer, "\t");
     switch (item)
     {
     case 0: /* Band title */
@@ -263,34 +253,27 @@ static char *advancedmenu_item_get_name(int selected_item, void *data, char *buf
             return str(LANG_EQUALIZER_BAND_HIGH_SHELF);
         else
         {
-            snprintf(buffer, len, str(LANG_EQUALIZER_BAND_PEAK), band);
+            snprintf(buffer, MAX_PATH, str(LANG_EQUALIZER_BAND_PEAK), band);
             return buffer;
         }
         break;
     case 1: /* cutoff */
         if (band == 0)
-            lang = LANG_EQUALIZER_BAND_CUTOFF;
+            lang = str(LANG_EQUALIZER_BAND_CUTOFF);
         else if (band == EQ_NUM_BANDS - 1)
-            lang = LANG_EQUALIZER_BAND_CUTOFF;
+            lang = str(LANG_EQUALIZER_BAND_CUTOFF);
         else
-            lang = LANG_EQUALIZER_BAND_CENTER;
+            lang = str(LANG_EQUALIZER_BAND_CENTER);
         break;
     case 2: /* Q */
-        lang = LANG_EQUALIZER_BAND_Q;
+        lang = str(LANG_EQUALIZER_BAND_Q);
         break;
     case 3: /* Gain */
-        lang = LANG_GAIN;
+        lang = str(LANG_GAIN);
         break;
     }
 
-    if(lang < 0)
-        buffer[0] = 0;
-    else {
-        buffer[0] = '\t';
-        strmemccpy(&buffer[1], str(lang), len - 1);
-    }
-
-    return buffer;
+    return strcat(buffer, lang);;
 }
 
 static int advancedmenu_speak_item(int selected_item, void *data)
@@ -426,7 +409,7 @@ static int eq_do_advanced_menu(void * param)
     return 0;
 }
 MENUITEM_FUNCTION(advanced_menu, 0, ID2P(LANG_EQUALIZER_ADVANCED),
-                  eq_do_advanced_menu, NULL, Icon_EQ);
+                  eq_do_advanced_menu, NULL, NULL, Icon_EQ);
 
 enum eq_slider_mode {
     GAIN,
@@ -480,18 +463,17 @@ static int draw_eq_slider(struct screen * screen, int x, int y,
     /* Print out the band label */
     if (band == 0) {
         screen->putsxy(x1, y1, "LS: ");
-        /*screen->getstringsize("LS:", &w, &h); UNUSED*/
+        screen->getstringsize("LS:", &w, &h);
     } else if (band == EQ_NUM_BANDS - 1) {
         screen->putsxy(x1, y1, "HS: ");
-        /*screen->getstringsize("HS:", &w, &h); UNUSED*/
+        screen->getstringsize("HS:", &w, &h);
     } else {
         snprintf(buf, sizeof(buf),  "PK%d:", band);
         screen->putsxy(x1, y1, buf);
-        /*screen->getstringsize(buf, &w, &h); UNUSED*/
+        screen->getstringsize(buf, &w, &h);
     }
 
-    w = screen->getstringsize("A", NULL, &h);
-
+    screen->getstringsize("A", &w, &h);
     x1 += 5*w; /* 4 chars for label + 1 space = 5 */
 
     /* Print out gain part of status line (left justify after label) */
@@ -504,7 +486,7 @@ static int draw_eq_slider(struct screen * screen, int x, int y,
         abs_gain / EQ_USER_DIVISOR, abs_gain % EQ_USER_DIVISOR,
         screen->lcdwidth >= 160 ? "dB" : "");
     screen->putsxy(x1, y1, buf);
-    w = screen->getstringsize(buf, NULL, NULL);
+    screen->getstringsize(buf, &w, &h);
     x1 += w;
 
     /* Print out Q part of status line (right justify) */
@@ -515,7 +497,7 @@ static int draw_eq_slider(struct screen * screen, int x, int y,
 
     snprintf(buf, sizeof(buf), "%d.%d%s", q / EQ_USER_DIVISOR,
              q % EQ_USER_DIVISOR, screen->lcdwidth >= 160 ? " Q" : "");
-    w = screen->getstringsize(buf, NULL, NULL);
+    screen->getstringsize(buf, &w, &h);
     x2 = x + width - w - 2;
     screen->putsxy(x2, y1, buf);
 
@@ -527,7 +509,7 @@ static int draw_eq_slider(struct screen * screen, int x, int y,
 
     snprintf(buf, sizeof(buf),  "%5d%s", cutoff,
              screen->lcdwidth >= 160 ? "Hz" : "");
-    w = screen->getstringsize(buf, NULL, NULL);
+    screen->getstringsize(buf, &w, &h);
     x1 = x1 + (x2 - x1 - w)/2;
     screen->putsxy(x1, y1, buf);
 
@@ -590,7 +572,8 @@ int eq_menu_graphical(void)
     int *setting;
     int current_band, x, y, step, fast_step, min, max;
     enum eq_slider_mode mode;
-    int h, height, start_item, nb_eq_sliders[NB_SCREENS];
+    char buf[24];
+    int w, h, height, start_item, nb_eq_sliders[NB_SCREENS];
     FOR_NB_SCREENS(i)
         viewportmanager_theme_enable(i, false, NULL);
 
@@ -601,7 +584,7 @@ int eq_menu_graphical(void)
         screens[i].clear_display();
 
         /* Figure out how many sliders can be drawn on the screen */
-        h = screens[i].getcharheight();
+        screens[i].getstringsize("A", &w, &h);
 
         /* Total height includes margins (1), text, slider, and line selector (1) */
         height = 3 + h + 1 + SCROLLBAR_SIZE + 3;
@@ -637,8 +620,10 @@ int eq_menu_graphical(void)
                 min = EQ_GAIN_MIN;
                 max = EQ_GAIN_MAX;
 
-                screens[i].putsxyf(0, 0, str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
+                snprintf(buf, sizeof(buf), str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
                          str(LANG_SYSFONT_GAIN), "(dB)");
+
+                screens[i].putsxy(0, 0, buf);
             } else if (mode == CUTOFF) {
                 /* cutoff */
                 setting = &global_settings.eq_band_settings[current_band].cutoff;
@@ -648,8 +633,10 @@ int eq_menu_graphical(void)
                 min = EQ_CUTOFF_MIN;
                 max = EQ_CUTOFF_MAX;
 
-                screens[i].putsxyf(0, 0, str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
+                snprintf(buf, sizeof(buf), str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
                          str(LANG_SYSFONT_EQUALIZER_BAND_CUTOFF), "(Hz)");
+
+                screens[i].putsxy(0, 0, buf);
             } else {
                 /* Q */
                 setting = &global_settings.eq_band_settings[current_band].q;
@@ -659,8 +646,10 @@ int eq_menu_graphical(void)
                 min = EQ_Q_MIN;
                 max = EQ_Q_MAX;
 
-                screens[i].putsxyf(0, 0, str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
+                snprintf(buf, sizeof(buf), str(LANG_SYSFONT_EQUALIZER_EDIT_MODE),
                          str(LANG_SYSFONT_EQUALIZER_BAND_Q), "");
+
+                screens[i].putsxy(0, 0, buf);
             }
 
             /* Draw scrollbar if needed */
@@ -668,7 +657,7 @@ int eq_menu_graphical(void)
             {
                 if (current_band == 0) {
                     start_item = 0;
-                } else if (current_band == EQ_NUM_BANDS - 1) {
+                } else if (current_band == 9) {
                     start_item = EQ_NUM_BANDS - nb_eq_sliders[i];
                 } else {
                     start_item = current_band - 1;
@@ -783,12 +772,13 @@ static int eq_save_preset(void)
 static struct browse_folder_info eqs = { EQS_DIR, SHOW_CFG };
 
 MENUITEM_FUNCTION(eq_graphical, 0, ID2P(LANG_EQUALIZER_GRAPHICAL),
-                  eq_menu_graphical, lowlatency_callback, Icon_EQ);
+                    eq_menu_graphical, NULL, lowlatency_callback,
+                    Icon_EQ);
 MENUITEM_FUNCTION(eq_save, 0, ID2P(LANG_EQUALIZER_SAVE),
-                  eq_save_preset, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(eq_browse, 0, ID2P(LANG_EQUALIZER_BROWSE),
-                          browse_folder, (void*)&eqs,
-                          lowlatency_callback, Icon_NOICON);
+                    eq_save_preset, NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(eq_browse, MENU_FUNC_USEPARAM, ID2P(LANG_EQUALIZER_BROWSE),
+                    browse_folder, (void*)&eqs, lowlatency_callback,
+                    Icon_NOICON);
 
 MAKE_MENU(equalizer_menu, ID2P(LANG_EQUALIZER), NULL, Icon_EQ,
         &eq_enable, &eq_graphical, &eq_precut, &gain_menu,

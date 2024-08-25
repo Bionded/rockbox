@@ -38,9 +38,6 @@
 #include "settings.h"
 #include "metadata.h"
 #include "playback.h"
-#if CONFIG_TUNER
-#include "ipod_remote_tuner.h"
-#endif
 
 /*
  * This macro is meant to be used inside an IAP mode message handler.
@@ -265,7 +262,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
             device.play_status = audio_status();
             /* TODO: Fix this */
             device.mute = false;
-            device.volume = global_settings.volume;
+            device.volume = 0x80;
             device.power_state = charger_input_state;
             device.battery_level = battery_level();
             /* TODO: Fix this */
@@ -302,8 +299,8 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
 
         /* GetRemoteEventStatus (0x0A)
          *
-         * Request the events changed since the last call to
-         * GetREmoteEventStatus or SetRemoteEventNotification
+         * Request the events changed since the last call to GetREmoteEventStatus
+         * or SetRemoteEventNotification
          *
          * Packet format (offset in buf[]: Description)
          * 0x00: Lingo ID: Display Remote Lingo, always 0x03
@@ -437,18 +434,15 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                  */
                 case 0x04:
                 {
-                    if (device.mute == false) {
-                        /* Mute status False*/
-                        IAP_TX_PUT(0x00);
-                        /* Volume */
-                        IAP_TX_PUT(0xFF & (int)((global_settings.volume + 90) * 2.65625));
+                    /* Figuring out what the current volume is
+                     * seems to be tricky.
+                     * TODO: Fix.
+                     */
 
-                    } else {
-                        /* Mute status True*/
-                        IAP_TX_PUT(0x01);
-                        /* Volume should be 0 if muted */
-                        IAP_TX_PUT(0x00);
-                    }
+                    /* Mute status */
+                    IAP_TX_PUT(0x00);
+                    /* Volume */
+                    IAP_TX_PUT(0x80);
 
                     iap_send_tx();
                     break;
@@ -626,24 +620,15 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                  */
                 case 0x10:
                 {
-                    if (device.mute == false) {
-                        /* Mute status False*/
-                        IAP_TX_PUT(0x00);
-                        /* Volume */
-                        IAP_TX_PUT(0xFF & (int)((global_settings.volume + 90) * 2.65625));
-                        IAP_TX_PUT(0xFF & (int)((global_settings.volume + 90) * 2.65625));
-
-                    } else {
-                        /* Mute status True*/
-                        IAP_TX_PUT(0x01);
-                        /* Volume should be 0 if muted */
-                        IAP_TX_PUT(0x00);
-                        IAP_TX_PUT(0x00);
-                    }
+                    /* TODO: See volume above */
+                    IAP_TX_PUT(0x00);
+                    IAP_TX_PUT(0x80);
+                    IAP_TX_PUT(0x80);
 
                     iap_send_tx();
                     break;
                 }
+
                 default:
                 {
                     cmd_ack(cmd, IAP_ACK_BAD_PARAM);
@@ -761,18 +746,14 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                     break;
                 }
 
+                /* Volume/Mute
+                 * Data length: 2
+                 * TODO: Fix this
+                 */
                 case 0x04:
                 {
                     CHECKLEN(5);
-                    if (buf[0x03]==0x00){
-                        /* Not Muted */
-                        global_settings.volume = (int) (buf[0x04]/2.65625)-90;
-                        device.mute = false;
-                    }
-                    else {
-                        device.mute = true;
-                    }
-                    cmd_ok(cmd);
+                    cmd_ack(cmd, IAP_ACK_CMD_FAILED);
                     break;
                 }
 
@@ -938,16 +919,7 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                 case 0x10:
                 {
                     CHECKLEN(7);
-                    if (buf[0x03]==0x00){
-                        /* Not Muted */
-                        global_settings.volume = (int) (buf[0x04]/2.65625)-90;
-                        device.mute = false;
-                    }
-                    else {
-                        device.mute = true;
-                    }
-
-                    cmd_ok(cmd);
+                    cmd_ack(cmd, IAP_ACK_CMD_FAILED);
                     break;
                 }
 
@@ -1527,8 +1499,9 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
         {
 #ifdef LOGF_ENABLE
             logf("iap: Unsupported Mode03 Command");
-#endif
+#else
             cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+#endif
             break;
         }
     }

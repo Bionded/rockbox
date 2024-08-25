@@ -53,10 +53,8 @@ void audio_input_mux(int source, unsigned flags)
 {
     (void)flags;
     /* Prevent pops from unneeded switching */
-#ifdef HAVE_RECORDING
     static int last_source = AUDIO_SRC_PLAYBACK;
-#endif
-#ifdef HAVE_FMRADIO_REC
+#ifdef HAVE_FMRADIO_REC 
     bool recording = flags & SRCF_RECORDING;
     static bool last_recording = false;
 #endif
@@ -151,9 +149,7 @@ void audio_input_mux(int source, unsigned flags)
 #endif
     } /* end switch */
 
-#ifdef HAVE_RECORDING
     last_source = source;
-#endif
 } /* audio_input_mux */
 #endif
 

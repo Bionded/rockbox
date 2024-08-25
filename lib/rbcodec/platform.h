@@ -41,11 +41,6 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 #ifndef INIT_ATTR
 # define INIT_ATTR
 #endif
-
-#ifndef INITDATA_ATTR
-# define INITDATA_ATTR
-#endif
-
 /*
 #ifdef CODEC
 
@@ -112,7 +107,11 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 #ifndef IDATA_ATTR
 # define IDATA_ATTR
 #endif
-
+/*
+#ifndef INIT_ATTR
+# define INIT_ATTR
+#endif
+*/
 #ifndef MEM_ALIGN_ATTR
 # define MEM_ALIGN_ATTR
 #endif

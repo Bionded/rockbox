@@ -40,7 +40,6 @@ bool g_debug = false;
 const char *g_force_series = NULL;
 char *g_out_prefix = NULL;
 rb_scsi_device_t g_dev;
-bool g_yes_i_want_a_brick = false;
 
 void help_us(bool unsupported, unsigned long model_id);
 
@@ -110,7 +109,7 @@ int do_sense_analysis(int status, uint8_t *sense, int sense_size)
 }
 
 /*
- * SCSI commands (see decode_scsi for more details)
+ * SCSI commands
  */
 #define CMD_A3          0xa3 /* start a complicated, authenticated, session to do things */
 #define CMD_A4          0xa4 /* start a complicated, authenticated, session to do things */
@@ -166,9 +165,7 @@ struct dnk_prop_t dnk_prop_list[] =
     { "product_id", "Product ID", 0x23, 6, 12, DNK_STRING},
     { "destination", "Destination", 0x23, 8, 4, DNK_EXACT_LENGTH | DNK_UINT32},
     { "model_id", "Model ID", 0x23, 9, 4, DNK_EXACT_LENGTH | DNK_UINT32 | DNK_HEX},
-    { "ufn", "Update filename", 0x23, 21, 8, DNK_STRING},
-    { "kas", "Key and Signature", 0x23, 22, 64, DNK_STRING},
-    { "devinfo", "Devide Info", 0x12, 0, 64, DNK_HEX},
+    { "model_name", "Model Name", 0x12, 0, 64, DNK_STRING},
     /* there are more obscure commands:
      * - 0x11 returns a 10-byte packet containing a 8-byte "LeftIdl8", scrambled
      *   with para_noise (the 2-byte padding is random so that output is random
@@ -178,14 +175,9 @@ struct dnk_prop_t dnk_prop_list[] =
      * - 0x23 has more subproperties:
      *   - 5 is "eDKS"
      *   - 7 is "ProductGroup"
-     *   - 10 is nvp properties (see get_dnk_nvp) (NOTE: nvp number vary by model here)
+     *   - 10 is nvp properties (see get_dnk_nvp)
      *   - 11 seems to read something from nvp and encrypt it with AES, not sure what
-     *   - many other read important/canonical entries of NVP (number does NOT vary model)
-     * - 0x24 can write the same properties read by 0x23
-     *
-     * This website has some background on Sony's acronym (DNK, EKB, ...):
-     *   https://wiki.physik.fu-berlin.de/linux-minidisc/doku.php?id=atracdownload-wiki
-     */
+     * - 0x24 can write the same properties read by 0x23 */
 };
 
 #define NR_DNK_PROPS   (sizeof(dnk_prop_list) / sizeof(dnk_prop_list[0]))
@@ -233,7 +225,7 @@ void set_little_endian32(void *_buf, uint32_t val)
     buf[3] = (val >> 24) & 0xff;
 }
 
-int get_dnk_prop(int argc, const char* const* argv)
+int get_dnk_prop(int argc, char **argv)
 {
     if(argc != 1 && argc != 4)
     {
@@ -301,7 +293,7 @@ int get_dnk_prop(int argc, const char* const* argv)
     }
     else
     {
-        cprintf(YELLOW, "\n");
+        printf(YELLOW, "\n");
         print_hex(buffer, buffer_size);
     }
     return 0;
@@ -449,14 +441,14 @@ int write_nvp_node(int node_index, void *buffer, int size)
     if(xfer_size - 4 != (int)size)
     {
         free(xfer_buf);
-        cprintf(GREY, "Wrong transfer size\n");
+        cprintf(GREY, "Wrong transger size\n");
         return 7;
     }
     free(xfer_buf);
     return 0;
 }
 
-int get_dnk_nvp(int argc, const char* const* argv)
+int get_dnk_nvp(int argc, char **argv)
 {
     if(argc != 1 && argc != 2)
     {
@@ -543,30 +535,7 @@ int get_dnk_nvp(int argc, const char* const* argv)
     return 0;
 }
 
-int get_dnk_nvp_all()
-{
-    int series_index, model_index;
-    int ret = get_model_and_series(&model_index, &series_index, NULL);
-    if(ret)
-        return ret;
-    for(int i = 0; i < NWZ_NVP_COUNT; i++)
-    {
-        int node_index = NWZ_NVP_INVALID;
-        if(nwz_series[series_index].nvp_index)
-            node_index = (*nwz_series[series_index].nvp_index)[i];
-        if(node_index == NWZ_NVP_INVALID)
-            continue; /* device doesn't have this node */
-        /* this is suboptimal, it will query again the model on each request but there aren't
-         * so many nodes anyway */
-        char buffer[10];
-        sprintf(buffer, "%d", node_index);
-        cprintf(BLUE, "querying '%s'\n", nwz_nvp[i].name);
-        get_dnk_nvp(1, &nwz_nvp[i].name);
-    }
-    return 0;
-}
-
-int get_dnk_nvp_multi(int argc, const char* const* argv)
+int get_dnk_nvp_multi(int argc, char **argv)
 {
     if(argc == 0)
     {
@@ -577,100 +546,8 @@ int get_dnk_nvp_multi(int argc, const char* const* argv)
             printf("  %-6s%s\n", nwz_nvp[i].name, nwz_nvp[i].desc);
         return 1;
     }
-    /* special case for 'all' */
-    if(argc == 1 && strcmp(argv[0], "all") == 0)
-        return get_dnk_nvp_all();
-    /* otherwise normal */
     for(int i = 0; i < argc; i++)
-    {
-        cprintf(BLUE, "querying '%s'\n", argv[i]);
         get_dnk_nvp(1, &argv[i]);
-    }
-    return 0;
-}
-
-int set_dnk_nvp(int argc, const char* const* argv)
-{
-    if(argc <= 1)
-    {
-        printf("NOTE: this command is potentially very dangerous!\n");
-        printf("\n");
-        printf("You must specify a known nvp node or a full node specification:\n");
-        printf("Usage: --yes-I-want-a-brick <node> <content>\n");
-        printf("Content must be a list of byte, in decimal or hexadecimal format, e.g. 10 0x30\n");
-        printf("Nodes:\n");
-        for(unsigned i = 0; i < NWZ_NVP_COUNT; i++)
-            printf("  %-6s%s\n", nwz_nvp[i].name, nwz_nvp[i].desc);
-        printf("You can also specify a decimal or hexadecimal value directly\n");
-        return 1;
-    }
-    int series_index, model_index;
-    int ret = get_model_and_series(&model_index, &series_index, NULL);
-    if(ret)
-        return ret;
-    if(!g_yes_i_want_a_brick)
-    {
-        cprintf(RED, "You must pass the option --yes-I-want-a-brick to show that you understand the risk\n");
-        return 1;
-    }
-    /* find entry in NVP */
-    const char *node_name = argv[0];
-    const char *node_desc = NULL;
-    int node_index = NWZ_NVP_INVALID;
-    for(int i = 0; i < NWZ_NVP_COUNT; i++)
-        if(strcmp(nwz_nvp[i].name, node_name) == 0)
-        {
-            if(nwz_series[series_index].nvp_index)
-                node_index = (*nwz_series[series_index].nvp_index)[i];
-            if(node_index == NWZ_NVP_INVALID)
-            {
-                cprintf(RED, "This device doesn't have node '%s'\n", node_name);
-                return 5;
-            }
-            node_desc = nwz_nvp[i].desc;
-        }
-    /* if we can't find it, maybe check if it's a number */
-    if(node_index == NWZ_NVP_INVALID)
-    {
-        char *end;
-        node_index = strtol(node_name, &end, 0);
-        if(*end)
-            node_index = NWZ_NVP_INVALID; /* string is not a number */
-    }
-    if(node_index == NWZ_NVP_INVALID)
-    {
-        cprintf(RED, "I don't know about node '%s'\n", node_name);
-        return 4;
-    }
-    /* build buffer */
-    int size = argc - 1;
-    uint8_t *buffer = malloc(size);
-    for(int i = 0; i < size; i++)
-    {
-        char *end;
-        long val = strtol(argv[1 + i], &end, 0);
-        if(val < 0 || val >= 256)
-        {
-            cprintf(RED, "value '%s' does not fit into a byte\n", argv[i + 1]);
-            return 1;
-        }
-        buffer[i] = val;
-    }
-    if(g_debug)
-    {
-        cprintf(GREY, "Sending device the following buffer:\n");
-        print_hex(buffer, size);
-    }
-    ret = write_nvp_node(node_index, buffer, size);
-    if(ret != 0)
-    {
-        cprintf(GREY, "An error occured during request\n");
-        free(buffer);
-        return ret;
-    }
-    cprintf(GREEN, "Wrote %d bytes to %s (node %d%s%s):\n", size, node_name, node_index,
-        node_desc ? "," : "", node_desc ? node_desc : "");
-    free(buffer);
     return 0;
 }
 
@@ -707,7 +584,7 @@ typedef void (*dpcc_print_func_t)(void *buffer, int buf_size);
 struct dpcc_prop_t
 {
     char *user_name;
-    char name[8];
+    char name[7];
     uint8_t cdb1; // flags: bit 0 means size flag (means size in paragraph)
     int size;
     dpcc_print_func_t print_func;
@@ -747,7 +624,7 @@ int do_dpcc_cmd(uint32_t cmd, struct dpcc_prop_t *prop, void *buffer, int *buffe
     return 0;
 }
 
-int get_dpcc_prop(int argc, const char* const* argv)
+int get_dpcc_prop(int argc, char **argv)
 {
     if(argc != 1 && argc != 3)
     {
@@ -808,7 +685,7 @@ struct user_timer_t
     uint8_t res2[17];
 } __attribute__((packed));
 
-int get_user_time(int argc, const char* const* argv)
+int get_user_time(int argc, char **argv)
 {
     (void) argc;
     (void )argv;
@@ -828,13 +705,14 @@ int get_user_time(int argc, const char* const* argv)
     return 0;
 }
 
-int get_dev_info(int argc, const char* const* argv)
+int get_dev_info(int argc, char **argv)
 {
     (void) argc;
     (void )argv;
     uint8_t cdb[12] = {0xfc, 0, 0x20, 'd', 'b', 'm', 'n', 0, 0x80, 0, 0, 0};
-    char buffer[0x80];
-    int buffer_size = sizeof(buffer);
+
+    char *buffer = malloc(0x80);
+    int buffer_size = 0x80;
     uint8_t sense[32];
     int sense_size = 32;
 
@@ -847,6 +725,7 @@ int get_dev_info(int argc, const char* const* argv)
         cprintf(GREY, "An error occured during request\n");
         return ret;
     }
+    buffer[buffer_size] = 0;
     cprintf_field("Raw device info:", "\n");
     print_hex(buffer, buffer_size);
     // the 16 first bytes are 'DEVINFO', 0x80, followed by zeroes
@@ -854,10 +733,10 @@ int get_dev_info(int argc, const char* const* argv)
     return 0;
 }
 
-int get_dhp(int argc, const char* const* argv)
+int get_dhp(int argc, char **argv)
 {
     (void) argc;
-    (void) argv;
+    (void )argv;
     uint8_t cdb[12] = {0xfc, 0, 'D', 'd', 'h', 'p', 0, 0, 0, 0, 0, 0};
 
     char *buffer = malloc(0x80);
@@ -880,13 +759,13 @@ int get_dhp(int argc, const char* const* argv)
     return 0;
 }
 
-int try_fw_upgrade(unsigned flags, int argc, const char* const* argv)
+int do_fw_upgrade(int argc, char **argv)
 {
     (void) argc;
-    (void) argv;
+    (void )argv;
     /* older devices may have used subcommand 3 instead of 4, but this is not
      * supported by any device I have seen */
-    uint8_t cdb[12] = {0xfc, 0, 0x04, 'd', 'b', 'm', 'n', 0, flags, 0, 0, 0};
+    uint8_t cdb[12] = {0xfc, 0, 0x04, 'd', 'b', 'm', 'n', 0, 0x80, 0, 0, 0};
 
     char *buffer = malloc(0x81);
     int buffer_size = 0x80;
@@ -910,14 +789,6 @@ int try_fw_upgrade(unsigned flags, int argc, const char* const* argv)
         print_hex(buffer, buffer_size);
     }
     return 0;
-}
-
-int do_fw_upgrade(int argc, const char* const* argv)
-{
-    if(!try_fw_upgrade(0x80, argc, argv))
-        return 0;
-    cprintf(GREY, "Trying alternative firmware upgrade command...\n");
-    return try_fw_upgrade(0, argc, argv);
 }
 
 static struct
@@ -946,7 +817,7 @@ static struct
 
 #define DEST_COUNT (sizeof(g_dest_list) / sizeof(g_dest_list[0]))
 
-int do_dest(int argc, const char* const* argv)
+int do_dest(int argc, char **argv)
 {
     /* it is possile to write any NVP node using the SCSI interface but only
      * give the user the possibility to write destination, because that's the
@@ -982,7 +853,6 @@ int do_dest(int argc, const char* const* argv)
     ret = read_nvp_node(shp_index, shp, &size);
     if(ret != 0)
     {
-        printf("Cannot read node 'shp'\n");
         free(shp);
         return ret;
     }
@@ -1062,7 +932,7 @@ int do_dest(int argc, const char* const* argv)
     return 0;
 }
 
-int do_help_us(int argc, const char* const* argv)
+int do_help_us(int argc, char **argv)
 {
     unsigned long model_id;
     if(get_model_id(&model_id))
@@ -1071,7 +941,7 @@ int do_help_us(int argc, const char* const* argv)
     return 0;
 }
 
-typedef int (*cmd_fn_t)(int argc, const char* const* argv);
+typedef int (*cmd_fn_t)(int argc, char **argv);
 
 struct cmd_t
 {
@@ -1084,7 +954,6 @@ struct cmd_t cmd_list[] =
 {
     { "get_dnk_prop", "Get DNK property", get_dnk_prop },
     { "get_dnk_nvp", "Get DNK NVP content", get_dnk_nvp },
-    { "set_dnk_nvp", "Set DNK NVP content", set_dnk_nvp},
     { "get_dnk_nvp_multi", "Get several DNK NVP content", get_dnk_nvp_multi },
     { "get_dpcc_prop", "Get DPCC property", get_dpcc_prop },
     { "get_user_time", "Get user time", get_user_time },
@@ -1097,7 +966,7 @@ struct cmd_t cmd_list[] =
 
 #define NR_CMDS (sizeof(cmd_list) / sizeof(cmd_list[0]))
 
-int process_cmd(const char *cmd, int argc, const char* const* argv)
+int process_cmd(const char *cmd, int argc, char **argv)
 {
     for(unsigned i = 0; i < NR_CMDS; i++)
         if(strcmp(cmd_list[i].name, cmd) == 0)
@@ -1110,7 +979,6 @@ static void usage(void)
 {
     printf("Usage:\n");
     printf("  scsitool [options] list_devices\n");
-    printf("  scsitool [options] decode_scsi <cdb>\n");
     printf("  scsitool [options] <dev> <command> [arguments]\n");
     printf("Options:\n");
     printf("  -o <prefix>          Set output prefix\n");
@@ -1189,222 +1057,6 @@ static int list_devices(bool list_all)
     return 0;
 }
 
-inline uint8_t xdigit2val(char c)
-{
-    if('0' <= c && c <= '9')
-        return c - '0';
-    else if('a' <= c && c <= 'f')
-        return c - 'a' + 10;
-    else if('A' <= c && c <= 'F')
-        return c - 'A' + 10;
-    else
-        return 255;
-}
-
-static int decode_scsi_a3(uint8_t *cdb, int cdb_len)
-{
-    cprintf_field("Opcode: ", "0xa3\n");
-    cprintf(RED, "Unimplemented\n");
-    return 0;
-}
-
-static int decode_scsi_a4(uint8_t *cdb, int cdb_len)
-{
-    cprintf_field("Opcode: ", "0xa4\n");
-    cprintf(RED, "Unimplemented\n");
-    return 0;
-}
-
-static int decode_scsi_empr_dpcc(uint8_t *cdb, int cdb_len)
-{
-    cprintf_field("Opcode: ", "%#x (EMPR DPCC)\n", cdb[0]);
-    cprintf(RED, "Unimplemented\n");
-    return 0;
-}
-
-static int decode_scsi_dnk(uint8_t *cdb, int cdb_len)
-{
-    /*
-     * DNK (Device Node Key) commands are 12 bytes long and the CDB is of the form
-     *   DD 00 00 00 xx xx 00 BC ll ll xx yy 
-     * where
-     * - xxxx is the argument (16 bits)
-     * - llll is the length (16 bits)
-     * - xx is the command
-     * - yy is the subcommand
-     */
-    cprintf_field("Opcode: ", "%#x (DNK)\n", cdb[0]);
-    if(cdb_len != 12 || cdb[7] != 0xbc)
-    {
-        cprintf(GREY, "Invalid length for a DNK command\n");
-        return 1;
-    }
-    uint8_t cmd = cdb[10];
-    uint8_t subcmd = cdb[11];
-    uint16_t length = cdb[8] << 8 | cdb[9];
-    uint16_t arg = cdb[4] << 8 | cdb[5];
-
-    const char *cmd_str = "Unknown";
-    const char *subcmd_str = "Unknown";
-    switch(cmd)
-    {
-        case 0x11:
-            cmd_str = "Read Leaf ID";
-            subcmd_str = "Unused";
-            break;
-        case 0x12:
-            cmd_str = "Get DEVINFO";
-            subcmd_str = "Unused";
-            break;
-        case 0x21:
-            cmd_str = "Report DNK";
-            subcmd_str = "Unused";
-            break;
-        case 0x23:
-            cmd_str = "Read Regs";
-            switch(subcmd)
-            {
-                case 1: subcmd_str = "Serial Num"; break;
-                case 4: subcmd_str = "Storage Size"; break;
-                case 5: subcmd_str = "DKS"; break;
-                case 6: subcmd_str = "Product ID"; break;
-                case 7: subcmd_str = "Product Group Scramble"; break;
-                case 8: subcmd_str = "Destination"; break;
-                case 9: subcmd_str = "Model ID"; break;
-                case 0xa: subcmd_str = "NVP"; break;
-                case 0xb: subcmd_str = "Marlin/Starfish stuff"; break;
-                case 0xc: subcmd_str = "Unclear/Constant"; break;
-                case 0xd: subcmd_str = "Secure Clock"; break;
-                case 0xe: subcmd_str = "AAD ICV"; break;
-                case 0xf: subcmd_str = "EMPR ICV"; break;
-                case 0x10: subcmd_str = "Test Mode Flags"; break;
-                case 0x11: subcmd_str = "Getty Mode Flags"; break;
-                case 0x12: subcmd_str = "Key Mode Debug/Release"; break;
-                case 0x13: subcmd_str = "System Information"; break;
-                case 0x14: subcmd_str = "Random Data?"; break;
-                case 0x15: subcmd_str = "Update Filename"; break;
-                case 0x16: subcmd_str = "Key and Signature"; break;
-                case 0x17: subcmd_str = "Bluetooth Parameters"; break;
-                case 0x18: subcmd_str = "EMPR 0"; break;
-                case 0x19: subcmd_str = "EMPR 1"; break;
-                case 0x1a: subcmd_str = "EMPR 2"; break;
-                case 0x1b: subcmd_str = "Color Variation"; break;
-                case 0x1c: subcmd_str = "MTM Sec?"; break;
-                case 0x1d: subcmd_str = "Slacker Time"; break;
-                case 0x1f: subcmd_str = "Slacker ID File"; break;
-                case 0x20: subcmd_str = "FM Parameters"; break;
-                case 0x21: subcmd_str = "Speaker Ship Info"; break;
-                case 0x22: subcmd_str = "BTMW Factory Pair Info"; break;
-                case 0x23: subcmd_str = "U-boot Password"; break;
-                case 0x24: subcmd_str = "Noise Cancel Driver Parameter"; break;
-                case 0x25: subcmd_str = "Bluetooth PSKey"; break;
-                case 0x27: subcmd_str = "VID/PID"; break;
-            }
-        default:
-            break;
-    }
-
-    cprintf_field("Command: ", "%#x (%s)\n", cmd, cmd_str);
-    cprintf_field("Sub-cmd: ", "%#x (%s)\n", subcmd, subcmd_str);
-    cprintf_field("Argument: ", "%#x\n", arg);
-    cprintf_field("Length: ", "%#x\n", length);
-    
-    return 0;
-}
-
-static int decode_scsi_dpcc(uint8_t *cdb, int cdb_len)
-{
-    cprintf_field("Opcode: ", "%#x (DPCC)\n", cdb[0]);
-    cprintf(RED, "Unimplemented\n");
-    return 0;
-}
-
-static int decode_scsi_fc(uint8_t *cdb, int cdb_len)
-{
-    cprintf_field("Opcode: ", "0xfc\n");
-    if(cdb[3] == 'd' && cdb[4] == 'b' && cdb[5] == 'm' && cdb[6] == 'n')
-    {
-        uint8_t cmd = cdb[2];
-        uint8_t flags = cdb[8];
-        const char *cmd_name = "Unknown";
-        if(cmd == 0x04)
-            cmd_name = "Firmware Upgrade";
-        if(cmd == 0x20)
-            cmd_name = "Get Device Info";
-
-        cprintf(BLUE, "Device request:\n");
-        cprintf_field("  Command: ", "%#x (%s)\n", cmd, cmd_name);
-        cprintf_field("  Flags(?): ", "%#x (Unknown)\n", flags);
-        
-    }
-    return 0;
-}
-
-static int decode_scsi(int argc, const char* const* argv)
-{
-    /* we need to parse the arguments, we support either as one big hexdump:
-     *   fc002064626d6e0080000000
-     * or as a sequence of hex bytes:
-     *   fc 00 20 64 62 6d 6e 00 80 00 00 00
-     */
-    if(argc == 0)
-    {
-        cprintf(GREY, "You need to specify the CDB to decode\n");
-        return 1;
-    }
-#define MAX_CDB 16
-    uint8_t cdb[MAX_CDB];
-    int cdb_len;
-    if(argc > MAX_CDB)
-    {
-        cprintf(GREY, "This does not look like a CDB (more than %d bytes)\n", MAX_CDB);
-        return 1;
-    }
-    if(argc == 1)
-    {
-        /* allow the string to start with 0x */
-        const char *str = argv[0];
-        if(str[0] == '0' && str[1] == 'x')
-            str += 2;
-        cdb_len = strlen(str);
-        if(cdb_len % 2)
-        {
-            cprintf(GREY, "The CDB must contain an even number of hex digits!\n");
-            return 1;
-        }
-        cdb_len /= 2;
-        for(int i = 0; i < cdb_len; i++)
-        {
-            if(!isxdigit(str[2 * i]) || !isxdigit(str[2 * i + 1]))
-            {
-                cprintf(GREY, "The CDB must contain hex digits!\n");
-                return 1;
-            }
-            cdb[i] = xdigit2val(str[2 * i]) << 4 | xdigit2val(str[2 * i + 1]);
-        }
-    }
-    else
-    {
-        cprintf(GREY, "unimplemented\n");
-        return 1;
-    }
-    cprintf(GREEN, "CDB: ");
-    print_hex(cdb, cdb_len);
-    
-    if(cdb[0] == CMD_A3) return decode_scsi_a3(cdb, cdb_len);
-    if(cdb[0] == CMD_A4) return decode_scsi_a4(cdb, cdb_len);
-    if(cdb[0] == CMD_EMPR_DPCC) return decode_scsi_empr_dpcc(cdb, cdb_len);
-    if(cdb[0] == CMD_DNK) return decode_scsi_dnk(cdb, cdb_len);
-    if(cdb[0] == CMD_DPCC) return decode_scsi_dpcc(cdb, cdb_len);
-    if(cdb[0] == 0xfc) return decode_scsi_fc(cdb, cdb_len);
-    else
-    {
-        cprintf(RED, "I cannot decode this SCSI command\n");
-    }
-
-    return 0;
-}
-
 int main(int argc, char **argv)
 {
     bool list_all = false;
@@ -1417,7 +1069,6 @@ int main(int argc, char **argv)
             {"no-color", no_argument, 0, 'c'},
             {"series", required_argument, 0, 's'},
             {"all", no_argument, 0, 'a'},
-            {"yes-I-want-a-brick", no_argument, 0, -2},
             {0, 0, 0, 0}
         };
 
@@ -1426,9 +1077,6 @@ int main(int argc, char **argv)
             break;
         switch(c)
         {
-            case -2:
-                g_yes_i_want_a_brick = true;
-                break;
             case -1:
                 break;
             case 'c':
@@ -1472,11 +1120,9 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    /* special list_devices/decode_scsi command */
-    if(argc >= optind + 1 && strcmp(argv[optind], "list_devices") == 0)
+    /* special list_devices command */
+    if(argc == optind + 1 && strcmp(argv[optind], "list_devices") == 0)
         return list_devices(list_all);
-    if(argc >= optind + 1 && strcmp(argv[optind], "decode_scsi") == 0)
-        return decode_scsi(argc - optind - 1, (const char * const *)(argv + optind + 1));
 
     if(argc - optind < 2)
     {
@@ -1496,7 +1142,7 @@ int main(int argc, char **argv)
         goto Lend;
     }
 
-    ret = process_cmd(argv[optind + 1], argc - optind - 2, (const char * const *)(argv + optind + 2));
+    ret = process_cmd(argv[optind + 1], argc - optind - 2, argv + optind + 2);
 
     rb_scsi_close(g_dev);
 Lend:

@@ -24,6 +24,8 @@
 
 #include <stdbool.h>
 #include "autoconf.h"
+#include "string-extra.h"
+
 
 /* name of directory where configuration, fonts and other data
  * files are stored */
@@ -38,12 +40,20 @@
 #define ROCKBOX_DIR_LEN (sizeof(ROCKBOX_DIR)-1)
 #endif /* def __PCTOOL__ */
 
-/* NOTE:  target-specific hosted HOME_DIR resides in filesystem-app.c */
 #if !defined(APPLICATION) || defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1) || \
     defined(DX50) || defined(DX90) || defined(SONY_NWZ_LINUX) || \
-    defined(HIBY_LINUX) || defined(FIIO_M3K_LINUX)
+    defined(AGPTEK_ROCKER)
 
+#if defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1)
+#define HOME_DIR "/mnt/media0"
+#elif defined(SONY_NWZ_LINUX)
+#define HOME_DIR "/contents"
+#elif defined(DX50) || defined(DX90)
+/* Where to put save files like recordings, playlists, screen dumps ...*/
+#define HOME_DIR "/mnt/sdcard"
+#else
 #define HOME_DIR "/"
+#endif
 
 /* make sure both are the same for native builds */
 #undef ROCKBOX_LIBRARY_PATH
@@ -52,15 +62,9 @@
 #define PLUGIN_DIR          ROCKBOX_DIR "/rocks"
 #define CODECS_DIR          ROCKBOX_DIR "/codecs"
 
-#define RB_ROOT_VOL_HIDDEN(v)   (IF_MV_VOL(v) == 0)
-#define RB_ROOT_CONTENTS_DIR    "/" IF_MV("<0>")
-#define REC_BASE_DIR        HOME_DIR "Recordings"
-#define PLAYLIST_CATALOG_DEFAULT_DIR HOME_DIR "Playlists"
-
 #else /* APPLICATION */
 
 #define HOME_DIR "<HOME>" /* replaced at runtime */
-#define HAVE_SPECIAL_DIRS
 
 #define PLUGIN_DIR          ROCKBOX_LIBRARY_PATH "/rockbox/rocks"
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
@@ -69,20 +73,22 @@
 #define CODECS_DIR          ROCKBOX_LIBRARY_PATH "/rockbox/codecs"
 #endif
 
-#define REC_BASE_DIR        HOME_DIR "/Recordings"
-#define PLAYLIST_CATALOG_DEFAULT_DIR HOME_DIR "/Playlists"
 #endif /* !APPLICATION || SAMSUNG_YPR0 */
 
+#define HOME_DIR_LEN (sizeof(HOME_DIR)-1)
+
+#define REC_BASE_DIR        HOME_DIR
+#define PLAYLIST_CATALOG_DEFAULT_DIR HOME_DIR "/Playlists"
+
 #define LANG_DIR            ROCKBOX_DIR "/langs"
+
 #define PLUGIN_GAMES_DIR    PLUGIN_DIR "/games"
 #define PLUGIN_APPS_DIR     PLUGIN_DIR "/apps"
 #define PLUGIN_DEMOS_DIR    PLUGIN_DIR "/demos"
 #define VIEWERS_DIR         PLUGIN_DIR "/viewers"
 
-#if defined(APPLICATION) && \
-        !(defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1) || \
-          defined(DX50) || defined(DX90) || defined(SONY_NWZ_LINUX) || defined(HIBY_LINUX) || defined(FIIO_M3K_LINUX))
-
+#if defined(APPLICATION) && !(defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1) || \
+    defined(DX50) || defined(DX90) || defined(SONY_NWZ_LINUX))
 #define PLUGIN_DATA_DIR          ROCKBOX_DIR "/rocks.data"
 #define PLUGIN_GAMES_DATA_DIR    PLUGIN_DATA_DIR
 #define PLUGIN_APPS_DATA_DIR     PLUGIN_DATA_DIR

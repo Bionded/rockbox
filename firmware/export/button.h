@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include "config.h"
-#if defined(CHECKWPS) || !defined(__PCTOOL__)
+#ifndef __PCTOOL__
 #include "button-target.h"
 #endif
 
@@ -59,7 +59,9 @@ int button_status(void);
 int button_status_wdata(int *pdata);
 #endif
 void button_clear_queue(void);
+#ifdef HAVE_LCD_BITMAP
 void button_set_flip(bool flip); /* turn 180 degrees */
+#endif
 #ifdef HAVE_BACKLIGHT
 void set_backlight_filter_keypress(bool value);
 #ifdef HAVE_REMOTE_LCD
@@ -107,7 +109,7 @@ int button_apply_acceleration(const unsigned int data);
                                      BUTTON_MULTIMEDIA_FFWD)
 
 #ifdef HAVE_TOUCHSCREEN
-long touchscreen_last_touch(void);
+int touchscreen_last_touch(void);
 
 #if (!defined(BUTTON_TOPLEFT) || !defined(BUTTON_TOPMIDDLE) \
  || !defined(BUTTON_TOPRIGHT) || !defined(BUTTON_MIDLEFT) \
@@ -126,11 +128,6 @@ long touchscreen_last_touch(void);
 
 #if (defined(HAVE_TOUCHPAD) || defined(HAVE_TOUCHSCREEN)) && !defined(HAS_BUTTON_HOLD)
 void button_enable_touch(bool en);
-#endif
-
-#ifdef HAVE_SW_POWEROFF
-void button_set_sw_poweroff_state(bool en);
-bool button_get_sw_poweroff_state(void);
 #endif
 
 #endif /* _BUTTON_H_ */

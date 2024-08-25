@@ -40,12 +40,11 @@
 
     .text
 
-    .extern system_early_init
+    .extern system_main
     .extern main
     .global _start
 
     .section .init.text
-    .set    push
     .set    mips32
     .set    noreorder
     .set    noat
@@ -109,7 +108,7 @@ _cache_loop:
     cache   0x9, 0(t0)       # index store dcache tag
     addiu   t0, t0, 0x20     # 32 bytes per cache line
     bne     t0, t1, _cache_loop
-    ssnop
+    nop
 
     /*
       ----------------------------------------------------
@@ -117,10 +116,10 @@ _cache_loop:
       ----------------------------------------------------
     */
     mfc0    t0, C0_CONFIG
-    ssnop
+    nop
     ori     t0, 2
     mtc0    t0, C0_CONFIG
-    ssnop
+    nop
 
     /*
       ----------------------------------------------------
@@ -138,19 +137,6 @@ _iram_loop:
     addiu  t0, 4
     bne    t1, t2, _iram_loop
     sw     t3, -4(t1)
-
-#ifdef HAVE_INIT_ATTR
-    /* Copy init code */
-    la      t0, _initcopy
-    la      t1, _initstart
-    la      t2, _initend
-_init_loop:
-    lw     t3, 0(t0)
-    addiu  t1, 4
-    addiu  t0, 4
-    bne    t1, t2, _init_loop
-    sw     t3, -4(t1)
-#endif
 
     /*
       ----------------------------------------------------
@@ -183,8 +169,8 @@ _stack_loop:
        Set up interrupt stack
       ----------------------------------------------------
     */
-    la     k0, _irqstackend
-    la     t0, _irqstackbegin
+    la     k0, irqstackend
+    la     t0, irqstackbegin
 
 _irq_stack_loop:
     addiu  t0, 4
@@ -196,9 +182,167 @@ _irq_stack_loop:
        Jump to C code
       ----------------------------------------------------
     */
-    jal     system_early_init  /* Init clocks etc first */
-    ssnop
+    jal     system_main  /* Init clocks etc first */
+    nop
     j       main
-    move    ra, zero     /* init backtrace root */
+    nop
 
-    .set pop
+
+    /*
+     * 0x0   - Simple TLB refill handler
+     * 0x100 - Cache error handler
+     * 0x180 - Exception/Interrupt handler
+     * 0x200 - Special Exception Interrupt handler (when IV is set in CP0_CAUSE)
+     */
+
+    .section .vectors.1, "ax", %progbits
+    j      tlb_refill_handler
+    nop
+
+    .section .vectors.2, "ax", %progbits
+    j      real_exception_handler
+    nop
+
+    .section .vectors.3, "ax", %progbits
+    j      real_exception_handler
+    nop
+
+    .section .vectors.4, "ax", %progbits
+    j      real_exception_handler
+    nop
+
+    .section .vectors, "ax", %progbits
+real_exception_handler:
+
+    /* Store stack pointer */
+    move    k0, sp
+    /* jump to IRQ stack */
+    la      sp, irqstackend
+
+    /* Push crap on frame */
+    addiu   sp, -0x84
+    /* store current stack pointer */
+    sw      k0, 0x80(sp)
+
+    sw      ra,    0(sp)
+    sw      fp,    4(sp)
+    sw      gp,    8(sp)
+    sw      t9,  0xC(sp)
+    sw      t8, 0x10(sp)
+    sw      s7, 0x14(sp)
+    sw      s6, 0x18(sp)
+    sw      s5, 0x1C(sp)
+    sw      s4, 0x20(sp)
+    sw      s3, 0x24(sp)
+    sw      s2, 0x28(sp)
+    sw      s1, 0x2C(sp)
+    sw      s0, 0x30(sp)
+    sw      t7, 0x34(sp)
+    sw      t6, 0x38(sp)
+    sw      t5, 0x3C(sp)
+    sw      t4, 0x40(sp)
+    sw      t3, 0x44(sp)
+    sw      t2, 0x48(sp)
+    sw      t1, 0x4C(sp)
+    sw      t0, 0x50(sp)
+    sw      a3, 0x54(sp)
+    sw      a2, 0x58(sp)
+    sw      a1, 0x5C(sp)
+    sw      a0, 0x60(sp)
+    sw      v1, 0x64(sp)
+    sw      v0, 0x68(sp)
+    sw      $1, 0x6C(sp)
+    mflo    k0
+    nop
+    sw      k0, 0x70(sp)
+    mfhi    k0
+    nop
+    sw      k0, 0x74(sp)
+    mfc0    k0, C0_STATUS
+    nop
+    nop
+    nop
+    sw      k0, 0x78(sp)
+    mfc0    k0, C0_EPC
+    nop
+    nop
+    nop
+    sw      k0, 0x7C(sp)
+
+    li      k1, M_CauseExcCode
+    mfc0    k0, C0_CAUSE
+    and     k0, k1
+    beq     zero, k0, _int
+    nop
+    j       _exception
+    nop
+
+_int:
+    jal     intr_handler
+    nop
+    j       _exception_return
+
+_exception:
+    move    a0, sp
+    mfc0    a1, C0_CAUSE
+    nop
+    nop
+    nop
+    mfc0    a2, C0_EPC
+    nop
+    nop
+    nop
+    jal     exception_handler
+    nop
+
+_exception_return:
+    lw      ra,    0(sp)
+    lw      fp,    4(sp)
+    lw      gp,    8(sp)
+    lw      t9,  0xC(sp)
+    lw      t8, 0x10(sp)
+    lw      s7, 0x14(sp)
+    lw      s6, 0x18(sp)
+    lw      s5, 0x1C(sp)
+    lw      s4, 0x20(sp)
+    lw      s3, 0x24(sp)
+    lw      s2, 0x28(sp)
+    lw      s1, 0x2C(sp)
+    lw      s0, 0x30(sp)
+    lw      t7, 0x34(sp)
+    lw      t6, 0x38(sp)
+    lw      t5, 0x3C(sp)
+    lw      t4, 0x40(sp)
+    lw      t3, 0x44(sp)
+    lw      t2, 0x48(sp)
+    lw      t1, 0x4C(sp)
+    lw      t0, 0x50(sp)
+    lw      a3, 0x54(sp)
+    lw      a2, 0x58(sp)
+    lw      a1, 0x5C(sp)
+    lw      a0, 0x60(sp)
+    lw      v1, 0x64(sp)
+    lw      v0, 0x68(sp)
+    lw      $1, 0x6C(sp)
+    lw      k0, 0x70(sp)
+    mtlo    k0
+    nop
+    lw      k0, 0x74(sp)
+    mthi    k0
+    nop
+    lw      k0, 0x78(sp)
+    mtc0    k0, C0_STATUS
+    nop
+    nop
+    nop
+    lw      k0, 0x7C(sp)
+    mtc0    k0, C0_EPC
+    nop
+    nop
+    nop
+    /* Restore previous stack pointer */
+    lw      sp, 0x80(sp)
+    eret
+    nop
+    .set reorder
+    .set at

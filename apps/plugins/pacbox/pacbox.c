@@ -35,7 +35,6 @@
 #include "lib/configfile.h"
 #include "lib/playback_control.h"
 #include "lib/helper.h"
-static fb_data *lcd_fb;
 
 /*Allows split screen jump and makes pacman invincible if you start at 18 credits (for testing purposes)*/
 //#define CHEATS 1
@@ -266,7 +265,7 @@ static bool pacbox_menu(void)
         {
             case PBMI_DIFFICULTY:
                 new_setting=settings.difficulty;
-                rb->set_option("Difficulty", &new_setting, RB_INT,
+                rb->set_option("Difficulty", &new_setting, INT,
                                difficulty_options , 2, NULL);
                 if (new_setting != settings.difficulty) {
                     settings.difficulty=new_setting;
@@ -275,7 +274,7 @@ static bool pacbox_menu(void)
                 break;
             case PBMI_PACMEN_PER_GAME:
                 new_setting=settings.numlives;
-                rb->set_option("Pacmen Per Game", &new_setting, RB_INT,
+                rb->set_option("Pacmen Per Game", &new_setting, INT,
                                numlives_options , 4, NULL);
                 if (new_setting != settings.numlives) {
                     settings.numlives=new_setting;
@@ -284,7 +283,7 @@ static bool pacbox_menu(void)
                 break;
             case PBMI_BONUS_LIFE:
                 new_setting=settings.bonus;
-                rb->set_option("Bonus Life", &new_setting, RB_INT,
+                rb->set_option("Bonus Life", &new_setting, INT,
                                bonus_options , 4, NULL);
                 if (new_setting != settings.bonus) {
                     settings.bonus=new_setting;
@@ -293,7 +292,7 @@ static bool pacbox_menu(void)
                 break;
             case PBMI_GHOST_NAMES:
                 new_setting=settings.ghostnames;
-                rb->set_option("Ghost Names", &new_setting, RB_INT,
+                rb->set_option("Ghost Names", &new_setting, INT,
                                ghostname_options , 2, NULL);
                 if (new_setting != settings.ghostnames) {
                     settings.ghostnames=new_setting;
@@ -301,16 +300,16 @@ static bool pacbox_menu(void)
                 }
                 break;
             case PBMI_DISPLAY_FPS:
-                rb->set_option("Display FPS",&settings.showfps, RB_INT,
+                rb->set_option("Display FPS",&settings.showfps,INT,
                                noyes, 2, NULL);
                 break;
             case PBMI_SOUND:
-                rb->set_option("Sound",&settings.sound, RB_INT,
+                rb->set_option("Sound",&settings.sound, INT,
                                noyes, 2, NULL);
                 break;
 #ifdef AI
             case PBMI_AI:
-                rb->set_option("AI",&settings.ai, RB_INT,
+                rb->set_option("AI",&settings.ai, INT,
                                noyes, 2, NULL);
                 break;
 #endif
@@ -506,6 +505,7 @@ void ai_turn( unsigned char level, unsigned char turn)
 unsigned char ai( unsigned char turn )
 {
     unsigned char position;                       /* pac-mans current position */
+    unsigned char score = ram_[0x4E81];          /* current score */
     unsigned char level;   /* current game level */
     unsigned char map[20] = {0,1,2,3,4,5,4,4,6,7,4,8,8,9,10,10,11,10,12,12};
 
@@ -558,9 +558,11 @@ unsigned char ai( unsigned char turn )
 
 
         /*move joystick if necessary */
-            if(ai_location[level][turn] < 30)
+        if(ai_location[level][turn] < 70)
+        {
+            if(ai_location[level][turn] < 30) /* handle turns using pinky's location as basis for turn timing */
             {
-                if((ai_location[level][turn] < 10) && (ai_location[level][turn] > 0)) /* handle turns using ghosts eaten as basis for turn timing */
+                if((ai_location[level][turn] < 10) && (ai_location[level][turn] > 0))
                 {
                     if( ram_[0x4DD0] == ai_location[level][turn])
                     {
@@ -569,7 +571,7 @@ unsigned char ai( unsigned char turn )
                     }
                 }
 
-                if( ram_[0x4D31] == (ai_location[level][turn] + 30)) /* handle turns using pinky's location as basis for turn timing */
+                if( ram_[0x4D31] == (ai_location[level][turn] + 30))
                 {
                     ai_turn(level,turn);
                     turn++;
@@ -579,6 +581,14 @@ unsigned char ai( unsigned char turn )
                 ai_turn(level,turn);
                 turn++;
             } 
+        }else /* handle turns on eating ghost after center of tile using score as basis for turn timing */
+        {
+            if( score == (ai_location[level][turn]-70))
+            {
+                ai_turn(level,turn);
+                turn++;
+            }
+        }
     }
 
     /* reset turn counter and joystick direction on level start */
@@ -705,7 +715,7 @@ static int gameProc( void )
             rb->lcd_blit_pal256(    video_buffer, 0, 0, XOFS, YOFS, 
                                     ScreenWidth, ScreenHeight);
 #else
-            blit_display(lcd_fb ,video_buffer);
+            blit_display(rb->lcd_framebuffer,video_buffer);
 #endif
 
             if (settings.showfps) {
@@ -744,9 +754,6 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_clear_display();
     rb->lcd_update();
 
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
-
     /* Set the default settings */
     settings.difficulty = 0; /* Normal */
     settings.numlives = 2;   /* 3 lives */
@@ -772,11 +779,9 @@ enum plugin_status plugin_start(const void* parameter)
        the settings have changed when we quit */
     old_settings = settings;
 
-#ifdef HAVE_BACKLIGHT
     /*Turn off backlight for ai*/
     if(settings.ai)
         backlight_ignore_timeout();
-#endif
 
     /* Initialise the hardware */
     init_PacmanMachine(settings_to_dip(settings));

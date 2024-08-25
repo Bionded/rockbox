@@ -4,14 +4,13 @@
 #   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <
 #   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \
 #                     \/            \/     \/    \/            \/
+# $Id$
+#
 
-ENGLISH := english
-
-# Use global GCCOPTS
-GCCOPTS += -D__PCTOOL__ -DCHECKWPS
+GCCOPTS=-std=gnu99 -g -D__PCTOOL__ -DCHECKWPS $(TARGET)
 
 CHECKWPS_SRC = $(call preprocess, $(TOOLSDIR)/checkwps/SOURCES)
-CHECKWPS_OBJ = $(call c2obj,$(CHECKWPS_SRC)) $(BUILDDIR)/lang/lang_core.o
+CHECKWPS_OBJ = $(call c2obj,$(CHECKWPS_SRC))
 
 OTHER_SRC += $(CHECKWPS_SRC)
 
@@ -29,9 +28,7 @@ INCLUDES = -I$(ROOTDIR)/apps/gui \
            -I$(ROOTDIR)/lib/rbcodec/metadata \
            -I$(ROOTDIR)/lib/rbcodec/dsp \
            -I$(APPSDIR) \
-           -I$(BUILDDIR) \
-           -I$(BUILDDIR)/lang \
-           $(TARGET_INC)
+           -I$(BUILDDIR)
 
 .SECONDEXPANSION: # $$(OBJ) is not populated until after this
 
@@ -39,32 +36,3 @@ $(BUILDDIR)/$(BINARY): $$(CHECKWPS_OBJ) $$(CORE_LIBS)
 	@echo LD $(BINARY)
 	$(SILENT)$(HOSTCC) -o $@ $+ $(INCLUDE) $(GCCOPTS)  \
 	-L$(BUILDDIR)/lib $(call a2lnk,$(CORE_LIBS))
-
-#### Everything below is hacked in from apps.make and lang.make
-
-$(BUILDDIR)/apps/features: $(ROOTDIR)/apps/features.txt
-	$(SILENT)mkdir -p $(BUILDDIR)/apps
-	$(SILENT)mkdir -p $(BUILDDIR)/lang
-	$(call PRINTS,PP $(<F))
-	$(SILENT)$(CC) $(PPCFLAGS) \
-		-E -P -imacros "config.h" -imacros "button.h" -x c $< | \
-	grep -v "^#" | grep -v "^ *$$" > $(BUILDDIR)/apps/features; \
-
-$(BUILDDIR)/apps/genlang-features:  $(BUILDDIR)/apps/features
-	$(call PRINTS,GEN $(subst $(BUILDDIR)/,,$@))tr \\n : < $< > $@
-
-$(BUILDDIR)/lang_enum.h: $(BUILDDIR)/lang/lang.h $(TOOLSDIR)/genlang
-
-$(BUILDDIR)/lang/lang.h: $(ROOTDIR)/apps/lang/$(ENGLISH).lang $(BUILDDIR)/apps/features $(TOOLSDIR)/genlang
-	$(call PRINTS,GEN lang.h)
-	$(SILENT)for f in `cat $(BUILDDIR)/apps/features`; do feat="$$feat:$$f" ; done; \
-		perl -s $(TOOLSDIR)/genlang -p=$(BUILDDIR)/lang -t=$(MODELNAME)$$feat $<
-
-$(BUILDDIR)/lang/lang_core.c: $(BUILDDIR)/lang/lang.h $(TOOLSDIR)/genlang
-
-$(BUILDDIR)/lang/lang_core.o: $(BUILDDIR)/lang/lang.h $(BUILDDIR)/lang/lang_core.c
-	$(call PRINTS,CC lang_core.c)$(CC) $(CFLAGS) -c $(BUILDDIR)/lang/lang_core.c -o $@
-
-$(BUILDDIR)/lang/max_language_size.h: $(BUILDDIR)/lang/lang.h
-	$(call PRINTS,GEN $(subst $(BUILDDIR)/,,$@))
-	$(SILENT)echo "#define MAX_LANGUAGE_SIZE 131072" > $@

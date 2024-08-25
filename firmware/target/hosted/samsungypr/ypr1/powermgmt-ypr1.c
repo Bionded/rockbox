@@ -18,19 +18,19 @@
  *
  ****************************************************************************/
 
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-
 #include "config.h"
+#include <sys/ioctl.h>
 #include "kernel.h"
 #include "powermgmt.h"
 #include "power.h"
+#include "file.h"
 #include "adc.h"
 #include "radio-ypr.h"
 #include "pmu-ypr1.h"
 #include "ioctl-ypr1.h"
+#include "stdio.h"
+#include "unistd.h"
+#include "fcntl.h"
 #include "system.h"
 
 #define MAX17040_VCELL          0x02
@@ -76,7 +76,7 @@ const unsigned short percent_to_volt_discharge[BATTERY_TYPES_COUNT][11] =
 
 #if CONFIG_CHARGING
 /* voltages (millivolt) of 0%, 10%, ... 100% when charging enabled */
-const unsigned short percent_to_volt_charge[11] =
+const unsigned short const percent_to_volt_charge[11] =
 {
       3450, 3670, 3721, 3751, 3782, 3821, 3876, 3941, 4034, 4125, 4200
 };

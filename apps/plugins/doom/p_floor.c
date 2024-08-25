@@ -503,7 +503,6 @@ int EV_DoFloor
 
       case raiseFloorCrush:
          floor->crush = true;
-         /* fallthrough */
       case raiseFloor:
          floor->direction = 1;
          floor->sector = sec;

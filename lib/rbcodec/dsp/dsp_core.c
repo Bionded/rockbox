@@ -24,9 +24,6 @@
 #include "dsp_core.h"
 #include "dsp_sample_io.h"
 
-#include "tdspeed.h"
-#include "resample.h"
-
 /* Define LOGF_ENABLE to enable logf output in this file */
 /*#define LOGF_ENABLE*/
 #include "logf.h"
@@ -72,11 +69,6 @@ dsp_proc_slot_arr[DSP_NUM_PROC_STAGES+DSP_VOICE_NUM_PROC_STAGES] IBSS_ATTR;
 
 /* General DSP config */
 static struct dsp_config dsp_conf[DSP_COUNT] IBSS_ATTR;
-
-static const dsp_proc_init_fn_type dsp_init_fn[] INITDATA_ATTR = {
-    &dsp_timestretch_init,
-    &dsp_resample_init,
-};
 
 /** Processing stages support functions **/
 static const struct dsp_proc_db_entry *
@@ -222,13 +214,6 @@ dsp_proc_enable_delink(struct dsp_config *dsp, uint32_t mask)
     }
 }
 
-static void dsp_empty_process(struct dsp_proc_entry *this, struct dsp_buffer **buf_p)
-{
-    (void)this;
-    (void)buf_p;
-    logf("%s", __func__);
-}
-
 void dsp_proc_enable(struct dsp_config *dsp, enum dsp_proc_ids id,
                      bool enable)
 {
@@ -251,7 +236,7 @@ void dsp_proc_enable(struct dsp_config *dsp, enum dsp_proc_ids id,
         {
             /* New entry - set defaults */
             s->proc_entry.data = 0;
-            s->proc_entry.process = dsp_empty_process;
+            s->proc_entry.process = NULL;
         }
 
         enabled = proc_db_entry(s)->configure(&s->proc_entry, dsp,
@@ -491,24 +476,29 @@ intptr_t dsp_configure(struct dsp_config *dsp, unsigned int setting,
     return proc_broadcast(dsp, setting, value);
 }
 
-struct dsp_config *dsp_get_config(unsigned int dsp_id)
+struct dsp_config * dsp_get_config(enum dsp_ids id)
 {
-    if (dsp_id >= DSP_COUNT)
+    if (id >= DSP_COUNT)
         return NULL;
 
-    return &dsp_conf[dsp_id];
+    return &dsp_conf[id];
 }
 
 /* Return the id given a dsp pointer (or even via something within
    the struct itself) */
-unsigned int dsp_get_id(const struct dsp_config *dsp)
+enum dsp_ids dsp_get_id(const struct dsp_config *dsp)
 {
-    return dsp - dsp_conf;
+    ptrdiff_t id = dsp - dsp_conf;
+
+    if (id < 0 || id >= DSP_COUNT)
+        return DSP_COUNT; /* obviously invalid */
+
+    return (enum dsp_ids)id;
 }
 
 /* Do what needs initializing before enable/disable calls can be made.
  * Must be done before changing settings for the first time. */
-void dsp_init(void)
+void INIT_ATTR dsp_init(void)
 {
     static const uint8_t slot_count[DSP_COUNT] INITDATA_ATTR =
     {
@@ -525,15 +515,12 @@ void dsp_init(void)
         count = slot_count[i];
         dsp->slot_free_mask = MASK_N(uint32_t, count, shift);
 
-        dsp_sample_io_init(&dsp->io_data, i);
+        intptr_t value = i;
+        dsp_sample_io_configure(&dsp->io_data, DSP_INIT, &value);
 
-        /* Enable misc handler by default for the audio DSP */
-        if (i == CODEC_IDX_AUDIO)
-            dsp_proc_enable(dsp, DSP_PROC_MISC_HANDLER, true);
-
-        /* Call global init for DSPs that need it */
-        for (unsigned int j = 0; j < ARRAYLEN(dsp_init_fn); ++j)
-            dsp_init_fn[j](dsp, i);
+        /* Notify each db entry of global init for each DSP */
+        for (unsigned int j = 0; j < DSP_NUM_PROC_STAGES; j++)
+            dsp_proc_database[j]->configure(NULL, dsp, DSP_INIT, i);
 
         dsp_configure(dsp, DSP_RESET, 0);
     }

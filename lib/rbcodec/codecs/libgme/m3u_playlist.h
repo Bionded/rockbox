@@ -2,7 +2,7 @@
 
 // Game_Music_Emu 0.5.2
 #ifndef M3U_PLAYLIST_H
-#define M3U_PLAYLIST_H
+#define M3U_PLAYILST_H
 
 #include "blargg_common.h"
 

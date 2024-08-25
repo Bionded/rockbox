@@ -57,7 +57,6 @@ static const struct button_mapping button_context_wps[]  = {
 
     { ACTION_WPS_QUICKSCREEN,           BUTTON_POWER|BUTTON_REL,           BUTTON_POWER },
     { ACTION_WPS_CONTEXT,               BUTTON_POWER|BUTTON_REPEAT,        BUTTON_NONE },
-    { ACTION_STD_KEYLOCK,               BUTTON_POWER|BUTTON_BACK,          BUTTON_NONE },
 
     { ACTION_WPS_SKIPNEXT,              BUTTON_RIGHT|BUTTON_REL,           BUTTON_RIGHT },
     { ACTION_WPS_SEEKFWD,               BUTTON_RIGHT|BUTTON_REPEAT,        BUTTON_NONE },
@@ -112,8 +111,7 @@ static const struct button_mapping button_context_keyboard[]  = {
 }; /* button_context_keyboard */
 
 static const struct button_mapping button_context_quickscreen[]  = {
-    { ACTION_STD_CONTEXT,               BUTTON_PLAY|BUTTON_REPEAT,         BUTTON_PLAY },
-    { ACTION_STD_CANCEL,                BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
+    { ACTION_STD_CANCEL,                BUTTON_PLAY,                       BUTTON_NONE },
     { ACTION_STD_CANCEL,                BUTTON_BACK,                       BUTTON_NONE },
     { ACTION_STD_CANCEL,                BUTTON_POWER,                      BUTTON_NONE },
     { ACTION_QS_TOP,                    BUTTON_UP,                         BUTTON_NONE },
@@ -155,10 +153,7 @@ static const struct button_mapping button_context_radio[]  = {
     { ACTION_FM_PLAY,                  BUTTON_PLAY|BUTTON_REL,           BUTTON_PLAY },
     { ACTION_FM_STOP,                  BUTTON_PLAY|BUTTON_REPEAT,        BUTTON_NONE },
 
-    { ACTION_STD_KEYLOCK,              BUTTON_POWER|BUTTON_BACK,          BUTTON_NONE },
-
-    { ACTION_FM_EXIT,                  BUTTON_BACK|BUTTON_REL,            BUTTON_BACK },
-    { ACTION_FM_EXIT,                  BUTTON_BACK|BUTTON_REPEAT,         BUTTON_NONE },
+    { ACTION_FM_EXIT,                  BUTTON_BACK,                      BUTTON_NONE },
 
 /* only compiled if there is a Volume UP button defined */
 #ifdef BUTTON_VOL_UP
@@ -200,6 +195,7 @@ static const struct button_mapping button_context_settings[]  = {
     { ACTION_STD_NEXTREPEAT,            BUTTON_RIGHT|BUTTON_REPEAT,        BUTTON_NONE },
 
     { ACTION_STD_OK,                    BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
+    { ACTION_SETTINGS_RESET,            BUTTON_PLAY|BUTTON_REPEAT,         BUTTON_NONE },
 
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
 }; /* button_context_settings */
@@ -357,7 +353,7 @@ static const struct button_mapping button_context_usb_hid_mode_mouse[] = {
 /* get_context_mapping returns a pointer to one of the above defined arrays depending on the context */
 const struct button_mapping* get_context_mapping(int context)
 {
-    switch (context & ~CONTEXT_LOCKED)
+    switch (context)
     {
         case CONTEXT_STD:
             return button_context_standard;

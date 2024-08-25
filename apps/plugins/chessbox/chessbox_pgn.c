@@ -623,7 +623,6 @@ struct pgn_game_node* pgn_list_games(const char* filename){
             /* a new game header is found */
             if (line_buffer[0] == '['){
                 temp_node = (struct pgn_game_node *)pl_malloc(sizeof size_node);
-                if (!temp_node) return NULL;
                 temp_node->next_node = NULL;
                 if (curr_node == NULL) {
                     first_game = curr_node = temp_node;
@@ -674,9 +673,11 @@ struct pgn_game_node* pgn_show_game_list(struct pgn_game_node* first_game){
 
     rb->gui_synclist_init(&games_list, &get_game_text, first_game, false, 1, NULL);
     rb->gui_synclist_set_title(&games_list, rb->str(LANG_CHESSBOX_GAMES), NOICON);
+    rb->gui_synclist_set_icon_callback(&games_list, NULL);
     if (rb->global_settings->talk_menu)
         rb->gui_synclist_set_voice_callback(&games_list, speak_game_selection);
     rb->gui_synclist_set_nb_items(&games_list, i);
+    rb->gui_synclist_limit_scroll(&games_list, true);
     rb->gui_synclist_select_item(&games_list, 0);
 
     rb->gui_synclist_draw(&games_list);
@@ -685,8 +686,9 @@ struct pgn_game_node* pgn_show_game_list(struct pgn_game_node* first_game){
     while (true) {
         curr_selection = rb->gui_synclist_get_sel_pos(&games_list);
         button = rb->get_action(CONTEXT_LIST,TIMEOUT_BLOCK);
-        if (rb->gui_synclist_do_button(&games_list, &button))
+        if (rb->gui_synclist_do_button(&games_list,&button,LIST_WRAP_OFF)){
             continue;
+        }
         switch (button) {
             case ACTION_STD_OK:
                 return get_game_info(curr_selection, first_game);
@@ -771,11 +773,9 @@ void pgn_parse_game(const char* filename,
      */
     if (first_ply != NULL){
         temp_ply = (struct pgn_ply_node *)pl_malloc(sizeof size_ply);
-        if (temp_ply) {
-            temp_ply->player = neutral;
-            temp_ply->prev_node = curr_node;
-            curr_node->next_node = temp_ply;
-        }
+        temp_ply->player = neutral;
+        temp_ply->prev_node = curr_node;
+        curr_node->next_node = temp_ply;
     }
     selected_game->first_ply = first_ply;
 
@@ -793,7 +793,6 @@ struct pgn_game_node* pgn_init_game(void){
 
     /* create an "end of game" dummy ply and assign defaults */
     ply = (struct pgn_ply_node *)pl_malloc(sizeof ply_size);
-    if (!ply) return NULL;
     ply->player = neutral;
     ply->pgn_text[0] = '\0';
     ply->prev_node = NULL;
@@ -801,8 +800,6 @@ struct pgn_game_node* pgn_init_game(void){
 
     /* create the game and assign defaults */
     game = (struct pgn_game_node *)pl_malloc(sizeof game_size);
-    if (!game) return NULL;
-
     game->game_number = 0;
     rb->strcpy(game->white_player,"Player");
     rb->strcpy(game->black_player,"GnuChess");
@@ -826,7 +823,6 @@ void pgn_append_ply(struct pgn_game_node* game,
     struct pgn_ply_node ply_size, *ply, *temp;
 
     ply = (struct pgn_ply_node *)pl_malloc(sizeof ply_size);
-    if (!ply) return;
     ply->player = ply_player;
     ply->column_from = move_buffer[0] - 'a';
     ply->row_from = move_buffer[1] - '1';
@@ -851,7 +847,6 @@ void pgn_append_ply(struct pgn_game_node* game,
     } else {
         temp->prev_node->next_node = ply;
     }
-
     temp->prev_node = ply;
 }
 

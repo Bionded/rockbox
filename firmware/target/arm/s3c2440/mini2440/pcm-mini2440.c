@@ -235,6 +235,24 @@ void pcm_play_dma_stop(void)
     bitclr32(&CLKCON, 1<<17);
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause)
+    {
+        /* pause playback on current buffer */
+        play_stop_pcm();
+    }
+    else
+    {
+        /* restart playback on current buffer */
+        /* make sure we're aligned on left channel - skip any right
+           channel sample left waiting */
+        DISRC2 = (DCSRC2 + 2) & ~0x3;
+        DCON2  = DMA_CONTROL_SETUP | (DSTAT2 & 0xFFFFE);
+        play_start_pcm();
+    }
+}
+
 void fiq_handler(void)
 {
     static const void *start;
@@ -258,4 +276,18 @@ void fiq_handler(void)
     DMASKTRIG2 = 0x2;
 
     pcm_play_dma_status_callback(PCM_DMAST_STARTED);
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    /* lie a little and only return full pairs */
+    return (DSTAT2 & 0xFFFFE) * 2;
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    unsigned long addr = DCSRC2;
+    int cnt = DSTAT2;
+    *count = (cnt & 0xFFFFF) >> 1;
+    return (void *)((addr + 2) & ~3);
 }

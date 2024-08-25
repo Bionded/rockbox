@@ -47,11 +47,19 @@
  */
 #define FRAMEDROP_TRIGGER 6
 
+#ifdef HAVE_LCD_BITMAP
+static int offset_step = 16; /* pixels per screen scroll step */
+/* should lines scroll out of the screen */
+static bool offset_out_of_view = false;
+#endif
+
+static void gui_list_select_at_offset(struct gui_synclist * gui_list,
+                                      int offset);
 void list_draw(struct screen *display, struct gui_synclist *list);
 
+#ifdef HAVE_LCD_BITMAP
 static long last_dirty_tick;
 static struct viewport parent[NB_SCREENS];
-static struct gui_synclist *current_lists;
 
 static bool list_is_dirty(struct gui_synclist *list)
 {
@@ -84,7 +92,23 @@ static void list_init_viewports(struct gui_synclist *list)
     }
     list->dirty_tick = current_tick;
 }
+#else
+static struct viewport parent[NB_SCREENS] =
+{
+    [SCREEN_MAIN] =
+    {
+        .x        = 0,
+        .y        = 0,
+        .width    = LCD_WIDTH,
+        .height   = LCD_HEIGHT
+    },
+};
 
+#define list_init_viewports(a)
+#define list_is_dirty(a) false
+#endif
+
+#ifdef HAVE_LCD_BITMAP
 static int list_nb_lines(struct gui_synclist *list, enum screen_type screen)
 {
     struct viewport *vp = list->parent[screen];
@@ -124,17 +148,12 @@ void list_init_item_height(struct gui_synclist *list, enum screen_type screen)
 #endif
 }
 
-static void gui_synclist_init_display_settings(struct gui_synclist * list)
-{
-    struct user_settings *gs = &global_settings;
-    list->scrollbar = gs->scrollbar;
-    list->show_icons = gs->show_icons;
-    list->scroll_paginated = gs->scroll_paginated;
-    list->keyclick = gs->keyclick;
-    list->talk_menu = gs->talk_menu;
-    list->wraparound = gs->list_wraparound;
-    list->cursor_style = gs->cursor_style;
-}
+#else
+#define list_display_title(l, i) false
+#define list_get_nb_lines(list, screen) \
+            viewport_get_nb_lines((list)->parent[(screen)]);
+#define list_init_item_height(l, i)
+#endif
 
 /*
  * Initializes a scrolling list
@@ -157,17 +176,14 @@ void gui_synclist_init(struct gui_synclist * gui_list,
     gui_list->callback_get_item_icon = NULL;
     gui_list->callback_get_item_name = callback_get_item_name;
     gui_list->callback_speak_item = NULL;
-    gui_list->callback_draw_item = NULL;
     gui_list->nb_items = 0;
     gui_list->selected_item = 0;
-    gui_synclist_init_display_settings(gui_list);
-#ifdef HAVE_TOUCHSCREEN
-    gui_list->y_pos = 0;
-#endif
     FOR_NB_SCREENS(i)
     {
         gui_list->start_item[i] = 0;
+#ifdef HAVE_LCD_BITMAP
         gui_list->offset_position[i] = 0;
+#endif
         if (list_parent)
             gui_list->parent[i] = &list_parent[i];
         else
@@ -176,6 +192,7 @@ void gui_synclist_init(struct gui_synclist * gui_list,
     list_init_viewports(gui_list);
     FOR_NB_SCREENS(i)
         list_init_item_height(gui_list, i);
+    gui_list->limit_scroll = false;
     gui_list->data = data;
     gui_list->scroll_all = scroll_all;
     gui_list->selected_size = selected_size;
@@ -184,14 +201,22 @@ void gui_synclist_init(struct gui_synclist * gui_list,
 
     gui_list->scheduled_talk_tick = gui_list->last_talked_tick = 0;
     gui_list->dirty_tick = current_tick;
+    gui_list->show_selection_marker = true;
 
 #ifdef HAVE_LCD_COLOR
     gui_list->title_color = -1;
     gui_list->callback_get_item_color = NULL;
-    gui_list->selection_color = NULL;
 #endif
 }
 
+/* this toggles the selection bar or cursor */
+void gui_synclist_hide_selection_marker(struct gui_synclist * lists, bool hide)
+{
+    lists->show_selection_marker = !hide;
+}
+
+
+#ifdef HAVE_LCD_BITMAP
 int gui_list_get_item_offset(struct gui_synclist * gui_list,
                             int item_width,
                             int text_pos,
@@ -200,7 +225,7 @@ int gui_list_get_item_offset(struct gui_synclist * gui_list,
 {
     int item_offset;
 
-    if (global_settings.offset_out_of_view)
+    if (offset_out_of_view)
     {
         item_offset = gui_list->offset_position[display->screen_type];
     }
@@ -223,6 +248,7 @@ int gui_list_get_item_offset(struct gui_synclist * gui_list,
 
     return item_offset;
 }
+#endif
 
 /*
  * Force a full screen update.
@@ -238,7 +264,9 @@ void gui_synclist_draw(struct gui_synclist *gui_list)
     }
     FOR_NB_SCREENS(i)
     {
+#ifdef HAVE_LCD_BITMAP
         if (!skinlist_draw(&screens[i], gui_list))
+#endif
             list_draw(&screens[i], gui_list);
     }
 }
@@ -251,14 +279,23 @@ static void gui_list_put_selection_on_screen(struct gui_synclist * gui_list,
     int bottom = MAX(0, gui_list->nb_items - nb_lines);
     int new_start_item = gui_list->start_item[screen];
     int difference = gui_list->selected_item - gui_list->start_item[screen];
+#ifdef HAVE_LCD_CHARCELLS
+    const int scroll_limit_up   = 0;
+    const int scroll_limit_down = 1;
+#else
     const int scroll_limit_up   = (nb_lines < gui_list->selected_size+2 ? 0:1);
     const int scroll_limit_down = (scroll_limit_up+gui_list->selected_size);
+#endif
 
-    if (gui_list->selected_size >= nb_lines)
+    if (gui_list->show_selection_marker == false)
     {
         new_start_item = gui_list->selected_item;
     }
-    else if (gui_list->scroll_paginated)
+    else if (gui_list->selected_size >= nb_lines)
+    {
+        new_start_item = gui_list->selected_item;
+    }
+    else if (global_settings.scroll_paginated)
     {
         nb_lines -= nb_lines%gui_list->selected_size;
         if (difference < 0 || difference >= nb_lines)
@@ -281,14 +318,15 @@ static void gui_list_put_selection_on_screen(struct gui_synclist * gui_list,
         gui_list->start_item[screen] = bottom;
     else
         gui_list->start_item[screen] = new_start_item;
-#ifdef HAVE_TOUCHSCREEN
-    gui_list->y_pos = gui_list->start_item[SCREEN_MAIN] * gui_list->line_height[SCREEN_MAIN];
-#endif
 }
 
 static void edge_beep(struct gui_synclist * gui_list, bool wrap)
 {
-    if (gui_list->keyclick)
+#if CONFIG_CODEC != SWCODEC
+    (void)gui_list;
+    (void)wrap;
+#else
+    if (global_settings.keyclick)
     {
         list_speak_item *cb = gui_list->callback_speak_item;
         if (!wrap) /* a bounce */
@@ -321,6 +359,7 @@ static void edge_beep(struct gui_synclist * gui_list, bool wrap)
             talk_force_shutup();
         }
     }
+#endif
 }
 
 static void _gui_synclist_speak_item(struct gui_synclist *lists)
@@ -351,7 +390,7 @@ static void _gui_synclist_speak_item(struct gui_synclist *lists)
 
 void gui_synclist_speak_item(struct gui_synclist *lists)
 {
-    if (lists->talk_menu)
+    if (global_settings.talk_menu)
     {
         if (lists->nb_items == 0)
             talk_id(VOICE_EMPTY_LIST, true);
@@ -379,7 +418,7 @@ void gui_synclist_select_item(struct gui_synclist * gui_list, int item_number)
 }
 
 static void gui_list_select_at_offset(struct gui_synclist * gui_list,
-                                      int offset, bool allow_wrap)
+                                      int offset)
 {
     int new_selection;
     if (gui_list->selected_size > 1)
@@ -391,15 +430,37 @@ static void gui_list_select_at_offset(struct gui_synclist * gui_list,
 
     if (new_selection >= gui_list->nb_items)
     {
-        new_selection = allow_wrap ? 0 : gui_list->nb_items - gui_list->selected_size;
-        edge_beep(gui_list, allow_wrap);
+        new_selection = gui_list->limit_scroll ?
+            gui_list->nb_items - gui_list->selected_size : 0;
+        edge_beep(gui_list, !gui_list->limit_scroll);
     }
     else if (new_selection < 0)
     {
-        new_selection = allow_wrap ? gui_list->nb_items - gui_list->selected_size : 0;
-        edge_beep(gui_list, allow_wrap);
+        new_selection = gui_list->limit_scroll ?
+            0 : gui_list->nb_items - gui_list->selected_size;
+        edge_beep(gui_list, !gui_list->limit_scroll);
     }
-
+    else if (gui_list->show_selection_marker == false)
+    {
+        FOR_NB_SCREENS(i)
+        {
+            int nb_lines = list_get_nb_lines(gui_list, i);
+            if (offset > 0)
+            {
+                int screen_top = MAX(0, gui_list->nb_items - nb_lines);
+                gui_list->start_item[i] = MIN(screen_top, gui_list->start_item[i] +
+                                                gui_list->selected_size);
+                gui_list->selected_item = gui_list->start_item[i];
+            }
+            else
+            {
+                gui_list->start_item[i] = MAX(0, gui_list->start_item[i] -
+                                                    gui_list->selected_size);
+                gui_list->selected_item = gui_list->start_item[i] + nb_lines;
+            }
+        }
+        return;
+    }
     gui_synclist_select_item(gui_list, new_selection);
 }
 
@@ -430,27 +491,43 @@ void gui_synclist_del_item(struct gui_synclist * gui_list)
     }
 }
 
+#ifdef HAVE_LCD_BITMAP
+void gui_list_screen_scroll_step(int ofs)
+{
+    offset_step = ofs;
+}
+
+void gui_list_screen_scroll_out_of_view(bool enable)
+{
+    offset_out_of_view = enable;
+}
+#endif /* HAVE_LCD_BITMAP */
+
 /*
  * Set the title and title icon of the list. Setting title to NULL disables
  * both the title and icon. Use NOICON if there is no icon.
  */
 void gui_synclist_set_title(struct gui_synclist * gui_list,
-                            const char * title, enum themable_icons icon)
+                            char * title, enum themable_icons icon)
 {
     gui_list->title = title;
     gui_list->title_icon = icon;
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
         sb_set_title_text(title, icon, i);
+#endif
     send_event(GUI_EVENT_ACTIONUPDATE, (void*)1);
 }
 
 void gui_synclist_set_nb_items(struct gui_synclist * lists, int nb_items)
 {
     lists->nb_items = nb_items;
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
     {
         lists->offset_position[i] = 0;
     }
+#endif
 }
 int gui_synclist_get_nb_items(struct gui_synclist * lists)
 {
@@ -476,6 +553,10 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
                                         enum screen_type screen)
 {
     viewport_set_defaults(vp, screen);
+#ifdef HAVE_BUTTONBAR
+    if (screens[screen].has_buttonbar)
+        vp->height -= BUTTONBAR_HEIGHT;
+#endif
 }
 
 #ifdef HAVE_LCD_COLOR
@@ -484,46 +565,32 @@ void gui_synclist_set_color_callback(struct gui_synclist * lists,
 {
     lists->callback_get_item_color = color_callback;
 }
-
-void gui_synclist_set_sel_color(struct gui_synclist * lists,
-                                struct list_selection_color *list_sel_color)
-{
-    lists->selection_color = list_sel_color;
-    if(list_sel_color)
-    {
-        FOR_NB_SCREENS(i) /* might need to be only SCREEN_MAIN */
-        {
-            lists->parent[i]->fg_pattern = list_sel_color->fg_color;
-            lists->parent[i]->bg_pattern = list_sel_color->bg_color;
-        }
-    }
-    else
-        list_init_viewports(lists);
-}
 #endif
 
 static void gui_synclist_select_next_page(struct gui_synclist * lists,
-                                          enum screen_type screen,
-                                          bool allow_wrap)
+                                          enum screen_type screen)
 {
     int nb_lines = list_get_nb_lines(lists, screen);
     if (lists->selected_size > 1)
         nb_lines = MAX(1, nb_lines/lists->selected_size);
-
-    gui_list_select_at_offset(lists, nb_lines, allow_wrap);
+    gui_list_select_at_offset(lists, nb_lines);
 }
 
 static void gui_synclist_select_previous_page(struct gui_synclist * lists,
-                                              enum screen_type screen,
-                                              bool allow_wrap)
+                                              enum screen_type screen)
 {
     int nb_lines = list_get_nb_lines(lists, screen);
     if (lists->selected_size > 1)
         nb_lines = MAX(1, nb_lines/lists->selected_size);
-
-    gui_list_select_at_offset(lists, -nb_lines, allow_wrap);
+    gui_list_select_at_offset(lists, -nb_lines);
 }
 
+void gui_synclist_limit_scroll(struct gui_synclist * lists, bool scroll)
+{
+    lists->limit_scroll = scroll;
+}
+
+#ifdef HAVE_LCD_BITMAP
 /*
  * Makes all the item in the list scroll by one step to the right.
  * Should stop increasing the value when reaching the widest item value
@@ -536,7 +603,7 @@ static void gui_synclist_scroll_right(struct gui_synclist * lists)
         /* FIXME: This is a fake right boundry limiter. there should be some
         * callback function to find the longest item on the list in pixels,
         * to stop the list from scrolling past that point */
-        lists->offset_position[i] += global_settings.screen_scroll_step;
+        lists->offset_position[i] += offset_step;
         if (lists->offset_position[i] > 1000)
             lists->offset_position[i] = 1000;
     }
@@ -550,35 +617,32 @@ static void gui_synclist_scroll_left(struct gui_synclist * lists)
 {
     FOR_NB_SCREENS(i)
     {
-        lists->offset_position[i] -= global_settings.screen_scroll_step;
+        lists->offset_position[i] -= offset_step;
         if (lists->offset_position[i] < 0)
             lists->offset_position[i] = 0;
     }
 }
+#endif /* HAVE_LCD_BITMAP */
 
+#if CONFIG_CODEC == SWCODEC
 bool gui_synclist_keyclick_callback(int action, void* data)
 {
     struct gui_synclist *lists = (struct gui_synclist *)data;
 
-    /* Block the beep if we're at the end of the list and we're not wrapping. */
+    /* block the beep if we are at the end of the list and we are not wrapping.
+     * CAVEAT: mosts lists don't set limit_scroll untill it sees a repeat
+     * press at the end of the list so this can cause an extra beep.
+     */
+    if (lists->limit_scroll == false)
+        return true;
     if (lists->selected_item == 0)
-    {
-        if (action == ACTION_STD_PREVREPEAT)
-            return false;
-        if (action == ACTION_STD_PREV && !lists->wraparound)
-            return false;
-    }
-
+        return (action != ACTION_STD_PREV && action != ACTION_STD_PREVREPEAT);
     if (lists->selected_item == lists->nb_items - lists->selected_size)
-    {
-        if (action == ACTION_STD_NEXTREPEAT)
-            return false;
-        if (action == ACTION_STD_NEXT && !lists->wraparound)
-            return false;
-    }
+        return (action != ACTION_STD_NEXT && action != ACTION_STD_NEXTREPEAT);
 
-    return action != ACTION_NONE && !IS_SYSEVENT(action);
+    return action != ACTION_NONE;
 }
+#endif
 
 /*
  * Magic to make sure the list gets updated correctly if the skin does
@@ -586,36 +650,33 @@ bool gui_synclist_keyclick_callback(int action, void* data)
  * loop.
  *
  * The GUI_EVENT_NEED_UI_UPDATE event is registered for in list_do_action_timeout()
- * as a oneshot and current_lists updated. later current_lists is set to NULL
- * in gui_synclist_do_button() effectively disabling the callback. 
-*  This is done because if something is using the list UI they *must* be calling those
+ * and unregistered in gui_synclict_do_button(). This is done because
+ * if something is using the list UI they *must* be calling those
  * two functions in the correct order or the list wont work.
  */
-
-static void _lists_uiviewport_update_callback(unsigned short id,
-                                              void *data, void *userdata)
+static struct gui_synclist *current_lists;
+static bool ui_update_event_registered = false;
+static void _lists_uiviewport_update_callback(unsigned short id, void *data)
 {
     (void)id;
     (void)data;
-    (void)userdata;
-
     if (current_lists)
         gui_synclist_draw(current_lists);
 }
 
-bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
+bool gui_synclist_do_button(struct gui_synclist * lists,
+                            int *actionptr, enum list_wrap wrap)
 {
     int action = *actionptr;
+#ifdef HAVE_LCD_BITMAP
     static bool pgleft_allow_cancel = false;
+#endif
 
 #ifdef HAVE_WHEEL_ACCELERATION
     int next_item_modifier = button_apply_acceleration(get_action_data());
 #else
     static int next_item_modifier = 1;
     static int last_accel_tick = 0;
-
-    if (IS_SYSEVENT(action))
-        return false;
 
     if (action != ACTION_TOUCHSCREEN)
     {
@@ -647,14 +708,29 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
         action = *actionptr = gui_synclist_do_touchscreen(lists);
     else if (action > ACTION_TOUCHSCREEN_MODE)
         /* cancel kinetic if we got a normal button event */
-        _gui_synclist_stop_kinetic_scrolling(lists);
+        _gui_synclist_stop_kinetic_scrolling();
 #endif
 
     /* Disable the skin redraw callback */
     current_lists = NULL;
 
-    /* repeat actions block list wraparound */
-    bool allow_wrap = lists->wraparound;
+    switch (wrap)
+    {
+        case LIST_WRAP_ON:
+            gui_synclist_limit_scroll(lists, false);
+        break;
+        case LIST_WRAP_OFF:
+            gui_synclist_limit_scroll(lists, true);
+        break;
+        case LIST_WRAP_UNLESS_HELD:
+            if (action == ACTION_STD_PREVREPEAT ||
+                action == ACTION_STD_NEXTREPEAT ||
+                action == ACTION_LISTTREE_PGUP  ||
+                action == ACTION_LISTTREE_PGDOWN)
+                gui_synclist_limit_scroll(lists, true);
+            else gui_synclist_limit_scroll(lists, false);
+        break;
+    };
 
     switch (action)
     {
@@ -664,18 +740,16 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
 
 #ifdef HAVE_VOLUME_IN_LIST
         case ACTION_LIST_VOLUP:
-            adjust_volume(1);
-            return true;
+            global_settings.volume += 2;
+            /* up two because the falthrough brings it down one */
         case ACTION_LIST_VOLDOWN:
-            adjust_volume(-1);
+            global_settings.volume--;
+            setvol();
             return true;
 #endif
-        case ACTION_STD_PREVREPEAT:
-            allow_wrap = false; /* Prevent list wraparound on repeating actions */
-            /*Fallthrough*/
         case ACTION_STD_PREV:
-        
-            gui_list_select_at_offset(lists, -next_item_modifier, allow_wrap);
+        case ACTION_STD_PREVREPEAT:
+            gui_list_select_at_offset(lists, -next_item_modifier);
 #ifndef HAVE_WHEEL_ACCELERATION
             if (button_queue_count() < FRAMEDROP_TRIGGER)
 #endif
@@ -684,11 +758,9 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             *actionptr = ACTION_STD_PREV;
             return true;
 
-        case ACTION_STD_NEXTREPEAT:
-            allow_wrap = false; /* Prevent list wraparound on repeating actions */
-            /*Fallthrough*/
         case ACTION_STD_NEXT:
-            gui_list_select_at_offset(lists, next_item_modifier, allow_wrap);
+        case ACTION_STD_NEXTREPEAT:
+            gui_list_select_at_offset(lists, next_item_modifier);
 #ifndef HAVE_WHEEL_ACCELERATION
             if (button_queue_count() < FRAMEDROP_TRIGGER)
 #endif
@@ -697,10 +769,10 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             *actionptr = ACTION_STD_NEXT;
             return true;
 
+#ifdef HAVE_LCD_BITMAP
         case ACTION_TREE_PGRIGHT:
             gui_synclist_scroll_right(lists);
             gui_synclist_draw(lists);
-            yield();
             return true;
         case ACTION_TREE_ROOT_INIT:
          /* After this button press ACTION_TREE_PGLEFT is allowed
@@ -713,11 +785,10 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             if (lists->offset_position[0] == 0)
             {
                 pgleft_allow_cancel = true;
-                *actionptr = ACTION_STD_MENU;
+                *actionptr = ACTION_STD_CANCEL;
                 return true;
             }
             *actionptr = ACTION_TREE_PGLEFT;
-            /* fallthrough */
         case ACTION_TREE_PGLEFT:
             if(pgleft_allow_cancel && (lists->offset_position[0] == 0))
             {
@@ -728,8 +799,8 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
             gui_synclist_draw(lists);
             pgleft_allow_cancel = false; /* stop ACTION_TREE_PAGE_LEFT
                                             skipping to root */
-            yield();
             return true;
+#endif
 /* for pgup / pgdown, we are obliged to have a different behaviour depending
  * on the screen for which the user pressed the key since for example, remote
  * and main screen doesn't have the same number of lines */
@@ -741,7 +812,7 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
                          SCREEN_REMOTE :
 #endif
                                           SCREEN_MAIN;
-            gui_synclist_select_previous_page(lists, screen, false);
+            gui_synclist_select_previous_page(lists, screen);
             gui_synclist_draw(lists);
             yield();
             *actionptr = ACTION_STD_NEXT;
@@ -756,7 +827,7 @@ bool gui_synclist_do_button(struct gui_synclist * lists, int *actionptr)
                          SCREEN_REMOTE :
 #endif
                                           SCREEN_MAIN;
-            gui_synclist_select_next_page(lists, screen, false);
+            gui_synclist_select_next_page(lists, screen);
             gui_synclist_draw(lists);
             yield();
             *actionptr = ACTION_STD_PREV;
@@ -774,8 +845,13 @@ int list_do_action_timeout(struct gui_synclist *lists, int timeout)
 /* Returns the lowest of timeout or the delay until a postponed
    scheduled announcement is due (if any). */
 {
-    add_event_ex(GUI_EVENT_NEED_UI_UPDATE, true, _lists_uiviewport_update_callback, NULL);
-    current_lists = lists;
+    if (lists != current_lists)
+    {
+        if (!ui_update_event_registered)
+            ui_update_event_registered =
+                    add_event(GUI_EVENT_NEED_UI_UPDATE, _lists_uiviewport_update_callback);
+        current_lists = lists;
+    }
     if(lists->scheduled_talk_tick)
     {
         long delay = lists->scheduled_talk_tick -current_tick +1;
@@ -790,15 +866,25 @@ int list_do_action_timeout(struct gui_synclist *lists, int timeout)
 }
 
 bool list_do_action(int context, int timeout,
-                    struct gui_synclist *lists, int *action)
+                    struct gui_synclist *lists, int *action,
+                    enum list_wrap wrap)
 /* Combines the get_action() (with possibly overridden timeout) and
    gui_synclist_do_button() calls. Returns the list action from
    do_button, and places the action from get_action in *action. */
 {
     timeout = list_do_action_timeout(lists, timeout);
+#if CONFIG_CODEC == SWCODEC
     keyclick_set_callback(gui_synclist_keyclick_callback, lists);
+#endif
     *action = get_action(context, timeout);
-    return gui_synclist_do_button(lists, action);
+    return gui_synclist_do_button(lists, action, wrap);
+}
+
+bool gui_synclist_item_is_onscreen(struct gui_synclist *lists,
+                                   enum screen_type screen, int item)
+{
+    int nb_lines = list_get_nb_lines(lists, screen);
+    return (unsigned)(item - lists->start_item[screen]) < (unsigned) nb_lines;
 }
 
 /* Simple use list implementation */
@@ -858,13 +944,14 @@ bool simplelist_show_list(struct simplelist_info *info)
     struct gui_synclist lists;
     int action, old_line_count = simplelist_line_count;
     list_get_name *getname;
+    int wrap = LIST_WRAP_UNLESS_HELD;
     if (info->get_name)
         getname = info->get_name;
     else
         getname = simplelist_static_getname;
 
     FOR_NB_SCREENS(i)
-        viewportmanager_theme_enable(i, !info->hide_theme, NULL);
+        viewportmanager_theme_enable(i, true, NULL);
 
     gui_synclist_init(&lists, getname,  info->callback_data,
                       info->scroll_all, info->selection_size, NULL);
@@ -878,9 +965,13 @@ bool simplelist_show_list(struct simplelist_info *info)
 #ifdef HAVE_LCD_COLOR
     if (info->get_color)
         gui_synclist_set_color_callback(&lists, info->get_color);
-    if (info->selection_color)
-        gui_synclist_set_sel_color(&lists, info->selection_color);
 #endif
+
+    if (info->hide_selection)
+    {
+        gui_synclist_hide_selection_marker(&lists, true);
+        wrap = LIST_WRAP_OFF;
+    }
 
     if (info->action_callback)
         info->action_callback(ACTION_REDRAW, &lists);
@@ -894,13 +985,12 @@ bool simplelist_show_list(struct simplelist_info *info)
     gui_synclist_select_item(&lists, info->selection);
 
     gui_synclist_draw(&lists);
-
-    if (info->speak_onshow)
-        gui_synclist_speak_item(&lists);
+    gui_synclist_speak_item(&lists);
 
     while(1)
     {
-        list_do_action(CONTEXT_LIST, info->timeout, &lists, &action);
+        list_do_action(CONTEXT_LIST, info->timeout,
+                       &lists, &action, wrap);
 
         /* We must yield in this case or no other thread can run */
         if (info->timeout == TIMEOUT_NOBLOCK)
@@ -926,11 +1016,6 @@ bool simplelist_show_list(struct simplelist_info *info)
             info->selection = -1;
             break;
         }
-        else if (action == ACTION_STD_OK)
-        {
-            info->selection = gui_synclist_get_sel_pos(&lists);
-            break;
-        }
         else if ((action == ACTION_REDRAW) ||
                  (list_is_dirty(&lists)) ||
                  (old_line_count != simplelist_line_count))
@@ -944,17 +1029,9 @@ bool simplelist_show_list(struct simplelist_info *info)
             old_line_count = simplelist_line_count;
         }
         else if(default_event_handler(action) == SYS_USB_CONNECTED)
-        {
             return true;
-        }
     }
     talk_shutup();
-
-#ifdef HAVE_LCD_COLOR
-    if (info->selection_color)
-        gui_synclist_set_sel_color(&lists, NULL);
-#endif
-
     FOR_NB_SCREENS(i)
         viewportmanager_theme_undo(i, false);
     return false;
@@ -966,9 +1043,8 @@ void simplelist_info_init(struct simplelist_info *info, char* title,
     info->title = title;
     info->count = count;
     info->selection_size = 1;
+    info->hide_selection = false;
     info->scroll_all = false;
-    info->hide_theme = false;
-    info->speak_onshow = true;
     info->timeout = HZ/10;
     info->selection = 0;
     info->action_callback = NULL;
@@ -978,7 +1054,6 @@ void simplelist_info_init(struct simplelist_info *info, char* title,
     info->get_talk = NULL;
 #ifdef HAVE_LCD_COLOR
     info->get_color = NULL;
-    info->selection_color = NULL;
 #endif
     info->callback_data = data;
     simplelist_line_count = 0;

@@ -37,12 +37,6 @@ PLUGINLIB_OBJ := $(PLUGINLIB_SRC:.c=.o)
 PLUGINLIB_OBJ := $(PLUGINLIB_OBJ:.S=.o)
 PLUGINLIB_OBJ := $(call full_path_subst,$(ROOTDIR)/%,$(BUILDDIR)/%,$(PLUGINLIB_OBJ))
 
-ifdef USE_LTO
-# We do NOT want LTO on the GCC support file.
-$(BUILDDIR)/apps/plugins/lib/gcc-support.o: PLUGINFLAGS += -fno-lto
-$(BUILDDIR)/apps/plugins/plugin_crt0.o: PLUGINFLAGS += -fno-lto
-endif
-
 ### build data / rules
 ifndef APP_TYPE
 CONFIGFILE := $(FIRMDIR)/export/config/$(MODELNAME).h
@@ -92,11 +86,6 @@ $(OVERLAYREF_LDS): $(PLUGIN_LDS)
 $(BUILDDIR)/credits.raw credits.raw: $(DOCSDIR)/CREDITS
 	$(call PRINTS,Create credits.raw)perl $(APPSDIR)/plugins/credits.pl < $< > $(BUILDDIR)/$(@F)
 
-$(BUILDDIR)/apps/plugins/open_plugins.opx:
-	$(call PRINTS,MK open_plugins.opx) touch $< $(BUILDDIR)/apps/plugins/open_plugins.opx
-
-$(BUILDDIR)/apps/plugins/open_plugins.rock: $(BUILDDIR)/apps/plugins/open_plugins.opx
-
 # special dependencies
 $(BUILDDIR)/apps/plugins/wav2wv.rock: $(RBCODEC_BLD)/codecs/libwavpack.a $(PLUGIN_LIBS)
 
@@ -107,35 +96,8 @@ else
     PLUGINLIBFLAGS = $(PLUGINFLAGS) -ffunction-sections -fdata-sections
 endif
 
-ROOT_PLUGINSLIB_DIR := $(ROOTDIR)/apps/plugins/lib
-BUILD_PLUGINSLIB_DIR := $(BUILDDIR)/apps/plugins/lib
-
-# action_helper #
-ACTION_REQ := $(addprefix $(ROOT_PLUGINSLIB_DIR)/,action_helper.pl action_helper.h) \
-				$(BUILD_PLUGINSLIB_DIR)/pluginlib_actions.o
-
-# special rule for generating and compiling action_helper
-$(BUILD_PLUGINSLIB_DIR)/action_helper.o: $(ACTION_REQ)
-	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,GEN $(@F))$(CC) $(PLUGINFLAGS) $(INCLUDES) -E -P \
-		$(ROOT_PLUGINSLIB_DIR)/pluginlib_actions.h - < /dev/null | $< > $(basename $@).c
-	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(ROOT_PLUGINSLIB_DIR) \
-		$(PLUGINLIBFLAGS) -c $(basename $@).c -o $@
-
-# button_helper #
-BUTTON_REQ := $(addprefix $(ROOT_PLUGINSLIB_DIR)/,button_helper.pl button_helper.h) \
-				$(BUILD_PLUGINSLIB_DIR)/action_helper.o
-
-# special rule for generating and compiling button_helper
-$(BUILD_PLUGINSLIB_DIR)/button_helper.o: $(BUTTON_REQ) $(ROOTDIR)/firmware/export/button.h
-	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,GEN $(@F))$(CC) $(PLUGINFLAGS) $(INCLUDES) -dM -E -P \
-		$(addprefix -include ,button-target.h button.h) - < /dev/null | $< > $(basename $@).c
-	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(ROOT_PLUGINSLIB_DIR) \
-		$(PLUGINLIBFLAGS) -c $(basename $@).c -o $@
-
 # special pattern rule for compiling plugin lib (with function and data sections)
-$(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.c
+$(BUILDDIR)/apps/plugins/lib/%.o: $(ROOTDIR)/apps/plugins/lib/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINLIBFLAGS) -c $< -o $@
 
@@ -145,19 +107,13 @@ $(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.c
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINFLAGS) -c $< -o $@
 
 ifdef APP_TYPE
- PLUGINLDFLAGS = $(SHARED_LDFLAGS) -Wl,-Map,$*.map
+ PLUGINLDFLAGS = $(SHARED_LDFLAG) -Wl,-Map,$*.map
  PLUGINFLAGS += $(SHARED_CFLAGS) # <-- from Makefile
 else
  PLUGINLDFLAGS = -T$(PLUGINLINK_LDS) -Wl,--gc-sections -Wl,-Map,$*.map
  OVERLAYLDFLAGS = -T$(OVERLAYREF_LDS) -Wl,--gc-sections -Wl,-Map,$*.refmap
 endif
 PLUGINLDFLAGS += $(GLOBAL_LDOPTS)
-
-ifdef USE_LTO
- PLUGINFLAGS += -flto -fno-builtin -ffreestanding
- PLUGINLDFLAGS += -flto -fno-builtin -ffreestanding
- PLUGINLDFLAGS += -e plugin_start
-endif
 
 $(BUILDDIR)/%.rock:
 	$(call PRINTS,LD $(@F))$(CC) $(PLUGINFLAGS) -o $(BUILDDIR)/$*.elf \

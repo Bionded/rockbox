@@ -163,7 +163,7 @@ bool get_musepack_metadata(int fd, struct mp3entry *id3)
             id3->frequency = sfreqs[(sv8_header[k++] >> 5) & 0x0003];
             
             /* Number of channels */
-            //uint8_t channels = (sv8_header[k++] >> 4) + 1;
+            id3->channels = (sv8_header[k++] >> 4) + 1;
 
             /* Skip to next tag: k = size -2 */
             k = size - 2;

@@ -21,10 +21,6 @@
 #ifndef __ROLO_H__
 #define __ROLO_H__
 
-#if (CONFIG_PLATFORM & PLATFORM_NATIVE) || defined(BOOTFILE)
-#define HAVE_ROLO
-#endif
-
 int rolo_load(const char* file);
 
 #ifdef CPU_PP

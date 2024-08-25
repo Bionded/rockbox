@@ -211,7 +211,7 @@ static bool custom_dir(void)
         rb->close(fd2);
         if(errors)
             /* Press button to continue */
-            rb->get_action(CONTEXT_STD, TIMEOUT_BLOCK);
+            rb->get_action(CONTEXT_STD, TIMEOUT_BLOCK); 
     }
     else
         return false;
@@ -229,7 +229,9 @@ static void generate(void)
         rb->splashf(HZ, "Couldnt open %s", RFA_FILE);
         return;
     }
+#ifndef HAVE_LCD_CHARCELLS
     update_screen(true);
+#endif
     lasttick = *rb->current_tick;
 
     if(!custom_dir())
@@ -259,11 +261,11 @@ static int load_list(void)
     {
         return -2;
     }
-
+    
     rb->read(myfd,buffer,buffer_size);
     rb->close(myfd);
     list = (struct file_format *)buffer;
-
+    
     return 0;
 }
 
@@ -288,7 +290,7 @@ static int save_list(void)
     rb->lseek(myfd,0,SEEK_SET);
     rb->write(myfd,&dirs_count,sizeof(int));
     rb->close(myfd);
-
+    
     return 1;
 }
 
@@ -298,25 +300,27 @@ static int edit_list(void)
     bool exit = false;
     int button,i;
     int selection, ret = 0;
-
+    
     /* load the dat file if not already done */
     if ((list == NULL || list->count == 0) && (i = load_list()) != 0)
     {
         rb->splashf(HZ*2, "Could not load %s, rv = %d", RFA_FILE, i);
         return -1;
     }
-
+    
     dirs_count = list->count;
-
+    
     rb->gui_synclist_init(&lists,list_get_name_cb,0, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(&lists,NULL);
     rb->gui_synclist_set_nb_items(&lists,list->count);
+    rb->gui_synclist_limit_scroll(&lists,true);
     rb->gui_synclist_select_item(&lists, 0);
-
+    
     while (!exit)
     {
         rb->gui_synclist_draw(&lists);
         button = rb->get_action(CONTEXT_LIST,TIMEOUT_BLOCK);
-        if (rb->gui_synclist_do_button(&lists, &button))
+        if (rb->gui_synclist_do_button(&lists,&button,LIST_WRAP_UNLESS_HELD))
             continue;
         selection = rb->gui_synclist_get_sel_pos(&lists);
         switch (button)
@@ -364,7 +368,6 @@ static int edit_list(void)
                 {
                     case 0:
                         save_list();
-                        /* fallthrough */
                     case 1:
                         exit = true;
                         ret = -2;
@@ -385,22 +388,22 @@ static int export_list_to_file_text(void)
         rb->splashf(HZ*2, "Could not load %s, rv = %d", RFA_FILE, i);
         return 0;
     }
-
+        
     if (list->count <= 0)
     {
         rb->splashf(HZ*2, "no dirs in list file: %s", RFA_FILE);
         return 0;
     }
-
+        
     /* create and open the file */
     int myfd = rb->creat(RFA_FILE_TEXT, 0666);
     if (myfd < 0)
     {
-        rb->splashf(HZ*4, "failed to open: fd = %d, file = %s",
+        rb->splashf(HZ*4, "failed to open: fd = %d, file = %s", 
             myfd, RFA_FILE_TEXT);
         return -1;
     }
-
+    
     /* write each directory to file */
     for (i = 0; i < list->count; i++)
     {
@@ -409,7 +412,7 @@ static int export_list_to_file_text(void)
             rb->fdprintf(myfd, "%s\n", list->folder[i]);
         }
     }
-
+    
     rb->close(myfd);
     rb->splash(HZ, "Done");
     return 1;
@@ -418,7 +421,7 @@ static int export_list_to_file_text(void)
 static int import_list_from_file_text(void)
 {
     char line[MAX_PATH];
-
+    
     buffer = rb->plugin_get_audio_buffer(&buffer_size);
     if (buffer == NULL)
     {
@@ -432,11 +435,11 @@ static int import_list_from_file_text(void)
         rb->splashf(HZ*2, "failed to open: %s", RFA_FILE_TEXT);
         return -1;
     }
-
+    
     /* set the list structure, and initialize count */
     list = (struct file_format *)buffer;
     list->count = 0;
-
+        
     while ((rb->read_line(myfd, line, MAX_PATH - 1)) > 0)
     {
         /* copy the dir name, and skip the newline */
@@ -446,16 +449,16 @@ static int import_list_from_file_text(void)
         {
             if (line[len-1] == 0x0A || line[len-1] == 0x0D)
                 line[len-1] = 0x00;
-            if (len > 1 &&
+            if (len > 1 && 
                 (line[len-2] == 0x0A || line[len-2] == 0x0D))
                 line[len-2] = 0x00;
         }
-
+        
         rb->strcpy(list->folder[list->count++], line);
     }
-
+    
     rb->close(myfd);
-
+    
     if (list->count == 0)
     {
         load_list();
@@ -482,14 +485,14 @@ static int start_shuffled_play(void)
         rb->splashf(HZ*2, "Not enough memory for shuffling");
         return 0;
     }
-
+ 
     /* load the dat file if not already done */
     if ((list == NULL || list->count == 0) && (i = load_list()) != 0)
     {
         rb->splashf(HZ*2, "Could not load %s, rv = %d", RFA_FILE, i);
         return 0;
     }
-
+        
     if (list->count <= 0)
     {
         rb->splashf(HZ*2, "no dirs in list file: %s", RFA_FILE);
@@ -505,7 +508,7 @@ static int start_shuffled_play(void)
     }
     for(i=0;i<list->count;i++)
         order[i]=i;
-
+    
     for(i = list->count - 1; i >= 0; i--)
     {
         /* the rand is from 0 to RAND_MAX, so adjust to our value range */
@@ -516,7 +519,7 @@ static int start_shuffled_play(void)
         order[candidate] = order[i];
         order[i] = store;
     }
-
+        
     /* We don't want whatever is playing */
     if (!(rb->playlist_remove_all_tracks(NULL) == 0
           && rb->playlist_create(NULL, NULL) == 0))
@@ -568,12 +571,10 @@ static enum plugin_status main_menu(void)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
                 rb->cpu_boost(false);
 #endif
-#ifdef HAVE_BACKLIGHT
 #ifdef HAVE_REMOTE_LCD
                 rb->remote_backlight_on();
 #endif
                 rb->backlight_on();
-#endif
                 break;
             case 1:
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
@@ -584,12 +585,10 @@ static enum plugin_status main_menu(void)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
                 rb->cpu_boost(false);
 #endif
-#ifdef HAVE_BACKLIGHT
 #ifdef HAVE_REMOTE_LCD
                 rb->remote_backlight_on();
 #endif
                 rb->backlight_on();
-#endif
                 break;
             case 2: /* export to textfile */
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
@@ -599,12 +598,10 @@ static enum plugin_status main_menu(void)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
                 rb->cpu_boost(false);
 #endif
-#ifdef HAVE_BACKLIGHT
 #ifdef HAVE_REMOTE_LCD
                 rb->remote_backlight_on();
 #endif
                 rb->backlight_on();
-#endif
                 break;
             case 3: /* import from textfile */
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
@@ -614,12 +611,10 @@ static enum plugin_status main_menu(void)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
                 rb->cpu_boost(false);
 #endif
-#ifdef HAVE_BACKLIGHT
 #ifdef HAVE_REMOTE_LCD
                 rb->remote_backlight_on();
 #endif
                 rb->backlight_on();
-#endif
                 break;
             case 4:
                 if (!start_shuffled_play())
@@ -641,6 +636,6 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     cancel = false;
-
+    
     return main_menu();
 }

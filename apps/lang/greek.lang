@@ -17,7 +17,7 @@
 # Greek language file, translated by:
 # - Tony Motakis
 # - Alexander Spyridakis
-#
+# 
 # Basic translation by Tony Motakis Martch 2005
 # Extended translation and voice UI by Alexander Spyridakis (XavierGr) 2006, 2007, 2008
 <phrase>
@@ -250,23 +250,23 @@
   user: core
   <source>
     *: "PLAY = Yes"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, or top-right = Yes"
-    creativezen*: "SELECT = Yes"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
+    creativezen*: "Select = Yes"
   </source>
   <dest>
     *: "PLAY = Επικύρωση"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU = Επικύρωση"
-    creativezen*: "SELECT = Επικύρωση"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Επικύρωση"
     iriverh100,iriverh120,iriverh300: "NAVI = Επικύρωση"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Επικύρωση"
     mrobe500: "PLAY, POWER, or top-right = Επικύρωση"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Επικύρωση"
+    creativezen*: "Select = Επικύρωση"
   </dest>
   <voice>
     *: ""
@@ -804,13 +804,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Μίξη καναλιών"
+    *: none
+    swcodec: "Μίξη καναλιών"
   </dest>
   <voice>
-    *: "Μίξη καναλιών"
+    *: none
+    swcodec: "Μίξη καναλιών"
   </voice>
 </phrase>
 <phrase>
@@ -818,27 +821,33 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Άμεση ενίσχυση"
+    *: none
+    swcodec: "Άμεση ενίσχυση"
   </dest>
   <voice>
-    *: "Άμεση ενίσχυση"
+    *: none
+    swcodec: "Άμεση ενίσχυση"
   </voice>
 </phrase>
 <phrase>
   id: LANG_CROSSFEED_CROSS_GAIN
   desc: in crossfeed settings
   user: core
-  <source>
-    *: "Cross Gain"
+  <source>  
+    *: none
+    swcodec: "Cross Gain"
   </source>
-  <dest>
-    *: "Ενίσχυση μίξης καναλιών"
+  <dest>  
+    *: none
+    swcodec: "Ενίσχυση μίξης καναλιών"
   </dest>
-  <voice>
-    *: "Ενίσχυση μίξης καναλιών"
+  <voice>  
+    *: none
+    swcodec: "Ενίσχυση μίξης καναλιών"
   </voice>
 </phrase>
 <phrase>
@@ -846,13 +855,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Απόσβεση υψηλής συχνότητας"
+    *: none
+    swcodec: "Απόσβεση υψηλής συχνότητας"
   </dest>
   <voice>
-    *: "Απόσβεση υψηλής συχνότητας"
+    *: none
+    swcodec: "Απόσβεση υψηλής συχνότητας"
   </voice>
 </phrase>
 <phrase>
@@ -860,13 +872,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Αποκοπή υψηλής συχνότητας"
+    *: none
+    swcodec: "Αποκοπή υψηλής συχνότητας"
   </dest>
   <voice>
-    *: "Αποκοπή υψηλής συχνότητας"
+    *: none
+    swcodec: "Αποκοπή υψηλής συχνότητας"
   </voice>
 </phrase>
 <phrase>
@@ -874,13 +889,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Ισοσταθμιστής"
+    *: none
+    swcodec: "Ισοσταθμιστής"
   </dest>
   <voice>
-    *: "Ισοσταθμιστής"
+    *: none
+    swcodec: "Ισοσταθμιστής"
   </voice>
 </phrase>
 <phrase>
@@ -888,13 +906,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Ενεργοποίηση Ισοσταθμιστή"
+    *: none
+    swcodec: "Ενεργοποίηση Ισοσταθμιστή"
   </dest>
   <voice>
-    *: "Ενεργοποίηση Ισοσταθμιστή"
+    *: none
+    swcodec: "Ενεργοποίηση Ισοσταθμιστή"
   </voice>
 </phrase>
 <phrase>
@@ -902,13 +923,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Γραφικός Ισοσταθμιστής"
+    *: none
+    swcodec: "Γραφικός Ισοσταθμιστής"
   </dest>
   <voice>
-    *: "Γραφικός Ισοσταθμιστής"
+    *: none
+    swcodec: "Γραφικός Ισοσταθμιστής"
   </voice>
 </phrase>
 <phrase>
@@ -916,13 +940,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Προ-αποκοπή"
+    *: none
+    swcodec: "Προ-αποκοπή"
   </dest>
   <voice>
-    *: "Προ-αποκοπή"
+    *: none
+    swcodec: "Προ-αποκοπή"
   </voice>
 </phrase>
 <phrase>
@@ -930,13 +957,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Απλές ρυθμίσεις Ισοσταθμιστή"
+    *: none
+    swcodec: "Απλές ρυθμίσεις Ισοσταθμιστή"
   </dest>
   <voice>
-    *: "Απλές ρυθμίσεις Ισοσταθμιστή"
+    *: none
+    swcodec: "Απλές ρυθμίσεις Ισοσταθμιστή"
   </voice>
 </phrase>
 <phrase>
@@ -944,13 +974,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Προηγμένες ρυθμίσεις Ισοσταθμιστή"
+    *: none
+    swcodec: "Προηγμένες ρυθμίσεις Ισοσταθμιστή"
   </dest>
   <voice>
-    *: "Προηγμένες ρυθμίσεις Ισοσταθμιστή"
+    *: none
+    swcodec: "Προηγμένες ρυθμίσεις Ισοσταθμιστή"
   </voice>
 </phrase>
 <phrase>
@@ -958,13 +991,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Αποθήκευση προεπιλογών Ισοσταθμιστή"
+    *: none
+    swcodec: "Αποθήκευση προεπιλογών Ισοσταθμιστή"
   </dest>
   <voice>
-    *: "Αποθήκευση προεπιλογών Ισοσταθμιστή"
+    *: none
+    swcodec: "Αποθήκευση προεπιλογών Ισοσταθμιστή"
   </voice>
 </phrase>
 <phrase>
@@ -972,13 +1008,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Περιήγηση προεπιλογών Ισοσταθμιστή"
+    *: none
+    swcodec: "Περιήγηση προεπιλογών Ισοσταθμιστή"
   </dest>
   <voice>
-    *: "Περιήγηση προεπιλογών Ισοσταθμιστή"
+    *: none
+    swcodec: "Περιήγηση προεπιλογών Ισοσταθμιστή"
   </voice>
 </phrase>
 <phrase>
@@ -986,13 +1025,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Τρόπος επεξεργασίας: %s"
+    *: none
+    swcodec: "Τρόπος επεξεργασίας: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -1000,13 +1042,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz Ενίσχυση ζώνης"
+    *: none
+    swcodec: "%d Hz Ενίσχυση ζώνης"
   </dest>
   <voice>
-    *: "Χέρτζ Ενίσχυση ζώνης"
+    *: none
+    swcodec: "Χέρτζ Ενίσχυση ζώνης"
   </voice>
 </phrase>
 <phrase>
@@ -1014,13 +1059,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Φίλτρο χαμηλού επιπέδου"
+    *: none
+    swcodec: "Φίλτρο χαμηλού επιπέδου"
   </dest>
   <voice>
-    *: "Φίλτρο χαμηλού επιπέδου"
+    *: none
+    swcodec: "Φίλτρο χαμηλού επιπέδου"
   </voice>
 </phrase>
 <phrase>
@@ -1028,13 +1076,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Φίλτρο κορυφής %d"
+    *: none
+    swcodec: "Φίλτρο κορυφής %d"
   </dest>
   <voice>
-    *: "Φίλτρο κορυφής"
+    *: none
+    swcodec: "Φίλτρο κορυφής"
   </voice>
 </phrase>
 <phrase>
@@ -1042,13 +1093,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Φίλτρο υψηλού επιπέδου"
+    *: none
+    swcodec: "Φίλτρο υψηλού επιπέδου"
   </dest>
   <voice>
-    *: "Φίλτρο υψηλού επιπέδου"
+    *: none
+    swcodec: "Φίλτρο υψηλού επιπέδου"
   </voice>
 </phrase>
 <phrase>
@@ -1056,13 +1110,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Συχνότητα αποκοπής"
+    *: none
+    swcodec: "Συχνότητα αποκοπής"
   </dest>
   <voice>
-    *: "Συχνότητα αποκοπής"
+    *: none
+    swcodec: "Συχνότητα αποκοπής"
   </voice>
 </phrase>
 <phrase>
@@ -1070,13 +1127,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Κεντρική συχνότητα"
+    *: none
+    swcodec: "Κεντρική συχνότητα"
   </dest>
   <voice>
-    *: "Κεντρική συχνότητα"
+    *: none
+    swcodec: "Κεντρική συχνότητα"
   </voice>
 </phrase>
 <phrase>
@@ -1084,13 +1144,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Οκτάβα"
+    *: none
+    swcodec: "Οκτάβα"
   </dest>
   <voice>
-    *: "Οκτάβα"
+    *: none
+    swcodec: "Οκτάβα"
   </voice>
 </phrase>
 <phrase>
@@ -1098,13 +1161,19 @@
   desc: in the sound settings and some other menus
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
+    lcd_bitmap: "Dithering"
   </source>
   <dest>
-    *: "Χρωματική αντιπαράθεση"
+    *: none
+    swcodec: "Θορυβοποίηση (Dithering)"
+    lcd_bitmap: "Χρωματική αντιπαράθεση"
   </dest>
   <voice>
-    *: "Χρωματική αντιπαράθεση"
+    *: none
+    swcodec: "Θορυβοποίηση, ντίδερινκγ"
+    lcd_bitmap: "Χρωματική αντιπαράθεση"
   </voice>
 </phrase>
 <phrase>
@@ -1648,13 +1717,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Αποφυγή ψαλιδίσματος (clipping)"
+    *: none
+    swcodec: "Αποφυγή ψαλιδίσματος (clipping)"
   </dest>
   <voice>
-    *: "Αποφυγή ψαλιδίσματος"
+    *: none
+    swcodec: "Αποφυγή ψαλιδίσματος"
   </voice>
 </phrase>
 <phrase>
@@ -1732,13 +1804,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Ένταση ηχητικού σήματος"
+    *: none
+    swcodec: "Ένταση ηχητικού σήματος"
   </dest>
   <voice>
-    *: "Ένταση ηχητικού σήματος"
+    *: none
+    swcodec: "Ένταση ηχητικού σήματος"
   </voice>
 </phrase>
 <phrase>
@@ -1746,13 +1821,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Αδύναμη"
+    *: none
+    swcodec: "Αδύναμη"
   </dest>
   <voice>
-    *: "Αδύναμη"
+    *: none
+    swcodec: "Αδύναμη"
   </voice>
 </phrase>
 <phrase>
@@ -1760,13 +1838,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Μέτρια"
+    *: none
+    swcodec: "Μέτρια"
   </dest>
   <voice>
-    *: "Μέτρια"
+    *: none
+    swcodec: "Μέτρια"
   </voice>
 </phrase>
 <phrase>
@@ -1774,13 +1855,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Δυνατή"
+    *: none
+    swcodec: "Δυνατή"
   </dest>
   <voice>
-    *: "Δυνατή"
+    *: none
+    swcodec: "Δυνατή"
   </voice>
 </phrase>
 <phrase>
@@ -1888,6 +1972,20 @@
   <voice>
     *: none
     headphone_detection: "Παύση και συνέχιση"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -2123,19 +2221,21 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    archosplayer: "Building DB %d found"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (OFF για επιστροφή)"
-    archosplayer: "Δημιουργία ΒΔ βρέθηκαν %d"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (LEFT για επιστροφή)"
-    gogearsa9200: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (REW για επιστροφή)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (PREV για επιστροφή)"
     iriverh100,iriverh120,iriverh300: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (STOP για επιστροφή)"
+    ipod*: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (PREV για επιστροφή)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (LEFT για επιστροφή)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (PREV για επιστροφή)"
+    gogearsa9200: "Δημιουργία βάσεως δεδομένων... βρέθηκαν %d (REW για επιστροφή)"
+    archosplayer: "Δημιουργία ΒΔ βρέθηκαν %d"
   </dest>
   <voice>
     *: "Καταχωρήσεις βρέθηκαν για τη βάση δεδομένων"
@@ -2317,13 +2417,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Περιήγηση γραμματοσειρών"
+    *: none
+    lcd_bitmap: "Περιήγηση γραμματοσειρών"
   </dest>
   <voice>
-    *: "Περιήγηση γραμματοσειρών"
+    *: none
+    lcd_bitmap: "Περιήγηση γραμματοσειρών"
   </voice>
 </phrase>
 <phrase>
@@ -2499,6 +2602,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_NEVER
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_sleep: ""
+  </source>
+  <dest>
+    *: none
+    lcd_sleep: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_sleep: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BRIGHTNESS
   desc: in settings_menu
   user: core
@@ -2568,13 +2688,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Ανάποδα"
+    *: none
+    lcd_bitmap: "Ανάποδα"
   </dest>
   <voice>
-    *: "Ανάποδα"
+    *: none
+    lcd_bitmap: "Ανάποδα"
   </voice>
 </phrase>
 <phrase>
@@ -2582,13 +2705,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Τύπος επιλογέα γραμμής"
+    *: none
+    lcd_bitmap: "Τύπος επιλογέα γραμμής"
   </dest>
   <voice>
-    *: "Τύπος επιλογέα γραμμής"
+    *: none
+    lcd_bitmap: "Τύπος επιλογέα γραμμής"
   </voice>
 </phrase>
 <phrase>
@@ -2596,13 +2722,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Δείκτης"
+    *: none
+    lcd_bitmap: "Δείκτης"
   </dest>
   <voice>
-    *: "Δείκτης"
+    *: none
+    lcd_bitmap: "Δείκτης"
   </voice>
 </phrase>
 <phrase>
@@ -2610,13 +2739,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Μπάρα (Ανεστραμμένη)"
+    *: none
+    lcd_bitmap: "Μπάρα (Ανεστραμμένη)"
   </dest>
   <voice>
-    *: "Μπάρα, Ανεστραμμένη"
+    *: none
+    lcd_bitmap: "Μπάρα, Ανεστραμμένη"
   </voice>
 </phrase>
 <phrase>
@@ -2906,13 +3038,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Κύλιση εκτός ορίων οθόνης"
+    *: none
+    lcd_bitmap: "Κύλιση εκτός ορίων οθόνης"
   </dest>
   <voice>
-    *: "Κύλιση εκτός ορίων οθόνης"
+    *: none
+    lcd_bitmap: "Κύλιση εκτός ορίων οθόνης"
   </voice>
 </phrase>
 <phrase>
@@ -2920,13 +3055,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Μέγεθος προώθησης πίξελ ανά οθόνη"
+    *: none
+    lcd_bitmap: "Μέγεθος προώθησης πίξελ ανά οθόνη"
   </dest>
   <voice>
-    *: "Μέγεθος προώθησης πίξελ ανά οθόνη"
+    *: none
+    lcd_bitmap: "Μέγεθος προώθησης πίξελ ανά οθόνη"
   </voice>
 </phrase>
 <phrase>
@@ -2982,13 +3120,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Μπάρα κατάστασης/κύλισης"
+    *: none
+    lcd_bitmap: "Μπάρα κατάστασης/κύλισης"
   </dest>
   <voice>
-    *: "Μπάρα κατάστασης και κύλισης"
+    *: none
+    lcd_bitmap: "Μπάρα κατάστασης και κύλισης"
   </voice>
 </phrase>
 <phrase>
@@ -2996,13 +3137,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Μπάρα κύλισης"
+    *: none
+    lcd_bitmap: "Μπάρα κύλισης"
   </dest>
   <voice>
-    *: "Μπάρα κύλισης"
+    *: none
+    lcd_bitmap: "Μπάρα κύλισης"
   </voice>
 </phrase>
 <phrase>
@@ -3010,13 +3154,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Μπάρα κατάστασης"
+    *: none
+    lcd_bitmap: "Μπάρα κατάστασης"
   </dest>
   <voice>
-    *: "Μπάρα κατάστασης"
+    *: none
+    lcd_bitmap: "Μπάρα κατάστασης"
   </voice>
 </phrase>
 <phrase>
@@ -3041,13 +3188,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Ενδειξη έντασης"
+    *: none
+    lcd_bitmap: "Ενδειξη έντασης"
   </dest>
   <voice>
-    *: "Ενδειξη έντασης"
+    *: none
+    lcd_bitmap: "Ενδειξη έντασης"
   </voice>
 </phrase>
 <phrase>
@@ -3055,13 +3205,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Ενδειξη μπαταρίας"
+    *: none
+    lcd_bitmap: "Ενδειξη μπαταρίας"
   </dest>
   <voice>
-    *: "Ενδειξη μπαταρίας"
+    *: none
+    lcd_bitmap: "Ενδειξη μπαταρίας"
   </voice>
 </phrase>
 <phrase>
@@ -3069,13 +3222,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Γραφική"
+    *: none
+    lcd_bitmap: "Γραφική"
   </dest>
   <voice>
-    *: "Γραφική"
+    *: none
+    lcd_bitmap: "Γραφική"
   </voice>
 </phrase>
 <phrase>
@@ -3083,13 +3239,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Αριθμητική"
+    *: none
+    lcd_bitmap: "Αριθμητική"
   </dest>
   <voice>
-    *: "Αριθμητική"
+    *: none
+    lcd_bitmap: "Αριθμητική"
   </voice>
 </phrase>
 <phrase>
@@ -3309,13 +3468,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Εβραϊκά (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Εβραϊκά (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Εβραϊκά"
+    *: none
+    lcd_bitmap: "Εβραϊκά"
   </voice>
 </phrase>
 <phrase>
@@ -3337,13 +3499,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Ταϊλανδικά, (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Ταϊλανδικά, (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Ταϊλανδικά,"
+    *: none
+    lcd_bitmap: "Ταϊλανδικά,"
   </voice>
 </phrase>
 <phrase>
@@ -3351,13 +3516,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Αραβικά (CP1256)"
+    *: none
+    lcd_bitmap: "Αραβικά (CP1256)"
   </dest>
   <voice>
-    *: "Αραβικά"
+    *: none
+    lcd_bitmap: "Αραβικά"
   </voice>
 </phrase>
 <phrase>
@@ -3393,13 +3561,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Ιαπωνικά (SJIS)"
+    *: none
+    lcd_bitmap: "Ιαπωνικά (SJIS)"
   </dest>
   <voice>
-    *: "Ιαπωνικά"
+    *: none
+    lcd_bitmap: "Ιαπωνικά"
   </voice>
 </phrase>
 <phrase>
@@ -3407,13 +3578,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Απλ. Κινέζικα (GB2312)"
+    *: none
+    lcd_bitmap: "Απλ. Κινέζικα (GB2312)"
   </dest>
   <voice>
-    *: "Απλοποιημένα Κινέζικα"
+    *: none
+    lcd_bitmap: "Απλοποιημένα Κινέζικα"
   </voice>
 </phrase>
 <phrase>
@@ -3421,13 +3595,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Κορεάτικα (KSX1001)"
+    *: none
+    lcd_bitmap: "Κορεάτικα (KSX1001)"
   </dest>
   <voice>
-    *: "Κορεάτικα"
+    *: none
+    lcd_bitmap: "Κορεάτικα"
   </voice>
 </phrase>
 <phrase>
@@ -3435,13 +3612,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Παραδ. Κινέζικα (BIG5)"
+    *: none
+    lcd_bitmap: "Παραδ. Κινέζικα (BIG5)"
   </dest>
   <voice>
-    *: "Παραδοσιακά Κινέζικα"
+    *: none
+    lcd_bitmap: "Παραδοσιακά Κινέζικα"
   </voice>
 </phrase>
 <phrase>
@@ -3465,17 +3645,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Χρόνος σβησίματος πλήκτρων"
-    sansae200*,sansafuze*: "Χρόνος σβησίματος τροχού"
+    sansafuze*,sansae200*: "Χρόνος σβησίματος τροχού"
   </dest>
   <voice>
     *: none
     button_light: "Χρόνος σβησίματος πλήκτρων"
-    sansae200*,sansafuze*: "Χρόνος σβησίματος τροχού"
+    sansafuze*,sansae200*: "Χρόνος σβησίματος τροχού"
   </voice>
 </phrase>
 <phrase>
@@ -3583,7 +3763,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -3600,7 +3780,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
@@ -3746,23 +3926,23 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Ρύθμιση"
-    gogearsa9200,samsungyh*: "PLAY = Ρύθμιση"
-    iriverh100,iriverh120,iriverh300: "NAVI = Ρύθμιση"
-    mpiohd300: "ENTER = Ρύθμιση"
-    mrobe500: "HEART = Ρύθμιση"
     rtc: "ON = Ρύθμιση"
+    mrobe500: "HEART = Ρύθμιση"
+    iriverh100,iriverh120,iriverh300: "NAVI = Ρύθμιση"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Ρύθμιση"
+    gogearsa9200,samsungyh*: "PLAY = Ρύθμιση"
     vibe500: "OK = Ρύθμιση"
+    mpiohd300: "ENTER = Ρύθμιση"
   </dest>
   <voice>
     *: none
@@ -3774,31 +3954,35 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Ακύρωση"
-    gigabeats,sansafuzeplus: "BACK = Ακύρωση"
-    gogearsa9200: "LEFT = Ακύρωση"
-    iaudiom5,iaudiox5: "RECORD = Ακύρωση"
-    ipod*,mpiohd300,sansac200*: "MENU = Ακύρωση"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Ακύρωση"
-    iriverh100,iriverh120,iriverh300: "STOP = Ακύρωση"
-    mrobe100: "DISPLAY = Ακύρωση"
     rtc: "OFF = Ακύρωση"
-    samsungyh*: "REW = Ακύρωση"
+    mrobe500: "POWER = Ακύρωση"
+    iriverh100,iriverh120,iriverh300: "STOP = Ακύρωση"
+    ipod*,sansac200*,mpiohd300: "MENU = Ακύρωση"
+    iaudiox5,iaudiom5: "RECORD = Ακύρωση"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Ακύρωση"
+    gigabeatfx: "POWER = Ακύρωση"
+    sansafuzeplus: "BACK = Ακύρωση"
+    mrobe100: "DISPLAY = Ακύρωση"
+    gigabeats: "BACK = Ακύρωση"
+    gogearsa9200: "LEFT = Ακύρωση"
     vibe500: "C = Ακύρωση"
+    samsungyh*: "REW = Ακύρωση"
   </dest>
   <voice>
     *: none
@@ -4205,7 +4389,7 @@
   </source>
   <dest>
     *: none
-    alarm: "Οθόνη αφύπνισης"
+    alarm: "Οθόνη αφύπνισης" 
   </dest>
   <voice>
     *: none
@@ -4287,22 +4471,22 @@
   <source>
     *: none
     alarm: "PLAY=Set OFF=Cancel"
-    gigabeats: "SELECT=Set POWER=Cancel"
     ipod*: "SELECT=Set MENU=Cancel"
     iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: none
     alarm: "PLAY=Όρισε ΟFF=Ακύρωση"
-    gigabeats: "SELECT=Όρισε POWER=Ακύρωση"
     ipod*: "SELECT=Όρισε MENU=Ακύρωση"
     iriverh10,iriverh10_5gb: "SELECT=Όρισε PREV=Ακύρωση"
+    gigabeats: "SELECT=Όρισε POWER=Ακύρωση"
+    vibe500: "OK=Όρισε C=Ακύρωση"
     mpiohd300: "ENTER=Όρισε MENU=Ακύρωση"
     sansafuzeplus: "SELECT=Όρισε  BACK=Ακύρωση"
-    vibe500: "OK=Όρισε C=Ακύρωση"
   </dest>
   <voice>
     *: none
@@ -4407,6 +4591,20 @@
   </dest>
   <voice>
     *: "Διατήρηση λίστας προσφάτων σελιδοδεικτών;"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BOOKMARK_SETTINGS_UNIQUE_ONLY
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -5132,6 +5330,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_REGION
   desc: fm tuner region setting
   user: core
@@ -5217,17 +5432,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Τύπος"
+    *: none
+    recording: "Τύπος"
   </dest>
   <voice>
-    *: "Τύπος"
+    *: none
+    recording: "Τύπος"
   </voice>
 </phrase>
 <phrase>
@@ -5270,15 +5488,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "Γουέιβ Πάκ"
+    recording_swcodec: "Γουέιβ Πάκ"
   </voice>
 </phrase>
 <phrase>
@@ -5321,15 +5539,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Ρυθμός μετάδοσης"
+    recording_swcodec: "Ρυθμός μετάδοσης"
   </dest>
   <voice>
     *: none
-    recording: "Ρυθμός μετάδοσης"
+    recording_swcodec: "Ρυθμός μετάδοσης"
   </voice>
 </phrase>
 <phrase>
@@ -5372,15 +5590,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Συχνότητα"
+    recording,play_frequency: "Συχνότητα"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Συχνότητα"
+    recording,play_frequency: "Συχνότητα"
   </voice>
 </phrase>
 <phrase>
@@ -5423,18 +5641,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Εσωτερικό Μικρόφωνο"
     recording: "Μικρόφωνο"
+    iriverh100,iriverh120,iriverh300: "Εσωτερικό Μικρόφωνο"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Εσωτερικό Μικρόφωνο"
     recording: "Μικρόφωνο"
+    iriverh100,iriverh120,iriverh300: "Εσωτερικό Μικρόφωνο"
   </voice>
 </phrase>
 <phrase>
@@ -5460,15 +5678,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Eίσοδος"
+    recording,archosplayer: "Eίσοδος"
   </dest>
   <voice>
     *: none
-    recording: "Eίσοδος"
+    recording,archosplayer: "Eίσοδος"
   </voice>
 </phrase>
 <phrase>
@@ -6312,13 +6530,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "%d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Μπάτ: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Μπάτ: %d%% %dh %dm"
   </dest>
   <voice>
     *: "Επίπεδο μπαταρίας"
@@ -6375,24 +6593,24 @@
   user: core
   <source>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    archosondio*: "Εμ Εμ Σι"
     multivolume: "Έιτς Ντι 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "μάικρο Ες Ντι"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "μάικρο Ες Ντι"
     xduoox3: "μάικρο Ες Ντι 2"
+    archosondio*: "Εμ Εμ Σι"
   </voice>
 </phrase>
 <phrase>
@@ -7295,6 +7513,40 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ONPLAY_OPEN_WITH
   desc: Onplay open with
   user: core
@@ -7673,23 +7925,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "Ο δίσκος είναι γεμάτος. Πατήστε POWER για συνέχεια.."
-    iriverh100,iriverh120,iriverh300: "Ο δίσκος είναι γεμάτος. Πατήστε STOP για συνέχεια."
     recording: "Ο δίσκος είναι γεμάτος. Πατήστε OFF για συνέχεια."
+    iriverh100,iriverh120,iriverh300: "Ο δίσκος είναι γεμάτος. Πατήστε STOP για συνέχεια."
+    iaudiom5,iaudiox5: "Ο δίσκος είναι γεμάτος. Πατήστε POWER για συνέχεια.."
+    sansae200*,sansac200*,vibe500: "Ο δίσκος είναι γεμάτος. Πατήστε PREV για συνέχεια."
     samsungyh*: "Ο δίσκος είναι γεμάτος. Πατήστε LEFT για συνέχεια."
-    sansac200*,sansae200*,vibe500: "Ο δίσκος είναι γεμάτος. Πατήστε PREV για συνέχεια."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,sansac200*,sansae200*: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -7777,21 +8029,23 @@
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF για ακύρωση"
-    gigabeatfx: "POWER για ακύρωση"
-    gigabeats,sansafuzeplus: "BACK για ακύρωση"
-    iaudiom5,iaudiox5: "Long PLAY για ακύρωση"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP για ακύρωση"
     ipod*: "PLAY/PAUSE για ακύρωση"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV για ακύρωση"
-    iriverh100,iriverh120,iriverh300: "STOP για ακύρωση"
+    iaudiox5,iaudiom5: "Long PLAY για ακύρωση"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV για ακύρωση"
+    gigabeats: "BACK για ακύρωση"
+    gigabeatfx: "POWER για ακύρωση"
+    sansafuzeplus: "BACK για ακύρωση"
   </dest>
   <voice>
     *: ""
@@ -8039,6 +8293,48 @@
   </source>
   <dest>
     *: "B"
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_KILOBYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MEGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_GIGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
   </dest>
   <voice>
     *: ""
@@ -9301,7 +9597,7 @@
     *: ""
   </source>
   <dest>
-    *: ""
+     *: ""
   </dest>
   <voice>
     *: "κιούχιτ"
@@ -9343,13 +9639,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Τρόπος επεξεργασίας: %s %s"
+    *: none
+    swcodec: "Τρόπος επεξεργασίας: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -9357,13 +9656,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Αποκοπή"
+    *: none
+    swcodec: "Αποκοπή"
   </dest>
   <voice>
-    *: "Συχνότητα αποκοπής"
+    *: none
+    swcodec: "Συχνότητα αποκοπής"
   </voice>
 </phrase>
 <phrase>
@@ -9371,13 +9673,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </dest>
   <voice>
-    *: "Ενίσχυση"
+    *: none
+    swcodec: "Ενίσχυση"
   </voice>
 </phrase>
 <phrase>
@@ -9385,13 +9690,16 @@
   desc: in wps F2 pressed
   user: core
   <source>
-    *: "Mode:"
+    *: none
+    lcd_bitmap: "Mode:"
   </source>
   <dest>
-    *: "Mode:"
+    *: none
+    lcd_bitmap: "Mode:"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -10054,15 +10362,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Αποκοπή μπάσων"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Αποκοπή μπάσων"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Αποκοπή μπάσων"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Αποκοπή μπάσων"
   </voice>
 </phrase>
 <phrase>
@@ -10071,15 +10379,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Αποκοπή πρίμων"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Αποκοπή πρίμων"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Αποκοπή πρίμων"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Αποκοπή πρίμων"
   </voice>
 </phrase>
 <phrase>
@@ -10122,15 +10430,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Ευαισθησία πινακίδας αφής"
+    gigabeatfx,sansafuzeplus: "Ευαισθησία πινακίδας αφής"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Ευαισθησία πινακίδας αφής"
+    gigabeatfx,sansafuzeplus: "Ευαισθησία πινακίδας αφής"
   </voice>
 </phrase>
 <phrase>
@@ -10273,13 +10581,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Κλικ κουμπιών"
+    *: none
+    swcodec: "Κλικ κουμπιών"
   </dest>
   <voice>
-    *: "Κλικ κουμπιών"
+    *: none
+    swcodec: "Κλικ κουμπιών"
   </voice>
 </phrase>
 <phrase>
@@ -10473,13 +10784,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Επαναλαμβανόμενο κλικ κουμπιών"
+    *: none
+    swcodec: "Επαναλαμβανόμενο κλικ κουμπιών"
   </dest>
   <voice>
-    *: "Επαναλαμβανόμενο κλικ κουμπιών"
+    *: none
+    swcodec: "Επαναλαμβανόμενο κλικ κουμπιών"
   </voice>
 </phrase>
 <phrase>
@@ -10505,15 +10819,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Μονοφωνικό αριστερά + δεξιά"
+    recording_swcodec: "Μονοφωνικό αριστερά + δεξιά"
   </dest>
   <voice>
     *: none
-    recording: "Μονοφωνικό αριστερά συν δεξιά"
+    recording_swcodec: "Μονοφωνικό αριστερά συν δεξιά"
   </voice>
 </phrase>
 <phrase>
@@ -10601,15 +10915,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Μονοφωνικός τρόπος"
+    recording_swcodec: "Μονοφωνικός τρόπος"
   </dest>
   <voice>
     *: none
-    recording: "Μονοφωνικός τρόπος"
+    recording_swcodec: "Μονοφωνικός τρόπος"
   </voice>
 </phrase>
 <phrase>
@@ -10789,7 +11103,7 @@
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -10806,13 +11120,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Αναλογία"
+    *: none
+    swcodec: "Αναλογία"
   </dest>
   <voice>
-    *: "Αναλογία"
+    *: none
+    swcodec: "Αναλογία"
   </voice>
 </phrase>
 <phrase>
@@ -10834,13 +11151,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Επαναφορά πριν τη συνέχιση"
+    *: none
+    swcodec: "Επαναφορά πριν τη συνέχιση"
   </dest>
   <voice>
-    *: "Επαναφορά πριν τη συνέχιση"
+    *: none
+    swcodec: "Επαναφορά πριν τη συνέχιση"
   </voice>
 </phrase>
 <phrase>
@@ -10879,13 +11199,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </source>
   <dest>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </dest>
   <voice>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </voice>
 </phrase>
 <phrase>
@@ -10924,13 +11247,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </source>
   <dest>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </dest>
   <voice>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </voice>
 </phrase>
 <phrase>
@@ -11034,13 +11360,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 σε 1"
+    *: none
+    swcodec: "10 σε 1"
   </voice>
 </phrase>
 <phrase>
@@ -11110,13 +11439,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Προσαρμοσμένο"
+    *: none
+    swcodec: "Προσαρμοσμένο"
   </dest>
   <voice>
-    *: "Προσαρμοσμένο"
+    *: none
+    swcodec: "Προσαρμοσμένο"
   </voice>
 </phrase>
 <phrase>
@@ -11234,13 +11566,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Perceptual Bass Enhancement"
+    *: none
+    swcodec: "Perceptual Bass Enhancement"
   </source>
   <dest>
-    *: "Ενίσχυση μπάσων"
+    *: none
+    swcodec: "Ενίσχυση μπάσων"
   </dest>
   <voice>
-    *: "Ενίσχυση μπάσων"
+    *: none
+    swcodec: "Ενίσχυση μπάσων"
   </voice>
 </phrase>
 <phrase>
@@ -11293,27 +11628,36 @@
   desc: in sound settings
   user: core
   <source>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </source>
   <dest>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </dest>
   <voice>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_CHARGE
+  id: LANG_IBASSO_USB_MODE_CHARGE
   desc: in Settings -> General -> System -> USB Mode: Charge Only
   user: core
   <source>
-    *: "Charge Only"
+    *: none
+    ibassodx50: "Charge Only"
+    ibassodx90: "Charge Only"
   </source>
   <dest>
-    *: "Μόνο φόρτιση"
+    *: none
+    ibassodx50: "Μόνο φόρτιση"
+    ibassodx90: "Μόνο φόρτιση"
   </dest>
   <voice>
-    *: "Μόνο φόρτιση"
+    *: none
+    ibassodx50: "Μόνο φόρτιση"
+    ibassodx90: "Μόνο φόρτιση"
   </voice>
 </phrase>
 <phrase>
@@ -11366,13 +11710,30 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Αυτόματο"
+    *: none
+    swcodec: "Αυτόματο"
   </dest>
   <voice>
-    *: "Αυτόματο"
+    *: none
+    swcodec: "Αυτόματο"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11411,13 +11772,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </dest>
   <voice>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </voice>
 </phrase>
 <phrase>
@@ -11453,13 +11817,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 σε 1"
+    *: none
+    swcodec: "6 σε 1"
   </voice>
 </phrase>
 <phrase>
@@ -11546,13 +11913,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </dest>
   <voice>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </voice>
 </phrase>
 <phrase>
@@ -11608,13 +11978,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </dest>
   <voice>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </voice>
 </phrase>
 <phrase>
@@ -11712,13 +12085,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 σε 1"
+    *: none
+    swcodec: "2 σε 1"
   </voice>
 </phrase>
 <phrase>
@@ -11753,6 +12129,20 @@
   <voice>
     *: none
     touchscreen: "Calibrate"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11791,13 +12181,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </source>
   <dest>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </dest>
   <voice>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </voice>
 </phrase>
 <phrase>
@@ -11805,13 +12198,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </dest>
   <voice>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </voice>
 </phrase>
 <phrase>
@@ -11829,17 +12225,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE
+  id: LANG_IBASSO_USB_MODE
   desc: in Settings -> General -> System -> USB Mode
   user: core
   <source>
-    *: "USB Mode"
+    *: none
+    ibassodx50: "USB Mode"
+    ibassodx90: "USB Mode"
   </source>
   <dest>
-    *: "Λειτουργία USB"
+    *: none
+    ibassodx50: "Λειτουργία USB"
+    ibassodx90: "Λειτουργία USB"
   </dest>
   <voice>
-    *: "Λειτουργία USB"
+    *: none
+    ibassodx50: "Λειτουργία USB"
+    ibassodx90: "Λειτουργία USB"
   </voice>
 </phrase>
 <phrase>
@@ -11848,15 +12250,15 @@
   user: core
   <source>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </source>
   <dest>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </dest>
   <voice>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </voice>
 </phrase>
 <phrase>
@@ -11864,13 +12266,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Συμπιεστής"
+    *: none
+    swcodec: "Συμπιεστής"
   </dest>
   <voice>
-    *: "Συμπιεστής"
+    *: none
+    swcodec: "Συμπιεστής"
   </voice>
 </phrase>
 <phrase>
@@ -11968,13 +12373,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Πλάτος γραμμής κίλησης"
+    *: none
+    lcd_bitmap: "Πλάτος γραμμής κίλησης"
   </dest>
   <voice>
-    *: "Πλάτος γραμμής κίλησης"
+    *: none
+    lcd_bitmap: "Πλάτος γραμμής κίλησης"
   </voice>
 </phrase>
 <phrase>
@@ -11999,13 +12407,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Χρόνος κυκλοφορίας"
+    *: none
+    swcodec: "Χρόνος κυκλοφορίας"
   </dest>
   <voice>
-    *: "Χρόνος κυκλοφορίας"
+    *: none
+    swcodec: "Χρόνος κυκλοφορίας"
   </voice>
 </phrase>
 <phrase>
@@ -12069,13 +12480,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </dest>
   <voice>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </voice>
 </phrase>
 <phrase>
@@ -12125,13 +12539,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 σε 1"
+    *: none
+    swcodec: "4 σε 1"
   </voice>
 </phrase>
 <phrase>
@@ -12139,13 +12556,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Εμφάνιση βάσης"
+    *: none
+    lcd_bitmap: "Εμφάνιση βάσης"
   </dest>
   <voice>
-    *: "Εμφάνιση βάσης"
+    *: none
+    lcd_bitmap: "Εμφάνιση βάσης"
   </voice>
 </phrase>
 <phrase>
@@ -12170,13 +12590,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </dest>
   <voice>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </voice>
 </phrase>
 <phrase>
@@ -12215,13 +12638,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </source>
   <dest>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </dest>
   <voice>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </voice>
 </phrase>
 <phrase>
@@ -12325,13 +12751,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Ταχύτητα"
+    *: none
+    swcodec: "Ταχύτητα"
   </dest>
   <voice>
-    *: "Ταχύτητα"
+    *: none
+    swcodec: "Ταχύτητα"
   </voice>
 </phrase>
 <phrase>
@@ -12356,27 +12785,36 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </source>
   <dest>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </dest>
   <voice>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_MASS_STORAGE
+  id: LANG_IBASSO_USB_MODE_MASS_STORAGE
   desc: in Settings -> General -> System -> USB Mode: Mass Storage
   user: core
   <source>
-    *: "Mass Storage"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </source>
   <dest>
-    *: "Εσωτερική μνήμη"
+    *: none
+    ibassodx50: "Εσωτερική μνήμη"
+    ibassodx90: "Εσωτερική μνήμη"
   </dest>
   <voice>
-    *: "Εσωτερική μνήμη"
+    *: none
+    ibassodx50: "Εσωτερική μνήμη"
+    ibassodx90: "Εσωτερική μνήμη"
   </voice>
 </phrase>
 <phrase>
@@ -12522,13 +12960,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </source>
   <dest>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </dest>
   <voice>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </voice>
 </phrase>
 <phrase>
@@ -12646,13 +13087,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -12660,13 +13104,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Όριο"
+    *: none
+    swcodec: "Όριο"
   </dest>
   <voice>
-    *: "Όριο"
+    *: none
+    swcodec: "Όριο"
   </voice>
 </phrase>
 <phrase>
@@ -12674,13 +13121,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </dest>
   <voice>
-    *: "Simple"
+    *: none
+    swcodec: "Simple"
   </voice>
 </phrase>
 <phrase>
@@ -12798,13 +13248,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </dest>
   <voice>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </voice>
 </phrase>
 <phrase>
@@ -12827,15 +13280,32 @@
   user: core
   <source>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </source>
   <dest>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </dest>
   <voice>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -12891,13 +13361,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Θέση γραμμής κίλησης"
+    *: none
+    lcd_bitmap: "Θέση γραμμής κίλησης"
   </dest>
   <voice>
-    *: "Θέση γραμμής κίλησης"
+    *: none
+    lcd_bitmap: "Θέση γραμμής κίλησης"
   </voice>
 </phrase>
 <phrase>
@@ -12963,17 +13436,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_ADB
+  id: LANG_IBASSO_USB_MODE_ADB
   desc: in Settings -> General -> System -> USB Mode: Android Debug Bridge
   user: core
   <source>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </source>
   <dest>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </dest>
   <voice>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </voice>
 </phrase>
 <phrase>
@@ -13216,7 +13695,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_NEVER
+  id: LANG__NEVER
   desc: in lcd settings
   user: core
   <source>
@@ -13248,13 +13727,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Rebuild cache"
+    *: none
+    lcd_bitmap: "Rebuild cache"
   </source>
   <dest>
-    *: "Ανάκτηση προσορινής μνήμης"
+    *: none
+    lcd_bitmap: "Ανάκτηση προσορινής μνήμης"
   </dest>
   <voice>
-    *: "Ανάκτηση προσορινής μνήμης"
+    *: none
+    lcd_bitmap: "Ανάκτηση προσορινής μνήμης"
   </voice>
 </phrase>
 <phrase>
@@ -13290,13 +13772,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 6: 40 moves / 120 min"
+    *: none
+    lcd_bitmap: "Level 6: 40 moves / 120 min"
   </source>
   <dest>
-    *: "Επίπεδο 6: 40 κινήσεις / 120 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 6: 40 κινήσεις / 120 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 6: 40 κινήσεις ανά 120 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 6: 40 κινήσεις ανά 120 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -13346,13 +13831,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Arghs Per Food"
+    *: none
+    lcd_bitmap: "Arghs Per Food"
   </source>
   <dest>
-    *: "Arghs ανά φαγητό"
+    *: none
+    lcd_bitmap: "Arghs ανά φαγητό"
   </dest>
   <voice>
-    *: "Arghs ανά φαγητό"
+    *: none
+    lcd_bitmap: "Arghs ανά φαγητό"
   </voice>
 </phrase>
 <phrase>
@@ -13374,15 +13862,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Use sound setting"
+    *: none
+    swcodec: "Use sound setting"
     lowmem: none
   </source>
   <dest>
-    *: "Χρήση ρύθμισης ήχου"
+    *: none
+    swcodec: "Χρήση ρύθμισης ήχου"
     lowmem: none
   </dest>
   <voice>
-    *: "Χρήση ρύθμισης ήχου"
+    *: none
+    swcodec: "Χρήση ρύθμισης ήχου"
     lowmem: none
   </voice>
 </phrase>
@@ -13419,13 +13910,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 5: 40 moves / 60 min"
+    *: none
+    lcd_bitmap: "Level 5: 40 moves / 60 min"
   </source>
   <dest>
-    *: "Επίπεδο 5: 40 κινήσεις / 60 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 5: 40 κινήσεις / 60 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 5: 40 κινήσεις ανά 60 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 5: 40 κινήσεις ανά 60 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -13433,13 +13927,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the bottom"
+    *: none
+    lcd_bitmap: "Show at the bottom"
   </source>
   <dest>
-    *: "Προβολή στο τέλος"
+    *: none
+    lcd_bitmap: "Προβολή στο τέλος"
   </dest>
   <voice>
-    *: "Προβολή στο τέλος"
+    *: none
+    lcd_bitmap: "Προβολή στο τέλος"
   </voice>
 </phrase>
 <phrase>
@@ -13447,13 +13944,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Direct"
+    *: none
+    lcd_bitmap: "Direct"
   </source>
   <dest>
-    *: "Άμεσο"
+    *: none
+    lcd_bitmap: "Άμεσο"
   </dest>
   <voice>
-    *: "Άμεσο"
+    *: none
+    lcd_bitmap: "Άμεσο"
   </voice>
 </phrase>
 <phrase>
@@ -13475,13 +13975,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Growth Per Food"
+    *: none
+    lcd_bitmap: "Worm Growth Per Food"
   </source>
   <dest>
-    *: "Ανάπτυξη Σκουλικιού ανά Φαγητό"
+    *: none
+    lcd_bitmap: "Ανάπτυξη Σκουλικιού ανά Φαγητό"
   </dest>
   <voice>
-    *: "Ανάπτυξη Σκουλικιού ανά Φαγητό"
+    *: none
+    lcd_bitmap: "Ανάπτυξη Σκουλικιού ανά Φαγητό"
   </voice>
 </phrase>
 <phrase>
@@ -13489,13 +13992,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Ordered"
+    *: none
+    lcd_bitmap: "Ordered"
   </source>
   <dest>
-    *: "Ταξινομήθηκαν"
+    *: none
+    lcd_bitmap: "Ταξινομήθηκαν"
   </dest>
   <voice>
-    *: "Ταξινομήθηκαν"
+    *: none
+    lcd_bitmap: "Ταξινομήθηκαν"
   </voice>
 </phrase>
 <phrase>
@@ -13503,13 +14009,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Speed"
+    *: none
+    lcd_bitmap: "Worm Speed"
   </source>
   <dest>
-    *: "Ταχύτητα Σκουλικιού"
+    *: none
+    lcd_bitmap: "Ταχύτητα Σκουλικιού"
   </dest>
   <voice>
-    *: "Ταχύτητα Σκουλικιού"
+    *: none
+    lcd_bitmap: "Ταχύτητα Σκουλικιού"
   </voice>
 </phrase>
 <phrase>
@@ -13517,13 +14026,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Diffusion"
+    *: none
+    lcd_bitmap: "Diffusion"
   </source>
   <dest>
-    *: "Διάχυση"
+    *: none
+    lcd_bitmap: "Διάχυση"
   </dest>
   <voice>
-    *: "Διάχυση"
+    *: none
+    lcd_bitmap: "Διάχυση"
   </voice>
 </phrase>
 <phrase>
@@ -13531,15 +14043,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Clear all resumes"
+    *: none
+    swcodec: "Clear all resumes"
     lowmem: none
   </source>
   <dest>
-    *: "Εκκαθάριση όλων των συνεχίσεων"
+    *: none
+    swcodec: "Εκκαθάριση όλων των συνεχίσεων"
     lowmem: none
   </dest>
   <voice>
-    *: "Εκκαθάριση όλων των συνεχίσεων"
+    *: none
+    swcodec: "Εκκαθάριση όλων των συνεχίσεων"
     lowmem: none
   </voice>
 </phrase>
@@ -13576,13 +14091,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Games"
+    *: none
+    lcd_bitmap: "Games"
   </source>
   <dest>
-    *: "Παιχνίδια"
+    *: none
+    lcd_bitmap: "Παιχνίδια"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -13590,13 +14108,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Play Wormlet!"
+    *: none
+    lcd_bitmap: "Play Wormlet!"
   </source>
   <dest>
-    *: "Παίξτε σκουλίκι!"
+    *: none
+    lcd_bitmap: "Παίξτε σκουλίκι!"
   </dest>
   <voice>
-    *: "Παίξτε σκουλίκι!"
+    *: none
+    lcd_bitmap: "Παίξτε σκουλίκι!"
   </voice>
 </phrase>
 <phrase>
@@ -13618,13 +14139,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Toggle Slideshow Mode"
+    *: none
+    lcd_bitmap: "Toggle Slideshow Mode"
   </source>
   <dest>
-    *: "Εναλλαγή λειτουργίας παρουσίασης"
+    *: none
+    lcd_bitmap: "Εναλλαγή λειτουργίας παρουσίασης"
   </dest>
   <voice>
-    *: "Εναλλαγή λειτουργίας παρουσίασης"
+    *: none
+    lcd_bitmap: "Εναλλαγή λειτουργίας παρουσίασης"
   </voice>
 </phrase>
 <phrase>
@@ -13660,13 +14184,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "New Game"
+    *: none
+    lcd_bitmap: "New Game"
   </source>
   <dest>
-    *: "Νέο Παιχνίδι"
+    *: none
+    lcd_bitmap: "Νέο Παιχνίδι"
   </dest>
   <voice>
-    *: "Νέο Παιχνίδι"
+    *: none
+    lcd_bitmap: "Νέο Παιχνίδι"
   </voice>
 </phrase>
 <phrase>
@@ -13674,13 +14201,19 @@
   desc: in the mpegplayer and pictureflow settings menus
   user: core
   <source>
-    *: "Display FPS"
+    *: none
+    swcodec: "Display FPS"
+    lcd_bitmap: "Display FPS"
   </source>
   <dest>
-    *: "Εμφάνιση FPS"
+    *: none
+    swcodec: "Εμφάνιση FPS"
+    lcd_bitmap: "Εμφάνιση FPS"
   </dest>
   <voice>
-    *: "Εμφάνιση FPS"
+    *: none
+    swcodec: "Εμφάνιση FPS"
+    lcd_bitmap: "Εμφάνιση FPS"
   </voice>
 </phrase>
 <phrase>
@@ -13688,15 +14221,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Backlight brightness"
+    *: none
+    swcodec: "Backlight brightness"
     lowmem: none
   </source>
   <dest>
-    *: "Φωτεινότητα οθόνης"
+    *: none
+    swcodec: "Φωτεινότητα οθόνης"
     lowmem: none
   </dest>
   <voice>
-    *: "Φωτεινότητα οθόνης"
+    *: none
+    swcodec: "Φωτεινότητα οθόνης"
     lowmem: none
   </voice>
 </phrase>
@@ -13733,13 +14269,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Έλεγχος!"
+    *: none
+    lcd_bitmap: "Έλεγχος!"
   </voice>
 </phrase>
 <phrase>
@@ -13747,13 +14286,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "No album art found"
+    *: none
+    lcd_bitmap: "No album art found"
   </source>
   <dest>
-    *: "Δεν βρέθηκε album art"
+    *: none
+    lcd_bitmap: "Δεν βρέθηκε album art"
   </dest>
   <voice>
-    *: "Δεν βρέθηκε album art"
+    *: none
+    lcd_bitmap: "Δεν βρέθηκε album art"
   </voice>
 </phrase>
 <phrase>
@@ -13761,13 +14303,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "πλευρά του βασιλιά"
+    *: none
+    lcd_bitmap: "πλευρά του βασιλιά"
   </voice>
 </phrase>
 <phrase>
@@ -13775,15 +14320,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Surround"
+    *: none
+    swcodec: "Surround"
     lowmem: none
   </source>
   <dest>
-    *: "Περιβάλλον"
+    *: none
+    swcodec: "Περιβάλλον"
     lowmem: none
   </dest>
   <voice>
-    *: "Περιβάλλον"
+    *: none
+    swcodec: "Περιβάλλον"
     lowmem: none
   </voice>
 </phrase>
@@ -13792,13 +14340,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the top"
+    *: none
+    lcd_bitmap: "Show at the top"
   </source>
   <dest>
-    *: "Προβολή στην κορυφή"
+    *: none
+    lcd_bitmap: "Προβολή στην κορυφή"
   </dest>
   <voice>
-    *: "Προβολή στην κορυφή"
+    *: none
+    lcd_bitmap: "Προβολή στην κορυφή"
   </voice>
 </phrase>
 <phrase>
@@ -13820,15 +14371,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume Options"
+    *: none
+    swcodec: "Resume Options"
     lowmem: none
   </source>
   <dest>
-    *: "Επιλογές Συνέχισης"
+    *: none
+    swcodec: "Επιλογές Συνέχισης"
     lowmem: none
   </dest>
   <voice>
-    *: "Επιλογές Συνέχισης"
+    *: none
+    swcodec: "Επιλογές Συνέχισης"
     lowmem: none
   </voice>
 </phrase>
@@ -13837,13 +14391,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Always On"
+    *: none
+    lcd_bitmap: "Always On"
   </source>
   <dest>
-    *: "Πάντα Ενεργοποιημένο"
+    *: none
+    lcd_bitmap: "Πάντα Ενεργοποιημένο"
   </dest>
   <voice>
-    *: "Πάντα Ενεργοποιημένο"
+    *: none
+    lcd_bitmap: "Πάντα Ενεργοποιημένο"
   </voice>
 </phrase>
 <phrase>
@@ -13851,13 +14408,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 7: 40 moves / 240 min"
+    *: none
+    lcd_bitmap: "Level 7: 40 moves / 240 min"
   </source>
   <dest>
-    *: "Επίπεδο 7: 40 κινήσεις / 240 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 7: 40 κινήσεις / 240 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 7: 40 κινήσεις ανά 240 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 7: 40 κινήσεις ανά 240 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -13865,13 +14425,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 9: 1 move / 60 min"
+    *: none
+    lcd_bitmap: "Level 9: 1 move / 60 min"
   </source>
   <dest>
-    *: "Επίπεδο 9: 1 κίνηση / 60 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 9: 1 κίνηση / 60 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 9: 1 κίνηση ανά 60 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 9: 1 κίνηση ανά 60 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -13879,13 +14442,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Cache will be rebuilt on next restart"
+    *: none
+    lcd_bitmap: "Cache will be rebuilt on next restart"
   </source>
   <dest>
-    *: "Η προσορινή μνήμη θ'ανακτιθεί στην επόμενη επανεκίνηση"
+    *: none
+    lcd_bitmap: "Η προσορινή μνήμη θ'ανακτιθεί στην επόμενη επανεκίνηση"
   </dest>
   <voice>
-    *: "Η προσορινή μνήμη θ'ανακτιθεί στην επόμενη επανεκίνηση"
+    *: none
+    lcd_bitmap: "Η προσορινή μνήμη θ'ανακτιθεί στην επόμενη επανεκίνηση"
   </voice>
 </phrase>
 <phrase>
@@ -13907,13 +14473,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Number of slides"
+    *: none
+    lcd_bitmap: "Number of slides"
   </source>
   <dest>
-    *: "Αριθμός διαφανιών"
+    *: none
+    lcd_bitmap: "Αριθμός διαφανιών"
   </dest>
   <voice>
-    *: "Αριθμός διαφανιών"
+    *: none
+    lcd_bitmap: "Αριθμός διαφανιών"
   </voice>
 </phrase>
 <phrase>
@@ -13921,15 +14490,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume automatically"
+    *: none
+    swcodec: "Resume automatically"
     lowmem: none
   </source>
   <dest>
-    *: "Συνέχιση αυτόματα"
+    *: none
+    swcodec: "Συνέχιση αυτόματα"
     lowmem: none
   </dest>
   <voice>
-    *: "Συνέχιση αυτόματα"
+    *: none
+    swcodec: "Συνέχιση αυτόματα"
     lowmem: none
   </voice>
 </phrase>
@@ -13938,15 +14510,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Play from beginning"
+    *: none
+    swcodec: "Play from beginning"
     lowmem: none
   </source>
   <dest>
-    *: "Αναπαραγωγή απ'την αρχή"
+    *: none
+    swcodec: "Αναπαραγωγή απ'την αρχή"
     lowmem: none
   </dest>
   <voice>
-    *: "Αναπαραγωγή απ'την αρχή"
+    *: none
+    swcodec: "Αναπαραγωγή απ'την αρχή"
     lowmem: none
   </voice>
 </phrase>
@@ -13955,13 +14530,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Food Size"
+    *: none
+    lcd_bitmap: "Food Size"
   </source>
   <dest>
-    *: "Μέγεθως Φαγητού"
+    *: none
+    lcd_bitmap: "Μέγεθως Φαγητού"
   </dest>
   <voice>
-    *: "Μέγεθως Φαγητού"
+    *: none
+    lcd_bitmap: "Μέγεθως Φαγητού"
   </voice>
 </phrase>
 <phrase>
@@ -13969,13 +14547,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 1: 60 moves / 5 min"
+    *: none
+    lcd_bitmap: "Level 1: 60 moves / 5 min"
   </source>
   <dest>
-    *: "Επίπεδο 1: 60 κινήσεις / 5 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 1: 60 κινήσεις / 5 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 1: 60 κινήσεις ανά 5 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 1: 60 κινήσεις ανά 5 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -13983,13 +14564,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "Error parsing game !"
+    *: none
+    lcd_bitmap: "Error parsing game !"
   </source>
   <dest>
-    *: "Σφάλμα στην ανάλυση του παιχνιδιού !"
+    *: none
+    lcd_bitmap: "Σφάλμα στην ανάλυση του παιχνιδιού !"
   </dest>
   <voice>
-    *: "Σφάλμα στην ανάλυση του παιχνιδιού !"
+    *: none
+    lcd_bitmap: "Σφάλμα στην ανάλυση του παιχνιδιού !"
   </voice>
 </phrase>
 <phrase>
@@ -13997,13 +14581,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "No games found !"
+    *: none
+    lcd_bitmap: "No games found !"
   </source>
   <dest>
-    *: "Δεν βρέθηκαν παιχνίδια !"
+    *: none
+    lcd_bitmap: "Δεν βρέθηκαν παιχνίδια !"
   </dest>
   <voice>
-    *: "Δεν βρέθηκαν παιχνίδια!"
+    *: none
+    lcd_bitmap: "Δεν βρέθηκαν παιχνίδια!"
   </voice>
 </phrase>
 <phrase>
@@ -14039,13 +14626,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 3: 60 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 3: 60 moves / 30 min"
   </source>
   <dest>
-    *: "Επίπεδο 3: 60 κινήσεις / 30 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 3: 60 κινήσεις / 30 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 3: 60 κινήσεις ανά 30 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 3: 60 κινήσεις ανά 30 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -14053,13 +14643,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Saving position"
+    *: none
+    lcd_bitmap: "Saving position"
   </source>
   <dest>
-    *: "Αποθήκευση θέσης"
+    *: none
+    lcd_bitmap: "Αποθήκευση θέσης"
   </dest>
   <voice>
-    *: "Αποθήκευση θέσης"
+    *: none
+    lcd_bitmap: "Αποθήκευση θέσης"
   </voice>
 </phrase>
 <phrase>
@@ -14067,13 +14660,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Show album title"
+    *: none
+    lcd_bitmap: "Show album title"
   </source>
   <dest>
-    *: "Προβολή τίτλου άλμπουμ"
+    *: none
+    lcd_bitmap: "Προβολή τίτλου άλμπουμ"
   </dest>
   <voice>
-    *: "Προβολή τίτλου άλμπουμ"
+    *: none
+    lcd_bitmap: "Προβολή τίτλου άλμπουμ"
   </voice>
 </phrase>
 <phrase>
@@ -14081,13 +14677,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 2: 60 moves / 15 min"
+    *: none
+    lcd_bitmap: "Level 2: 60 moves / 15 min"
   </source>
   <dest>
-    *: "Επίπεδο 2: 60 κινήσεις / 15 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 2: 60 κινήσεις / 15 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 2: 60 κινήσεις ανά 15 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 2: 60 κινήσεις ανά 15 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -14095,15 +14694,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "CPU Boost"
+    *: none
+    swcodec: "CPU Boost"
     lowmem: none
   </source>
   <dest>
-    *: "Ενύσχιση CPU"
+    *: none
+    swcodec: "Ενύσχιση CPU"
     lowmem: none
   </dest>
   <voice>
-    *: "Ενύσχιση CPU"
+    *: none
+    swcodec: "Ενύσχιση CPU"
     lowmem: none
   </voice>
 </phrase>
@@ -14112,15 +14714,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Skip frames"
+    *: none
+    swcodec: "Skip frames"
     lowmem: none
   </source>
   <dest>
-    *: "Παράβλεψη πλαισίων"
+    *: none
+    swcodec: "Παράβλεψη πλαισίων"
     lowmem: none
   </dest>
   <voice>
-    *: "Παράβλεψη πλαισίων"
+    *: none
+    swcodec: "Παράβλεψη πλαισίων"
     lowmem: none
   </voice>
 </phrase>
@@ -14143,13 +14748,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 8: 1 move / 15 min"
+    *: none
+    lcd_bitmap: "Level 8: 1 move / 15 min"
   </source>
   <dest>
-    *: "Επίπεδο 8: 1 κίνηση / 15 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 8: 1 κίνηση / 15 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 8: 1 κίνηση ανά 15 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 8: 1 κίνηση ανά 15 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -14199,13 +14807,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Added to playlist"
+    *: none
+    lcd_bitmap: "Added to playlist"
   </source>
   <dest>
-    *: "Προστέθηκε στη λίστα αναπαραγωγής"
+    *: none
+    lcd_bitmap: "Προστέθηκε στη λίστα αναπαραγωγής"
   </dest>
   <voice>
-    *: "Προστέθηκε στη λίστα αναπαραγωγής"
+    *: none
+    lcd_bitmap: "Προστέθηκε στη λίστα αναπαραγωγής"
   </voice>
 </phrase>
 <phrase>
@@ -14213,15 +14824,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Use common setting"
+    *: none
+    swcodec: "Use common setting"
     lowmem: none
   </source>
   <dest>
-    *: "Χρήση κινής ρύθμισης"
+    *: none
+    swcodec: "Χρήση κινής ρύθμισης"
     lowmem: none
   </dest>
   <voice>
-    *: "Use common setting"
+    *: none
+    swcodec: "Use common setting"
     lowmem: none
   </voice>
 </phrase>
@@ -14247,15 +14861,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Set resume time (min)"
+    *: none
+    swcodec: "Set resume time (min)"
     lowmem: none
   </source>
   <dest>
-    *: "Ρύθμιση χρόνου συνέχισης (λεπτά)"
+    *: none
+    swcodec: "Ρύθμιση χρόνου συνέχισης (λεπτά)"
     lowmem: none
   </dest>
   <voice>
-    *: "Ρύθμιση χρόνου συνέχισης"
+    *: none
+    swcodec: "Ρύθμιση χρόνου συνέχισης"
     lowmem: none
   </voice>
 </phrase>
@@ -14292,13 +14909,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Argh Size"
+    *: none
+    lcd_bitmap: "Argh Size"
   </source>
   <dest>
-    *: "Μέγεθος Argh"
+    *: none
+    lcd_bitmap: "Μέγεθος Argh"
   </dest>
   <voice>
-    *: "Μέγεθος Argh"
+    *: none
+    lcd_bitmap: "Μέγεθος Argh"
   </voice>
 </phrase>
 <phrase>
@@ -14306,13 +14926,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Ύπος"
+    *: none
+    lcd_bitmap: "Ύπος"
   </voice>
 </phrase>
 <phrase>
@@ -14320,13 +14943,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Save Game"
+    *: none
+    lcd_bitmap: "Save Game"
   </source>
   <dest>
-    *: "Αποθήκευση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Αποθήκευση Παιχνιδιού"
   </dest>
   <voice>
-    *: "Αποθήκευση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Αποθήκευση Παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -14334,13 +14960,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Βασιλιάς"
+    *: none
+    lcd_bitmap: "Βασιλιάς"
   </voice>
 </phrase>
 <phrase>
@@ -14390,13 +15019,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Resize Covers"
+    *: none
+    lcd_bitmap: "Resize Covers"
   </source>
   <dest>
-    *: "Αλλαγή Μεγέθους Εξωφύλων"
+    *: none
+    lcd_bitmap: "Αλλαγή Μεγέθους Εξωφύλων"
   </dest>
   <voice>
-    *: "Αλλαγή Μεγέθους Εξωφύλων"
+    *: none
+    lcd_bitmap: "Αλλαγή Μεγέθους Εξωφύλων"
   </voice>
 </phrase>
 <phrase>
@@ -14404,13 +15036,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "GNU Σκάκι"
+    *: none
+    lcd_bitmap: "GNU Σκάκι"
   </voice>
 </phrase>
 <phrase>
@@ -14432,13 +15067,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Zoom"
+    *: none
+    lcd_bitmap: "Zoom"
   </source>
   <dest>
-    *: "Ζουμ"
+    *: none
+    lcd_bitmap: "Ζουμ"
   </dest>
   <voice>
-    *: "Ζουμ"
+    *: none
+    lcd_bitmap: "Ζουμ"
   </voice>
 </phrase>
 <phrase>
@@ -14474,13 +15112,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Playlist Cleared"
+    *: none
+    lcd_bitmap: "Playlist Cleared"
   </source>
   <dest>
-    *: "Η λίστα αναπαραγωγής Άδειασε"
+    *: none
+    lcd_bitmap: "Η λίστα αναπαραγωγής Άδειασε"
   </dest>
   <voice>
-    *: "Η λίστα αναπαραγωγής Άδειασε"
+    *: none
+    lcd_bitmap: "Η λίστα αναπαραγωγής Άδειασε"
   </voice>
 </phrase>
 <phrase>
@@ -14488,13 +15129,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Spacing"
+    *: none
+    lcd_bitmap: "Spacing"
   </source>
   <dest>
-    *: "Διαχωρισμός"
+    *: none
+    lcd_bitmap: "Διαχωρισμός"
   </dest>
   <voice>
-    *: "Διαχωρισμός"
+    *: none
+    lcd_bitmap: "Διαχωρισμός"
   </voice>
 </phrase>
 <phrase>
@@ -14502,13 +15146,16 @@
   desc: spoken only, for announcing chess piece unmarking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Μη επιλεγμένο"
+    *: none
+    lcd_bitmap: "Μη επιλεγμένο"
   </voice>
 </phrase>
 <phrase>
@@ -14530,13 +15177,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restore Game"
+    *: none
+    lcd_bitmap: "Restore Game"
   </source>
   <dest>
-    *: "Επαναφορά Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Επαναφορά Παιχνιδιού"
   </dest>
   <voice>
-    *: "Επαναφορά Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Επαναφορά Παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -14544,13 +15194,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Αξιωματικός"
+    *: none
+    lcd_bitmap: "Αξιωματικός"
   </voice>
 </phrase>
 <phrase>
@@ -14572,13 +15225,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Grayscale"
+    *: none
+    lcd_bitmap: "Grayscale"
   </source>
   <dest>
-    *: "Στάση του γκρι"
+    *: none
+    lcd_bitmap: "Στάση του γκρι"
   </dest>
   <voice>
-    *: "Στάση του γκρι"
+    *: none
+    lcd_bitmap: "Στάση του γκρι"
   </voice>
 </phrase>
 <phrase>
@@ -14586,13 +15242,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Βασίλισσα"
+    *: none
+    lcd_bitmap: "Βασίλισσα"
   </voice>
 </phrase>
 <phrase>
@@ -14617,15 +15276,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Play Mode"
+    *: none
+    swcodec: "Play Mode"
     lowmem: none
   </source>
   <dest>
-    *: "Τρόπος Αναπαραγωγής"
+    *: none
+    swcodec: "Τρόπος Αναπαραγωγής"
     lowmem: none
   </dest>
   <voice>
-    *: "Τρόπος Αναπαραγωγής"
+    *: none
+    swcodec: "Τρόπος Αναπαραγωγής"
     lowmem: none
   </voice>
 </phrase>
@@ -14634,13 +15296,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restart Game"
+    *: none
+    lcd_bitmap: "Restart Game"
   </source>
   <dest>
-    *: "Επανεκίνηση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Επανεκίνηση Παιχνιδιού"
   </dest>
   <voice>
-    *: "Επανεκίνηση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Επανεκίνηση Παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -14662,13 +15327,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Loading position"
+    *: none
+    lcd_bitmap: "Loading position"
   </source>
   <dest>
-    *: "Φόρτωση θέσης"
+    *: none
+    lcd_bitmap: "Φόρτωση θέσης"
   </dest>
   <voice>
-    *: "Φόρτωση θέσης"
+    *: none
+    lcd_bitmap: "Φόρτωση θέσης"
   </voice>
 </phrase>
 <phrase>
@@ -14690,13 +15358,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Player"
+    *: none
+    lcd_bitmap: "Player"
   </voice>
 </phrase>
 <phrase>
@@ -14721,13 +15392,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Πιόνι"
+    *: none
+    lcd_bitmap: "Πιόνι"
   </voice>
 </phrase>
 <phrase>
@@ -14735,13 +15409,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Hide album title"
+    *: none
+    lcd_bitmap: "Hide album title"
   </source>
   <dest>
-    *: "Απόκρυψη τίτλου άλμπουμ"
+    *: none
+    lcd_bitmap: "Απόκρυψη τίτλου άλμπουμ"
   </dest>
   <voice>
-    *: "Απόκρυψη τίτλου άλμπουμ"
+    *: none
+    lcd_bitmap: "Απόκρυψη τίτλου άλμπουμ"
   </voice>
 </phrase>
 <phrase>
@@ -14749,15 +15426,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Tone controls"
+    *: none
+    swcodec: "Tone controls"
     lowmem: none
   </source>
   <dest>
-    *: "Έλεγχος τόνου"
+    *: none
+    swcodec: "Έλεγχος τόνου"
     lowmem: none
   </dest>
   <voice>
-    *: "Έλεγχος τόνου"
+    *: none
+    swcodec: "Έλεγχος τόνου"
     lowmem: none
   </voice>
 </phrase>
@@ -14766,13 +15446,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Centre margin"
+    *: none
+    lcd_bitmap: "Centre margin"
   </source>
   <dest>
-    *: "Κεντρικό περιθώριο"
+    *: none
+    lcd_bitmap: "Κεντρικό περιθώριο"
   </dest>
   <voice>
-    *: "Κεντρικό περιθώριο"
+    *: none
+    lcd_bitmap: "Κεντρικό περιθώριο"
   </voice>
 </phrase>
 <phrase>
@@ -14780,13 +15463,16 @@
   desc: spoken only, for announcing chess piece marking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Επιλεγμένο"
+    *: none
+    lcd_bitmap: "Επιλεγμένο"
   </voice>
 </phrase>
 <phrase>
@@ -14794,13 +15480,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 10: 1 move / 600 min"
+    *: none
+    lcd_bitmap: "Level 10: 1 move / 600 min"
   </source>
   <dest>
-    *: "Επίπεδο 10: 1 κίνηση / 600 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 10: 1 κίνηση / 600 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 10: 1 κίνηση ανά 600 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 10: 1 κίνηση ανά 600 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -14808,13 +15497,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the beginning of the game"
+    *: none
+    lcd_bitmap: "At the beginning of the game"
   </source>
   <dest>
-    *: "Στην αρχή του παιχνιδιού"
+    *: none
+    lcd_bitmap: "Στην αρχή του παιχνιδιού"
   </dest>
   <voice>
-    *: "Στην αρχή του παιχνιδιού"
+    *: none
+    lcd_bitmap: "Στην αρχή του παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -14836,13 +15528,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Checkmate!"
+    *: none
+    lcd_bitmap: "Checkmate!"
   </source>
   <dest>
-    *: "Ματ!"
+    *: none
+    lcd_bitmap: "Ματ!"
   </dest>
   <voice>
-    *: "Ματ!"
+    *: none
+    lcd_bitmap: "Ματ!"
   </voice>
 </phrase>
 <phrase>
@@ -14850,13 +15545,16 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Go to WPS"
+    *: none
+    lcd_bitmap: "Go to WPS"
   </source>
   <dest>
-    *: "Μετάβαση στην οθόνη κατά την αναπαραγωγή"
+    *: none
+    lcd_bitmap: "Μετάβαση στην οθόνη κατά την αναπαραγωγή"
   </dest>
   <voice>
-    *: "Μετάβαση στην οθόνη κατά την αναπαραγωγή"
+    *: none
+    lcd_bitmap: "Μετάβαση στην οθόνη κατά την αναπαραγωγή"
   </voice>
 </phrase>
 <phrase>
@@ -14864,13 +15562,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Resume Game"
+    *: none
+    lcd_bitmap: "Resume Game"
   </source>
   <dest>
-    *: "Συνέχιση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Συνέχιση Παιχνιδιού"
   </dest>
   <voice>
-    *: "Συνέχιση Παιχνιδιού"
+    *: none
+    lcd_bitmap: "Συνέχιση Παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -14878,13 +15579,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Via Track list"
+    *: none
+    lcd_bitmap: "Via Track list"
   </source>
   <dest>
-    *: "Μέσω Λίστας κομματιών"
+    *: none
+    lcd_bitmap: "Μέσω Λίστας κομματιών"
   </dest>
   <voice>
-    *: "Μέσω Λίστας κομματιών"
+    *: none
+    lcd_bitmap: "Μέσω Λίστας κομματιών"
   </voice>
 </phrase>
 <phrase>
@@ -14892,15 +15596,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Single"
+    *: none
+    swcodec: "Single"
     lowmem: none
   </source>
   <dest>
-    *: "Μονό"
+    *: none
+    swcodec: "Μονό"
     lowmem: none
   </dest>
   <voice>
-    *: "Μονό"
+    *: none
+    swcodec: "Μονό"
     lowmem: none
   </voice>
 </phrase>
@@ -14909,15 +15616,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Interpolation"
+    *: none
+    swcodec: "Interpolation"
     lowmem: none
   </source>
   <dest>
-    *: "Παρεμβολή"
+    *: none
+    swcodec: "Παρεμβολή"
     lowmem: none
   </dest>
   <voice>
-    *: "Παρεμβολή"
+    *: none
+    swcodec: "Παρεμβολή"
     lowmem: none
   </voice>
 </phrase>
@@ -14926,13 +15636,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Number of Worms"
+    *: none
+    lcd_bitmap: "Number of Worms"
   </source>
   <dest>
-    *: "Αριθμός Σκουλικιών"
+    *: none
+    lcd_bitmap: "Αριθμός Σκουλικιών"
   </dest>
   <voice>
-    *: "Αριθμός Σκουλικιών"
+    *: none
+    lcd_bitmap: "Αριθμός Σκουλικιών"
   </voice>
 </phrase>
 <phrase>
@@ -14940,13 +15653,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Slideshow Time"
+    *: none
+    lcd_bitmap: "Slideshow Time"
   </source>
   <dest>
-    *: "Χρόνος προβολής διαφάνιας"
+    *: none
+    lcd_bitmap: "Χρόνος προβολής διαφάνιας"
   </dest>
   <voice>
-    *: "Χρόνος προβολής διαφάνιας"
+    *: none
+    lcd_bitmap: "Χρόνος προβολής διαφάνιας"
   </voice>
 </phrase>
 <phrase>
@@ -14954,13 +15670,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "View Played Games"
+    *: none
+    lcd_bitmap: "View Played Games"
   </source>
   <dest>
-    *: "Προβολή παιχνιδιών που έχουν παιχτεί"
+    *: none
+    lcd_bitmap: "Προβολή παιχνιδιών που έχουν παιχτεί"
   </dest>
   <voice>
-    *: "Προβολή παιχνιδιών που έχουν παιχτεί"
+    *: none
+    lcd_bitmap: "Προβολή παιχνιδιών που έχουν παιχτεί"
   </voice>
 </phrase>
 <phrase>
@@ -14982,15 +15701,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu"
+    *: none
+    swcodec: "Start menu"
     lowmem: none
   </source>
   <dest>
-    *: "Μενού έναρξης"
+    *: none
+    swcodec: "Μενού έναρξης"
     lowmem: none
   </dest>
   <voice>
-    *: "Μενού έναρξης"
+    *: none
+    swcodec: "Μενού έναρξης"
     lowmem: none
   </voice>
 </phrase>
@@ -15013,13 +15735,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Άσπρο"
+    *: none
+    lcd_bitmap: "Άσπρο"
   </voice>
 </phrase>
 <phrase>
@@ -15027,13 +15752,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "WPS Integration"
+    *: none
+    lcd_bitmap: "WPS Integration"
   </source>
   <dest>
-    *: "Ενσωμάτωση οθόνης κατά την αναπαραγωγή"
+    *: none
+    lcd_bitmap: "Ενσωμάτωση οθόνης κατά την αναπαραγωγή"
   </dest>
   <voice>
-    *: "Ενσωμάτωση οθόνης κατά την αναπαραγωγή"
+    *: none
+    lcd_bitmap: "Ενσωμάτωση οθόνης κατά την αναπαραγωγή"
   </voice>
 </phrase>
 <phrase>
@@ -15058,13 +15786,16 @@
   desc: cannot restart playback splash in imageviewer
   user: core
   <source>
-    *: "Cannot restart playback"
+    *: none
+    lcd_bitmap: "Cannot restart playback"
   </source>
   <dest>
-    *: "Αδύνατη η επανεκίνηση της αναπαραγωγής"
+    *: none
+    lcd_bitmap: "Αδύνατη η επανεκίνηση της αναπαραγωγής"
   </dest>
   <voice>
-    *: "Αδύνατη η επανεκίνηση της αναπαραγωγής"
+    *: none
+    lcd_bitmap: "Αδύνατη η επανεκίνηση της αναπαραγωγής"
   </voice>
 </phrase>
 <phrase>
@@ -15072,13 +15803,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "πλευρά της βασίλισσας"
+    *: none
+    lcd_bitmap: "πλευρά της βασίλισσας"
   </voice>
 </phrase>
 <phrase>
@@ -15086,13 +15820,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Πύργος"
+    *: none
+    lcd_bitmap: "Πύργος"
   </voice>
 </phrase>
 <phrase>
@@ -15159,13 +15896,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Illegal move!"
+    *: none
+    lcd_bitmap: "Illegal move!"
   </source>
   <dest>
-    *: "Λάθως κίνηση!"
+    *: none
+    lcd_bitmap: "Λάθως κίνηση!"
   </dest>
   <voice>
-    *: "Λάθως κίνηση!"
+    *: none
+    lcd_bitmap: "Λάθως κίνηση!"
   </voice>
 </phrase>
 <phrase>
@@ -15173,13 +15913,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Thinking..."
+    *: none
+    lcd_bitmap: "Thinking..."
   </source>
   <dest>
-    *: "Σκέφτεται..."
+    *: none
+    lcd_bitmap: "Σκέφτεται..."
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -15201,15 +15944,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Audio Options"
+    *: none
+    swcodec: "Audio Options"
     lowmem: none
   </source>
   <dest>
-    *: "Επιλογές Ήχου"
+    *: none
+    swcodec: "Επιλογές Ήχου"
     lowmem: none
   </dest>
   <voice>
-    *: "Επιλογές Ήχου"
+    *: none
+    swcodec: "Επιλογές Ήχου"
     lowmem: none
   </voice>
 </phrase>
@@ -15218,15 +15964,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Limit FPS"
+    *: none
+    swcodec: "Limit FPS"
     lowmem: none
   </source>
   <dest>
-    *: "Όριο FPS"
+    *: none
+    swcodec: "Όριο FPS"
     lowmem: none
   </dest>
   <voice>
-    *: "Όριο FPS"
+    *: none
+    swcodec: "Όριο FPS"
     lowmem: none
   </voice>
 </phrase>
@@ -15249,13 +15998,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Error writing config"
+    *: none
+    lcd_bitmap: "Error writing config"
   </source>
   <dest>
-    *: "Σφάλμα κατά τη δημιουργία παραμέτρων"
+    *: none
+    lcd_bitmap: "Σφάλμα κατά τη δημιουργία παραμέτρων"
   </dest>
   <voice>
-    *: "Σφάλμα κατά τη δημιουργία παραμέτρων"
+    *: none
+    lcd_bitmap: "Σφάλμα κατά τη δημιουργία παραμέτρων"
   </voice>
 </phrase>
 <phrase>
@@ -15305,13 +16057,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the end of the game"
+    *: none
+    lcd_bitmap: "At the end of the game"
   </source>
   <dest>
-    *: "Στο τέλος του παιχνιδιού"
+    *: none
+    lcd_bitmap: "Στο τέλος του παιχνιδιού"
   </dest>
   <voice>
-    *: "Στο τέλος του παιχνιδιού"
+    *: none
+    lcd_bitmap: "Στο τέλος του παιχνιδιού"
   </voice>
 </phrase>
 <phrase>
@@ -15347,15 +16102,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Panning Separation"
+    *: none
+    swcodec: "Panning Separation"
     lowmem: none
   </source>
   <dest>
-    *: "Διαχωρισμός διαγράμμισης"
+    *: none
+    swcodec: "Διαχωρισμός διαγράμμισης"
     lowmem: none
   </dest>
   <voice>
-    *: "Διαχωρισμός διαγράμμισης"
+    *: none
+    swcodec: "Διαχωρισμός διαγράμμισης"
     lowmem: none
   </voice>
 </phrase>
@@ -15364,13 +16122,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "κάστρο"
+    *: none
+    lcd_bitmap: "κάστρο"
   </voice>
 </phrase>
 <phrase>
@@ -15378,15 +16139,18 @@
   desc: in mpegplayer settings
   user: core
   <source>
-    *: "Unavailable"
+    *: none
+    swcodec: "Unavailable"
     lowmem: none
   </source>
   <dest>
-    *: "Μη διαθέσιμο"
+    *: none
+    swcodec: "Μη διαθέσιμο"
     lowmem: none
   </dest>
   <voice>
-    *: "Μη διαθέσιμο"
+    *: none
+    swcodec: "Μη διαθέσιμο"
     lowmem: none
   </voice>
 </phrase>
@@ -15437,13 +16201,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 4: 40 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 4: 40 moves / 30 min"
   </source>
   <dest>
-    *: "Επίπεδο 4: 40 κινήσεις / 30 λ"
+    *: none
+    lcd_bitmap: "Επίπεδο 4: 40 κινήσεις / 30 λ"
   </dest>
   <voice>
-    *: "Επίπεδο 4: 40 κινήσεις ανά 30 λεπτά"
+    *: none
+    lcd_bitmap: "Επίπεδο 4: 40 κινήσεις ανά 30 λεπτά"
   </voice>
 </phrase>
 <phrase>
@@ -15451,15 +16218,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Reverberation"
+    *: none
+    swcodec: "Reverberation"
     lowmem: none
   </source>
   <dest>
-    *: "Αντήχηση"
+    *: none
+    swcodec: "Αντήχηση"
     lowmem: none
   </dest>
   <voice>
-    *: "Αντήχηση"
+    *: none
+    swcodec: "Αντήχηση"
     lowmem: none
   </voice>
 </phrase>
@@ -15468,15 +16238,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu if not completed"
+    *: none
+    swcodec: "Start menu if not completed"
     lowmem: none
   </source>
   <dest>
-    *: "Μενού έναρξης αν δεν ολοκληρώθηκε"
+    *: none
+    swcodec: "Μενού έναρξης αν δεν ολοκληρώθηκε"
     lowmem: none
   </dest>
   <voice>
-    *: "Μενού έναρξης αν δεν ολοκληρώθηκε"
+    *: none
+    swcodec: "Μενού έναρξης αν δεν ολοκληρώθηκε"
     lowmem: none
   </voice>
 </phrase>
@@ -15485,13 +16258,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Select Other Game"
+    *: none
+    lcd_bitmap: "Select Other Game"
   </source>
   <dest>
-    *: "Επιλέξτε Άλλο Παιχνίδι"
+    *: none
+    lcd_bitmap: "Επιλέξτε Άλλο Παιχνίδι"
   </dest>
   <voice>
-    *: "Επιλέξτε Άλλο Παιχνίδι"
+    *: none
+    lcd_bitmap: "Επιλέξτε Άλλο Παιχνίδι"
   </voice>
 </phrase>
 <phrase>
@@ -15499,13 +16275,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "συλαμβάνει"
+    *: none
+    lcd_bitmap: "συλαμβάνει"
   </voice>
 </phrase>
 <phrase>
@@ -15541,13 +16320,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Μαύρο"
+    *: none
+    lcd_bitmap: "Μαύρο"
   </voice>
 </phrase>
 <phrase>
@@ -15555,26 +16337,15 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Clear playlist"
+    *: none
+    lcd_bitmap: "Clear playlist"
   </source>
   <dest>
-    *: "Καθαρισμός λίστας αναπαραγωγής"
+    *: none
+    lcd_bitmap: "Καθαρισμός λίστας αναπαραγωγής"
   </dest>
   <voice>
-    *: "Καθαρισμός λίστας αναπαραγωγής"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_LANG_NAME
-  desc: Spoken name of the language
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Ελληνικά"
+    *: none
+    lcd_bitmap: "Καθαρισμός λίστας αναπαραγωγής"
   </voice>
 </phrase>

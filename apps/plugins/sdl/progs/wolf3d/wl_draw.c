@@ -251,7 +251,7 @@ boolean TransformTile (int tx, int ty, short *dispx, short *dispheight)
 ====================
 */
 
-int CalcHeight(void)
+int CalcHeight()
 {
     fixed z = FixedMul(xintercept - viewx, viewcos)
         - FixedMul(yintercept - viewy, viewsin);
@@ -275,7 +275,7 @@ byte *postsource;
 int postx;
 int postwidth;
 
-void ScalePost(void)
+void ScalePost()
 {
     int ywcount, yoffs, yw, yd, yendoffs;
     byte col;
@@ -1091,7 +1091,7 @@ void CalcTics (void)
 
 //==========================================================================
 
-void AsmRefresh(void)
+void AsmRefresh()
 {
     int32_t xstep,ystep;
     longword xpartial,ypartial;
@@ -1517,7 +1517,7 @@ void WallRefresh (void)
     ScalePost ();                   // no more optimization on last post
 }
 
-void CalcViewVariables(void)
+void CalcViewVariables()
 {
     viewangle = player->angle;
     midangle = viewangle*(FINEANGLES/ANGLES);

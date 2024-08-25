@@ -1,3 +1,4 @@
+$Id$
                __________               __   ___.
      Open      \______   \ ____   ____ |  | _\_ |__   _______  ___
      Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /
@@ -5,20 +6,17 @@
      Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \
                        \/            \/     \/    \/            \/
 
+
 Rockbox Maintainers
 ===================
 
 This file lists the people maintaining the different parts of the
 Rockbox project.
 
-Note that there as of 2024-07, this file is pretty out of date.  There
-are only a handful of active contributors that try to maintain
-everything, and the best way to reach them is via the #rockbox IRC
-channel on libera.chat.
-
 Syntax used:
 
   :area name: maintainer 1,maintainer 2
+
 
 Port maintainers
 ----------------
@@ -27,13 +25,16 @@ NOTE: Port maintainers are simply developers who use a particular
 target on a daily basis and are therefore able to report issues
 specific to that target.
 
-:AGPTek Rocker: Solomon Peachy
+:Archos Player/Studio: Jens Arnold
+:Archos Recorder v1: Jens Arnold
+:Archos Recorder 8MB:
+:Archos FM Recorder: Linus Nielsen Feltzing
+:Archos Recorder v2: Linus Nielsen Feltzing
+:Archos Ondio FM: Jens Arnold, Marianne Arnold
+:Archos Ondio SP:
 :Creative Zen Vision:
 :Creative Zen Vision:M: Maurus Cuelenaere
 :Creative Zen Vision:M 60GB:
-:Eros Q / K (hosted): Solomon Peachy
-:Eros Q / K (native): Dana Conrad
-:FiiO M3K: Aidan MacDonald
 :Iriver H100/H115: Linus Nielsen Feltzing
 :Iriver H120/H140: Miika Pekkarinen, Linus Nielsen Feltzing
 :Iriver H320/H340: Peter D'Hoye
@@ -43,7 +44,6 @@ specific to that target.
 :Ipod 4th Gen Grayscale:
 :Ipod Color/Photo: Dave Chapman
 :Ipod Video:
-:Ipod Classic:
 :Ipod Mini 1st Gen:
 :Ipod Mini 2nd Gen: Jens Arnold
 :Ipod Nano 1st Gen: Thom Johansen
@@ -54,15 +54,12 @@ specific to that target.
 :Iaudio M5: Marianne Arnold
 :Iaudio M3: Jens Arnold
 :Onda VX747: Maurus Cuelenaere
-:Shanling Q1: Aidan MacDonald
 :Sansa E200: Michael Sevakis, Barry Wardell
 :Sansa E200R:
 :Sansa C200:
 :Toshiba Gigabeat F: Michael Sevakis
 :Toshiba Gigabeat X:
-:xDuoo X3:Solomon Peachy
-:xDuoo X3ii:Solomon Peachy
-:xDuoo X20:Solomon Peachy
+
 
 Core code (low-level)
 ---------------------
@@ -71,7 +68,7 @@ Core code (low-level)
 :LCD drivers: Michael Sevakis, Jens Arnold
 :Button drivers: Michael Sevakis
 :Rolo:
-:ATA driver: Solomon Peachy
+:ATA driver: Michael Sevakis
 :MMC driver: Jens Arnold
 :SD driver: Barry Wardell
 :FAT driver: Linus Nielsen Feltzing
@@ -86,31 +83,33 @@ Core code (Mid-level)
 :DSP: Michael Sevakis,Thom Johansen
 :LCD/Graphics API: Jens Arnold
 :Buffering engine: Nicolas Pennequin
-:Playback engine: Michael Sevakis, Nicolas Pennequin
-:PCM playback API: Michael Sevakis
-:PCM recording API: Michael Sevakis
+:Playback engine (HWCODEC):
+:Playback engine (SWCODEC): Michael Sevakis, Nicolas Pennequin
+:PCM playback API (SWCODEC): Michael Sevakis
+:PCM recording API (SWCODEC): Michael Sevakis
+:Recording API (HWCODEC):
 :Fonts and Unicode:
 :Replaygain: Magnus Holmgren
 :Profiling:
 :Screens API and GUI widgets: Kévin Ferrare
 :Settings API: Jonathan Gordon
-:Language API: Solomon Peachy
+:Language API:
 :Menu API: Jonathan Gordon
-:Button actions: William Wilgus, Jonathan Gordon
+:Button actions: Jonathan Gordon
 
 
 Core code (high-level)
 ----------------------
 
 :Bookmarks: Magnus Holmgren
-:Cuesheet support: William Wilgus, Nicolas Pennequin
+:Cuesheet support: Nicolas Pennequin
 :Database: Miika Pekkarinen
 :Playlists:
 :Radio UI:
 :Recording UI: Peter D'Hoye
-:Voice UI: Solomon Peachy
+:Voice UI: Stéphane Doyon
 :WPS: Nicolas Pennequin
-:User interface: William Wilgus, Jonathan Gordon
+:User interface: Jonathan Gordon
 
 
 Metadata parsing
@@ -120,7 +119,7 @@ NOTE: Format-specific container format parsing is maintained by the
 relevant codec maintainer.
 
 :General:
-:ID3v1/v2: William Wilgus, Linus Nielsen Feltzing
+:ID3v1/v2: Linus Nielsen Feltzing
 :Vorbis Comments:
 :APEv2:
 
@@ -130,10 +129,18 @@ Translations
 NOTE: Any languages without a dedicated maintainer are maintained by
 the person(s) named next to "General".
 
-:General: Solomon Peachy
-:German: Wilfried Winkler
+:General: Jonas Häggqvist
 :Italian: Alessio Lenzi
-:Polish: Adam Rak
+:Dutch: Peter D'Hoye
+:Swedish: Magnus Holmgren
+:Danish: Jonas Häggqvist
+:German: Marianne Arnold
+:Finnish: Jani Kinnunen
+:Français: Mustapha Senhaji
+:Hebrew: Tomer Shalev
+:Tagalog: Melba Sitjar
+:Español: Francisco Vila
+
 
 Plugins
 -------
@@ -144,11 +151,8 @@ Plugins
 :XLCD library:
 
 :alpine_cdc:
-:announce_status: William Wilgus
-:amaze: Solomon Peachy
 :battery_bench:
 :blackjack:
-:boomshine: William Wilgus
 :bounce: Daniel Stenberg
 :brickmania:
 :bubbles:
@@ -162,7 +166,6 @@ Plugins
 :credits:
 :cube:
 :demystify: Kévin Ferrare
-:db_commit: William Wilgus
 :dice:
 :dict:
 :disktidy:
@@ -181,24 +184,18 @@ Plugins
 :jewels: Antoine Cellerier
 :jpeg:
 :keybox: Nils Wallménius
-:keyremap: William Wilgus
-:lastfm_scrobbler: William Wilgus
 :logo:
-:lua: William Wilgus
 :mandelbrot: Jens Arnold
 :maze:
 :mazezam:
 :metronome:
 :midi2wav: Stepan Moskovchenko (though it's deprecated in favor of midiplay)
 :midiplay: Stepan Moskovchenko
-:mikmod: Solomon Peachy
 :minesweeper: Antoine Cellerier
 :mosaique:
 :mp3_encoder:
 :mpegplayer: Michael Sevakis
-:multiboot_select:
 :nim:
-:open_plugins: William Wilgus
 :oscilloscope: Jens Arnold
 :pacbox: Dave Chapman
 :plasma:
@@ -211,7 +208,6 @@ Plugins
 :rockboy:
 :rocklife: Antoine Cellerier
 :rockpaint: Antoine Cellerier
-:sdl: Franklin Wei
 :search: Linus Nielsen Feltzing
 :sliding_puzzle:
 :snake:
@@ -243,7 +239,6 @@ Plugins
 :wavview: Peter D'Hoye
 :wormlet:
 :xobox: Antoine Cellerier
-:xrick: Solomon Peachy
 :zxbox:
 
 
@@ -262,7 +257,6 @@ Codecs (Playback)
 :Musepack: Thom Johansen
 :NSF:
 :Ogg Vorbis:
-:Opus:
 :Shorten:
 :SID:
 :SPC: Michael Sevakis
@@ -285,36 +279,34 @@ Codecs (Recording)
 Bootloaders
 -----------
 
-:HibyOS: Solomon Peachy
 :Iriver H1xx/H3xx: Miika Pekkarinen, Linus Nielsen Feltzing
 :Iaudio X5/M5: Linus Nielsen Feltzing
 :PortalPlayer (not ipod): Barry Wardell
 :Ipod: Dave Chapman
 :Gigabeat F/X: Barry Wardell
-:xDuoo X3: Solomon Peachy
-:x1000: Aidan MacDonald
+
 
 Build Tools
 -----------
 
-:configure script and general build system: Solomon Peachy
+:configure script and build system: Daniel Stenberg
+:genlang: Daniel Stenberg
 :bdf2bmp:
 :bmp2rb: Daniel Stenberg
-:checkwps: Solomon Peachy
+:checkwps: Nicolas Pennequin
 :mkboot: Linus Nielsen Feltzing
 :database:
 :rdf2binary:
 :convbdf: Daniel Stenberg
 :codepages:
+:player_unifont:
 :uclpack:
 :wavtrim: Linus Nielsen Feltzing
-:voicefont: Solomon Peachy
+:voicefont:
 :scramble: Linus Nielsen Feltzing
 :descramble: Linus Nielsen Feltzing
 :mkinfo: Daniel Stenberg
-:voice.pl: Solomon Peachy
-:genlang: Solomon Peachy
-:updatelang: Solomon Peachy
+:voice perl script: Jonas Häggqvist
 
 Install Tools
 -------------
@@ -324,10 +316,11 @@ Install Tools
 :sansapatcher: Dave Chapman, Barry Wardell
 :e200rpatcher: Dave Chapman
 
+
 Manual
 ------
 
-:Manual build system: Solomon Peachy
+:Manual build system:
 [What to put here - maintainers for chapters?]
 
 Utilities
@@ -339,4 +332,4 @@ Utilities
 Web site stuff
 --------------
 
-:web site, buildserver, general scripts, and server-side admin:Solomon Peachy
+:web site scripts and server-side admin:Daniel Stenberg,Björn Stenberg,Linus Nielsen Feltzing

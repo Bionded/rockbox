@@ -19,6 +19,7 @@
  *
  **************************************************************************/
 #include "plugin.h"
+#include "lib/playergfx.h"
 #include "lib/pluginlib_actions.h"
 
 /* this set the context to use with PLA */
@@ -29,6 +30,7 @@ static const struct button_mapping *plugin_contexts[]
 #endif
                         };
 
+#ifdef HAVE_LCD_BITMAP
 #define DISPLAY_WIDTH LCD_WIDTH
 #define DISPLAY_HEIGHT LCD_HEIGHT
 #define RAND_SCALE 5
@@ -47,29 +49,30 @@ static const struct button_mapping *plugin_contexts[]
 #define LOGO_WIDTH BMPWIDTH_rockboxlogo
 #define LOGO_HEIGHT BMPHEIGHT_rockboxlogo
 
+#else /* !LCD_BITMAP */
+#define DISPLAY_WIDTH 55
+#define DISPLAY_HEIGHT 14
+#define RAND_SCALE 2
+#define LOGO_WIDTH 16
+#define LOGO_HEIGHT 7
+#define LOGO rockbox16x7
+const unsigned char rockbox16x7[] = {
+    0x47, 0x18, 0xa6, 0xd8, 0x66, 0xde, 0xb7, 0x9b,
+    0x76, 0xdb, 0x26, 0xdb, 0x66, 0xde,
+};
+#endif /* !LCD_BITMAP */
+
 /* We use PLA */
 #define LP_QUIT              PLA_EXIT
+#define LP_QUIT2             PLA_CANCEL
 #define LP_DEC_X             PLA_LEFT
 #define LP_DEC_X_REPEAT      PLA_LEFT_REPEAT
 #define LP_INC_X             PLA_RIGHT
 #define LP_INC_X_REPEAT      PLA_RIGHT_REPEAT
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define LP_QUIT2             PLA_UP
-#define LP_DEC_Y             PLA_SCROLL_BACK
-#define LP_DEC_Y_REPEAT      PLA_SCROLL_BACK_REPEAT
-#define LP_INC_Y             PLA_SCROLL_FWD
-#define LP_INC_Y_REPEAT      PLA_SCROLL_FWD_REPEAT
-#else
-#define LP_QUIT2             PLA_CANCEL
 #define LP_DEC_Y             PLA_DOWN
 #define LP_DEC_Y_REPEAT      PLA_DOWN_REPEAT
 #define LP_INC_Y             PLA_UP
 #define LP_INC_Y_REPEAT      PLA_UP_REPEAT
-#endif
-
 
 enum plugin_status plugin_start(const void* parameter) {
     int button;
@@ -78,14 +81,25 @@ enum plugin_status plugin_start(const void* parameter) {
     int y = (DISPLAY_HEIGHT / 2) - (LOGO_HEIGHT / 2);
     int dx;
     int dy;
+#ifdef HAVE_LCD_CHARCELLS
+    int cpos = -1;
+    int old_cpos = -1;
+#endif
 
     (void)parameter;
 
+#ifdef HAVE_LCD_CHARCELLS
+    if (!pgfx_init(4, 2)) {
+        rb->splash(HZ*2, "Old LCD :(");
+        return PLUGIN_OK;
+    }
+#endif
     rb->srand(*rb->current_tick);
     dx = rb->rand()%(2*RAND_SCALE+1) - RAND_SCALE;
     dy = rb->rand()%(2*RAND_SCALE+1) - RAND_SCALE;
 
     while (1) {
+#ifdef HAVE_LCD_BITMAP
         rb->lcd_clear_display();
         rb->lcd_bitmap((const fb_data*)LOGO, x, y, LOGO_WIDTH, LOGO_HEIGHT);
 #ifdef REMOTE_LOGO
@@ -95,6 +109,12 @@ enum plugin_status plugin_start(const void* parameter) {
                 (y * (REMOTE_HEIGHT - REMOTE_LOGO_HEIGHT)) / (DISPLAY_HEIGHT - LOGO_HEIGHT),
                 REMOTE_LOGO_WIDTH, REMOTE_LOGO_HEIGHT);
 #endif
+#else
+        pgfx_clear_display();
+        pgfx_mono_bitmap(LOGO, x % 5, y, LOGO_WIDTH, LOGO_HEIGHT);
+        cpos = x / 5;
+#endif
+
         x += dx;
         if (x < 0) {
             dx = -dx;
@@ -115,9 +135,18 @@ enum plugin_status plugin_start(const void* parameter) {
             y = DISPLAY_HEIGHT - LOGO_HEIGHT;
         }
 
+#ifdef HAVE_LCD_BITMAP
         rb->lcd_update();
 #ifdef REMOTE_LOGO
         rb->lcd_remote_update();
+#endif
+#else
+        if (cpos != old_cpos) {
+            rb->lcd_clear_display();
+            pgfx_display(cpos, 0);
+            old_cpos = cpos;
+        }
+        pgfx_update();
 #endif
         rb->sleep(HZ/timer);
 
@@ -130,6 +159,9 @@ enum plugin_status plugin_start(const void* parameter) {
         switch (button) {
             case LP_QUIT:
             case LP_QUIT2:
+#ifdef HAVE_LCD_CHARCELLS
+                pgfx_release();
+#endif
                 return PLUGIN_OK;
             case LP_DEC_X:
             case LP_DEC_X_REPEAT:
@@ -152,6 +184,9 @@ enum plugin_status plugin_start(const void* parameter) {
                 
             default:
                 if (rb->default_event_handler(button) == SYS_USB_CONNECTED) {
+#ifdef HAVE_LCD_CHARCELLS
+                    pgfx_release();
+#endif
                     return PLUGIN_USB_CONNECTED;
                 }
                 break;

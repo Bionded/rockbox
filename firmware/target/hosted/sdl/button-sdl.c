@@ -22,6 +22,7 @@
 #include <math.h>
 #include <stdlib.h>         /* EXIT_SUCCESS */
 #include "sim-ui-defines.h"
+#include "lcd-charcells.h"
 #ifdef HAVE_REMOTE_LCD
 #include "lcd-remote.h"
 #endif
@@ -65,6 +66,8 @@ int remote_type(void)
     return _remote_type;
 }
 #endif
+
+struct event_queue button_queue;
 
 static int btn = 0;    /* Hopefully keeps track of currently pressed keys... */
 
@@ -295,7 +298,7 @@ void gui_message_loop(void)
     do {
         /* wait for the next event */
         if(SDL_WaitEvent(&event) == 0) {
-            printf("SDL_WaitEvent(): %s\n", SDL_GetError());
+            printf("SDL_WaitEvent() error\n");
             return; /* error, out of here */
         }
 
@@ -320,27 +323,7 @@ static void button_event(int key, bool pressed)
             sim_trigger_usb(usb_connected);
         }
         return;
-#ifdef HAVE_HEADPHONE_DETECTION
-    case SDLK_p:
-        if (!pressed)
-        {
-            static bool hp_connected = true;
-            hp_connected = !hp_connected;
-            sim_trigger_hp(hp_connected);
-        }
-        return;
-#endif
-#ifdef HAVE_LINEOUT_DETECTION
-    case SDLK_l:
-        if (!pressed)
-        {
-            static bool lo_connected = false;
-            lo_connected = !lo_connected;
-            sim_trigger_lo(lo_connected);
-        }
-        return;
-#endif
-#ifdef HAVE_HOTSWAP
+#ifdef HAVE_MULTIDRIVE
     case EXT_KEY:
         if (!pressed)
             sim_trigger_external(!storage_present(1));

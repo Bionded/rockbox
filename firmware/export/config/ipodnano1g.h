@@ -28,8 +28,8 @@
 /* define the bitmask of recording sample rates */
 #define REC_SAMPR_CAPS  (SAMPR_CAP_44)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -74,8 +74,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_PCF50605
@@ -175,6 +175,15 @@
 #define CPU_FREQ      24000000
 
 #define CONFIG_LCD LCD_IPODNANO
+
+/* Offset ( in the firmware file's header ) to the file length */
+#define FIRMWARE_OFFSET_FILE_LENGTH 0
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

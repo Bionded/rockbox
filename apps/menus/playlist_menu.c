@@ -26,7 +26,6 @@
 #include "lang.h"
 #include "action.h"
 #include "settings.h"
-#include "string-extra.h"
 #include "menu.h"
 #include "playlist_menu.h"
 
@@ -38,50 +37,39 @@
 #include "talk.h"
 #include "playlist_catalog.h"
 #include "splash.h"
-#include "general.h"
 
-/* load a screen to save the playlist passed in (or current playlist if NULL is passed) */
 int save_playlist_screen(struct playlist_info* playlist)
 {
-
-    char directoryonly[MAX_PATH+3];
-
-    char temp[MAX_PATH+1], *p;
+    char temp[MAX_PATH+1], *dot;
     int len;
 
-    catalog_get_directory(directoryonly, sizeof(directoryonly));
     playlist_get_name(playlist, temp, sizeof(temp)-1);
 
     len = strlen(temp);
+    dot = strrchr(temp, '.');
 
-    if (len <= 1) /* root or dynamic playlist */
-        create_numbered_filename(temp, directoryonly, PLAYLIST_UNTITLED_PREFIX, ".m3u8",
-                                 1 IF_CNFN_NUM_(, NULL));
-    else if (!strcmp((temp + len - 1), "/")) /* dir playlists other than root  */
+    if (!dot && len <= 1)
     {
-        temp[len - 1] = '\0';
-
-        if ((p = strrchr(temp, '/'))) /* use last path component as playlist name */
-        {
-            strlcat(directoryonly, p, sizeof(directoryonly));
-            strlcat(directoryonly, ".m3u8", sizeof(directoryonly));
-            strmemccpy(temp, directoryonly, sizeof(temp));
-        }
-        else
-            create_numbered_filename(temp, directoryonly, PLAYLIST_UNTITLED_PREFIX, ".m3u8",
-                                     1 IF_CNFN_NUM_(, NULL));
+        snprintf(temp, sizeof(temp), "%s%s",
+                 catalog_get_directory(), DEFAULT_DYNAMIC_PLAYLIST_NAME);
     }
 
-    if (catalog_pick_new_playlist_name(temp, sizeof(temp),
-                                       playlist ? playlist->filename :
-                                       playlist_get_current()->filename))
+    dot = strrchr(temp, '.');
+    if (dot) /* remove extension */
+       *dot = '\0';
+
+    if (!kbd_input(temp, sizeof(temp)))
     {
-        playlist_save(playlist, temp);
+        len = strlen(temp);
+        if(len > 4 && !strcasecmp(&temp[len-4], ".m3u"))
+            strlcat(temp, "8", sizeof(temp));
+        else if(len <= 5 || strcasecmp(&temp[len-5], ".m3u8"))
+            strlcat(temp, ".m3u8", sizeof(temp));
+
+        playlist_save(playlist, temp, NULL, 0);
 
         /* reload in case playlist was saved to cwd */
         reload_directory();
-    } else {
-        return 1; /* cancelled out of name selection */
     }
 
     return 0;
@@ -89,19 +77,18 @@ int save_playlist_screen(struct playlist_info* playlist)
 
 static int playlist_view_(void)
 {
-    playlist_viewer_ex(NULL, NULL);
-    FOR_NB_SCREENS(i) /* Playlist Viewer defers skin updates when popping its activity */
-        skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
+    playlist_viewer_ex(NULL);
     return 0;
 }
-MENUITEM_FUNCTION(create_playlist_item, 0, ID2P(LANG_CREATE_PLAYLIST),
-                  create_playlist, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(create_playlist_item, 0, ID2P(LANG_CREATE_PLAYLIST), 
+                  create_playlist, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(view_cur_playlist, 0,
-                  ID2P(LANG_VIEW_DYNAMIC_PLAYLIST),
-                  playlist_view_, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(save_playlist, 0, ID2P(LANG_SAVE_DYNAMIC_PLAYLIST),
-                          save_playlist_screen, NULL, NULL, Icon_NOICON);
+                  ID2P(LANG_VIEW_DYNAMIC_PLAYLIST), 
+                  playlist_view_, NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(save_playlist, MENU_FUNC_USEPARAM, ID2P(LANG_SAVE_DYNAMIC_PLAYLIST), 
+                  save_playlist_screen, NULL, NULL, Icon_NOICON);
 MENUITEM_SETTING(recursive_dir_insert, &global_settings.recursive_dir_insert, NULL);
+MENUITEM_SETTING(warn_on_erase, &global_settings.warnon_erase_dynplaylist, NULL);
 static int clear_catalog_directory(void)
 {
     catalog_set_directory(NULL);
@@ -109,33 +96,22 @@ static int clear_catalog_directory(void)
     splash(HZ, ID2P(LANG_RESET_DONE_CLEAR));
     return false;
 }
-MENUITEM_FUNCTION(clear_catalog_directory_item, 0, ID2P(LANG_RESET_PLAYLISTCAT_DIR),
-                  clear_catalog_directory, NULL, Icon_file_view_menu);
+MENUITEM_FUNCTION(clear_catalog_directory_item, 0, ID2P(LANG_RESET_PLAYLISTCAT_DIR), 
+                  clear_catalog_directory, NULL, NULL, Icon_file_view_menu);
 
 /* Playlist viewer settings submenu */
 MENUITEM_SETTING(show_icons, &global_settings.playlist_viewer_icons, NULL);
 MENUITEM_SETTING(show_indices, &global_settings.playlist_viewer_indices, NULL);
-MENUITEM_SETTING(track_display,
+MENUITEM_SETTING(track_display, 
                  &global_settings.playlist_viewer_track_display, NULL);
-MAKE_MENU(viewer_settings_menu, ID2P(LANG_PLAYLISTVIEWER_SETTINGS),
+MAKE_MENU(viewer_settings_menu, ID2P(LANG_PLAYLISTVIEWER_SETTINGS), 
           NULL, Icon_Playlist,
           &show_icons, &show_indices, &track_display);
 
-/* Current Playlist submenu */
-MENUITEM_SETTING(warn_on_erase, &global_settings.warnon_erase_dynplaylist, NULL);
-MENUITEM_SETTING(keep_current_track_on_replace, &global_settings.keep_current_track_on_replace_playlist, NULL);
-MENUITEM_SETTING(show_shuffled_adding_options, &global_settings.show_shuffled_adding_options, NULL);
-MENUITEM_SETTING(show_queue_options, &global_settings.show_queue_options, NULL);
-MAKE_MENU(currentplaylist_settings_menu, ID2P(LANG_CURRENT_PLAYLIST),
-          NULL, Icon_Playlist,
-          &warn_on_erase,
-          &keep_current_track_on_replace,
-          &show_shuffled_adding_options,
-          &show_queue_options);
 
 MAKE_MENU(playlist_settings, ID2P(LANG_PLAYLISTS), NULL,
           Icon_Playlist,
-          &viewer_settings_menu, &recursive_dir_insert, &currentplaylist_settings_menu);
+          &viewer_settings_menu, &recursive_dir_insert, &warn_on_erase);
 MAKE_MENU(playlist_options, ID2P(LANG_PLAYLISTS), NULL,
           Icon_Playlist,
           &create_playlist_item, &view_cur_playlist,

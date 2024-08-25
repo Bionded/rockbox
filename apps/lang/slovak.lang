@@ -247,18 +247,22 @@
   <source>
     *: "PLAY = Yes"
     cowond2*: "MENU, or top-right = Yes"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
+    creativezen*: "Select = Yes"
   </source>
   <dest>
     *: "PLAY = Áno"
     cowond2*: "MENU, alebo vpravo-hore = Áno"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Áno"
     iriverh100,iriverh120,iriverh300: "NAVI = Áno"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Áno"
     mrobe500: "PLAY, POWER, alebo Vpravo-hore = Áno"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Áno"
+    creativezen*: "Select = Áno"
   </dest>
   <voice>
     *: ""
@@ -270,12 +274,15 @@
   user: core
   <source>
     *: "Any Other = No"
+    archosplayer: none
   </source>
   <dest>
     *: "Čokoľvek iné = No"
+    archosplayer: none
   </dest>
   <voice>
     *: ""
+    archosplayer: none
   </voice>
 </phrase>
 <phrase>
@@ -766,15 +773,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Mono Ľavý + Pravý"
+    recording_swcodec: "Mono Ľavý + Pravý"
   </dest>
   <voice>
     *: none
-    recording: "Mono Ľavý plus Pravý"
+    recording_swcodec: "Mono Ľavý plus Pravý"
   </voice>
 </phrase>
 <phrase>
@@ -810,13 +817,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Krížový prenos (Crossfeed)"
+    *: none
+    swcodec: "Krížový prenos (Crossfeed)"
   </dest>
   <voice>
-    *: "Krížový Prenos zátvorka Crossfeed koniec zátvorky"
+    *: none
+    swcodec: "Krížový Prenos zátvorka Crossfeed koniec zátvorky"
   </voice>
 </phrase>
 <phrase>
@@ -824,13 +834,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Zosilnenie Priameho Sygnálu"
+    *: none
+    swcodec: "Zosilnenie Priameho Sygnálu"
   </dest>
   <voice>
-    *: "Zosilnenie Priameho Sygnálu"
+    *: none
+    swcodec: "Zosilnenie Priameho Sygnálu"
   </voice>
 </phrase>
 <phrase>
@@ -838,13 +851,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "Zosilnenie Prenášaného Sygnálu"
+    *: none
+    swcodec: "Zosilnenie Prenášaného Sygnálu"
   </dest>
   <voice>
-    *: "Zosilnenie Prenášaného Sygnálu"
+    *: none
+    swcodec: "Zosilnenie Prenášaného Sygnálu"
   </voice>
 </phrase>
 <phrase>
@@ -852,13 +868,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Tlmenie Vysokých Frekvencií"
+    *: none
+    swcodec: "Tlmenie Vysokých Frekvencií"
   </dest>
   <voice>
-    *: "Tlmenie Vysokých Frekvencií"
+    *: none
+    swcodec: "Tlmenie Vysokých Frekvencií"
   </voice>
 </phrase>
 <phrase>
@@ -866,13 +885,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Hranica Tlmenia Vysokých Frekvencií"
+    *: none
+    swcodec: "Hranica Tlmenia Vysokých Frekvencií"
   </dest>
   <voice>
-    *: "Hranica tlmenia Vysokých Frekvencií"
+    *: none
+    swcodec: "Hranica tlmenia Vysokých Frekvencií"
   </voice>
 </phrase>
 <phrase>
@@ -880,13 +902,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Ekvalizér"
+    *: none
+    swcodec: "Ekvalizér"
   </dest>
   <voice>
-    *: "Ekvalizér"
+    *: none
+    swcodec: "Ekvalizér"
   </voice>
 </phrase>
 <phrase>
@@ -894,13 +919,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Zapnúť EKV"
+    *: none
+    swcodec: "Zapnúť EKV"
   </dest>
   <voice>
-    *: "Zapnúť Ekvalizér"
+    *: none
+    swcodec: "Zapnúť Ekvalizér"
   </voice>
 </phrase>
 <phrase>
@@ -908,13 +936,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Grafický EKV"
+    *: none
+    swcodec: "Grafický EKV"
   </dest>
   <voice>
-    *: "Grafický Ekvalizér"
+    *: none
+    swcodec: "Grafický Ekvalizér"
   </voice>
 </phrase>
 <phrase>
@@ -922,13 +953,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Celkové Zosilnenie"
+    *: none
+    swcodec: "Celkové Zosilnenie"
   </dest>
   <voice>
-    *: "Celkové Zosilnenie"
+    *: none
+    swcodec: "Celkové Zosilnenie"
   </voice>
 </phrase>
 <phrase>
@@ -936,13 +970,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Jednoduché Nastavenie EKV"
+    *: none
+    swcodec: "Jednoduché Nastavenie EKV"
   </dest>
   <voice>
-    *: "Jednoduché Nastavenie Ekvalizéra"
+    *: none
+    swcodec: "Jednoduché Nastavenie Ekvalizéra"
   </voice>
 </phrase>
 <phrase>
@@ -950,13 +987,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Pokročilé Nastavenie EKV"
+    *: none
+    swcodec: "Pokročilé Nastavenie EKV"
   </dest>
   <voice>
-    *: "Pokročilé nastavenie ekvalizéra"
+    *: none
+    swcodec: "Pokročilé nastavenie ekvalizéra"
   </voice>
 </phrase>
 <phrase>
@@ -964,13 +1004,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Uložiť Ako Predvoľbu"
+    *: none
+    swcodec: "Uložiť Ako Predvoľbu"
   </dest>
   <voice>
-    *: "Uložiť ako predvoľbu"
+    *: none
+    swcodec: "Uložiť ako predvoľbu"
   </voice>
 </phrase>
 <phrase>
@@ -978,13 +1021,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Prehľadávať Predvoľby EKV"
+    *: none
+    swcodec: "Prehľadávať Predvoľby EKV"
   </dest>
   <voice>
-    *: "Prehľadávať predvoľby ekvalizéra"
+    *: none
+    swcodec: "Prehľadávať predvoľby ekvalizéra"
   </voice>
 </phrase>
 <phrase>
@@ -992,13 +1038,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Upraviť Režim: %s"
+    *: none
+    swcodec: "Upraviť Režim: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -1006,13 +1055,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz Zosilnenie Pásma"
+    *: none
+    swcodec: "%d Hz Zosilnenie Pásma"
   </dest>
   <voice>
-    *: "hertz zosilnenie pásma"
+    *: none
+    swcodec: "hertz zosilnenie pásma"
   </voice>
 </phrase>
 <phrase>
@@ -1020,13 +1072,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Filter Dolného Prahu"
+    *: none
+    swcodec: "Filter Dolného Prahu"
   </dest>
   <voice>
-    *: "Filter dolného prahu"
+    *: none
+    swcodec: "Filter dolného prahu"
   </voice>
 </phrase>
 <phrase>
@@ -1034,13 +1089,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Filter Pásma %d"
+    *: none
+    swcodec: "Filter Pásma %d"
   </dest>
   <voice>
-    *: "Filter Pásma"
+    *: none
+    swcodec: "Filter Pásma"
   </voice>
 </phrase>
 <phrase>
@@ -1048,13 +1106,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Filter Horného Prahu"
+    *: none
+    swcodec: "Filter Horného Prahu"
   </dest>
   <voice>
-    *: "Filter horného prahu"
+    *: none
+    swcodec: "Filter horného prahu"
   </voice>
 </phrase>
 <phrase>
@@ -1062,13 +1123,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Hraničná Frekvencia"
+    *: none
+    swcodec: "Hraničná Frekvencia"
   </dest>
   <voice>
-    *: "Hraničná frekvencia"
+    *: none
+    swcodec: "Hraničná frekvencia"
   </voice>
 </phrase>
 <phrase>
@@ -1076,13 +1140,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Stredová Frekvencia"
+    *: none
+    swcodec: "Stredová Frekvencia"
   </dest>
   <voice>
-    *: "Stredová frekvencia"
+    *: none
+    swcodec: "Stredová frekvencia"
   </voice>
 </phrase>
 <phrase>
@@ -1090,13 +1157,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -1104,13 +1174,172 @@
   desc: in the sound settings and some other menus
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
+    lcd_bitmap: "Dithering"
   </source>
   <dest>
-    *: "Kolísanie"
+    *: none
+    swcodec: "Kolísanie"
+    lcd_bitmap: "kolísanie"
   </dest>
   <voice>
-    *: "Kolísanie"
+    *: none
+    swcodec: "Kolísanie"
+    lcd_bitmap: "kolísanie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_LOUDNESS
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Loudness"
+  </source>
+  <dest>
+    *: none
+    masf: "hlasitosť"
+  </dest>
+  <voice>
+    *: none
+    masf: "Hlasitosť"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTOVOL
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Auto Volume"
+  </source>
+  <dest>
+    *: none
+    masf: "Automatická Hlasitosť"
+  </dest>
+  <voice>
+    *: none
+    masf: "Automatická Hlasitosť"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_DECAY
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "AV Decay Time"
+  </source>
+  <dest>
+    *: none
+    masf: "AV Decay Time"
+  </dest>
+  <voice>
+    *: none
+    masf: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SUPERBASS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "Super Bass"
+  </source>
+  <dest>
+    *: none
+    masf: "Super Bass"
+  </dest>
+  <voice>
+    *: none
+    masf: "Super Bass"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_ENABLE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Enable"
+  </source>
+  <dest>
+    *: none
+    masf: "Zapnúť MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Zapnúť MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_STRENGTH
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Strength"
+  </source>
+  <dest>
+    *: none
+    masf: "Sila MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Sila MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_HARMONICS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Harmonics"
+  </source>
+  <dest>
+    *: none
+    masf: "Harmonické MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Harmonické MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_CENTER
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Centre Frequency"
+  </source>
+  <dest>
+    *: none
+    masf: "Stredová Frekvencia MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Stredová Frekvencia MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_SHAPE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Shape"
+  </source>
+  <dest>
+    *: none
+    masf: "Tvar MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Tvar MDB"
   </voice>
 </phrase>
 <phrase>
@@ -1501,13 +1730,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Zabrániť Praskaniu"
+    *: none
+    swcodec: "Zabrániť Praskaniu"
   </dest>
   <voice>
-    *: "Zabrániť praskaniu"
+    *: none
+    swcodec: "Zabrániť praskaniu"
   </voice>
 </phrase>
 <phrase>
@@ -1585,13 +1817,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Pípnutie pri Preskočení stopy"
+    *: none
+    swcodec: "Pípnutie pri Preskočení stopy"
   </dest>
   <voice>
-    *: "Pípnutie pri preskočení stopy"
+    *: none
+    swcodec: "Pípnutie pri preskočení stopy"
   </voice>
 </phrase>
 <phrase>
@@ -1599,13 +1834,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Tiché"
+    *: none
+    swcodec: "Tiché"
   </dest>
   <voice>
-    *: "Tiché"
+    *: none
+    swcodec: "Tiché"
   </voice>
 </phrase>
 <phrase>
@@ -1613,13 +1851,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Stredne Silné"
+    *: none
+    swcodec: "Stredne Silné"
   </dest>
   <voice>
-    *: "Stredne silné"
+    *: none
+    swcodec: "Stredne silné"
   </voice>
 </phrase>
 <phrase>
@@ -1627,13 +1868,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Silné"
+    *: none
+    swcodec: "Silné"
   </dest>
   <voice>
-    *: "Silné"
+    *: none
+    swcodec: "Silné"
   </voice>
 </phrase>
 <phrase>
@@ -1683,10 +1927,10 @@
 </phrase>
 <phrase>
   id: LANG_AUDIOSCROBBLER
-  desc: "Last.fm Logger" in Plugin/apps/scrobbler
+  desc: "Last.fm Log" in the playback menu
   user: core
   <source>
-    *: "Last.fm Logger"
+    *: "Last.fm Log"
   </source>
   <dest>
     *: "Denník Last.fm"
@@ -1741,6 +1985,20 @@
   <voice>
     *: none
     headphone_detection: "Pozastaviť a pokračovať"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -1976,17 +2234,21 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Vytváram databázu... %d nájdených (OFF pre návrat)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Vytváram databázu... %d nájdených (LEFT pre návrat)"
-    gogearsa9200: "Vytváram databázu... %d nájdených (REW pre návrat)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Vytváram databázu... %d nájdených (PREV pre návrat)"
     iriverh100,iriverh120,iriverh300: "Vytváram databázu... %d nájdených (STOP pre návrat)"
+    ipod*: "Vytváram databázu... %d nájdených (PREV pre návrat)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Vytváram databázu... %d nájdených (LEFT pre návrat)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Vytváram databázu... %d nájdených (PREV pre návrat)"
+    gogearsa9200: "Vytváram databázu... %d nájdených (REW pre návrat)"
+    archosplayer: "Vytváram DB %d nájd."
   </dest>
   <voice>
     *: "záznamov nájdených"
@@ -2168,13 +2430,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </dest>
   <voice>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </voice>
 </phrase>
 <phrase>
@@ -2350,6 +2615,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_NEVER
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_sleep: ""
+  </source>
+  <dest>
+    *: none
+    lcd_sleep: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_sleep: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BRIGHTNESS
   desc: in settings_menu
   user: core
@@ -2419,13 +2701,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Hore Nohami"
+    *: none
+    lcd_bitmap: "Hore Nohami"
   </dest>
   <voice>
-    *: "Hore nohami"
+    *: none
+    lcd_bitmap: "Hore nohami"
   </voice>
 </phrase>
 <phrase>
@@ -2433,13 +2718,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Kurzor"
+    *: none
+    lcd_bitmap: "Kurzor"
   </dest>
   <voice>
-    *: "Kurzor"
+    *: none
+    lcd_bitmap: "Kurzor"
   </voice>
 </phrase>
 <phrase>
@@ -2447,13 +2735,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Šípka"
+    *: none
+    lcd_bitmap: "Šípka"
   </dest>
   <voice>
-    *: "Šípka"
+    *: none
+    lcd_bitmap: "Šípka"
   </voice>
 </phrase>
 <phrase>
@@ -2461,13 +2752,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Inverzný Kurzor"
+    *: none
+    lcd_bitmap: "Inverzný Kurzor"
   </dest>
   <voice>
-    *: "Inverzný kurzor"
+    *: none
+    lcd_bitmap: "Inverzný kurzor"
   </voice>
 </phrase>
 <phrase>
@@ -2757,13 +3051,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Obrazovka Roluje Mimo Zobrazenia"
+    *: none
+    lcd_bitmap: "Obrazovka Roluje Mimo Zobrazenia"
   </dest>
   <voice>
-    *: "Obrazovka roluje mimo zobrazenia"
+    *: none
+    lcd_bitmap: "Obrazovka roluje mimo zobrazenia"
   </voice>
 </phrase>
 <phrase>
@@ -2771,13 +3068,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Dĺžka Kroku Obrazovkového Rolovania"
+    *: none
+    lcd_bitmap: "Dĺžka Kroku Obrazovkového Rolovania"
   </dest>
   <voice>
-    *: "Dĺžka kroku obrazovkového rolovania"
+    *: none
+    lcd_bitmap: "Dĺžka kroku obrazovkového rolovania"
   </voice>
 </phrase>
 <phrase>
@@ -2833,13 +3133,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Stavový Riadok / Posuvník"
+    *: none
+    lcd_bitmap: "Stavový Riadok / Posuvník"
   </dest>
   <voice>
-    *: "Stavový riadok alebo posuvník"
+    *: none
+    lcd_bitmap: "Stavový riadok alebo posuvník"
   </voice>
 </phrase>
 <phrase>
@@ -2847,13 +3150,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Rolovací Pás"
+    *: none
+    lcd_bitmap: "Rolovací Pás"
   </dest>
   <voice>
-    *: "Rolovací pás"
+    *: none
+    lcd_bitmap: "Rolovací pás"
   </voice>
 </phrase>
 <phrase>
@@ -2861,13 +3167,33 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Stavový riadok"
+    *: none
+    lcd_bitmap: "Stavový riadok"
   </dest>
   <voice>
-    *: "Stavový riadok"
+    *: none
+    lcd_bitmap: "Stavový riadok"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BUTTON_BAR
+  desc: in settings menu
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Button Bar"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Panel s Tlačidlami"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Panel s tlačidlami"
   </voice>
 </phrase>
 <phrase>
@@ -2875,13 +3201,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Zobrazenie Hlasitosti"
+    *: none
+    lcd_bitmap: "Zobrazenie Hlasitosti"
   </dest>
   <voice>
-    *: "Zobrazenie hlasitosti"
+    *: none
+    lcd_bitmap: "Zobrazenie hlasitosti"
   </voice>
 </phrase>
 <phrase>
@@ -2889,13 +3218,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Zobrazenie Batérie"
+    *: none
+    lcd_bitmap: "Zobrazenie Batérie"
   </dest>
   <voice>
-    *: "Zobrazenie batérie"
+    *: none
+    lcd_bitmap: "Zobrazenie batérie"
   </voice>
 </phrase>
 <phrase>
@@ -2903,13 +3235,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Ikona"
+    *: none
+    lcd_bitmap: "Ikona"
   </dest>
   <voice>
-    *: "Ikona"
+    *: none
+    lcd_bitmap: "Ikona"
   </voice>
 </phrase>
 <phrase>
@@ -2917,13 +3252,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Numericky"
+    *: none
+    lcd_bitmap: "Numericky"
   </dest>
   <voice>
-    *: "Numericky"
+    *: none
+    lcd_bitmap: "Numericky"
   </voice>
 </phrase>
 <phrase>
@@ -2932,12 +3270,15 @@
   user: core
   <source>
     *: "Peak Meter"
+    masd: none
   </source>
   <dest>
     *: "Peak Meter"
+    masd: none
   </dest>
   <voice>
     *: "Peak Meter"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2946,12 +3287,15 @@
   user: core
   <source>
     *: "Clip Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Dĺžka Zobrazenia Indikátora Klikania"
+    masd: none
   </dest>
   <voice>
     *: "Dĺžka zobrazenia indikátora klikania"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2960,12 +3304,15 @@
   user: core
   <source>
     *: "Peak Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Interval Resetu Indikátora Peaku"
+    masd: none
   </dest>
   <voice>
     *: "Interval resetu indikátora peaku"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2974,12 +3321,15 @@
   user: core
   <source>
     *: "Eternal"
+    masd: none
   </source>
   <dest>
     *: "Nekonečne"
+    masd: none
   </dest>
   <voice>
     *: "Nekonečne"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -2988,12 +3338,15 @@
   user: core
   <source>
     *: "Peak Release"
+    masd: none
   </source>
   <dest>
     *: "Uvoľnenie Peaku"
+    masd: none
   </dest>
   <voice>
     *: "Uvoľnenie peaku"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3002,12 +3355,15 @@
   user: core
   <source>
     *: "Scale"
+    masd: none
   </source>
   <dest>
     *: "Mierka"
+    masd: none
   </dest>
   <voice>
     *: "Mierka"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3016,12 +3372,15 @@
   user: core
   <source>
     *: "Logarithmic (dB)"
+    masd: none
   </source>
   <dest>
     *: "Logaritmicky (dB)"
+    masd: none
   </dest>
   <voice>
     *: "Logaritmicky v Decibeloch"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3030,12 +3389,15 @@
   user: core
   <source>
     *: "Linear (%)"
+    masd: none
   </source>
   <dest>
     *: "Lineárne (%)"
+    masd: none
   </dest>
   <voice>
     *: "Lineárne v percentách"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3044,12 +3406,15 @@
   user: core
   <source>
     *: "Minimum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Minimum Rozsahu"
+    masd: none
   </dest>
   <voice>
     *: "Minimum rozsahu"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3058,12 +3423,15 @@
   user: core
   <source>
     *: "Maximum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Maximum Rozsahu"
+    masd: none
   </dest>
   <voice>
     *: "Maximum rozsahu"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3113,13 +3481,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Hebrejčina (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrejčina (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Hebrejčina"
+    *: none
+    lcd_bitmap: "Hebrejčina"
   </voice>
 </phrase>
 <phrase>
@@ -3141,13 +3512,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Thajčina (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thajčina (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Thajčina"
+    *: none
+    lcd_bitmap: "Thajčina"
   </voice>
 </phrase>
 <phrase>
@@ -3155,13 +3529,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Arabčina (CP1256)"
+    *: none
+    lcd_bitmap: "Arabčina (CP1256)"
   </dest>
   <voice>
-    *: "Arabčina"
+    *: none
+    lcd_bitmap: "Arabčina"
   </voice>
 </phrase>
 <phrase>
@@ -3197,13 +3574,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Japončina (SJIS)"
+    *: none
+    lcd_bitmap: "Japončina (SJIS)"
   </dest>
   <voice>
-    *: "Japončina"
+    *: none
+    lcd_bitmap: "Japončina"
   </voice>
 </phrase>
 <phrase>
@@ -3211,13 +3591,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Zjednod. Čínština (GB2312)"
+    *: none
+    lcd_bitmap: "Zjednod. Čínština (GB2312)"
   </dest>
   <voice>
-    *: "Zjednodušená čínština"
+    *: none
+    lcd_bitmap: "Zjednodušená čínština"
   </voice>
 </phrase>
 <phrase>
@@ -3225,13 +3608,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Kórejčina (KSX1001)"
+    *: none
+    lcd_bitmap: "Kórejčina (KSX1001)"
   </dest>
   <voice>
-    *: "Kórejčina"
+    *: none
+    lcd_bitmap: "Kórejčina"
   </voice>
 </phrase>
 <phrase>
@@ -3239,13 +3625,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Trad. Čínština (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Čínština (BIG5)"
   </dest>
   <voice>
-    *: "Tradičná čínština"
+    *: none
+    lcd_bitmap: "Tradičná čínština"
   </voice>
 </phrase>
 <phrase>
@@ -3269,17 +3658,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Časový Limit Podsvietenia Tlačidla"
-    sansae200*,sansafuze*: "Časový Limit Podsvietenia Kolieska"
+    sansafuze*,sansae200*: "Časový Limit Podsvietenia Kolieska"
   </dest>
   <voice>
     *: none
     button_light: "Časový limit podsvietenia tlačidla"
-    sansae200*,sansafuze*: "Časový limit podsvietenia kolieska"
+    sansafuze*,sansae200*: "Časový limit podsvietenia kolieska"
   </voice>
 </phrase>
 <phrase>
@@ -3387,43 +3776,37 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "Alkaline"
-    xduoox3: "Newer (2000 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "Alkalická"
-    xduoox3: "Newer (2000 mAh)"
   </dest>
   <voice>
     *: none
     battery_types: "Alkalická"
-    xduoox3: "Newer 2000 milliamp hour"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Older (1500 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Older (1500 mAh)"
   </dest>
   <voice>
     *: none
     battery_types: "Nikel metal hydridová"
-    xduoox3: "Older 1500 milliamp hour"
   </voice>
 </phrase>
 <phrase>
@@ -3556,27 +3939,27 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Nastaviť"
-    gogearsa9200,samsungyh*: "PLAY = Nastaviť"
-    iriverh100,iriverh120,iriverh300: "NAVI = Nastaviť"
-    mpiohd300: "ENTER = Nastaviť"
-    mrobe500: "HEART = Nastaviť"
     rtc: "ON = Nastaviť"
+    mrobe500: "HEART = Nastaviť"
+    iriverh100,iriverh120,iriverh300: "NAVI = Nastaviť"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Nastaviť"
+    gogearsa9200,samsungyh*: "PLAY = Nastaviť"
     vibe500: "OK = Nastaviť"
+    mpiohd300: "ENTER = Nastaviť"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,iriverh10,iriverh10_5gb,iaudiox5,iaudiom5,ipod*,sansae200*,sansac200*,gigabeat*,mrobe100,gogearsa9200,samsungyh*: ""
   </voice>
 </phrase>
 <phrase>
@@ -3585,35 +3968,39 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Vrátiť"
-    gigabeats,sansafuzeplus: "BACK = Vrátiť"
-    gogearsa9200: "LEFT = Vrátiť"
-    iaudiom5,iaudiox5: "RECORD = Vrátiť"
-    ipod*,mpiohd300,sansac200*: "MENU = Vrátiť"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Vrátiť"
-    iriverh100,iriverh120,iriverh300: "STOP = Vrátiť"
-    mrobe100: "DISPLAY = Vrátiť"
     rtc: "OFF = Vrátiť"
-    samsungyh*: "REW = Vrátiť"
+    mrobe500: "POWER = Vrátiť"
+    iriverh100,iriverh120,iriverh300: "STOP = Vrátiť"
+    ipod*,sansac200*,mpiohd300: "MENU = Vrátiť"
+    iaudiox5,iaudiom5: "RECORD = Vrátiť"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Vrátiť"
+    gigabeatfx: "POWER = Vrátiť"
+    sansafuzeplus: "BACK = Vrátiť"
+    mrobe100: "DISPLAY = Vrátiť"
+    gigabeats: "BACK = Vrátiť"
+    gogearsa9200: "LEFT = Vrátiť"
     vibe500: "C = Vrátiť"
+    samsungyh*: "REW = Vrátiť"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,ipod*,sansae200*,sansac200*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,gigabeat*,mrobe100,gogearsa9200: ""
   </voice>
 </phrase>
 <phrase>
@@ -4094,16 +4481,31 @@
 </phrase>
 <phrase>
   id: LANG_ALARM_MOD_KEYS
-  desc: deprecated
+  desc: Shown key functions in alarm menu (for the RTC alarm mod).
   user: core
   <source>
-    *: ""
+    *: none
+    alarm: "PLAY=Set OFF=Cancel"
+    ipod*: "SELECT=Set MENU=Cancel"
+    iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
+    mpiohd300: "ENTER=Set MENU=Cancel"
+    sansafuzeplus: "SELECT=Set  BACK=Cancel"
   </source>
   <dest>
-    *: ""
+    *: none
+    alarm: "PLAY=Nastaviť OFF=Zrušiť"
+    ipod*: "SELECT=Nastaviť MENU=Zrušiť"
+    iriverh10,iriverh10_5gb: "SELECT=Nastaviť PREV=Zrušiť"
+    gigabeats: "SELECT=Nastaviť POWER=Zrušiť"
+    vibe500: "OK=Nastaviť C=Zrušiť"
+    mpiohd300: "ENTER=Nastaviť MENU=Zrušiť"
+    sansafuzeplus: "SELECT=Nastaviť  BACK=Zrušiť"
   </dest>
   <voice>
-    *: ""
+    *: none
+    alarm,ipod*: ""
   </voice>
 </phrase>
 <phrase>
@@ -4205,6 +4607,20 @@
   </dest>
   <voice>
     *: "Udržiavať zoznam najnovších záložiek"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BOOKMARK_SETTINGS_UNIQUE_ONLY
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -4624,6 +5040,57 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BUTTONBAR_MENU
+  desc: in button bar
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Menu"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Ponuka"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_EXIT
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Exit"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Ukončiť"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ACTION
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Action"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Akcia"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_PRESET
   desc: in button bar and radio screen / menu
   user: core
@@ -4638,6 +5105,40 @@
   <voice>
     *: none
     radio: "Predvoľba"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ADD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Add"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Pridať"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_RECORD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Record"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Nahrávanie"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: ""
   </voice>
 </phrase>
 <phrase>
@@ -4845,6 +5346,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_REGION
   desc: fm tuner region setting
   user: core
@@ -4930,17 +5448,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Formát"
+    *: none
+    recording: "Formát"
   </dest>
   <voice>
-    *: "Formát"
+    *: none
+    recording: "Formát"
   </voice>
 </phrase>
 <phrase>
@@ -4983,15 +5504,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -5034,15 +5555,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Počet Bitov"
+    recording_swcodec: "Počet Bitov"
   </dest>
   <voice>
     *: none
-    recording: "Počet bitov"
+    recording_swcodec: "Počet bitov"
   </voice>
 </phrase>
 <phrase>
@@ -5063,20 +5584,37 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Kvalita"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Kvalita"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FREQUENCY
   desc: in recording and playback settings
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Frekvencia"
+    recording,play_frequency: "Frekvencia"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frekvencia"
+    recording,play_frequency: "Frekvencia"
   </voice>
 </phrase>
 <phrase>
@@ -5119,18 +5657,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Interný Mikrofón"
     recording: "Mikrofón"
+    iriverh100,iriverh120,iriverh300: "Interný Mikrofón"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Interný mikrofón"
     recording: "Mikrofón"
+    iriverh100,iriverh120,iriverh300: "Interný mikrofón"
   </voice>
 </phrase>
 <phrase>
@@ -5156,15 +5694,32 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Linkový Vstup"
+    recording,archosplayer: "Linkový Vstup"
   </dest>
   <voice>
     *: none
-    recording: "Linkový vstup"
+    recording,archosplayer: "Linkový vstup"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_RECORDING_EDITABLE
+  desc: Editable recordings setting
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Independent Frames"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Nezávislé Rámce"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Nezávislé rámce"
   </voice>
 </phrase>
 <phrase>
@@ -5939,6 +6494,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SHUTDOWN
+  desc: in main menu
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Vypnúť"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: "Vypnúť"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ROCKBOX_INFO
   desc: displayed topmost on the info screen and in the info menu
   user: core
@@ -5958,9 +6530,11 @@
   user: core
   <source>
     *: "Buffer:"
+    archosplayer: "Buf:"
   </source>
   <dest>
     *: "Buffer:"
+    archosplayer: "Buf:"
   </dest>
   <voice>
     *: "Veľkosť buffera"
@@ -5972,11 +6546,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Batéria: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Bat: %d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Bat: %d%% %dh %dm"
   </dest>
   <voice>
     *: "Stav batérie"
@@ -6016,41 +6592,41 @@
   user: core
   <source>
     *: "Int:"
-    hibylinux: "mSD:"
     xduoox3: "mSD1:"
   </source>
   <dest>
     *: "Int:"
-    hibylinux: "mSD:"
     xduoox3: "MSD1:"
   </dest>
   <voice>
     *: "Interný"
-    hibylinux: "micro S D"
     xduoox3: "mikro S D 1"
   </voice>
 </phrase>
 <phrase>
   id: LANG_DISK_NAME_MMC
-  desc: in info menu;  name for external disk with multivolume (keep short!)
+  desc: in info menu;  name for external disk with multivolume (Ondio; keep short!)
   user: core
   <source>
     *: none
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "MSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "MSD:"
     xduoox3: "MSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
     multivolume: "H D 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mikro S D"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mikro S D"
     xduoox3: "mikro S D 2"
+    archosondio*: "M M C"
   </voice>
 </phrase>
 <phrase>
@@ -6251,16 +6827,16 @@
 </phrase>
 <phrase>
   id: LANG_REPLACE
-  desc: deprecated
+  desc: in onplay menu.  Replace the current playlist with a new one.
   user: core
   <source>
-    *: ""
+    *: "Play Next"
   </source>
   <dest>
-    *: ""
+    *: "Prehrať Ďalšie"
   </dest>
   <voice>
-    *: ""
+    *: "Prehrať ďalšie"
   </voice>
 </phrase>
 <phrase>
@@ -6330,7 +6906,7 @@
     *: "Hľadám... %d nájdených (%s)"
   </dest>
   <voice>
-    *: "Nájdené"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -6953,6 +7529,40 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ONPLAY_OPEN_WITH
   desc: Onplay open with
   user: core
@@ -7113,9 +7723,11 @@
   user: core
   <source>
     *: "End of Song List"
+    archosplayer: "End of List"
   </source>
   <dest>
     *: "Koniec zoznamu skladieb"
+    archosplayer: "Koniec zoznamu"
   </dest>
   <voice>
     *: "Koniec zoznamu skladieb"
@@ -7329,23 +7941,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "Disk je plný. Stlačte POWER pre pokračovanie"
-    iriverh100,iriverh120,iriverh300: "Disk je plný. Stlačte STOP pre pokračovanie"
     recording: "Disk je plný. Stlačte OFF pre pokračovanie."
+    iriverh100,iriverh120,iriverh300: "Disk je plný. Stlačte STOP pre pokračovanie"
+    iaudiom5,iaudiox5: "Disk je plný. Stlačte POWER pre pokračovanie"
+    sansae200*,sansac200*,vibe500: "Disk je plný. Stlačte PREV pre pokračovanie"
     samsungyh*: "Disk je plný. Stlačte LEFT pre pokračovanie"
-    sansac200*,sansae200*,vibe500: "Disk je plný. Stlačte PREV pre pokračovanie"
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,samsungyh*,sansac200*,sansae200*,vibe500: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -7363,6 +7975,40 @@
   <voice>
     *: none
     recording: "mínus nekonečno"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_CONFIRM_SHUTDOWN
+  desc: in shutdown screen
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Press OFF to shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Stlačte OFF pre vypnutie"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_REMOVE_MMC
+  desc: before acknowledging usb in case an MMC is inserted (Ondio)
+  user: core
+  <source>
+    *: none
+    archosondio*: "Please remove inserted MMC"
+  </source>
+  <dest>
+    *: none
+    archosondio*: "Prosím vyberte vloženú MMC"
+  </dest>
+  <voice>
+    *: none
+    archosondio*: "Prosím vyberte multimediálnu kartu"
   </voice>
 </phrase>
 <phrase>
@@ -7395,25 +8041,27 @@
 </phrase>
 <phrase>
   id: LANG_OFF_ABORT
-  desc: Used on many models
+  desc: Used on archosrecorder models
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF Pre prerušenie"
-    gigabeatfx: "POWER pre prerušenie"
-    gigabeats,sansafuzeplus: "BACK pre prerušenie"
-    iaudiom5,iaudiox5: "Long PLAY pre prerušenie"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP pre prerušenie"
     ipod*: "PLAY/PAUSE pre prerušenie"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV pre prerušenie"
-    iriverh100,iriverh120,iriverh300: "STOP pre prerušenie"
+    iaudiox5,iaudiom5: "Long PLAY pre prerušenie"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV pre prerušenie"
+    gigabeats: "BACK pre prerušenie"
+    gigabeatfx: "POWER pre prerušenie"
+    sansafuzeplus: "BACK pre prerušenie"
   </dest>
   <voice>
     *: ""
@@ -7477,7 +8125,7 @@
 </phrase>
 <phrase>
   id: LANG_PLUGIN_WRONG_MODEL
-  desc: The plugin is not compatible with the player model trying to run it
+  desc: The plugin is not compatible with the archos model trying to run it
   user: core
   <source>
     *: "Incompatible model"
@@ -7486,7 +8134,7 @@
     *: "Nekompatibilný model"
   </dest>
   <voice>
-    *: "Nekompatibilný model"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7500,7 +8148,7 @@
     *: "Nekompatibilná verzia"
   </dest>
   <voice>
-    *: "Nekompatibilná verzia"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7514,7 +8162,7 @@
     *: "Zásuvný modul vrátil chybu"
   </dest>
   <voice>
-    *: "Zásuvný modul vrátil chybu"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -7591,6 +8239,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BATTERY_TOPOFF_CHARGE
+  desc: in info display, shows that top off charge is running Only for V1 archosrecorder
+  user: core
+  <source>
+    *: none
+    archosrecorder: "Battery: Top-Off Chg"
+  </source>
+  <dest>
+    *: none
+    archosrecorder: "Batéria: Nabitá"
+  </dest>
+  <voice>
+    *: none
+    archosrecorder: "Nabitá"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BATTERY_TRICKLE_CHARGE
   desc: in info display, shows that trickle charge is running
   user: core
@@ -7650,6 +8315,48 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_KILOBYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MEGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_GIGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_POINT
   desc: decimal separator for composing numbers
   user: core
@@ -7657,10 +8364,10 @@
     *: "."
   </source>
   <dest>
-    *: ","
+    *: "."
   </dest>
   <voice>
-    *: "čiarka"
+    *: "bodka"
   </voice>
 </phrase>
 <phrase>
@@ -8906,7 +9613,7 @@
     *: ""
   </source>
   <dest>
-    *: ""
+     *: ""
   </dest>
   <voice>
     *: "Hárok stôp (cuesheet)"
@@ -8948,13 +9655,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Režim Editovania: %s %s"
+    *: none
+    swcodec: "Režim Editovania: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -8962,13 +9672,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Rez"
+    *: none
+    swcodec: "Rez"
   </dest>
   <voice>
-    *: "Frekvencia rezu"
+    *: none
+    swcodec: "Frekvencia rezu"
   </voice>
 </phrase>
 <phrase>
@@ -8976,13 +9689,254 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Zosilnenie"
+    *: none
+    swcodec: "Zosilnenie"
   </dest>
   <voice>
-    *: "Zosilnenie"
+    *: none
+    swcodec: "Zosilnenie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_MODE
+  desc: in wps F2 pressed
+  user: core
+  <source>
+    *: none
+    lcd_bitmap: "Mode:"
+  </source>
+  <dest>
+    *: none
+    lcd_bitmap: "Režim:"
+  </dest>
+  <voice>
+    *: none
+    lcd_bitmap: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F1
+  desc: in dir browser, F1 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Menu"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Ponuka"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F2
+  desc: in dir browser, F2 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Option"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Možnosť"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F3
+  desc: in dir browser, F3 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "LCD"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "LCD"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_STEREO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Stereo"
+  </source>
+  <dest>
+    *: none
+    recording: "Stereo"
+  </dest>
+  <voice>
+    *: none
+    recording: "Stereo"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_MONO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Mono"
+  </source>
+  <dest>
+    *: none
+    recording: "Mono"
+  </dest>
+  <voice>
+    *: none
+    recording: "Mono"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Kvalita"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Kvalita"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_FREQUENCY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Frequency"
+  </source>
+  <dest>
+    *: none
+    recording: "Frekvencia"
+  </dest>
+  <voice>
+    *: none
+    recording: "Frekvencia"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SOURCE
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Source"
+  </source>
+  <dest>
+    *: none
+    recording: "Zdroj"
+  </dest>
+  <voice>
+    *: none
+    recording: "Zdroj"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_MIC
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Int. Mic"
+  </source>
+  <dest>
+    *: none
+    recording: "Int. Mik"
+  </dest>
+  <voice>
+    *: none
+    recording: "Interný mikrofón"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_LINE_IN
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Line In"
+  </source>
+  <dest>
+    *: none
+    recording: "Link. Vstup"
+  </dest>
+  <voice>
+    *: none
+    recording: "Linkový vstup"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_DIGITAL
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Digital"
+  </source>
+  <dest>
+    *: none
+    recording: "Digital"
+  </dest>
+  <voice>
+    *: none
+    recording: "Digital"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNELS
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Channels"
+  </source>
+  <dest>
+    *: none
+    recording: "Kanály"
+  </dest>
+  <voice>
+    *: none
+    recording: "Kanály"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORD_TRIGGER
+  desc: in recording settings_menu
+  user: core
+  <source>
+    *: none
+    recording: "Trigger"
+  </source>
+  <dest>
+    *: none
+    recording: "Spúšťač"
+  </dest>
+  <voice>
+    *: none
+    recording: "Spúšťač"
   </voice>
 </phrase>
 <phrase>
@@ -9122,7 +10076,7 @@
     *: ""
   </dest>
   <voice>
-    *: "presne"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -9390,7 +10344,7 @@
     multivolume: "Nieje"
   </voice>
 </phrase>
-<phrase>
+<phrase>  
   id: LANG_TALK_BATTERY_LEVEL
   desc: Setting for spontaneous battery level announcement
   user: core
@@ -9424,15 +10378,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Hranica Hĺbok"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Hranica Hĺbok"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Hranica hĺbok"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Hranica hĺbok"
   </voice>
 </phrase>
 <phrase>
@@ -9441,15 +10395,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Hranica Výšok"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Hranica Výšok"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Hranica výšok"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Hranica výšok"
   </voice>
 </phrase>
 <phrase>
@@ -9485,13 +10439,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Klikanie Pri Klávesoch"
+    *: none
+    swcodec: "Klikanie Pri Klávesoch"
   </dest>
   <voice>
-    *: "Klikanie pri klávesoch"
+    *: none
+    swcodec: "Klikanie pri klávesoch"
   </voice>
 </phrase>
 <phrase>
@@ -9499,13 +10456,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Opakované Klikanie"
+    *: none
+    swcodec: "Opakované Klikanie"
   </dest>
   <voice>
-    *: "Opakované klikanie"
+    *: none
+    swcodec: "Opakované klikanie"
   </voice>
 </phrase>
 <phrase>
@@ -9590,15 +10550,14 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Citlivosť Dotykovej Plochy"
+    gigabeatfx,sansafuzeplus: "Citlivosť Dotykovej Plochy"
   </dest>
   <voice>
     *: none
-    fiiom3k,sansafuzeplus: "Citlivosť Dotykovej Plochy"
     gigabeatfx: "Citlivosť dotykovej plochy"
   </voice>
 </phrase>
@@ -9627,11 +10586,11 @@
     *: none
     serial_port: "Serial Bitrate"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Sériová bitová rýchlosť"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Sériová bitová rýchlosť"
   </voice>
@@ -9644,11 +10603,11 @@
     *: none
     serial_port: "Auto"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Auto"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Automaticky"
   </voice>
@@ -9661,11 +10620,11 @@
     *: none
     serial_port: "9600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "9600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "9600"
   </voice>
@@ -9678,11 +10637,11 @@
     *: none
     serial_port: "19200"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "19200"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "19200"
   </voice>
@@ -9695,11 +10654,11 @@
     *: none
     serial_port: "38400"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "38400"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "38400"
   </voice>
@@ -9712,11 +10671,11 @@
     *: none
     serial_port: "57600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "57600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "57600"
   </voice>
@@ -9978,15 +10937,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Režim Mono"
+    recording_swcodec: "Režim Mono"
   </dest>
   <voice>
     *: none
-    recording: "Režim mono"
+    recording_swcodec: "Režim mono"
   </voice>
 </phrase>
 <phrase>
@@ -10239,13 +11198,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Úprava Rýchlosti"
+    *: none
+    swcodec: "Úprava Rýchlosti"
   </dest>
   <voice>
-    *: "Úprava Rýchlosti"
+    *: none
+    swcodec: "Úprava Rýchlosti"
   </voice>
 </phrase>
 <phrase>
@@ -10253,13 +11215,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Rýchlosť"
+    *: none
+    swcodec: "Rýchlosť"
   </dest>
   <voice>
-    *: "Rýchlosť"
+    *: none
+    swcodec: "Rýchlosť"
   </voice>
 </phrase>
 <phrase>
@@ -10360,7 +11325,7 @@
 </phrase>
 <phrase>
   id: LANG_SEMITONE
-  desc:
+  desc: 
   user: core
   <source>
     *: none
@@ -10495,17 +11460,34 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SCROLLBAR_WIDTH
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Dĺžka rolovacieho pásu"
+    *: none
+    lcd_bitmap: "Dĺžka rolovacieho pásu"
   </dest>
   <voice>
-    *: "Dĺžka rolovacieho pásu"
+    *: none
+    lcd_bitmap: "Dĺžka rolovacieho pásu"
   </voice>
 </phrase>
 <phrase>
@@ -10513,13 +11495,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Umiestnenie Rolovacieho Pásu"
+    *: none
+    lcd_bitmap: "Umiestnenie Rolovacieho Pásu"
   </dest>
   <voice>
-    *: "Umiestnenie rolovacieho pásu"
+    *: none
+    lcd_bitmap: "Umiestnenie rolovacieho pásu"
   </voice>
 </phrase>
 <phrase>
@@ -10527,13 +11512,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Kompresor"
+    *: none
+    swcodec: "Kompresor"
   </dest>
   <voice>
-    *: "Kompresor"
+    *: none
+    swcodec: "Kompresor"
   </voice>
 </phrase>
 <phrase>
@@ -10592,13 +11580,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Prah"
+    *: none
+    swcodec: "Prah"
   </dest>
   <voice>
-    *: "Prah"
+    *: none
+    swcodec: "Prah"
   </voice>
 </phrase>
 <phrase>
@@ -10606,13 +11597,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Pomer"
+    *: none
+    swcodec: "Pomer"
   </dest>
   <voice>
-    *: "Pomer"
+    *: none
+    swcodec: "Pomer"
   </voice>
 </phrase>
 <phrase>
@@ -10620,13 +11614,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 ku 1"
+    *: none
+    swcodec: "2 ku 1"
   </voice>
 </phrase>
 <phrase>
@@ -10634,13 +11631,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 ku 1"
+    *: none
+    swcodec: "4 ku 1"
   </voice>
 </phrase>
 <phrase>
@@ -10648,13 +11648,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 ku 1"
+    *: none
+    swcodec: "6 ku 1"
   </voice>
 </phrase>
 <phrase>
@@ -10662,13 +11665,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 ku 1"
+    *: none
+    swcodec: "10 ku 1"
   </voice>
 </phrase>
 <phrase>
@@ -10676,13 +11682,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </dest>
   <voice>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </voice>
 </phrase>
 <phrase>
@@ -10690,13 +11699,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Zosilnenie Po Kompresii"
+    *: none
+    swcodec: "Zosilnenie Po Kompresii"
   </dest>
   <voice>
-    *: "Zosilnenie po kompresii"
+    *: none
+    swcodec: "Zosilnenie po kompresii"
   </voice>
 </phrase>
 <phrase>
@@ -10704,13 +11716,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </dest>
   <voice>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </voice>
 </phrase>
 <phrase>
@@ -10718,13 +11733,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Prechod Do Kompresie"
+    *: none
+    swcodec: "Prechod Do Kompresie"
   </dest>
   <voice>
-    *: "Prechod do kompresie"
+    *: none
+    swcodec: "Prechod do kompresie"
   </voice>
 </phrase>
 <phrase>
@@ -10732,13 +11750,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Tvrdý Prechod"
+    *: none
+    swcodec: "Tvrdý Prechod"
   </dest>
   <voice>
-    *: "Tvrdý prechod"
+    *: none
+    swcodec: "Tvrdý prechod"
   </voice>
 </phrase>
 <phrase>
@@ -10746,13 +11767,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Mäkký Prechod"
+    *: none
+    swcodec: "Mäkký Prechod"
   </dest>
   <voice>
-    *: "Mäkký prechod"
+    *: none
+    swcodec: "Mäkký prechod"
   </voice>
 </phrase>
 <phrase>
@@ -10760,13 +11784,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Čas Zotavenia"
+    *: none
+    swcodec: "Čas Zotavenia"
   </dest>
   <voice>
-    *: "Čas zotavenia"
+    *: none
+    swcodec: "Čas zotavenia"
   </voice>
 </phrase>
 <phrase>
@@ -10856,7 +11883,7 @@
     *: "Vložiť Nakoniec Zamiešané"
   </dest>
   <voice>
-    *: "Vložiť nakoniec zamiešané"
+    *:"Vložiť nakoniec zamiešané"
   </voice>
 </phrase>
 <phrase>
@@ -10954,13 +11981,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Základný Vzhľad"
+    *: none
+    lcd_bitmap: "Základný Vzhľad"
   </dest>
   <voice>
-    *: "Základný vzhľad"
+    *: none
+    lcd_bitmap: "Základný vzhľad"
   </voice>
 </phrase>
 <phrase>
@@ -10968,13 +11998,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Vzdialený Základný Vzhľad"
+    *: none
+    lcd_bitmap: "Vzdialený Základný Vzhľad"
   </dest>
   <voice>
-    *: "Vzdialený základný vzhľad"
+    *: none
+    lcd_bitmap: "Vzdialený základný vzhľad"
   </voice>
 </phrase>
 <phrase>
@@ -11067,13 +12100,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Vrátiť Pred Obnovením Prehrávania"
+    *: none
+    swcodec: "Vrátiť Pred Obnovením Prehrávania"
   </dest>
   <voice>
-    *: "Vrátiť pred obnovením prehrávania"
+    *: none
+    swcodec: "Vrátiť pred obnovením prehrávania"
   </voice>
 </phrase>
 <phrase>
@@ -11482,7 +12518,7 @@
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -11492,6 +12528,20 @@
   </dest>
   <voice>
     *: "Veľkosť Súboru"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11509,6 +12559,20 @@
   <voice>
     *: none
     radio: "Sila Signálu:"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11808,13 +12872,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Jednoduché (Meier)"
+    *: none
+    swcodec: "Jednoduché (Meier)"
   </dest>
   <voice>
-    *: "Jednoduché"
+    *: none
+    swcodec: "Jednoduché"
   </voice>
 </phrase>
 <phrase>
@@ -11850,13 +12917,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Vlastné"
+    *: none
+    swcodec: "Vlastné"
   </dest>
   <voice>
-    *: "Vlastné"
+    *: none
+    swcodec: "Vlastné"
   </voice>
 </phrase>
 <phrase>
@@ -11951,13 +13021,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -11980,7 +13053,7 @@
   user: core
   <source>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </source>
   <dest>
     *: none
@@ -11996,13 +13069,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </source>
   <dest>
-    *: "Čas Začiatku"
+    *: none
+    swcodec: "Čas Začiatku"
   </dest>
   <voice>
-    *: "Čas Začiatku"
+    *: none
+    swcodec: "Čas Začiatku"
   </voice>
 </phrase>
 <phrase>
@@ -12045,15 +13121,18 @@
   user: core
   <source>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </source>
   <dest>
     *: none
-    ibassodx50,ibassodx90: "Správa prispôsobovania frekvencií"
+    ibassodx50: "Správa prispôsobovania frekvencií"
+    ibassodx90: "Správa prispôsobovania frekvencií"
   </dest>
   <voice>
     *: none
-    ibassodx50,ibassodx90: "Správa prispôsobovania frekvencií"
+    ibassodx50: "Správa prispôsobovania frekvencií"
+    ibassodx90: "Správa prispôsobovania frekvencií"
   </voice>
 </phrase>
 <phrase>
@@ -12061,13 +13140,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </source>
   <dest>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </dest>
   <voice>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </voice>
 </phrase>
 <phrase>
@@ -12075,13 +13157,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Perceptual Bass Enhancement"
+    *: none
+    swcodec: "Perceptual Bass Enhancement"
   </source>
   <dest>
-    *: "Vylepšenie basov"
+    *: none
+    swcodec: "Vylepšenie basov"
   </dest>
   <voice>
-    *: "Vylepšenie basov"
+    *: none
+    swcodec: "Vylepšenie basov"
   </voice>
 </phrase>
 <phrase>
@@ -12089,13 +13174,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </source>
   <dest>
-    *: "Redukcia rušivých tónov"
+    *: none
+    swcodec: "Redukcia rušivých tónov"
   </dest>
   <voice>
-    *: "Redukcia rušivých tónov"
+    *: none
+    swcodec: "Redukcia rušivých tónov"
   </voice>
 </phrase>
 <phrase>
@@ -12103,13 +13191,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </source>
   <dest>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </dest>
   <voice>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </voice>
 </phrase>
 <phrase>
@@ -12117,13 +13208,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </source>
   <dest>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </dest>
   <voice>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </voice>
 </phrase>
 <phrase>
@@ -12131,27 +13225,36 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </source>
   <dest>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </dest>
   <voice>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE
+  id: LANG_IBASSO_USB_MODE
   desc: in Settings -> General -> System -> USB Mode
   user: core
   <source>
-    *: "USB Mode"
+    *: none
+    ibassodx50: "USB Mode"
+    ibassodx90: "USB Mode"
   </source>
   <dest>
-    *: "Režim USB"
+    *: none
+    ibassodx50: "Režim USB"
+    ibassodx90: "Režim USB"
   </dest>
   <voice>
-    *: "Režim USB"
+    *: none
+    ibassodx50: "Režim USB"
+    ibassodx90: "Režim USB"
   </voice>
 </phrase>
 <phrase>
@@ -12172,31 +13275,43 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_ADB
+  id: LANG_IBASSO_USB_MODE_ADB
   desc: in Settings -> General -> System -> USB Mode: Android Debug Bridge
   user: core
   <source>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </source>
   <dest>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </dest>
   <voice>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_MASS_STORAGE
+  id: LANG_IBASSO_USB_MODE_MASS_STORAGE
   desc: in Settings -> General -> System -> USB Mode: Mass Storage
   user: core
   <source>
-    *: "Mass Storage"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </source>
   <dest>
-    *: "úložisko"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </dest>
   <voice>
-    *: "úložisko"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </voice>
 </phrase>
 <phrase>
@@ -12204,27 +13319,36 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </source>
   <dest>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </dest>
   <voice>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_CHARGE
+  id: LANG_IBASSO_USB_MODE_CHARGE
   desc: in Settings -> General -> System -> USB Mode: Charge Only
   user: core
   <source>
-    *: "Charge Only"
+    *: none
+    ibassodx50: "Charge Only"
+    ibassodx90: "Charge Only"
   </source>
   <dest>
-    *: "Iba Nabíjanie"
+    *: none
+    ibassodx50: "Iba nabíjanie"
+    ibassodx90: "Iba Nabíjanie"
   </dest>
   <voice>
-    *: "Iba nabíjanie"
+    *: none
+    ibassodx50: "Iba nabíjanie"
+    ibassodx90: "Iba nabíjanie"
   </voice>
 </phrase>
 <phrase>
@@ -12274,13 +13398,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Seek"
+    *: "Seek"
   </source>
   <dest>
-    *: "Vyňať skočenie"
+    *: "Skočiť"
   </dest>
   <voice>
-    *: "Vyňať skočenie"
+    *: "Skočiť"
   </voice>
 </phrase>
 <phrase>
@@ -12288,7 +13412,7 @@
   desc: Softlock behaviour setting
   user: core
   <source>
-    *: "Disable Locked Reminders"
+    *: "Disable Notify"
   </source>
   <dest>
     *: "Vypnúť upozornenie"
@@ -12456,13 +13580,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Play"
+    *: "Play"
   </source>
   <dest>
-    *: "Vyňať prehratie"
+    *: "Prehrať"
   </dest>
   <voice>
-    *: "Vyňať prehratie"
+    *: "Prehrať"
   </voice>
 </phrase>
 <phrase>
@@ -12470,13 +13594,13 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Skip"
+    *: "Skip"
   </source>
   <dest>
-    *: "Vyňať preskočenie"
+    *: "preskočiť"
   </dest>
   <voice>
-    *: "Vyňať preskočenie"
+    *: "Preskočiť"
   </voice>
 </phrase>
 <phrase>
@@ -12554,13 +13678,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Via Track list"
+    *: none
+    lcd_bitmap: "Via Track list"
   </source>
   <dest>
-    *: "Cez zoznam stôp"
+    *: none
+    lcd_bitmap: "Cez zoznam stôp"
   </dest>
   <voice>
-    *: "Cez zoznam stôp"
+    *: none
+    lcd_bitmap: "Cez zoznam stôp"
   </voice>
 </phrase>
 <phrase>
@@ -12568,13 +13695,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Veža"
+    *: none
+    lcd_bitmap: "Veža"
   </voice>
 </phrase>
 <phrase>
@@ -12596,13 +13726,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Zoom"
+    *: none
+    lcd_bitmap: "Zoom"
   </source>
   <dest>
-    *: "Zväčšenie"
+    *: none
+    lcd_bitmap: "Zväčšenie"
   </dest>
   <voice>
-    *: "Zväčšenie"
+    *: none
+    lcd_bitmap: "Zväčšenie"
   </voice>
 </phrase>
 <phrase>
@@ -12624,13 +13757,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Number of slides"
+    *: none
+    lcd_bitmap: "Number of slides"
   </source>
   <dest>
-    *: "Počet slidov"
+    *: none
+    lcd_bitmap: "Počet slidov"
   </dest>
   <voice>
-    *: "Počet slidov"
+    *: none
+    lcd_bitmap: "Počet slidov"
   </voice>
 </phrase>
 <phrase>
@@ -12641,7 +13777,7 @@
     *: "Number of Players"
   </source>
   <dest>
-    *: "počet hráčov"
+    *: "Number of Players"
   </dest>
   <voice>
     *: "Počet hráčov"
@@ -12649,16 +13785,16 @@
 </phrase>
 <phrase>
   id: LANG_PROPERTIES_TITLE
-  desc: deprecated
+  desc: in properties plugin
   user: core
   <source>
-    *: ""
+    *: "[Title]"
   </source>
   <dest>
-    *: ""
+    *: "[Názov]"
   </dest>
   <voice>
-    *: ""
+    *: "Názov"
   </voice>
 </phrase>
 <phrase>
@@ -12666,13 +13802,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "strana kráľovnej"
+    *: none
+    lcd_bitmap: "strana kráľovnej"
   </voice>
 </phrase>
 <phrase>
@@ -12680,13 +13819,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Food Size"
+    *: none
+    lcd_bitmap: "Food Size"
   </source>
   <dest>
-    *: "Veľkosť potravy"
+    *: none
+    lcd_bitmap: "Veľkosť potravy"
   </dest>
   <voice>
-    *: "Veľkosť potravy"
+    *: none
+    lcd_bitmap: "Veľkosť potravy"
   </voice>
 </phrase>
 <phrase>
@@ -12708,15 +13850,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Play from beginning"
+    *: none
+    swcodec: "Play from beginning"
     lowmem: none
   </source>
   <dest>
-    *: "Prehrať od začiatku"
+    *: none
+    swcodec: "Prehrať od začiatku"
     lowmem: none
   </dest>
   <voice>
-    *: "Prehrať od začiatku"
+    *: none
+    swcodec: "Prehrať od začiatku"
     lowmem: none
   </voice>
 </phrase>
@@ -12753,15 +13898,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Limit FPS"
+    *: none
+    swcodec: "Limit FPS"
     lowmem: none
   </source>
   <dest>
-    *: "Limit FPS"
+    *: none
+    swcodec: "Limit FPS"
     lowmem: none
   </dest>
   <voice>
-    *: "Limit FPS"
+    *: none
+    swcodec: "Limit FPS"
     lowmem: none
   </voice>
 </phrase>
@@ -12770,13 +13918,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "WPS Integration"
+    *: none
+    lcd_bitmap: "WPS Integration"
   </source>
   <dest>
-    *: "Integrácia WPS"
+    *: none
+    lcd_bitmap: "Integrácia WPS"
   </dest>
   <voice>
-    *: "Integrácia WPS"
+    *: none
+    lcd_bitmap: "Integrácia WPS"
   </voice>
 </phrase>
 <phrase>
@@ -12784,13 +13935,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the beginning of the game"
+    *: none
+    lcd_bitmap: "At the beginning of the game"
   </source>
   <dest>
-    *: "Na začiatku hry"
+    *: none
+    lcd_bitmap: "Na začiatku hry"
   </dest>
   <voice>
-    *: "Na začiatku hry"
+    *: none
+    lcd_bitmap: "Na začiatku hry"
   </voice>
 </phrase>
 <phrase>
@@ -12798,13 +13952,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Grayscale"
+    *: none
+    lcd_bitmap: "Grayscale"
   </source>
   <dest>
-    *: "Odtiene šedej"
+    *: none
+    lcd_bitmap: "Odtiene šedej"
   </dest>
   <voice>
-    *: "Odtiene šedej"
+    *: none
+    lcd_bitmap: "Odtiene šedej"
   </voice>
 </phrase>
 <phrase>
@@ -12826,13 +13983,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "Error parsing game !"
+    *: none
+    lcd_bitmap: "Error parsing game !"
   </source>
   <dest>
-    *: "Chyba načítania hry!"
+    *: none
+    lcd_bitmap: "Chyba načítania hry!"
   </dest>
   <voice>
-    *: "Chyba načítania hry!"
+    *: none
+    lcd_bitmap: "Chyba načítania hry!"
   </voice>
 </phrase>
 <phrase>
@@ -12840,13 +14000,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Illegal move!"
+    *: none
+    lcd_bitmap: "Illegal move!"
   </source>
   <dest>
-    *: "Nesprávny ťah!"
+    *: none
+    lcd_bitmap: "Nesprávny ťah!"
   </dest>
   <voice>
-    *: "Nesprávny ťah!"
+    *: none
+    lcd_bitmap: "Nesprávny ťah!"
   </voice>
 </phrase>
 <phrase>
@@ -12868,15 +14031,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Reverberation"
+    *: none
+    swcodec: "Reverberation"
     lowmem: none
   </source>
   <dest>
-    *: "Ozvena"
+    *: none
+    swcodec: "Reverberation"
     lowmem: none
   </dest>
   <voice>
-    *: "Ozvena"
+    *: none
+    swcodec: "Reverberation"
     lowmem: none
   </voice>
 </phrase>
@@ -12885,13 +14051,16 @@
   desc: cannot restart playback splash in imageviewer
   user: core
   <source>
-    *: "Cannot restart playback"
+    *: none
+    lcd_bitmap: "Cannot restart playback"
   </source>
   <dest>
-    *: "nemožno reštartovať prehrávanie"
+    *: none
+    lcd_bitmap: "nemožno reštartovať prehrávanie"
   </dest>
   <voice>
-    *: "nemožno reštartovať prehrávanie"
+    *: none
+    lcd_bitmap: "nemožno reštartovať prehrávanie"
   </voice>
 </phrase>
 <phrase>
@@ -12899,13 +14068,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Saving position"
+    *: none
+    lcd_bitmap: "Saving position"
   </source>
   <dest>
-    *: "Ukladám pozíciu"
+    *: none
+    lcd_bitmap: "Ukladám pozíciu"
   </dest>
   <voice>
-    *: "Ukladám pozíciu"
+    *: none
+    lcd_bitmap: "Ukladám pozíciu"
   </voice>
 </phrase>
 <phrase>
@@ -12913,13 +14085,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Show album title"
+    *: none
+    lcd_bitmap: "Show album title"
   </source>
   <dest>
-    *: "Zobraziť názov albumu"
+    *: none
+    lcd_bitmap: "Zobraziť názov albumu"
   </dest>
   <voice>
-    *: "Zobraziť názov albumu"
+    *: none
+    lcd_bitmap: "Zobraziť názov albumu"
   </voice>
 </phrase>
 <phrase>
@@ -12927,15 +14102,18 @@
   desc: in mpegplayer settings
   user: core
   <source>
-    *: "Unavailable"
+    *: none
+    swcodec: "Unavailable"
     lowmem: none
   </source>
   <dest>
-    *: "Nedostupné"
+    *: none
+    swcodec: "Nedostupné"
     lowmem: none
   </dest>
   <voice>
-    *: "Nedostupné"
+    *: none
+    swcodec: "Nedostupné"
     lowmem: none
   </voice>
 </phrase>
@@ -12958,13 +14136,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Čierny"
+    *: none
+    lcd_bitmap: "Čierny"
   </voice>
 </phrase>
 <phrase>
@@ -12972,13 +14153,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 5: 40 moves / 60 min"
+    *: none
+    lcd_bitmap: "Level 5: 40 moves / 60 min"
   </source>
   <dest>
-    *: "Úroveň 5: 40 ťahov / 60 min"
+    *: none
+    lcd_bitmap: "Úroveň 5: 40 ťahov / 60 min"
   </dest>
   <voice>
-    *: "Úroveň 5: 40 ťahov za 60 minút"
+    *: none
+    lcd_bitmap: "Úroveň 5: 40 ťahov za 60 minút"
   </voice>
 </phrase>
 <phrase>
@@ -12986,13 +14170,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "View Played Games"
+    *: none
+    lcd_bitmap: "View Played Games"
   </source>
   <dest>
-    *: "Zobraziť odohrané hry"
+    *: none
+    lcd_bitmap: "Zobraziť odohrané hry"
   </dest>
   <voice>
-    *: "Zobraziť odohrané hry"
+    *: none
+    lcd_bitmap: "Zobraziť odohrané hry"
   </voice>
 </phrase>
 <phrase>
@@ -13014,13 +14201,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Rebuild cache"
+    *: none
+    lcd_bitmap: "Rebuild cache"
   </source>
   <dest>
-    *: "Obnoviť cache"
+    *: none
+    lcd_bitmap: "Obnoviť cache"
   </dest>
   <voice>
-    *: "Obnoviť cache"
+    *: none
+    lcd_bitmap: "Obnoviť cache"
   </voice>
 </phrase>
 <phrase>
@@ -13028,13 +14218,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Kráľ"
+    *: none
+    lcd_bitmap: "Kráľ"
   </voice>
 </phrase>
 <phrase>
@@ -13070,13 +14263,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 4: 40 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 4: 40 moves / 30 min"
   </source>
   <dest>
-    *: "Úroveň 4: 40 ťahov / 30 min"
+    *: none
+    lcd_bitmap: "Úroveň 4: 40 ťahov / 30 min"
   </dest>
   <voice>
-    *: "Úroveň 4: 40 ťahov za 30 minút"
+    *: none
+    lcd_bitmap: "Úroveň 4: 40 ťahov za 30 minút"
   </voice>
 </phrase>
 <phrase>
@@ -13101,13 +14297,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Play Wormlet!"
+    *: none
+    lcd_bitmap: "Play Wormlet!"
   </source>
   <dest>
-    *: "Hraj Wormlet!"
+    *: none
+    lcd_bitmap: "Hraj Wormlet!"
   </dest>
   <voice>
-    *: "Hraj Wormlet!"
+    *: none
+    lcd_bitmap: "Hraj Wormlet!"
   </voice>
 </phrase>
 <phrase>
@@ -13115,13 +14314,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Diffusion"
+    *: none
+    lcd_bitmap: "Diffusion"
   </source>
   <dest>
-    *: "Difúzia"
+    *: none
+    lcd_bitmap: "Diffusion"
   </dest>
   <voice>
-    *: "Difúzia"
+    *: none
+    lcd_bitmap: "Diffusion"
   </voice>
 </phrase>
 <phrase>
@@ -13129,13 +14331,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Centre margin"
+    *: none
+    lcd_bitmap: "Centre margin"
   </source>
   <dest>
-    *: "Centrovať okraj"
+    *: none
+    lcd_bitmap: "Centrovať okraj"
   </dest>
   <voice>
-    *: "Centrovať okraj"
+    *: none
+    lcd_bitmap: "Centrovať okraj"
   </voice>
 </phrase>
 <phrase>
@@ -13157,13 +14362,16 @@
   desc: spoken only, for announcing chess piece marking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "označené"
+    *: none
+    lcd_bitmap: "označené"
   </voice>
 </phrase>
 <phrase>
@@ -13171,15 +14379,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu"
+    *: none
+    swcodec: "Start menu"
     lowmem: none
   </source>
   <dest>
-    *: "Menu štart"
+    *: none
+    swcodec: "Menu štart"
     lowmem: none
   </dest>
   <voice>
-    *: "Menu štart"
+    *: none
+    swcodec: "Menu štart"
     lowmem: none
   </voice>
 </phrase>
@@ -13188,13 +14399,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Number of Worms"
+    *: none
+    lcd_bitmap: "Number of Worms"
   </source>
   <dest>
-    *: "Počet wormov"
+    *: none
+    lcd_bitmap: "Počet wormov"
   </dest>
   <voice>
-    *: "Počet wormov"
+    *: none
+    lcd_bitmap: "Počet wormov"
   </voice>
 </phrase>
 <phrase>
@@ -13202,13 +14416,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restore Game"
+    *: none
+    lcd_bitmap: "Restore Game"
   </source>
   <dest>
-    *: "Obnoviť hru"
+    *: none
+    lcd_bitmap: "Obnoviť hru"
   </dest>
   <voice>
-    *: "Obnoviť hru"
+    *: none
+    lcd_bitmap: "Obnoviť hru"
   </voice>
 </phrase>
 <phrase>
@@ -13216,13 +14433,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Direct"
+    *: none
+    lcd_bitmap: "Direct"
   </source>
   <dest>
-    *: "Priamy"
+    *: none
+    lcd_bitmap: "Priamy"
   </dest>
   <voice>
-    *: "priamy"
+    *: none
+    lcd_bitmap: "priamy"
   </voice>
 </phrase>
 <phrase>
@@ -13230,15 +14450,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Surround"
+    *: none
+    swcodec: "Surround"
     lowmem: none
   </source>
   <dest>
-    *: "Surround"
+    *: none
+    swcodec: "Surround"
     lowmem: none
   </dest>
   <voice>
-    *: "Surround"
+    *: none
+    swcodec: "Surround"
     lowmem: none
   </voice>
 </phrase>
@@ -13247,15 +14470,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Tone controls"
+    *: none
+    swcodec: "Tone controls"
     lowmem: none
   </source>
   <dest>
-    *: "hodnoty eq"
+    *: none
+    swcodec: "hodnoty eq"
     lowmem: none
   </dest>
   <voice>
-    *: "hodnoty výšok a hĺbok"
+    *: none
+    swcodec: "hodnoty výšok a hĺbok"
     lowmem: none
   </voice>
 </phrase>
@@ -13264,13 +14490,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restart Game"
+    *: none
+    lcd_bitmap: "Restart Game"
   </source>
   <dest>
-    *: "Reštartovať hru"
+    *: none
+    lcd_bitmap: "Reštartovať hru"
   </dest>
   <voice>
-    *: "Reštartovať hru"
+    *: none
+    lcd_bitmap: "Reštartovať hru"
   </voice>
 </phrase>
 <phrase>
@@ -13292,13 +14521,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "kôň"
+    *: none
+    lcd_bitmap: "kôň"
   </voice>
 </phrase>
 <phrase>
@@ -13309,7 +14541,7 @@
     *: "Control Style"
   </source>
   <dest>
-    *: "Typ ovládania"
+    *: "Control Style"
   </dest>
   <voice>
     *: "Typ ovládania"
@@ -13320,13 +14552,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 9: 1 move / 60 min"
+    *: none
+    lcd_bitmap: "Level 9: 1 move / 60 min"
   </source>
   <dest>
-    *: "Úroveň 9: 1 ťah / 60 min"
+    *: none
+    lcd_bitmap: "Úroveň 9: 1 ťah / 60 min"
   </dest>
   <voice>
-    *: "Úroveň 9: 1 ťah za 60 minút"
+    *: none
+    lcd_bitmap: "Úroveň 9: 1 ťah za 60 minút"
   </voice>
 </phrase>
 <phrase>
@@ -13334,13 +14569,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 8: 1 move / 15 min"
+    *: none
+    lcd_bitmap: "Level 8: 1 move / 15 min"
   </source>
   <dest>
-    *: "Úroveň 8: 1 ťah / 15 min"
+    *: none
+    lcd_bitmap: "Úroveň 8: 1 ťah / 15 min"
   </dest>
   <voice>
-    *: "Úroveň 8: 1 ťah za 15 minút"
+    *: none
+    lcd_bitmap: "Úroveň 8: 1 ťah za 15 minút"
   </voice>
 </phrase>
 <phrase>
@@ -13348,15 +14586,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Play Mode"
+    *: none
+    swcodec: "Play Mode"
     lowmem: none
   </source>
   <dest>
-    *: "Režim prehrávania"
+    *: none
+    swcodec: "Režim prehrávania"
     lowmem: none
   </dest>
   <voice>
-    *: "Režim prehrávania"
+    *: none
+    swcodec: "Režim prehrávania"
     lowmem: none
   </voice>
 </phrase>
@@ -13365,13 +14606,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Growth Per Food"
+    *: none
+    lcd_bitmap: "Worm Growth Per Food"
   </source>
   <dest>
-    *: "Nárast Worma po Potrave"
+    *: none
+    lcd_bitmap: "Nárast Worma po Potrave"
   </dest>
   <voice>
-    *: "Nárast Worma po Potrave"
+    *: none
+    lcd_bitmap: "Nárast Worma po Potrave"
   </voice>
 </phrase>
 <phrase>
@@ -13393,27 +14637,30 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Strana kráľa"
+    *: none
+    lcd_bitmap: "Strana kráľa"
   </voice>
 </phrase>
 <phrase>
   id: LANG_PROPERTIES_DURATION
-  desc: deprecated
+  desc: in properties plugin
   user: core
   <source>
-    *: ""
+    *: "[Duration]"
   </source>
   <dest>
-    *: ""
+    *: "[Trvanie]"
   </dest>
   <voice>
-    *: ""
+    *: "Trvanie"
   </voice>
 </phrase>
 <phrase>
@@ -13421,13 +14668,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Cache will be rebuilt on next restart"
+    *: none
+    lcd_bitmap: "Cache will be rebuilt on next restart"
   </source>
   <dest>
-    *: "Cache bude vytvorená po reštarte"
+    *: none
+    lcd_bitmap: "Cache bude vytvorená po reštarte"
   </dest>
   <voice>
-    *: "Cache bude vytvorená po reštarte"
+    *: none
+    lcd_bitmap: "Cache bude vytvorená po reštarte"
   </voice>
 </phrase>
 <phrase>
@@ -13449,13 +14699,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Toggle Slideshow Mode"
+    *: none
+    lcd_bitmap: "Toggle Slideshow Mode"
   </source>
   <dest>
-    *: "Prepnúť režim slide show"
+    *: none
+    lcd_bitmap: "Prepnúť režim slide show"
   </dest>
   <voice>
-    *: "Prepnúť režim slide show"
+    *: none
+    lcd_bitmap: "Prepnúť režim slide show"
   </voice>
 </phrase>
 <phrase>
@@ -13477,13 +14730,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Arghs Per Food"
+    *: none
+    lcd_bitmap: "Arghs Per Food"
   </source>
   <dest>
-    *: "Arghs Per Food"
+    *: none
+    lcd_bitmap: "Arghs Per Food"
   </dest>
   <voice>
-    *: "Arghs Per Food"
+    *: none
+    lcd_bitmap: "Arghs Per Food"
   </voice>
 </phrase>
 <phrase>
@@ -13491,13 +14747,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Speed"
+    *: none
+    lcd_bitmap: "Worm Speed"
   </source>
   <dest>
-    *: "rýchlosť worma"
+    *: none
+    lcd_bitmap: "rýchlosť worma"
   </dest>
   <voice>
-    *: "rýchlosť worma"
+    *: none
+    lcd_bitmap: "rýchlosť worma"
   </voice>
 </phrase>
 <phrase>
@@ -13505,13 +14764,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Resize Covers"
+    *: none
+    lcd_bitmap: "Resize Covers"
   </source>
   <dest>
-    *: "Zmeniť veľkosť"
+    *: none
+    lcd_bitmap: "Zmeniť veľkosť"
   </dest>
   <voice>
-    *: "Zmeniť veľkosť"
+    *: none
+    lcd_bitmap: "Zmeniť veľkosť"
   </voice>
 </phrase>
 <phrase>
@@ -13575,13 +14837,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Biely"
+    *: none
+    lcd_bitmap: "Biely"
   </voice>
 </phrase>
 <phrase>
@@ -13589,13 +14854,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Strelec"
+    *: none
+    lcd_bitmap: "Strelec"
   </voice>
 </phrase>
 <phrase>
@@ -13617,13 +14885,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Hráč"
+    *: none
+    lcd_bitmap: "Hráč"
   </voice>
 </phrase>
 <phrase>
@@ -13659,13 +14930,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Games"
+    *: none
+    lcd_bitmap: "Games"
   </source>
   <dest>
-    *: "Hry"
+    *: none
+    lcd_bitmap: "Hry"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -13687,15 +14961,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Backlight brightness"
+    *: none
+    swcodec: "Backlight brightness"
     lowmem: none
   </source>
   <dest>
-    *: "Jas podsvietenia"
+    *: none
+    swcodec: "Jas podsvietenia"
     lowmem: none
   </dest>
   <voice>
-    *: "Jas podsvietenia"
+    *: none
+    swcodec: "Jas podsvietenia"
     lowmem: none
   </voice>
 </phrase>
@@ -13704,13 +14981,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Hide album title"
+    *: none
+    lcd_bitmap: "Hide album title"
   </source>
   <dest>
-    *: "Skryť názov albumu"
+    *: none
+    lcd_bitmap: "Skryť názov albumu"
   </dest>
   <voice>
-    *: "Skryť názov albumu"
+    *: none
+    lcd_bitmap: "Skryť názov albumu"
   </voice>
 </phrase>
 <phrase>
@@ -13718,15 +14998,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Panning Separation"
+    *: none
+    swcodec: "Panning Separation"
     lowmem: none
   </source>
   <dest>
-    *: "Separácia panningu"
+    *: none
+    swcodec: "Separácia panningu"
     lowmem: none
   </dest>
   <voice>
-    *: "Separácia panningu"
+    *: none
+    swcodec: "Separácia panningu"
     lowmem: none
   </voice>
 </phrase>
@@ -13749,13 +15032,16 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Clear playlist"
+    *: none
+    lcd_bitmap: "Clear playlist"
   </source>
   <dest>
-    *: "vičistiť playlist"
+    *: none
+    lcd_bitmap: "vičistiť playlist"
   </dest>
   <voice>
-    *: "vičistiť playlist"
+    *: none
+    lcd_bitmap: "vičistiť playlist"
   </voice>
 </phrase>
 <phrase>
@@ -13777,15 +15063,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Clear all resumes"
+    *: none
+    swcodec: "Clear all resumes"
     lowmem: none
   </source>
   <dest>
-    *: "Vymazať všetky obnovenia"
+    *: none
+    swcodec: "Vymazať všetky obnovenia"
     lowmem: none
   </dest>
   <voice>
-    *: "Vymazať všetky obnovenia"
+    *: none
+    swcodec: "Vymazať všetky obnovenia"
     lowmem: none
   </voice>
 </phrase>
@@ -13794,13 +15083,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the top"
+    *: none
+    lcd_bitmap: "Show at the top"
   </source>
   <dest>
-    *: "Ukázať navrchu"
+    *: none
+    lcd_bitmap: "Ukázať navrchu"
   </dest>
   <voice>
-    *: "Ukázať navrchu"
+    *: none
+    lcd_bitmap: "Ukázať navrchu"
   </voice>
 </phrase>
 <phrase>
@@ -13808,13 +15100,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Argh Size"
+    *: none
+    lcd_bitmap: "Argh Size"
   </source>
   <dest>
-    *: "Veľkosť plochy"
+    *: none
+    lcd_bitmap: "Veľkosť plochy"
   </dest>
   <voice>
-    *: "Veľkosť plochy"
+    *: none
+    lcd_bitmap: "Veľkosť plochy"
   </voice>
 </phrase>
 <phrase>
@@ -13822,15 +15117,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Single"
+    *: none
+    swcodec: "Single"
     lowmem: none
   </source>
   <dest>
-    *: "Single"
+    *: none
+    swcodec: "Single"
     lowmem: none
   </dest>
   <voice>
-    *: "Single"
+    *: none
+    swcodec: "Single"
     lowmem: none
   </voice>
 </phrase>
@@ -13856,15 +15154,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Use common setting"
+    *: none
+    swcodec: "Use common setting"
     lowmem: none
   </source>
   <dest>
-    *: "Použiť zvyčajné nastavenie"
+    *: none
+    swcodec: "Použiť zvyčajné nastavenie"
     lowmem: none
   </dest>
   <voice>
-    *: "Použiť zvyčajné nastavenie"
+    *: none
+    swcodec: "Použiť zvyčajné nastavenie"
     lowmem: none
   </voice>
 </phrase>
@@ -13873,13 +15174,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Always On"
+    *: none
+    lcd_bitmap: "Always On"
   </source>
   <dest>
-    *: "Vždy zapnuté"
+    *: none
+    lcd_bitmap: "Vždy zapnuté"
   </dest>
   <voice>
-    *: "Vždy zapnuté"
+    *: none
+    lcd_bitmap: "Vždy zapnuté"
   </voice>
 </phrase>
 <phrase>
@@ -13887,13 +15191,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "No games found !"
+    *: none
+    lcd_bitmap: "No games found !"
   </source>
   <dest>
-    *: "Žiadne hry!"
+    *: none
+    lcd_bitmap: "Žiadne hry!"
   </dest>
   <voice>
-    *: "Žiadne hry!"
+    *: none
+    lcd_bitmap: "Žiadne hry!"
   </voice>
 </phrase>
 <phrase>
@@ -13901,15 +15208,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Use sound setting"
+    *: none
+    swcodec: "Use sound setting"
     lowmem: none
   </source>
   <dest>
-    *: "Použiť nastavenie zvuku"
+    *: none
+    swcodec: "Použiť nastavenie zvuku"
     lowmem: none
   </dest>
   <voice>
-    *: "Použiť nastavenie zvuku"
+    *: none
+    swcodec: "Použiť nastavenie zvuku"
     lowmem: none
   </voice>
 </phrase>
@@ -13935,13 +15245,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Slideshow Time"
+    *: none
+    lcd_bitmap: "Slideshow Time"
   </source>
   <dest>
-    *: "Čas slideshow"
+    *: none
+    lcd_bitmap: "Čas slideshow"
   </dest>
   <voice>
-    *: "Čas slideshow"
+    *: none
+    lcd_bitmap: "Čas slideshow"
   </voice>
 </phrase>
 <phrase>
@@ -13963,13 +15276,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 2: 60 moves / 15 min"
+    *: none
+    lcd_bitmap: "Level 2: 60 moves / 15 min"
   </source>
   <dest>
-    *: "Úroveň 2: 60 ťahov / 15 min"
+    *: none
+    lcd_bitmap: "Úroveň 2: 60 ťahov / 15 min"
   </dest>
   <voice>
-    *: "úroveň 2: 60 ťahov za 15 minút"
+    *: none
+    lcd_bitmap: "úroveň 2: 60 ťahov za 15 minút"
   </voice>
 </phrase>
 <phrase>
@@ -13977,13 +15293,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the end of the game"
+    *: none
+    lcd_bitmap: "At the end of the game"
   </source>
   <dest>
-    *: "Na konci hry"
+    *: none
+    lcd_bitmap: "Na konci hry"
   </dest>
   <voice>
-    *: "Na konci hry"
+    *: none
+    lcd_bitmap: "Na konci hry"
   </voice>
 </phrase>
 <phrase>
@@ -14019,13 +15338,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "rošáda"
+    *: none
+    lcd_bitmap: "rošáda"
   </voice>
 </phrase>
 <phrase>
@@ -14033,13 +15355,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Save Game"
+    *: none
+    lcd_bitmap: "Save Game"
   </source>
   <dest>
-    *: "Uložiť hru"
+    *: none
+    lcd_bitmap: "Uložiť hru"
   </dest>
   <voice>
-    *: "Uložiť hru"
+    *: none
+    lcd_bitmap: "Uložiť hru"
   </voice>
 </phrase>
 <phrase>
@@ -14050,7 +15375,7 @@
     *: "Load Default Configuration"
   </source>
   <dest>
-    *: "Nahrať predvolené nastavenia"
+    *: "Load Default Configuration"
   </dest>
   <voice>
     *: "Nahrať predvolené nastavenia"
@@ -14092,15 +15417,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Audio Options"
+    *: none
+    swcodec: "Audio Options"
     lowmem: none
   </source>
   <dest>
-    *: "Nastavenia zvuku"
+    *: none
+    swcodec: "Nastavenia zvuku"
     lowmem: none
   </dest>
   <voice>
-    *: "Nastavenia zvuku"
+    *: none
+    swcodec: "Nastavenia zvuku"
     lowmem: none
   </voice>
 </phrase>
@@ -14109,17 +15437,20 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Thinking..."
+    *: none
+    lcd_bitmap: "Thinking..."
   </source>
   <dest>
-    *: "Premýšľam..."
+    *: none
+    lcd_bitmap: "Premýšľam..."
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
-  id: LANG_NEVER
+  id: LANG__NEVER
   desc: in lcd settings
   user: core
   <source>
@@ -14137,13 +15468,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 6: 40 moves / 120 min"
+    *: none
+    lcd_bitmap: "Level 6: 40 moves / 120 min"
   </source>
   <dest>
-    *: "Úroveň 6: 40 ťahov / 120 min"
+    *: none
+    lcd_bitmap: "Úroveň 6: 40 ťahov / 120 min"
   </dest>
   <voice>
-    *: "Úroveň 6: 40 ťahov za 120 minút"
+    *: none
+    lcd_bitmap: "Úroveň 6: 40 ťahov za 120 minút"
   </voice>
 </phrase>
 <phrase>
@@ -14151,15 +15485,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu if not completed"
+    *: none
+    swcodec: "Start menu if not completed"
     lowmem: none
   </source>
   <dest>
-    *: "Spustiť ponuku ak nieje dokončené"
+    *: none
+    swcodec: "Spustiť ponuku ak nieje dokončené"
     lowmem: none
   </dest>
   <voice>
-    *: "Spustiť ponuku ak nieje dokončené"
+    *: none
+    swcodec: "Spustiť ponuku ak nieje dokončené"
     lowmem: none
   </voice>
 </phrase>
@@ -14182,13 +15519,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the bottom"
+    *: none
+    lcd_bitmap: "Show at the bottom"
   </source>
   <dest>
-    *: "Ukázať naspodku"
+    *: none
+    lcd_bitmap: "Ukázať naspodku"
   </dest>
   <voice>
-    *: "Ukázať naspodku"
+    *: none
+    lcd_bitmap: "Ukázať naspodku"
   </voice>
 </phrase>
 <phrase>
@@ -14213,13 +15553,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Šach!"
+    *: none
+    lcd_bitmap: "Šach!"
   </voice>
 </phrase>
 <phrase>
@@ -14227,13 +15570,16 @@
   desc: spoken only, for announcing chess piece unmarking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Neoznačené"
+    *: none
+    lcd_bitmap: "Neoznačené"
   </voice>
 </phrase>
 <phrase>
@@ -14252,16 +15598,16 @@
 </phrase>
 <phrase>
   id: LANG_PROPERTIES_ARTIST
-  desc: deprecated
+  desc: in properties plugin
   user: core
   <source>
-    *: ""
+    *: "[Artist]"
   </source>
   <dest>
-    *: ""
+    *: "[Interpret]"
   </dest>
   <voice>
-    *: ""
+    *: "Interpret"
   </voice>
 </phrase>
 <phrase>
@@ -14373,13 +15719,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 1: 60 moves / 5 min"
+    *: none
+    lcd_bitmap: "Level 1: 60 moves / 5 min"
   </source>
   <dest>
-    *: "Úroveň 1: 60 ťahov / 5 min"
+    *: none
+    lcd_bitmap: "Úroveň 1: 60 ťahov / 5 min"
   </dest>
   <voice>
-    *: "Úroveň 1: 60 ťahov / 5 min"
+    *: none
+    lcd_bitmap: "Úroveň 1: 60 ťahov / 5 min"
   </voice>
 </phrase>
 <phrase>
@@ -14387,13 +15736,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "GNU Chess"
+    *: none
+    lcd_bitmap: "GNU Chess"
   </voice>
 </phrase>
 <phrase>
@@ -14412,16 +15764,16 @@
 </phrase>
 <phrase>
   id: LANG_PROPERTIES_ALBUM
-  desc: deprecated
+  desc: in properties plugin
   user: core
   <source>
-    *: ""
+    *: "[Album]"
   </source>
   <dest>
-    *: ""
+    *: "[Album]"
   </dest>
   <voice>
-    *: ""
+    *: "Album"
   </voice>
 </phrase>
 <phrase>
@@ -14432,10 +15784,10 @@
     *: "Out of Control"
   </source>
   <dest>
-    *: "mimo rozsah"
+    *: "Out of Control"
   </dest>
   <voice>
-    *: "mimo rozsah"
+    *: "Out of Control"
   </voice>
 </phrase>
 <phrase>
@@ -14443,13 +15795,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Error writing config"
+    *: none
+    lcd_bitmap: "Error writing config"
   </source>
   <dest>
-    *: "Chyba pri zápise konfigu"
+    *: none
+    lcd_bitmap: "Chyba pri zápise konfigu"
   </dest>
   <voice>
-    *: "Chyba pri zápise konfigurácie"
+    *: none
+    lcd_bitmap: "Chyba pri zápise konfigurácie"
   </voice>
 </phrase>
 <phrase>
@@ -14471,13 +15826,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 7: 40 moves / 240 min"
+    *: none
+    lcd_bitmap: "Level 7: 40 moves / 240 min"
   </source>
   <dest>
-    *: "Úroveň 7: 40 ťahov / 240 min"
+    *: none
+    lcd_bitmap: "Úroveň 7: 40 ťahov / 240 min"
   </dest>
   <voice>
-    *: "Úroveň 7: 40 ťahov počas 240 minút"
+    *: none
+    lcd_bitmap: "Úroveň 7: 40 ťahov počas 240 minút"
   </voice>
 </phrase>
 <phrase>
@@ -14485,13 +15843,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 3: 60 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 3: 60 moves / 30 min"
   </source>
   <dest>
-    *: "Úroveň 3: 60 ťahov / 30 min"
+    *: none
+    lcd_bitmap: "Úroveň 3: 60 ťahov / 30 min"
   </dest>
   <voice>
-    *: "Úroveň 3: 60 ťahov za 30 minút"
+    *: none
+    lcd_bitmap: "Úroveň 3: 60 ťahov za 30 minút"
   </voice>
 </phrase>
 <phrase>
@@ -14499,13 +15860,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Ordered"
+    *: none
+    lcd_bitmap: "Ordered"
   </source>
   <dest>
-    *: "Zoradené"
+    *: none
+    lcd_bitmap: "Zoradené"
   </dest>
   <voice>
-    *: "Zoradené"
+    *: none
+    lcd_bitmap: "Zoradené"
   </voice>
 </phrase>
 <phrase>
@@ -14513,15 +15877,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Interpolation"
+    *: none
+    swcodec: "Interpolation"
     lowmem: none
   </source>
   <dest>
-    *: "Interpolácia"
+    *: none
+    swcodec: "Interpolácia"
     lowmem: none
   </dest>
   <voice>
-    *: "Interpolácia"
+    *: none
+    swcodec: "Interpolácia"
     lowmem: none
   </voice>
 </phrase>
@@ -14530,13 +15897,16 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Go to WPS"
+    *: none
+    lcd_bitmap: "Go to WPS"
   </source>
   <dest>
-    *: "Choď na WPS"
+    *: none
+    lcd_bitmap: "Choď na WPS"
   </dest>
   <voice>
-    *: "Choď na WPS"
+    *: none
+    lcd_bitmap: "Choď na WPS"
   </voice>
 </phrase>
 <phrase>
@@ -14544,13 +15914,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Spacing"
+    *: none
+    lcd_bitmap: "Spacing"
   </source>
   <dest>
-    *: "Medzery"
+    *: none
+    lcd_bitmap: "Medzery"
   </dest>
   <voice>
-    *: "Medzery"
+    *: none
+    lcd_bitmap: "Medzery"
   </voice>
 </phrase>
 <phrase>
@@ -14572,13 +15945,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Resume Game"
+    *: none
+    lcd_bitmap: "Resume Game"
   </source>
   <dest>
-    *: "Obnoviť hru"
+    *: none
+    lcd_bitmap: "Obnoviť hru"
   </dest>
   <voice>
-    *: "Obnoviť hru"
+    *: none
+    lcd_bitmap: "Obnoviť hru"
   </voice>
 </phrase>
 <phrase>
@@ -14586,13 +15962,19 @@
   desc: in the mpegplayer and pictureflow settings menus
   user: core
   <source>
-    *: "Display FPS"
+    *: none
+    swcodec: "Display FPS"
+    lcd_bitmap: "Display FPS"
   </source>
   <dest>
-    *: "Zobraziť FPS"
+    *: none
+    swcodec: "Display FPS"
+    lcd_bitmap: "Display FPS"
   </dest>
   <voice>
-    *: "Zobraziť FPS"
+    *: none
+    swcodec: "Display FPS"
+    lcd_bitmap: "Display FPS"
   </voice>
 </phrase>
 <phrase>
@@ -14600,13 +15982,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "No album art found"
+    *: none
+    lcd_bitmap: "No album art found"
   </source>
   <dest>
-    *: "Album art nenájdený"
+    *: none
+    lcd_bitmap: "Album art nenájdený"
   </dest>
   <voice>
-    *: "Album art nenájdený"
+    *: none
+    lcd_bitmap: "Album art nenájdený"
   </voice>
 </phrase>
 <phrase>
@@ -14614,13 +15999,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Berie"
+    *: none
+    lcd_bitmap: "Berie"
   </voice>
 </phrase>
 <phrase>
@@ -14628,13 +16016,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Checkmate!"
+    *: none
+    lcd_bitmap: "Checkmate!"
   </source>
   <dest>
-    *: "Mat!"
+    *: none
+    lcd_bitmap: "Mat!"
   </dest>
   <voice>
-    *: "Mat!"
+    *: none
+    lcd_bitmap: "Mat!"
   </voice>
 </phrase>
 <phrase>
@@ -14642,13 +16033,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Playlist Cleared"
+    *: none
+    lcd_bitmap: "Playlist Cleared"
   </source>
   <dest>
-    *: "Playlist vymazaný"
+    *: none
+    lcd_bitmap: "Playlist vymazaný"
   </dest>
   <voice>
-    *: "Playlist vymazaný"
+    *: none
+    lcd_bitmap: "Playlist vymazaný"
   </voice>
 </phrase>
 <phrase>
@@ -14670,15 +16064,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Set resume time (min)"
+    *: none
+    swcodec: "Set resume time (min)"
     lowmem: none
   </source>
   <dest>
-    *: "nastaviť čas obnovenia (min)"
+    *: none
+    swcodec: "nastaviť čas obnovenia (min)"
     lowmem: none
   </dest>
   <voice>
-    *: "nastaviť čas obnovenia"
+    *: none
+    swcodec: "nastaviť čas obnovenia"
     lowmem: none
   </voice>
 </phrase>
@@ -14715,15 +16112,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Skip frames"
+    *: none
+    swcodec: "Skip frames"
     lowmem: none
   </source>
   <dest>
-    *: "preskočiť frejmy"
+    *: none
+    swcodec: "preskočiť frejmy"
     lowmem: none
   </dest>
   <voice>
-    *: "Preskočiť frejmy"
+    *: none
+    swcodec: "Preskočiť frejmy"
     lowmem: none
   </voice>
 </phrase>
@@ -14732,13 +16132,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Added to playlist"
+    *: none
+    lcd_bitmap: "Added to playlist"
   </source>
   <dest>
-    *: "Pridané do playlistu"
+    *: none
+    lcd_bitmap: "Pridané do playlistu"
   </dest>
   <voice>
-    *: "Pridané do playlistu"
+    *: none
+    lcd_bitmap: "Pridané do playlistu"
   </voice>
 </phrase>
 <phrase>
@@ -14760,15 +16163,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "CPU Boost"
+    *: none
+    swcodec: "CPU Boost"
     lowmem: none
   </source>
   <dest>
-    *: "CPU Boost"
+    *: none
+    swcodec: "CPU Boost"
     lowmem: none
   </dest>
   <voice>
-    *: "CPU Boost"
+    *: none
+    swcodec: "CPU Boost"
     lowmem: none
   </voice>
 </phrase>
@@ -14791,13 +16197,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Kráľovná"
+    *: none
+    lcd_bitmap: "Kráľovná"
   </voice>
 </phrase>
 <phrase>
@@ -14805,15 +16214,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume Options"
+    *: none
+    swcodec: "Resume Options"
     lowmem: none
   </source>
   <dest>
-    *: "Nastavenia obnovenia"
+    *: none
+    swcodec: "Nastavenia obnovenia"
     lowmem: none
   </dest>
   <voice>
-    *: "Nastavenia obnovenia"
+    *: none
+    swcodec: "Nastavenia obnovenia"
     lowmem: none
   </voice>
 </phrase>
@@ -14822,13 +16234,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 10: 1 move / 600 min"
+    *: none
+    lcd_bitmap: "Level 10: 1 move / 600 min"
   </source>
   <dest>
-    *: "Úroveň 10: 1 ťah / 600 min"
+    *: none
+    lcd_bitmap: "Úroveň 10: 1 ťah / 600 min"
   </dest>
   <voice>
-    *: "Úroveň 10: 1 ťah za 600 minút"
+    *: none
+    lcd_bitmap: "Úroveň 10: 1 ťah za 600 minút"
   </voice>
 </phrase>
 <phrase>
@@ -14836,13 +16251,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Loading position"
+    *: none
+    lcd_bitmap: "Loading position"
   </source>
   <dest>
-    *: "Načítavam pozíciu"
+    *: none
+    lcd_bitmap: "Načítavam pozíciu"
   </dest>
   <voice>
-    *: "Načítavam pozíciu"
+    *: none
+    lcd_bitmap: "Načítavam pozíciu"
   </voice>
 </phrase>
 <phrase>
@@ -14850,15 +16268,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume automatically"
+    *: none
+    swcodec: "Resume automatically"
     lowmem: none
   </source>
   <dest>
-    *: "Obnoviť automaticky"
+    *: none
+    swcodec: "Obnoviť automaticky"
     lowmem: none
   </dest>
   <voice>
-    *: "Obnoviť automaticky"
+    *: none
+    swcodec: "Obnoviť automaticky"
     lowmem: none
   </voice>
 </phrase>
@@ -14867,13 +16288,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Pešiak"
+    *: none
+    lcd_bitmap: "Pešiak"
   </voice>
 </phrase>
 <phrase>
@@ -14895,13 +16319,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "New Game"
+    *: none
+    lcd_bitmap: "New Game"
   </source>
   <dest>
-    *: "Nová hra"
+    *: none
+    lcd_bitmap: "Nová hra"
   </dest>
   <voice>
-    *: "Nová hra"
+    *: none
+    lcd_bitmap: "Nová hra"
   </voice>
 </phrase>
 <phrase>
@@ -14909,1401 +16336,15 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Select Other Game"
-  </source>
-  <dest>
-    *: "Vybrať inú hru"
-  </dest>
-  <voice>
-    *: "Vybrať inú hru"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the top"
-  </source>
-  <dest>
-    *: "Zobraziť album navrchu"
-  </dest>
-  <voice>
-    *: "Zobraziť album navrchu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UPDATE_CACHE
-  desc: in pictureflow
-  user: core
-  <source>
-    *: "Update cache"
-  </source>
-  <dest>
-    *: "Aktualizovať cache"
-  </dest>
-  <voice>
-    *: "Aktualizovať cache"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the bottom"
-  </source>
-  <dest>
-    *: "Zobraziť album a umelca naspodku"
-  </dest>
-  <voice>
-    *: "Zobraziť album a umelca naspodku"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the bottom"
-  </source>
-  <dest>
-    *: "Zobraziť album naspodku"
-  </dest>
-  <voice>
-    *: "Zobraziť album naspodku"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide information"
-  </source>
-  <dest>
-    *: "Skryť info"
-  </dest>
-  <voice>
-    *: "Skryť info"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the top"
-  </source>
-  <dest>
-    *: "Zobraziť album a umelca navrchu"
-  </dest>
-  <voice>
-    *: "Zobraziť album a umelca navrchu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_HQMIXER
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "HQ Mixer"
-    lowmem: none
-  </source>
-  <dest>
-    *: "HQ Mixer"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Kvalitný Mixér"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_SAMPLERATE
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Sample Rate"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Vzorkovacia frekvencia"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Vzorkovacia frekvencia"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_STD_CANCEL
-  desc: standard press x to cancel string
-  user: core
-  <source>
-    *: "Press LEFT to cancel."
-    android,hifietma*,zenvision: "Press BACK to cancel."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Press POWER to cancel."
-    ihifi760,ihifi960: "Double tap RETURN to cancel."
-    ihifi770,ihifi770c,ihifi800: "Press HOME to cancel."
-    iriverh10,samsungyh*: "Double tap LEFT to cancel."
-    mpiohd200: "Double tap REC to cancel."
-    mpiohd300: "Double tap MENU to cancel."
-    rx27generic: "Press VOLUME to cancel."
-    sonynwza860: "Keymaps incomplete."
-    touchscreen: "Press Middle Left to cancel."
-    vibe500: "Press PREV to cancel."
-    xduoox20,xduoox3,xduoox3ii: "Double tap HOME to cancel."
-  </source>
-  <dest>
-    *: "Stlačte LEFT pre zrušenie"
-    android: "Stlačte späť pre zrušenie"
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Stlačte POWER pre zrušenie"
-    hifietma*,zenvision: "Stlačte BACK Pre zrušenie"
-    ihifi760,ihifi960: "Poklepte RETURN pre zrušenie"
-    ihifi770,ihifi770c,ihifi800: "Stlačte HOME pre zrušenie"
-    iriverh10,samsungyh*: "Poklepte LEFT pre zrušenie"
-    mpiohd200: "Poklepte REC pre zrušenie"
-    mpiohd300: "Poklepte MENU pre zrušenie"
-    rx27generic: "Stlačte VOLUME pre zrušenie"
-    sonynwza860: "mapa klávesov nekompletná"
-    touchscreen: "Stlačte stred vľavo pre zrušenie"
-    vibe500: "Stlačte PREV pre zrušenie"
-    xduoox20,xduoox3,xduoox3ii: "Poklepte HOME pre zrušenie"
-  </dest>
-  <voice>
-    *: "Stlačte LEFT pre zrušenie"
-    android: "Stlačte späť pre zrušenie"
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Stlačte POWER pre zrušenie"
-    hifietma*,zenvision: "Stlačte BACK Pre zrušenie"
-    ihifi760,ihifi960: "Poklepte RETURN pre zrušenie"
-    ihifi770,ihifi770c,ihifi800: "Stlačte HOME pre zrušenie"
-    iriverh10,samsungyh*: "Poklepte LEFT pre zrušenie"
-    mpiohd200: "Poklepte REC pre zrušenie"
-    mpiohd300: "Poklepte MENU pre zrušenie"
-    rx27generic: "Stlačte VOLUME pre zrušenie"
-    touchscreen: "Stlačte stred vľavo pre zrušenie"
-    vibe500: "Stlačte PREV pre zrušenie"
-    xduoox20,xduoox3,xduoox3ii: "Poklepte HOME pre zrušenie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATE
-  desc: for constructing time and date announcements
-  user: core
-  <source>
-    *: "Date"
-  </source>
-  <dest>
-    *: "dátum"
-  </dest>
-  <voice>
-    *: "Dátum"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL
-  desc:
-  user: core
-  <source>
-    *: "Clear all"
-  </source>
-  <dest>
-    *: "Vymazať všetko"
-  </dest>
-  <voice>
-    *: "Vymazať všetko"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANCEL_0
-  desc: CANCEL.
-  user: core
-  <source>
-    *: "Cancel"
-  </source>
-  <dest>
-    *: "zrušiť"
-  </dest>
-  <voice>
-    *: "Zrušiť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE
-  desc:
-  user: core
-  <source>
-    *: "Save"
-  </source>
-  <dest>
-    *: "Uložiť"
-  </dest>
-  <voice>
-    *: "Uložiť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TIMEOUT
-  desc:
-  user: core
-  <source>
-    *: "Timeout"
-  </source>
-  <dest>
-    *: "Čas vypršal"
-  </dest>
-  <voice>
-    *: "Čas vypršal"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK
-  desc: used in track x of y constructs
-  user: core
-  <source>
-    *: "Track"
-  </source>
-  <dest>
-    *: "Stopa"
-  </dest>
-  <voice>
-    *: "Stopa"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ELAPSED
-  desc: prefix for elapsed playtime announcement
-  user: core
-  <source>
-    *: "Elapsed"
-  </source>
-  <dest>
-    *: "Trvanie"
-  </dest>
-  <voice>
-    *: "Trvanie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCEMENT_FMT
-  desc: format for wps hotkey announcement
-  user: core
-  <source>
     *: none
-    hotkey: "Announcement format"
+    lcd_bitmap: "Select Other Game"
   </source>
   <dest>
     *: none
-    hotkey: "Formát oznámenia"
+    lcd_bitmap: "Vybrať inú hru"
   </dest>
   <voice>
     *: none
-    hotkey: "Formát oznámenia"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMAIN
-  desc: for constructs such as number of tracks remaining etc
-  user: core
-  <source>
-    *: none
-    hotkey: "Remain"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Zostáva"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Zostáva"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GROUPING
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Grouping"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Zoskupenie"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Zoskupenie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCE_ON
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Announce on"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Oznámenie zapnuté"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Oznámenie zapnuté"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_CHANGE
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Track change"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Zmena stopy"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Zmena stopy"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HOLD_FOR_SETTINGS
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Hold for settings"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Pridržte pre nastavenia"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Pridržte pre nastavenia"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE_MODE
-  desc: single mode
-  user: core
-  <source>
-    *: "Single Mode"
-  </source>
-  <dest>
-    *: "Single režim"
-  </dest>
-  <voice>
-    *: "Single režim"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TALK_MIXER_LEVEL
-  desc: Relative volume of voice prompts
-  user: core
-  <source>
-    *: "Voice prompt volume"
-  </source>
-  <dest>
-    *: "Hlasitosť ozvučenia"
-  </dest>
-  <voice>
-    *: "Hlasitosť ozvučenia"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SHARP
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Sharp"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Short Sharp"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Short Sharp"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Short Slow"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Short Slow"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SUPER_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Super Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Super Slow"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Super Slow"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Linear Fast"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Linear Fast"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Linear Slow"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Linear Slow"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Minimum Fast"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Minimum Fast"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Minimum Slow"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Minimum Slow"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_1
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 1"
-  </source>
-  <dest>
-    *: none
-    es9218: "Apodizing type 1"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Apodizing type 1"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_2
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 2"
-  </source>
-  <dest>
-    *: none
-    es9218: "Apodizing type 2"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Apodizing type 2"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_HYBRID_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Hybrid Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Hybrid Fast"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Hybrid Fast"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_BRICK_WALL
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Brick Wall"
-  </source>
-  <dest>
-    *: none
-    es9218: "Brick Wall"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Brick Wall"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_MODE
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_HIGH
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_LOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN
-  desc: onplay open plugin
-  user: core
-  <source>
-    *: "Open Plugin"
-  </source>
-  <dest>
-    *: "Otvoriť plugin"
-  </dest>
-  <voice>
-    *: "Otvoriť plugin"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_NOT_A_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Not a plugin: %s"
-  </source>
-  <dest>
-    *: "Nie je plugin: %s"
-  </dest>
-  <voice>
-    *: "Nie je plugin"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_SET_WPS_CONTEXT_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Set Wps Context Plugin"
-  </source>
-  <dest>
-    *: "Set Wps Context Plugin"
-  </dest>
-  <voice>
-    *: "Set WPS Context Plugin"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PARAMETER
-  desc:
-  user: core
-  <source>
-    *: "Parameter"
-  </source>
-  <dest>
-    *: "Parameter"
-  </dest>
-  <voice>
-    *: "Parameter"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NAME
-  desc:
-  user: core
-  <source>
-    *: "Name"
-  </source>
-  <dest>
-    *: "Názov"
-  </dest>
-  <voice>
-    *: "Názov"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD
-  desc:
-  user: core
-  <source>
-    *: "Add"
-  </source>
-  <dest>
-    *: "Pridať"
-  </dest>
-  <voice>
-    *: "Pridať"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACK
-  desc:
-  user: core
-  <source>
-    *: "Back"
-  </source>
-  <dest>
-    *: "Späť"
-  </dest>
-  <voice>
-    *: "Späť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EDIT
-  desc:
-  user: core
-  <source>
-    *: "Edit"
-  </source>
-  <dest>
-    *: "Upraviť"
-  </dest>
-  <voice>
-    *: "Upraviť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RUN
-  desc:
-  user: core
-  <source>
-    *: "Run"
-  </source>
-  <dest>
-    *: "Spustiť"
-  </dest>
-  <voice>
-    *: "Spustiť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EXPORT
-  desc:
-  user: core
-  <source>
-    *: "Export"
-  </source>
-  <dest>
-    *: "Exportovať"
-  </dest>
-  <voice>
-    *: "Exportovať"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BROWSE
-  desc:
-  user: core
-  <source>
-    *: "Browse"
-  </source>
-  <dest>
-    *: "Prehľadávať"
-  </dest>
-  <voice>
-    *: "Prehľadávať"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ENTER_USB_STORAGE_MODE_QUERY
-  desc: upon plugging in USB
-  user: core
-  <source>
-    *: "Enter USB mass storage mode?"
-  </source>
-  <dest>
-    *: "Prejsť do režimu USB úložiska?"
-  </dest>
-  <voice>
-    *: "Prejsť do režimu USB úložiska?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_NEXT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUEUE_MENU
-  desc: in onplay menu
-  user: core
-  <source>
-    *: "Queue..."
-  </source>
-  <dest>
-    *: "Poradovník..."
-  </dest>
-  <voice>
-    *: "Poradovník..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_QUEUE_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Queue Options"
-  </source>
-  <dest>
-    *: "Ukázať voľby poradovníka"
-  </dest>
-  <voice>
-    *: "Ukázať voľby poradovníka"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUFFLED_ADDING_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Shuffled Adding Options"
-  </source>
-  <dest>
-    *: "Ukázať voľby pridávania zamiešane"
-  </dest>
-  <voice>
-    *: "Ukázať voľby pridávania zamiešane"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_IN_SUBMENU
-  desc: in Settings
-  user: core
-  <source>
-    *: "In Submenu"
-  </source>
-  <dest>
-    *: "V podmenu"
-  </dest>
-  <voice>
-    *: "V podmenu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_SHUFFLED
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SOFTLOCK_DISABLE_ALL_NOTIFY
-  desc: disable all softlock notifications
-  user: core
-  <source>
-    *: "Disable All Lock Notifications"
-  </source>
-  <dest>
-    *: "Vypnúť všetky upozornenia o zamykaní"
-  </dest>
-  <voice>
-    *: "Vypnúť všetky upozornenia o zamykaní"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_VOLUME
-  desc: exempt volume from softlock
-  user: core
-  <source>
-    *: "Exempt Volume"
-  </source>
-  <dest>
-    *: "Vyňať hlasitosť"
-  </dest>
-  <voice>
-    *: "Vyňať hlasitosť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_ALWAYSAUTOLOCK
-  desc: always prime autolock
-  user: core
-  <source>
-    *: "Always Autolock"
-  </source>
-  <dest>
-    *: "Vždy automaticky zamknúť"
-  </dest>
-  <voice>
-    *: "Vždy automaticky zamknúť"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_RELOAD_AFTER_SAVE
-  desc: reload playlist after saving
-  user: core
-  <source>
-    *: "Reload After Saving"
-  </source>
-  <dest>
-    *: "Načítať znovu po uložení"
-  </dest>
-  <voice>
-    *: "Načítať znovu po uložení"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUMARTIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_GENRE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMMENT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMPOSER
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_YEAR
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TRACKNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DISCNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FREQUENCY
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_BITRATE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_NUMERIC_TENS_SWAP_SEPARATOR
-  desc: voice only, for speaking numbers in languages that swap the tens and ones fields. Leave blank for languages that do not need it, such as English ("231" => "two hundred thirty one") but other languages may speak it as "two hundred one [AND] thirty"
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOICED_DATE_FORMAT
-  desc: format string for how dates will be read back. Y == 4-digit year, A == month name, m == numeric month, d == numeric day. For example, "AdY" will read "January 21 2021"
-  user: core
-  <source>
-    *: "dAY"
-  </source>
-  <dest>
-    *: "dAY"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_WRAPAROUND
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Wraparound"
-  </source>
-  <dest>
-    *: "Otáčať zoznam"
-  </dest>
-  <voice>
-    *: "Otáčať zoznam"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUTDOWN_MESSAGE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show Shutdown Message"
-  </source>
-  <dest>
-    *: "Zobraziť správu pri vypínaní"
-  </dest>
-  <voice>
-    *: "Zobraziť správu pri vypínaní"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Order"
-  </source>
-  <dest>
-    *: "Poradie zoznamu"
-  </dest>
-  <voice>
-    *: "Poradie zoznamu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ASCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Ascending"
-  </source>
-  <dest>
-    *: "Vzostupne"
-  </dest>
-  <voice>
-    *: "Vzostupne"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DESCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Descending"
-  </source>
-  <dest>
-    *: "Zostupne"
-  </dest>
-  <voice>
-    *: "Zostupne"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALBUM_ART
-  desc: in Settings
-  user: core
-  <source>
-    *: "Album Art"
-  </source>
-  <dest>
-    *: "Obal albumu"
-  </dest>
-  <voice>
-    *: "Obal albumu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_EMBEDDED
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Embedded"
-  </source>
-  <dest>
-    *: "Uprednostniť vložený"
-  </dest>
-  <voice>
-    *: "Uprednostniť vložený"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_IMAGE_FILE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Image File"
-  </source>
-  <dest>
-    *: "Uprednostniť súbor s obrázkom"
-  </dest>
-  <voice>
-    *: "Uprednostniť súbor s obrázkom"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FM_SYNC_RDS_TIME
-  desc: in radio screen and Settings
-  user: core
-  <source>
-    *: none
-    rds: "Sync RDS Time"
-  </source>
-  <dest>
-    *: none
-    rds: "Synchronizovať s časom RDS"
-  </dest>
-  <voice>
-    *: none
-    rds: "Synchronizovať s časom RDS"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SORT_ALBUMS_BY
-  desc: in Settings
-  user: core
-  <source>
-    *: "Sort albums by"
-  </source>
-  <dest>
-    *: "Triediť albumy podľa"
-  </dest>
-  <voice>
-    *: "Triediť albumy podľa"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_NAME
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Name"
-  </source>
-  <dest>
-    *: "Interpret + názov"
-  </dest>
-  <voice>
-    *: "Interpret a názov"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_YEAR
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Year"
-  </source>
-  <dest>
-    *: "Interpret + rok"
-  </dest>
-  <voice>
-    *: "Interpret a rok"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YEAR_SORT_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Year sort order"
-  </source>
-  <dest>
-    *: "Triediť podľa roku"
-  </dest>
-  <voice>
-    *: "Triediť podľa roku"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_YEAR_IN_ALBUM_TITLE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show year in album title"
-  </source>
-  <dest>
-    *: "Ukázať rok v názve albumu"
-  </dest>
-  <voice>
-    *: "Ukázať rok v názve albumu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WAIT_FOR_CACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Cache needs to finish updating first!"
-  </source>
-  <dest>
-    *: "Najprv sa musí dokončiť aktualizácia cache!"
-  </dest>
-  <voice>
-    *: "Najprv sa musí dokončiť aktualizácia cache!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_INFO
-  desc: Track Info Title
-  user: core
-  <source>
-    *: "Track Info"
-  </source>
-  <dest>
-    *: "Info o stope"
-  </dest>
-  <voice>
-    *: "Info o stope"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY
-  desc: play selected file/directory, in playlist context menu
-  user: core
-  <source>
-    *: "Play"
-  </source>
-  <dest>
-    *: "Prehrať"
-  </dest>
-  <voice>
-    *: "Prehrať"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_SHUFFLED
-  desc: play selected files in shuffled order, in playlist context menu
-  user: core
-  <source>
-    *: "Play Shuffled"
-  </source>
-  <dest>
-    *: "Prehrať zamiešané"
-  </dest>
-  <voice>
-    *: "Prehrať zamiešané"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_KEEP_CURRENT_TRACK_ON_REPLACE
-  desc: used in the playlist settings menu
-  user: core
-  <source>
-    *: "Keep Current Track When Replacing Playlist"
-  </source>
-  <dest>
-    *: "Ponechať aktuálnu stopu pri nahradení playlistu"
-  </dest>
-  <voice>
-    *: "Ponechať aktuálnu stopu pri nahradení playlistu"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_LANG_NAME
-  desc: Spoken name of the language
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Slovenčina"
+    lcd_bitmap: "Vybrať inú hru"
   </voice>
 </phrase>

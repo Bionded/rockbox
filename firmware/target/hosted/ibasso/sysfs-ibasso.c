@@ -32,7 +32,7 @@
 #include "sysfs-ibasso.h"
 
 
-static const char* const SYSFS_PATHS[] =
+static const char* SYSFS_PATHS[] =
 {
     /* SYSFS_DX50_CODEC_VOLUME */
     "/dev/codec_volume",
@@ -122,7 +122,7 @@ static const char* const SYSFS_PATHS[] =
 
 static FILE* open_read(const char* file_name)
 {
-    FILE *f = fopen(file_name, "re");
+    FILE *f = fopen(file_name, "r");
     if(f == NULL)
     {
         DEBUGF("ERROR %s: Can not open %s for reading.", __func__, file_name);
@@ -134,7 +134,7 @@ static FILE* open_read(const char* file_name)
 
 static FILE* open_write(const char* file_name)
 {
-    FILE *f = fopen(file_name, "we");
+    FILE *f = fopen(file_name, "w");
     if(f == NULL)
     {
         DEBUGF("ERROR %s: Can not open %s for writing.", __func__, file_name);

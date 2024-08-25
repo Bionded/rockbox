@@ -25,10 +25,13 @@
 #endif
 
 /* define the bitmask of hardware sample rates */
-#define HW_SAMPR_CAPS   (/*SAMPR_CAP_88* |*/ SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
+#define HW_SAMPR_CAPS   (SAMPR_CAP_88 | SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
 
 /* define the bitmask of recording sample rates */
-#define REC_SAMPR_CAPS  (/*SAMPR_CAP_88 |*/ SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
+#define REC_SAMPR_CAPS  (SAMPR_CAP_88 | SAMPR_CAP_44 | SAMPR_CAP_22 | SAMPR_CAP_11)
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
@@ -89,8 +92,8 @@
 #define AB_REPEAT_ENABLE
 #define ACTION_WPSAB_SINGLE ACTION_WPS_BROWSE
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_PCF50606
@@ -165,6 +168,12 @@
 /* Define this if you have ATA power-off control */
 #define HAVE_ATA_POWER_OFF
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ
 
@@ -173,8 +182,7 @@
 #define BOOTDIR "/.rockbox"
 
 #define BOOTLOADER_ENTRYPOINT  0x001F0000
-#define FLASH_RAMIMAGE_ENTRY   0x00001000
-#define FLASH_ROMIMAGE_ENTRY   0x00100000
+#define FLASH_ENTRYPOINT       0x00001000
 #define FLASH_MAGIC            0xfbfbfbf1
 
 /** Port-specific settings **/

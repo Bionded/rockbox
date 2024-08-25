@@ -221,8 +221,6 @@ enum plugin_status plugin_start(const void* parameter)
     }
 
     grey_release();
-
     backlight_use_settings();
-
     return PLUGIN_OK;
 }

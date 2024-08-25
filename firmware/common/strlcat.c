@@ -16,7 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "string-extra.h"
+#include <string.h>
 
 /*
  * Appends src to string dst of size siz (unlike strncat, siz is the
@@ -29,7 +29,9 @@ size_t
 strlcat(char *dst, const char *src, size_t siz)
 {
         char *d = dst;
-        size_t dlen, n = siz;
+        const char *s = src;
+        size_t n = siz;
+        size_t dlen;
 
         /* Find the end of dst and adjust bytes left but don't go past end */
         while (n-- != 0 && *d != '\0')
@@ -37,6 +39,17 @@ strlcat(char *dst, const char *src, size_t siz)
         dlen = d - dst;
         n = siz - dlen;
 
-        return strlcpy(dst + dlen, src, n) + dlen;
+        if (n == 0)
+                return(dlen + strlen(s));
+        while (*s != '\0') {
+                if (n != 1) {
+                        *d++ = *s;
+                        n--;
+                }
+                s++;
+        }
+        *d = '\0';
+
+        return(dlen + (s - src));       /* count does not include NUL */
 }
 

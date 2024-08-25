@@ -24,10 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-
-/* these values are for the V1 format */
-#define NWZ_KEY_SIZE    8
-#define NWZ_SIG_SIZE    8
+#include "fwp.h"
 
 enum keysig_search_method_t
 {
@@ -49,7 +46,7 @@ struct keysig_search_desc_t
     const char *comment;
 };
 
-extern struct keysig_search_desc_t keysig_search_desc[KEYSIG_SEARCH_LAST];
+struct keysig_search_desc_t keysig_search_desc[KEYSIG_SEARCH_LAST];
 
 bool keysig_search(int method, uint8_t *enc_buf, size_t buf_sz,
     keysig_notify_fn_t notify, void *user, int nr_threads);

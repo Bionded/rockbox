@@ -20,12 +20,15 @@
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_LINEIN | SRC_CAP_FMRADIO)
 
 /* define the bitmask of hardware sample rates */
-#define HW_SAMPR_CAPS   (/*SAMPR_CAP_96 | SAMPR_CAP_88 |*/ SAMPR_CAP_48 | \
+#define HW_SAMPR_CAPS   (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8)
 
 /* define the bitmask of recording sample rates */
-#define REC_SAMPR_CAPS  (/*SAMPR_CAP_96 | SAMPR_CAP_88 |*/ SAMPR_CAP_48 | \
+#define REC_SAMPR_CAPS  (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8)
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -82,8 +85,8 @@
 /* define this if the target has volume keys which can be used in the lists */
 #define HAVE_VOLUME_IN_LIST
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock. The HDD16x0 has a PCF8563 RTC,
    but it's register compatible with the E8564. */
@@ -135,8 +138,8 @@
 #define HAVE_HEADPHONE_DETECTION
 
 #define BATTERY_CAPACITY_DEFAULT 630 /* default battery capacity */
-#define BATTERY_CAPACITY_MIN     600 /* min. capacity selectable */
-#define BATTERY_CAPACITY_MAX     700 /* max. capacity selectable */
+#define BATTERY_CAPACITY_MIN     630 /* min. capacity selectable */
+#define BATTERY_CAPACITY_MAX     630 /* max. capacity selectable */
 #define BATTERY_CAPACITY_INC       0 /* capacity increment */
 #define BATTERY_TYPES_COUNT        1 /* only one type */
 
@@ -180,6 +183,11 @@
 
 /* We're able to shut off power to the HDD */
 #define HAVE_ATA_POWER_OFF
+
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

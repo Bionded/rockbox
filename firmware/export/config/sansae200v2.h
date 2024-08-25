@@ -6,14 +6,7 @@
 #define MODEL_NUMBER 41
 #define MODEL_NAME   "Sandisk Sansa e200v2 series"
 
-/* Define if boot data from bootloader has been enabled for the target */
-#define HAVE_BOOTDATA
-
-/* define boot redirect file name allows booting from external drives */
-#define BOOT_REDIR "rockbox_main.e200v2"
-#define MULTIBOOT_MIN_VOLUME 1
-
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_96
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
@@ -31,8 +24,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -72,17 +65,14 @@
 #define HAVE_LCD_SLEEP
 #define HAVE_LCD_SLEEP_SETTING
  */
+#endif
 
 /* define this if you can flip your LCD */
 #define HAVE_LCD_FLIP
 
 /* define this if you can invert the colours on your LCD */
 #define HAVE_LCD_INVERT
-#else /* !BOOTLOADER */
-#define DISABLE_ALPHA_BITMAP
-#define DISABLE_LOGO
-#define DISABLE_BACKTRACE
-#endif /* !BOOTLOADER */
+
 /* put the lcd frame buffer in IRAM */
 #define IRAM_LCDFRAMEBUFFER IBSS_ATTR
 
@@ -94,8 +84,8 @@
 /* Define this to have CPU boosted while scrolling in the UI */
 #define HAVE_GUI_BOOST
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* There is no hardware tone control */
 #define HAVE_SW_TONE_CONTROLS
@@ -197,10 +187,17 @@
 /* Type of LCD TODO: hopefully the same as the x5 but check this*/
 #define CONFIG_LCD LCD_X5
 
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
+
 #define HAVE_MULTIDRIVE
 #define NUM_DRIVES 2
-#define HAVE_HOTSWAP
 
+#ifndef BOOTLOADER
+#define HAVE_HOTSWAP
+#endif
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_AS3525

@@ -149,13 +149,13 @@ void tv_toggle_bookmark(void)
     if (idx < 0)
     {
         if (tv_add_bookmark(pos) >= 0)
-            rb->splash(HZ/2, ID2P(LANG_BOOKMARK_CREATE_SUCCESS));
+            rb->splash(HZ/2, "Bookmark add");
         else
-            rb->splash(HZ/2, "No more add bookmark"); // XXX i18n
+            rb->splash(HZ/2, "No more add bookmark");
         return;
     }
     tv_remove_bookmark(idx);
-    rb->splash(HZ/2, "Bookmark remove"); // XXX i18n
+    rb->splash(HZ/2, "Bookmark remove");
 }
 
 void tv_create_system_bookmark(void)
@@ -182,7 +182,11 @@ static const char* get_bookmark_name(int selected, void * data,
     (void)data;
     struct tv_bookmark_info *bookmark = &bookmarks[selected];
     rb->snprintf(buffer, buffer_len,
+#ifdef HAVE_LCD_BITMAP
                  "%cPage: %d  Line: %d",
+#else
+                 "%cP:%d  L:%d",
+#endif
                  (bookmark->flag & TV_BOOKMARK_SYSTEM)? '*' : ' ',
                  bookmark->pos.page + 1, bookmark->pos.line + 1);
     return buffer;
@@ -233,9 +237,9 @@ void tv_select_bookmark(void)
             tv_copy_screen_pos(&select_pos);
 
             if (select_pos.file_pos == 0)
-                rb->splash(HZ, "Start the first page"); // XXX i18n
+                rb->splash(HZ, "Start the first page");
             else
-                rb->splash(HZ, "Return to the current page"); // XXX i18n
+                rb->splash(HZ, "Return to the current page");
         }
     }
 

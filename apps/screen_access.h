@@ -23,6 +23,7 @@
 #define _SCREEN_ACCESS_H_
 
 #include "lcd.h"
+#include "buttonbar.h"
 #include "scroll_engine.h"
 #include "backdrop.h"
 #include "line.h"
@@ -37,6 +38,10 @@ void screen_helper_setfont(int font);
 
 #define FOR_NB_SCREENS(i) for(int i = 0; i < NB_SCREENS; i++)
 
+#ifdef HAVE_LCD_CHARCELLS
+#define MAX_LINES_ON_SCREEN 2
+#endif
+
 typedef void screen_bitmap_part_func(const void *src, int src_x, int src_y,
                               int stride, int x, int y, int width, int height);
 typedef void screen_bitmap_func(const void *src, int x, int y, int width,
@@ -50,22 +55,24 @@ struct screen
     int lcdwidth, lcdheight;
     int depth;
     int (*getnblines)(void);
+#ifdef HAVE_LCD_BITMAP
     int pixel_format;
+#endif
     int (*getcharwidth)(void);
     int (*getcharheight)(void);
     bool is_color;
 #if (CONFIG_LED == LED_VIRTUAL) || defined(HAVE_REMOTE_LCD)
     bool has_disk_led;
 #endif
+#ifdef HAVE_BUTTONBAR
+    bool has_buttonbar;
+#endif
     void (*set_drawmode)(int mode);
-    struct viewport* (*init_viewport)(struct viewport* vp);
-    struct viewport* (*set_viewport)(struct viewport* vp);
-    struct viewport* (*set_viewport_ex)(struct viewport* vp, int flags);
-    void (*viewport_set_buffer)(struct viewport *vp, struct frame_buffer_t *buffer);
-    struct viewport** current_viewport;
+    void (*set_viewport)(struct viewport* vp);
     int (*getwidth)(void);
     int (*getheight)(void);
     int (*getstringsize)(const unsigned char *str, int *w, int *h);
+#if defined(HAVE_LCD_BITMAP) || defined(HAVE_REMOTE_LCD) /* always bitmap */
     void (*setfont)(int newfont);
     int (*getuifont)(void);
     void (*setuifont)(int newfont);
@@ -105,11 +112,20 @@ struct screen
     void (*drawline)(int x1, int y1, int x2, int y2);
     void (*vline)(int x, int y1, int y2);
     void (*hline)(int x1, int x2, int y);
+#endif /* HAVE_LCD_BITMAP || HAVE_REMOTE_LCD */
 
+#ifdef HAVE_LCD_CHARCELLS  /* no charcell remote LCDs so far */
+    void (*double_height)(bool on);
+    /* name it putchar, not putc because putc is a c library function */
+    void (*putchar)(int x, int y, unsigned long ucs);
+    void (*icon)(int icon, bool enable);
+    unsigned long (*get_locked_pattern)(void);
+    void (*define_pattern)(unsigned long ucs, const char *pattern);
+    void (*unlock_pattern)(unsigned long ucs);
+#endif
     void (*putsxy)(int x, int y, const unsigned char *str);
     void (*puts)(int x, int y, const unsigned char *str);
     void (*putsf)(int x, int y, const unsigned char *str, ...);
-    void (*putsxyf)(int x, int y, const unsigned char *fmt, ...);
     bool (*puts_scroll)(int x, int y, const unsigned char *string);
     bool (*putsxy_scroll_func)(int x, int y, const unsigned char *string,
                                void (*scroll_func)(struct scrollinfo *),
@@ -131,17 +147,23 @@ struct screen
     bool (*backdrop_load)(const char *filename, char* backdrop_buffer);
     void (*backdrop_show)(char* backdrop_buffer);
 #endif
-#if defined(HAVE_LCD_COLOR)
+#if defined(HAVE_LCD_BITMAP)
+    void (*set_framebuffer)(void *framebuffer);
+#if defined(HAVE_LCD_COLOR)    
     void (*gradient_fillrect)(int x, int y, int width, int height,
             unsigned start, unsigned end);
     void (*gradient_fillrect_part)(int x, int y, int width, int height,
             unsigned start, unsigned end, int src_height, int row_skip);
 #endif
+#endif
+#if defined(HAVE_LCD_BITMAP)
     void (*nine_segment_bmp)(const struct bitmap* bm, int x, int y,
                                 int width, int height);
+#endif
     void (*put_line)(int x, int y, struct line_desc *line, const char *fmt, ...);
 };
 
+#if defined(HAVE_LCD_BITMAP) || defined(HAVE_REMOTE_LCD)
 /*
  * Clear only a given area of the screen
  * - screen : the screen structure
@@ -150,6 +172,7 @@ struct screen
  */
 void screen_clear_area(struct screen * display, int xstart, int ystart,
                        int width, int height);
+#endif
 
 /*
  * exported screens array that should be used

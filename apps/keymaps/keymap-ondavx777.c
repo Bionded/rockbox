@@ -127,7 +127,7 @@ static const struct button_mapping button_context_usb_hid[] = {
 
 const struct button_mapping* target_get_context_mapping(int context)
 {
-    switch (context & ~CONTEXT_LOCKED)
+    switch (context)
     {
         case CONTEXT_STD:
             return button_context_standard;

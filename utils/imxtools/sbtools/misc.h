@@ -22,7 +22,6 @@
 #define __MISC_H__
 
 #include <stdbool.h>
-#include <stdint.h>
 #include "crypto.h"
 
 #define _STR(a) #a
@@ -41,8 +40,8 @@ extern bool g_debug;
 extern bool g_force;
 
 typedef struct crypto_key_t *key_array_t;
-extern int g_nr_keys;
-extern key_array_t g_key_array;
+int g_nr_keys;
+key_array_t g_key_array;
 
 typedef void (*misc_printf_t)(void *user, const char *fmt, ...);
 
@@ -54,8 +53,8 @@ void augment_array_ex(void **arr, size_t elem_sz, int *cnt, int *capacity,
     void *aug, int aug_cnt);
 void generate_random_data(void *buf, size_t sz);
 void *xmalloc(size_t s);
-int convxdigit(char digit, uint8_t *val);
-void print_hex(void *user, misc_printf_t printf, uint8_t *data, int len, bool newline);
+int convxdigit(char digit, byte *val);
+void print_hex(void *user, misc_printf_t printf, byte *data, int len, bool newline);
 void add_keys(key_array_t ka, int kac);
 bool parse_key(char **str, struct crypto_key_t *key);
 bool add_keys_from_file(const char *key_file);

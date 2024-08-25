@@ -276,7 +276,7 @@ static bool do_slot(int slot_id, bool is_load) {
     if (!is_load)
     {
         slot_info(desc_buf, sizeof(desc_buf), slot_id, false);
-        if ( rb->kbd_input(desc_buf, sizeof(desc_buf), NULL) < 0 )
+        if ( rb->kbd_input(desc_buf, sizeof(desc_buf)) < 0 )
             return false;
         if ( !strlen(desc_buf) )
             strlcpy(desc_buf, "Untitled", sizeof(desc_buf));
@@ -428,7 +428,7 @@ static void do_opt_menu(void)
     options.dirty=1; /* Assume that the settings have been changed */
 
     struct viewport *parentvp = NULL;
-    const struct settings_list* vol = rb->find_setting(&rb->global_settings->volume);
+    const struct settings_list* vol = rb->find_setting(&rb->global_settings->volume, NULL);
 
     while(!done)
     {
@@ -437,39 +437,39 @@ static void do_opt_menu(void)
         switch (result)
         {
             case 0: /* Frameskip */
-                rb->set_option("Max Frameskip", &options.maxskip, RB_INT, frameskip,
+                rb->set_option("Max Frameskip", &options.maxskip, INT, frameskip, 
                     sizeof(frameskip)/sizeof(*frameskip), NULL );
                 break;
             case 1: /* Autosave */
-                rb->set_option("Autosave", &options.autosave, RB_INT, onoff, 2, NULL );
+                rb->set_option("Autosave", &options.autosave, INT, onoff, 2, NULL );
                 break;
             case 2: /* Sound */
                 if(options.sound>1) options.sound=1;
-                rb->set_option("Sound", &options.sound, RB_INT, onoff, 2, NULL );
+                rb->set_option("Sound", &options.sound, INT, onoff, 2, NULL );
                 if(options.sound) sound_dirty();
                 break;
             case 3: /* Volume */
                 rb->option_screen((struct settings_list*)vol, parentvp, false, "Volume");
                 break;
             case 4: /* Stats */
-                rb->set_option("Stats", &options.showstats, RB_INT, stats, 3, NULL );
+                rb->set_option("Stats", &options.showstats, INT, stats, 3, NULL );
                 break;
             case 5: /* Keys */
                 setupkeys();
                 break;
 #ifdef HAVE_LCD_COLOR
             case 6: /* Screen Size */
-                rb->set_option("Screen Size", &options.scaling, RB_INT, scaling,
+                rb->set_option("Screen Size", &options.scaling, INT, scaling,
                     sizeof(scaling)/sizeof(*scaling), NULL );
                 setvidmode();
                 break;
             case 7: /* Screen rotate */
-                rb->set_option("Screen Rotate", &options.rotate, RB_INT, rotate,
+                rb->set_option("Screen Rotate", &options.rotate, INT, rotate,
                     sizeof(rotate)/sizeof(*rotate), NULL );
                 setvidmode();
                 break;
             case 8: /* Palette */
-                rb->set_option("Set Palette", &options.pal, RB_INT, palette, 17, NULL );
+                rb->set_option("Set Palette", &options.pal, INT, palette, 17, NULL );
                 set_pal();
                 break;
 #endif

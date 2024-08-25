@@ -65,21 +65,21 @@ static bool nexttrack(void)
 static bool volume(void)
 {
     const struct settings_list* vol = 
-        rb->find_setting(&rb->global_settings->volume);
+        rb->find_setting(&rb->global_settings->volume, NULL);
     return rb->option_screen((struct settings_list*)vol, parentvp, false, "Volume");
 }
 
 static bool shuffle(void)
 {
     const struct settings_list* shuffle = 
-        rb->find_setting(&rb->global_settings->playlist_shuffle);
+        rb->find_setting(&rb->global_settings->playlist_shuffle, NULL);
     return rb->option_screen((struct settings_list*)shuffle, parentvp, false, "Shuffle");
 }
 
 static bool repeat_mode(void)
 {
     const struct settings_list* repeat = 
-        rb->find_setting(&rb->global_settings->repeat_mode);
+        rb->find_setting(&rb->global_settings->repeat_mode, NULL);
     int old_repeat = rb->global_settings->repeat_mode;
   
     rb->option_screen((struct settings_list*)repeat, parentvp, false, "Repeat");
@@ -91,19 +91,19 @@ static bool repeat_mode(void)
     return false;
 }
 MENUITEM_FUNCTION(prevtrack_item, 0, ID2P(LANG_PREVTRACK),
-                  prevtrack, NULL, Icon_NOICON);
+                  prevtrack, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(playpause_item, 0, ID2P(LANG_PLAYPAUSE),
-                  play, NULL, Icon_NOICON);
+                  play, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(stop_item, 0, ID2P(LANG_STOP_PLAYBACK),
-                  stop, NULL, Icon_NOICON);
+                  stop, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(nexttrack_item, 0, ID2P(LANG_NEXTTRACK),
-                  nexttrack, NULL, Icon_NOICON);
+                  nexttrack, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(volume_item, 0, ID2P(LANG_CHANGE_VOLUME),
-                  volume, NULL, Icon_NOICON);
+                  volume, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(shuffle_item, 0, ID2P(LANG_CHANGE_SHUFFLE_MODE),
-                  shuffle, NULL, Icon_NOICON);
+                  shuffle, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(repeat_mode_item, 0, ID2P(LANG_CHANGE_REPEAT_MODE),
-                  repeat_mode, NULL, Icon_NOICON);
+                  repeat_mode, NULL, NULL, Icon_NOICON);
 MAKE_MENU(playback_control_menu, ID2P(LANG_PLAYBACK_CONTROL), NULL, Icon_NOICON,
             &prevtrack_item, &playpause_item, &stop_item, &nexttrack_item,
             &volume_item, &shuffle_item, &repeat_mode_item);

@@ -27,19 +27,15 @@
 #include "file.h"
 #include "kernel.h"
 #include "metadata.h"
-#include "rbpaths.h"
-#include "chunk_alloc.h"
 
 #define PLAYLIST_ATTR_QUEUED    0x01
 #define PLAYLIST_ATTR_INSERTED  0x02
 #define PLAYLIST_ATTR_SKIPPED   0x04
+#define PLAYLIST_MAX_CACHE      16
 
 #define PLAYLIST_DISPLAY_COUNT  10
 
-#define PLAYLIST_UNTITLED_PREFIX "Playlist "
-
-#define PLAYLIST_FLAG_MODIFIED (1u << 0) /* playlist was manually modified */
-#define PLAYLIST_FLAG_DIRPLAY  (1u << 1) /* enable directory skipping */
+#define DEFAULT_DYNAMIC_PLAYLIST_NAME "/dynamic.m3u8"
 
 enum playlist_command {
     PLAYLIST_COMMAND_PLAYLIST,
@@ -49,10 +45,7 @@ enum playlist_command {
     PLAYLIST_COMMAND_SHUFFLE,
     PLAYLIST_COMMAND_UNSHUFFLE,
     PLAYLIST_COMMAND_RESET,
-    PLAYLIST_COMMAND_CLEAR,
-    PLAYLIST_COMMAND_FLAGS,
-    PLAYLIST_COMMAND_COMMENT,
-    PLAYLIST_COMMAND_ERROR = PLAYLIST_COMMAND_COMMENT + 1 /* Internal */
+    PLAYLIST_COMMAND_COMMENT
 };
 
 enum {
@@ -62,37 +55,64 @@ enum {
     PLAYLIST_INSERT_FIRST = -4,
     PLAYLIST_INSERT_SHUFFLED = -5,
     PLAYLIST_REPLACE = -6,
-    PLAYLIST_INSERT_LAST_SHUFFLED = -7,
-    PLAYLIST_INSERT_LAST_ROTATED = -8
+    PLAYLIST_INSERT_LAST_SHUFFLED = -7
+};
+
+enum {
+    PLAYLIST_DELETE_CURRENT = -1
+};
+
+struct playlist_control_cache {
+    enum playlist_command command;
+    int i1;
+    int i2;
+    const char* s1;
+    const char* s2;
+    void* data;
 };
 
 struct playlist_info
 {
+    bool current;        /* current playing playlist                */
+    char filename[MAX_PATH];  /* path name of m3u playlist on disk  */
+    char control_filename[MAX_PATH]; /* full path of control file   */
     bool utf8;           /* playlist is in .m3u8 format             */
-    bool control_created; /* has control file been created?         */
-    unsigned int flags;  /* flags for misc. state */
     int  fd;             /* descriptor of the open playlist file    */
     int  control_fd;     /* descriptor of the open control file     */
+    bool control_created; /* has control file been created?         */
+    int  dirlen;         /* Length of the path to the playlist file */
+    volatile unsigned long *indices; /* array of indices            */
+#ifdef HAVE_DIRCACHE
+    struct dircache_fileref *dcfrefs; /* Dircache entry shortcuts */
+#endif
     int  max_playlist_size; /* Max number of files in playlist. Mirror of
                               global_settings.max_files_in_playlist */
-    unsigned long *indices; /* array of indices            */
+    bool in_ram;         /* playlist stored in ram (dirplay)        */
+    int buffer_handle;   /* handle to the below buffer (-1 if non-buflib) */
 
+    volatile char *buffer;/* buffer for in-ram playlists        */
+    int  buffer_size;    /* size of buffer                          */
+    int  buffer_end_pos; /* last position where buffer was written  */
     int  index;          /* index of current playing track          */
     int  first_index;    /* index of first song in playlist         */
     int  amount;         /* number of tracks in the index           */
     int  last_insert_pos; /* last position we inserted a track      */
+    int  seed;           /* shuffle seed                            */
+    bool shuffle_modified; /* has playlist been shuffled with
+                              inserted tracks?                      */
+    bool deleted;        /* have any tracks been deleted?           */
+    int num_inserted_tracks; /* number of tracks inserted           */
     bool started;       /* has playlist been started?               */
+
+    /* cache of playlist control commands waiting to be flushed to
+       to disk                                                      */
+    struct playlist_control_cache control_cache[PLAYLIST_MAX_CACHE];
+    int num_cached;      /* number of cached entries                */
+    bool pending_control_sync; /* control file needs to be synced   */
+
+    struct mutex *control_mutex; /* mutex for control file access    */
     int last_shuffled_start; /* number of tracks when insert last
                                     shuffled command start */
-    int  seed;           /* shuffle seed                            */
-    struct mutex mutex; /* mutex for control file access    */
-#ifdef HAVE_DIRCACHE
-    int dcfrefs_handle;
-#endif
-    int  dirlen;         /* Length of the path to the playlist file */
-    char filename[MAX_PATH];  /* path name of m3u playlist on disk  */
-    /* full path of control file (with extra room for extensions) */
-    char control_filename[sizeof(PLAYLIST_CONTROL_FILE) + 8];
 };
 
 struct playlist_track_info
@@ -103,21 +123,12 @@ struct playlist_track_info
     int  display_index;      /* index of track for display          */
 };
 
-struct playlist_insert_context {
-    struct playlist_info* playlist;
-    int position;
-    bool queue;
-    bool progress;
-    bool initialized;
-    int count;
-    int32_t count_langid;
-};
-
 /* Exported functions only for current playlist. */
 void playlist_init(void) INIT_ATTR;
 void playlist_shutdown(void);
 int playlist_create(const char *dir, const char *file);
 int playlist_resume(void);
+int playlist_add(const char *filename);
 int playlist_shuffle(int random_seed, int start_index);
 unsigned int playlist_get_filename_crc32(struct playlist_info *playlist,
                                          int index);
@@ -128,14 +139,15 @@ void playlist_start(int start_index, unsigned long elapsed,
 bool playlist_check(int steps);
 const char *playlist_peek(int steps, char* buf, size_t buf_size);
 int playlist_next(int steps);
+#if CONFIG_CODEC == SWCODEC
 bool playlist_next_dir(int direction);
+#endif
 int playlist_get_resume_info(int *resume_index);
 int playlist_update_resume_info(const struct mp3entry* id3);
 int playlist_get_display_index(void);
 int playlist_amount(void);
 void playlist_set_last_shuffled_start(void);
 struct playlist_info *playlist_get_current(void);
-bool playlist_dynamic_only(void);
 
 /* Exported functions for all playlists.  Pass NULL for playlist_info
    structure to work with current playlist. */
@@ -148,29 +160,20 @@ void playlist_close(struct playlist_info* playlist);
 void playlist_sync(struct playlist_info* playlist);
 int playlist_insert_track(struct playlist_info* playlist, const char *filename,
                           int position, bool queue, bool sync);
-int playlist_insert_context_create(struct playlist_info* playlist,
-                                   struct playlist_insert_context *context,
-                                   int position, bool queue, bool progress);
-int playlist_insert_context_add(struct playlist_insert_context *context,
-                                const char *filename);
-void playlist_insert_context_release(struct playlist_insert_context *context);
 int playlist_insert_directory(struct playlist_info* playlist,
                               const char *dirname, int position, bool queue,
                               bool recurse);
 int playlist_insert_playlist(struct playlist_info* playlist, const char *filename,
                              int position, bool queue);
-bool playlist_entries_iterate(const char *filename,
-                              struct playlist_insert_context *pl_context,
-                              bool (*action_cb)(const char *file_name));
+#if CONFIG_CODEC == SWCODEC
 void playlist_skip_entry(struct playlist_info *playlist, int steps);
+#endif
 int playlist_delete(struct playlist_info* playlist, int index);
 int playlist_move(struct playlist_info* playlist, int index, int new_index);
 int playlist_randomise(struct playlist_info* playlist, unsigned int seed,
                        bool start_current);
 int playlist_sort(struct playlist_info* playlist, bool start_current);
 bool playlist_modified(const struct playlist_info* playlist);
-void playlist_set_modified(struct playlist_info* playlist, bool modified);
-bool playlist_allow_dirplay(const struct playlist_info* playlist);
 int playlist_get_first_index(const struct playlist_info* playlist);
 int playlist_get_seed(const struct playlist_info* playlist);
 int playlist_amount_ex(const struct playlist_info* playlist);
@@ -178,11 +181,10 @@ char *playlist_name(const struct playlist_info* playlist, char *buf,
                     int buf_size);
 char *playlist_get_name(const struct playlist_info* playlist, char *buf,
                         int buf_size);
-size_t playlist_get_required_bufsz(struct playlist_info* playlist,
-                                   bool include_namebuf, int num_indices);
 int playlist_get_track_info(struct playlist_info* playlist, int index,
                             struct playlist_track_info* info);
-int playlist_save(struct playlist_info* playlist, char *filename);
+int playlist_save(struct playlist_info* playlist, char *filename,
+                  void* temp_buffer, size_t temp_buffer_size);
 int playlist_directory_tracksearch(const char* dirname, bool recurse,
                                    int (*callback)(char*, void*),
                                    void* context);

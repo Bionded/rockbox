@@ -7,10 +7,8 @@ alarm_menu.c
 #endif
 abrepeat.c
 bookmark.c
-core_keymap.c
 debug_menu.c
 filetypes.c
-fileop.c
 language.c
 main.c
 menu.c
@@ -21,6 +19,7 @@ menus/plugin_menu.c
 #if CONFIG_TUNER
 menus/radio_menu.c
 #endif
+#if CONFIG_CODEC == SWCODEC
 #ifdef HAVE_WM8978
 menus/audiohw_eq_menu.c
 #endif
@@ -28,6 +27,9 @@ menus/eq_menu.c
 buffering.c
 voice_thread.c
 rbcodec_helpers.c
+#else  /* !SWCODEC */
+mpeg.c
+#endif
 menus/main_menu.c
 menus/playback_menu.c
 menus/playlist_menu.c
@@ -40,7 +42,6 @@ menus/sound_menu.c
 menus/time_menu.c
 #endif
 misc.c
-open_plugin.c
 onplay.c
 playlist.c
 playlist_catalog.c
@@ -59,6 +60,7 @@ tree.c
 tagtree.c
 #endif
 filetree.c
+scrobbler.c
 #ifdef IPOD_ACCESSORY_PROTOCOL
 iap/iap-core.c
 iap/iap-lingo0.c
@@ -68,16 +70,23 @@ iap/iap-lingo1.c
 iap/iap-lingo2.c
 iap/iap-lingo3.c
 iap/iap-lingo4.c
-#if CONFIG_TUNER
-iap/iap-lingo7.c
 #endif
-#endif
+
 screen_access.c
+#ifdef HAVE_BUTTONBAR
+gui/buttonbar.c
+#endif
+#ifdef HAVE_LCD_BITMAP
 gui/icon.c
+#endif
 gui/list.c
 gui/line.c
+#ifdef HAVE_LCD_BITMAP
 gui/bitmap/list.c
 gui/bitmap/list-skinned.c
+#else
+gui/charcell/list.c
+#endif
 gui/option_select.c
 #ifdef HAVE_PITCHCONTROL
 gui/pitchscreen.c
@@ -94,7 +103,9 @@ gui/wps.c
 gui/scrollbar.c
 gui/splash.c
 gui/statusbar.c
+#ifdef HAVE_LCD_BITMAP
 gui/statusbar-skinned.c
+#endif
 #if (CONFIG_PLATFORM&PLATFORM_ANDROID)
 hosted/android/yesno.c
 hosted/android/notification.c
@@ -117,6 +128,11 @@ gui/skin_engine/skin_touchsupport.c
 gui/backdrop.c
 #endif
 
+#ifdef HAVE_LCD_CHARCELLS
+player/icons.c
+player/keyboard.c
+#endif
+#ifdef HAVE_LCD_BITMAP
 recorder/bmp.c
 recorder/icons.c
 #if (CONFIG_PLATFORM&PLATFORM_ANDROID)
@@ -140,7 +156,7 @@ recorder/albumart.c
 #ifdef HAVE_LCD_COLOR
 gui/color_picker.c
 #endif
-
+#endif
 #ifdef HAVE_RECORDING
 recorder/recording.c
 #endif
@@ -154,6 +170,7 @@ radio/radioart.c
 #endif
 #endif
 
+#if CONFIG_CODEC == SWCODEC
 #if INPUT_SRC_CAPS != 0
 audio_path.c
 #endif /* INPUT_SRC_CAPS != 0 */
@@ -168,6 +185,7 @@ beep.c
 #ifdef HAVE_RECORDING
 enc_config.c
 recorder/pcm_record.c
+#endif
 #endif
 #ifdef USB_ENABLE_HID
 usb_keymaps.c
@@ -188,6 +206,12 @@ keymaps/keymap-h1x0_h3x0.c
     || (CONFIG_KEYPAD == IPOD_3G_PAD) \
     || (CONFIG_KEYPAD == IPOD_1G2G_PAD))
 keymaps/keymap-ipod.c
+#elif CONFIG_KEYPAD == RECORDER_PAD
+keymaps/keymap-recorder.c
+#elif CONFIG_KEYPAD == ONDIO_PAD
+keymaps/keymap-ondio.c
+#elif CONFIG_KEYPAD == PLAYER_PAD
+keymaps/keymap-player.c
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 keymaps/keymap-x5.c
 #elif CONFIG_KEYPAD == IAUDIO_M3_PAD
@@ -198,6 +222,8 @@ keymaps/keymap-gigabeat.c
 keymaps/keymap-gigabeat-s.c
 #elif CONFIG_KEYPAD == IRIVER_H10_PAD
 keymaps/keymap-h10.c
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+keymaps/keymap-ifp7xx.c
 #elif CONFIG_KEYPAD == SANSA_E200_PAD
 keymaps/keymap-e200.c
 #elif CONFIG_KEYPAD == SANSA_C200_PAD
@@ -206,6 +232,8 @@ keymaps/keymap-c200.c
 keymaps/keymap-m200.c
 #elif CONFIG_KEYPAD == SANSA_CLIP_PAD
 keymaps/keymap-clip.c
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+keymaps/keymap-av300.c
 #elif CONFIG_KEYPAD == MROBE500_PAD
 keymaps/keymap-mr500.c
 #elif CONFIG_KEYPAD == MROBE100_PAD
@@ -230,6 +258,12 @@ keymaps/keymap-sa9200.c
 keymaps/keymap-hdd1630.c
 #elif CONFIG_KEYPAD == PHILIPS_HDD6330_PAD
 keymaps/keymap-hdd6330.c
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+keymaps/keymap-iaudio67.c
+#elif CONFIG_KEYPAD == SANSA_C100_PAD
+keymaps/keymap-c100.c
+#elif CONFIG_KEYPAD == LOGIK_DAX_PAD
+keymaps/keymap-logikdax.c
 #elif CONFIG_KEYPAD == SANSA_FUZE_PAD
 keymaps/keymap-fuze.c
 #elif CONFIG_KEYPAD == ONDAVX747_PAD
@@ -273,6 +307,8 @@ keymaps/keymap-ma.c
 keymaps/keymap-nwz.c
 #elif CONFIG_KEYPAD == SONY_NWZA860_PAD
 keymaps/keymap-nwza860.c
+#elif CONFIG_KEYPAD == SAMSUNG_YPZ5_PAD
+keymaps/keymap-ypz5.c
 #elif CONFIG_KEYPAD == IHIFI_PAD
 keymaps/keymap-ihifi.c
 #elif CONFIG_KEYPAD == IHIFI_770_PAD
@@ -287,16 +323,4 @@ keymaps/keymap-dx50.c
 keymaps/keymap-agptekrocker.c
 #elif CONFIG_KEYPAD == XDUOO_X3_PAD
 keymaps/keymap-xduoox3.c
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD
-keymaps/keymap-xduoox3ii.c
-#elif CONFIG_KEYPAD == XDUOO_X20_PAD
-keymaps/keymap-xduoox20.c
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-keymaps/keymap-fiiom3klinux.c
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-keymaps/keymap-fiiom3k.c
-#elif CONFIG_KEYPAD == EROSQ_PAD
-keymaps/keymap-erosq.c
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-keymaps/keymap-shanlingq1.c
 #endif

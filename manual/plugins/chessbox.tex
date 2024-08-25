@@ -23,15 +23,19 @@ you resume the game. The menu also allows the user to reload the last game
 saved, save the current position and start a new game without having to quit
 the game.
 
+\opt{archosrecorder,archosfmrecorder,ondio}{
+\note{This plugin will stop playback.}
+}
+
 \subsubsection{Keys}
     \begin{btnmap}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonMenu, \ButtonPlay, \ButtonLeft, \ButtonRight}
     \opt{MPIO_HD300_PAD}{\ButtonRew, \ButtonFF, \ButtonScrollUp, \ButtonScrollDown}
-    \opt{XDUOO_X3_PAD}{\ButtonPrev, \ButtonNext, \ButtonHome, \ButtonOption}
-    \nopt{IPOD_4G_PAD,IPOD_3G_PAD,MPIO_HD300_PAD,XDUOO_X3_PAD}{Direction keys}
+    \nopt{IPOD_4G_PAD,IPOD_3G_PAD,MPIO_HD300_PAD}{Direction keys}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Move the cursor\\
-    \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
+    \opt{RECORDER_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
+    \opt{ONDIO_PAD}{\ButtonMenu}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IPOD_4G_PAD,IPOD_3G_PAD,IAUDIO_X5_PAD%
         ,SANSA_E200_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD,GIGABEAT_S_PAD,MROBE100_PAD%
         ,SANSA_FUZE_PAD,SANSA_FUZEPLUS_PAD}
@@ -40,9 +44,10 @@ the game.
     \opt{COWON_D2_PAD}{\TouchCenter}
     \opt{PBELL_VIBE500_PAD}{\ButtonOK}
     \opt{MPIO_HD300_PAD}{\ButtonEnter}
-    \opt{XDUOO_X3_PAD}{\ButtonPlay}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Pick up / Drop piece\\
+    \opt{RECORDER_PAD}{\ButtonFOne}
+    \opt{ONDIO_PAD}{\ButtonMenu+\ButtonOff}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonMode}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect+\ButtonRight}
     \opt{IAUDIO_X5_PAD,SANSA_E200_PAD,SANSA_C200_PAD}{\ButtonRec}
@@ -56,10 +61,10 @@ the game.
     \opt{MPIO_HD300_PAD}{\ButtonRec}
     \opt{SANSA_FUZEPLUS_PAD}{\ButtonBottomRight}
     \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonFF}
-    \opt{XDUOO_X3_PAD}{\ButtonVolDown}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Change level\\
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOn}
+    \opt{RECORDER_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOn}
+    \opt{ONDIO_PAD}{Long \ButtonMenu}
     \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect+\ButtonPlay}
     \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,GIGABEAT_S_PAD,MROBE100_PAD,PBELL_VIBE500_PAD%
         ,MPIO_HD300_PAD}{\ButtonPlay}
@@ -70,17 +75,15 @@ the game.
     \opt{SANSA_FUZEPLUS_PAD}{Long \ButtonPlay}
     \opt{SAMSUNG_YH92X_PAD}{\ButtonRecOn{} or \ButtonRecOff}
     \opt{SAMSUNG_YH820_PAD}{\ButtonRec}
-    \opt{XDUOO_X3_PAD}{\ButtonVolUp}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Force play\\
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{Long \ButtonSelect}
+    \opt{RECORDER_PAD,ONDIO_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect+\ButtonMenu}
     \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,SANSA_E200_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD,GIGABEAT_S_PAD%
         ,MROBE100_PAD,SANSA_FUZEPLUS_PAD}{\ButtonPower}
     \opt{SANSA_FUZE_PAD}{Long \ButtonHome}
     \opt{COWON_D2_PAD,PBELL_VIBE500_PAD,MPIO_HD300_PAD}{\ButtonMenu}
     \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonRew}
-    \opt{XDUOO_X3_PAD}{\ButtonPower}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Show the menu\\
     \end{btnmap}

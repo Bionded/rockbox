@@ -70,13 +70,7 @@
 #define ROCKLIFE_INIT       PLA_DOWN
 #define ROCKLIFE_NEXT       PLA_RIGHT
 #define ROCKLIFE_NEXT_REP   PLA_RIGHT_REPEAT
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define ROCKLIFE_QUIT       PLA_UP
-#else
 #define ROCKLIFE_QUIT       PLA_CANCEL
-#endif
 #define ROCKLIFE_STATUS     PLA_LEFT
 
 #define PATTERN_RANDOM     0
@@ -156,7 +150,6 @@ static bool load_cellfile(const char *file, char *pgrid){
         switch(c) {
         case '!':
             comment = true;
-            break;
         case '.':
             if (!comment)
                 x++;
@@ -481,7 +474,6 @@ enum plugin_status plugin_start(const void* parameter)
     (void)(parameter);
 
     backlight_ignore_timeout();
-
 #if LCD_DEPTH > 1
     rb->lcd_set_backdrop(NULL);
 #ifdef HAVE_LCD_COLOR
@@ -586,6 +578,5 @@ enum plugin_status plugin_start(const void* parameter)
     }
 
     backlight_use_settings();
-
     return usb? PLUGIN_USB_CONNECTED: PLUGIN_OK;
 }

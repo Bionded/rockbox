@@ -53,20 +53,20 @@
 #
 # Time Elapsed/Remaining
 %V(2,73,92,8,1)
-%al%pc%ac%?Sr<%pe/%pp|%pp/%pe>%ar%pr
+%al%pc%ac%?Sr<%pe %Sx(of) %pp|%pp %Sx(of) %pe>%ar%pr
 #
 # Track Info - Album Art
 %ax%Vl(a,51,12,-,34,1)
-%s%al%?id<%id|%?d(1)<%d(1)|%(root%)>>
 %s%al%?it<%it|%fn>
-%s%al%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%s%al%?ia<%ia|%?d(2)<%d(2)|%(root%)>>
+%s%al%?id<%id|%?d(1)<%d(1)|%(root%)>>
 %s%al%?iy<%iy>
 #
 # Track Info - No Album Art
 %Vl(b,0,12,-,34,1)
-%s%ac%?id<%id|%?d(1)<%d(1)|%(root%)>>
 %s%ac%?it<%it|%fn>
-%s%ac%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%s%ac%?ia<%ia|%?d(2)<%d(2)|%(root%)>>
+%s%ac%?id<%id|%?d(1)<%d(1)|%(root%)>>
 %s%ac%?iy<%iy>
 #
 # Album Art

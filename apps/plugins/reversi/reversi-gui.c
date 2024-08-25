@@ -196,18 +196,15 @@ static bool game_finished;
  *   char *title    - Specify a title 
  *   fb_data *pixmap- Currently unused, but will allow for a graphic
  */
-struct touchbutton reversi_buttons[TOUCHBUTTON_COUNT] =
-{
-    { {.x=B_MENU_X, .y=B_MENU_Y, .width=B_MENU_W, .height=B_MENU_H, .flags=0, .buffer= 0,
-        .font=FONT_UI, .drawmode=DRMODE_SOLID, .fg_pattern=0, .bg_pattern=0xFFFF},
+struct touchbutton reversi_buttons[TOUCHBUTTON_COUNT] = 
+  {
+    { {B_MENU_X, B_MENU_Y, B_MENU_W, B_MENU_H, 0, FONT_UI, DRMODE_SOLID, 0, 0xFFFF},
       false, REVERSI_BUTTON_MENU, false, "Menu", NULL },
-
-    { {.x=B_QUIT_X, .y=B_QUIT_Y, .width=B_QUIT_W, .height=B_QUIT_H, .flags=0, .buffer=0,
-        .font=FONT_UI, .drawmode=DRMODE_SOLID, .fg_pattern=0, .bg_pattern=0xFFFF},
+      
+    { {B_QUIT_X, B_QUIT_Y, B_QUIT_W, B_QUIT_H, 0, FONT_UI, DRMODE_SOLID, 0, 0xFFFF},
       false, REVERSI_BUTTON_QUIT, false, "Quit", NULL },
-
-    { {.x=0, .y=0, .width=XOFS+BOARD_WIDTH,.height=YOFS+BOARD_HEIGHT, .flags=0, .buffer=0,
-        .font=0,  .drawmode=DRMODE_SOLID, .fg_pattern=0, .bg_pattern=0xFFFF},
+      
+    { {0, 0, XOFS+BOARD_WIDTH, YOFS+BOARD_HEIGHT, 0, 0,  DRMODE_SOLID, 0, 0xFFFF},
       false, REVERSI_BUTTON_MAKE_MOVE, true, NULL, NULL }
 };
 #endif
@@ -400,7 +397,7 @@ static bool reversi_gui_choose_strategy(
     }
     
     result = 
-        rb->set_option(prompt, &index, RB_INT, strategy_settings, num_items, NULL);
+        rb->set_option(prompt, &index, INT, strategy_settings, num_items, NULL);
         
     (*player) = strategy_values[index];
 
@@ -450,7 +447,7 @@ static bool reversi_gui_menu(void) {
                     break;
                 }
             }
-            rb->set_option(MENU_TEXT_WRAP_MODE, &index, RB_INT,
+            rb->set_option(MENU_TEXT_WRAP_MODE, &index, INT,
                     cursor_wrap_mode_settings, 3, NULL);
             cursor_wrap_mode = cursor_wrap_mode_values[index];
             break;
@@ -637,12 +634,11 @@ enum plugin_status plugin_start(const void *parameter) {
             draw_screen = false;
         }
         switch(cur_player) {
+            case BLACK:
+                cur_strategy = black_strategy;
+                break;
             case WHITE:
                 cur_strategy = white_strategy;
-                break;
-            case BLACK:
-            default:
-                cur_strategy = black_strategy;
                 break;
         }
 

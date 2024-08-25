@@ -117,7 +117,7 @@ static spx_int64_t seek_backwards(spx_ogg_sync_state *oy, spx_ogg_page *og,
                 begin = 0;
                 time++;
             } else {
-                LOGF("Can't seek that early:%lld\n", (long long int)begin);
+                LOGF("Can't seek that early:%lld\n",begin);
                 return -3;  /* too early */
             }
         }
@@ -157,8 +157,7 @@ static spx_int64_t seek_backwards(spx_ogg_sync_state *oy, spx_ogg_page *og,
                 } else if (lastgranule > wantedpos) {  /*too late, seek more*/
                     if (offset != -1) {
                         LOGF("Toolate, returnanyway:%lld,%lld,%lld,%lld\n",
-                              (long long int)ret, (long long int)lastgranule,
-                              (long long int)wantedpos, (long long int)avgpagelen);
+                             ret,lastgranule,wantedpos,avgpagelen);
                         return ret;
                     }
                     break;
@@ -223,8 +222,8 @@ static int speex_seek_page_granule(spx_int64_t pos, spx_int64_t curpos,
 
         if (offset < 0) { /* could not find new page,use old offset */
             LOGF("Seek/guess/fault:%lld->-<-%d,%lld:%lld,%d,%ld,%d\n",
-                  (long long int)curpos,0, (long long int)pos,
-                  (long long int)offset,0,ci->curpos,/*stream_length*/0);
+                 curpos,0,pos,offset,0,
+                 ci->curpos,/*stream_length*/0);
 
             curoffset = *curbyteoffset;
 
@@ -234,8 +233,8 @@ static int speex_seek_page_granule(spx_int64_t pos, spx_int64_t curpos,
         } else {
             if (spx_ogg_page_granulepos(&og) == 0 && pos > 5000) {
                 LOGF("SEEK/guess/fault:%lld->-<-%lld,%lld:%lld,%d,%ld,%d\n",
-                     (long long int)curpos,(long long int)spx_ogg_page_granulepos(&og),
-                     (long long int)pos, (long long int)offset,0,ci->curpos,/*stream_length*/0);
+                     curpos,spx_ogg_page_granulepos(&og),pos,
+                     offset,0,ci->curpos,/*stream_length*/0);
 
                 curoffset = *curbyteoffset;
 
@@ -288,7 +287,7 @@ static int speex_seek_page_granule(spx_int64_t pos, spx_int64_t curpos,
 
     spx_ogg_sync_reset(oy);
 
-    LOGF("Seek failed:%lld\n", (long long int)offset);
+    LOGF("Seek failed:%lld\n", offset);
 
     return -1;
 }
@@ -448,10 +447,10 @@ enum codec_status codec_run(void)
             if (action == CODEC_ACTION_SEEK_TIME) {
                 if(samplerate!=0&&packet_count>1){
                     LOGF("Speex seek page:%lld,%lld,%ld,%lld,%d\n",
-                         (long long int)((spx_int64_t)param/1000) *
+                         ((spx_int64_t)param/1000) *
                          (spx_int64_t)samplerate,
-                         (long long int)page_granule, (long)param,
-                         (long long int)((page_granule/samplerate)*1000), samplerate);
+                         page_granule, (long)param,
+                         (page_granule/samplerate)*1000, samplerate);
 
                     speex_seek_page_granule(((spx_int64_t)param/1000) *
                                             (spx_int64_t)samplerate,

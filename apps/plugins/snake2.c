@@ -62,18 +62,6 @@ Head and Tail are stored
     #define TOP_X4 548 /* x-coord of the lowerright item (hi-score) */
     #define TOP_Y1 8   /* y-coord of the top row of items */
     #define TOP_Y2 50  /* y-coord of the bottom row of items */
-#elif (LCD_WIDTH >= 360) && (LCD_HEIGHT >= 400)
-    #define MULTIPLIER 12 /*Modifier for porting on other screens*/
-    #define MODIFIER_1 12
-    #define MODIFIER_2 10
-    #define CENTER_X 12
-    #define CENTER_Y 40
-    #define TOP_X1 34  /* x-coord of the upperleft item (game type) */
-    #define TOP_X2 320 /* x-coord of the upperright item (maze type) */
-    #define TOP_X3 42  /* x-coord of the lowerleft item (speed) */
-    #define TOP_X4 314 /* x-coord of the lowerright item (hi-score) */
-    #define TOP_Y1 4   /* y-coord of the top row of items */
-    #define TOP_Y2 25  /* y-coord of the bottom row of items */
 #elif (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
     #define MULTIPLIER 10 /*Modifier for porting on other screens*/
     #define MODIFIER_1 10
@@ -162,8 +150,35 @@ Head and Tail are stored
 #endif
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define SNAKE2_LEFT BUTTON_LEFT
+#define SNAKE2_RIGHT BUTTON_RIGHT
+#define SNAKE2_UP   BUTTON_UP
+#define SNAKE2_DOWN BUTTON_DOWN
+#define SNAKE2_QUIT BUTTON_OFF
+#define SNAKE2_PLAYPAUSE BUTTON_PLAY
+#define SNAKE2_PLAYPAUSE_TEXT "Play"
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define SNAKE2_LEFT BUTTON_LEFT
+#define SNAKE2_RIGHT BUTTON_RIGHT
+#define SNAKE2_UP   BUTTON_UP
+#define SNAKE2_DOWN BUTTON_DOWN
+#define SNAKE2_QUIT BUTTON_OFF
+#define SNAKE2_PLAYPAUSE BUTTON_SELECT
+#define SNAKE2_PLAYPAUSE_TEXT "Select"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define SNAKE2_LEFT BUTTON_LEFT
+#define SNAKE2_RIGHT BUTTON_RIGHT
+#define SNAKE2_UP   BUTTON_UP
+#define SNAKE2_DOWN BUTTON_DOWN
+#define SNAKE2_QUIT BUTTON_OFF
+#define SNAKE2_PLAYPAUSE BUTTON_MENU
+#define SNAKE2_PLAYPAUSE_TEXT "Menu"
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define SNAKE2_LEFT BUTTON_LEFT
 #define SNAKE2_RIGHT BUTTON_RIGHT
 #define SNAKE2_UP   BUTTON_UP
@@ -181,8 +196,8 @@ Head and Tail are stored
 #define SNAKE2_RIGHT BUTTON_RIGHT
 #define SNAKE2_UP   BUTTON_MENU
 #define SNAKE2_DOWN BUTTON_PLAY
-#define SNAKE2_QUIT (BUTTON_SELECT | BUTTON_REPEAT)
-#define SNAKE2_PLAYPAUSE (BUTTON_SELECT | BUTTON_REL)
+#define SNAKE2_QUIT (BUTTON_SELECT | BUTTON_MENU)
+#define SNAKE2_PLAYPAUSE BUTTON_SELECT
 #define SNAKE2_PLAYPAUSE_TEXT "Select"
 
 #elif (CONFIG_KEYPAD == IAUDIO_X5M5_PAD)
@@ -413,25 +428,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define SNAKE2_PLAYPAUSE    BUTTON_PLAY
 #define SNAKE2_PLAYPAUSE_TEXT    "PLAY"
 
-#elif (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
-#define SNAKE2_LEFT         BUTTON_PREV
-#define SNAKE2_RIGHT        BUTTON_NEXT
-#define SNAKE2_UP           BUTTON_HOME
-#define SNAKE2_DOWN         BUTTON_OPTION
-#define SNAKE2_QUIT         BUTTON_POWER
-#define SNAKE2_PLAYPAUSE    BUTTON_PLAY
-#define SNAKE2_PLAYPAUSE_TEXT    "PLAY"
-
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
-#define SNAKE2_LEFT         BUTTON_PREV
-#define SNAKE2_RIGHT        BUTTON_NEXT
-#define SNAKE2_UP           BUTTON_HOME
-#define SNAKE2_DOWN         BUTTON_OPTION
-#define SNAKE2_QUIT         BUTTON_POWER
-#define SNAKE2_PLAYPAUSE    BUTTON_PLAY
-#define SNAKE2_PLAYPAUSE_TEXT    "PLAY"
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define SNAKE2_LEFT         BUTTON_HOME
 #define SNAKE2_RIGHT        BUTTON_VOL_DOWN
 #define SNAKE2_UP           BUTTON_PREV
@@ -440,33 +437,21 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define SNAKE2_PLAYPAUSE    BUTTON_PLAY
 #define SNAKE2_PLAYPAUSE_TEXT    "PLAY"
 
-#elif (CONFIG_KEYPAD == EROSQ_PAD)
-#define SNAKE2_LEFT         BUTTON_SCROLL_BACK
-#define SNAKE2_RIGHT        BUTTON_SCROLL_FWD
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
+#define SNAKE2_LEFT         BUTTON_HOME
+#define SNAKE2_RIGHT        BUTTON_VOL_DOWN
 #define SNAKE2_UP           BUTTON_PREV
 #define SNAKE2_DOWN         BUTTON_NEXT
 #define SNAKE2_QUIT         BUTTON_POWER
 #define SNAKE2_PLAYPAUSE    BUTTON_PLAY
 #define SNAKE2_PLAYPAUSE_TEXT    "PLAY"
 
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define SNAKE2_LEFT         BUTTON_LEFT
-#define SNAKE2_RIGHT        BUTTON_RIGHT
-#define SNAKE2_UP           BUTTON_UP
-#define SNAKE2_DOWN         BUTTON_DOWN
-#define SNAKE2_QUIT         BUTTON_POWER
-#define SNAKE2_PLAYPAUSE    BUTTON_PLAY
-#define SNAKE2_PLAYPAUSE_TEXT "PLAY"
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
-
 #else
 #error No keymap defined!
 #endif
 
 #ifdef HAVE_TOUCHSCREEN
-#ifndef SNAKE2_LEFT
+#ifndef SNAKE2_LEFT 
 #define SNAKE2_LEFT        BUTTON_MIDLEFT
 #endif
 #ifndef SNAKE2_RIGHT
@@ -1599,7 +1584,7 @@ static void game_init(void)
                 speed = level*20;
                 return;
             case 1:
-                rb->set_option("Game Type", &game_type, RB_INT,
+                rb->set_option("Game Type", &game_type, INT,
                                type_options, 2, NULL);
                 break;
             case 2:

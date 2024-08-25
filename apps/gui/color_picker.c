@@ -154,6 +154,7 @@ static void draw_screen(struct screen *display, char *title,
 {
     unsigned  text_color       = LCD_BLACK;
     unsigned  background_color = LCD_WHITE;
+    char      buf[32];
     int       i, char_height, line_height;
     int       max_label_width;
     int       text_x, text_top;
@@ -163,7 +164,7 @@ static void draw_screen(struct screen *display, char *title,
     struct viewport vp;
 
     viewport_set_defaults(&vp, display->screen_type);
-    struct viewport * last_vp = display->set_viewport(&vp);
+    display->set_viewport(&vp);
 
     display->clear_viewport();
 
@@ -252,16 +253,17 @@ static void draw_screen(struct screen *display, char *title,
         set_drawinfo(display, mode, fg, bg);
 
         /* Draw label */
+        buf[0] = str(LANG_COLOR_RGB_LABELS)[i];
+        buf[1] = '\0';
         vp.flags &= ~VP_FLAG_ALIGNMENT_MASK;
-        display->putsxyf(text_x, text_top, "%c", str(LANG_COLOR_RGB_LABELS)[i]);
+        display->putsxy(text_x, text_top, buf);
         /* Draw color value */
-        vp.flags |= VP_FLAG_ALIGN_RIGHT;
         if (display->depth >= 24)
-            display->putsxyf(text_x, text_top, "%03d", rgb->rgb_val[i] & 0xFF);
+            snprintf(buf, 4, "%03d", rgb->rgb_val[i] & 0xFF);
         else
-            display->putsxyf(text_x, text_top, "%02d", rgb->rgb_val[i] & 0x3F);
-
-
+            snprintf(buf, 3, "%02d", rgb->rgb_val[i] & 0x3F);
+        vp.flags |= VP_FLAG_ALIGN_RIGHT;
+        display->putsxy(text_x, text_top, buf);
 
         /* Draw scrollbar */
         gui_scrollbar_draw(display,                     /* screen */
@@ -278,6 +280,9 @@ static void draw_screen(struct screen *display, char *title,
         text_top += line_height;
     } /* end for */
 
+    /* Format RGB: #rrggbb */
+    snprintf(buf, sizeof(buf), str(LANG_COLOR_RGB_VALUE),
+                               rgb->red, rgb->green, rgb->blue);
     vp.flags |= VP_FLAG_ALIGN_CENTER;
     if (display->depth >= 16)
     {
@@ -296,9 +301,8 @@ static void draw_screen(struct screen *display, char *title,
             /* Draw RGB: #rrggbb in middle of swatch */
             set_drawinfo(display, DRMODE_FG, get_black_or_white(rgb),
                          background_color);
-            /* Format RGB: #rrggbb */
-            display->putsxyf(0, top + (height - char_height) / 2,
-                str(LANG_COLOR_RGB_VALUE), rgb->red, rgb->green, rgb->blue);
+
+            display->putsxy(0, top + (height - char_height) / 2, buf);
 
             /* Draw border around the rect */
             set_drawinfo(display, DRMODE_SOLID, text_color, background_color);
@@ -314,14 +318,12 @@ static void draw_screen(struct screen *display, char *title,
         if (height >= char_height)
         {
             set_drawinfo(display, DRMODE_SOLID, text_color, background_color);
-            /* Format RGB: #rrggbb */
-            display->putsxyf(0, top + (height - char_height) / 2,
-                    str(LANG_COLOR_RGB_VALUE), rgb->red, rgb->green, rgb->blue);
+            display->putsxy(0, top + (height - char_height) / 2, buf);
         }
     }
 
     display->update_viewport();
-    display->set_viewport(last_vp);
+    display->set_viewport(NULL);
 }
 
 #ifdef HAVE_TOUCHSCREEN
@@ -339,7 +341,7 @@ static int touchscreen_slider(struct screen *display,
     struct viewport vp;
 
     viewport_set_defaults(&vp, display->screen_type);
-    struct viewport *last_vp = display->set_viewport(&vp);
+    display->set_viewport(&vp);
 
     button = action_get_touchscreen_press_in_vp(&x, &y, &vp);
     if (button == ACTION_UNKNOWN || button == BUTTON_NONE)
@@ -371,7 +373,7 @@ static int touchscreen_slider(struct screen *display,
             char_height*2             + /*  + margins for bottom */
             MARGIN_BOTTOM;              /* colored rectangle     */
 
-    display->set_viewport(last_vp);
+    display->set_viewport(NULL);
 
     if (y < text_top)
     {

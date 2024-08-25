@@ -56,10 +56,6 @@ void sound_set_depth_3d(int value);
 void sound_set_filter_roll_off(int value);
 #endif
 
-#if defined(AUDIOHW_HAVE_POWER_MODE)
-void sound_set_power_mode(int value);
-#endif
-
 #ifdef AUDIOHW_HAVE_EQ
 /*
  * band = SOUND_EQ_BANDb
@@ -112,6 +108,17 @@ void sound_set_hw_eq_band5_frequency(int value);
 #endif
 #endif /* AUDIOHW_HAVE_EQ_BAND5 */
 #endif /* AUDIOHW_HAVE_EQ */
+
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+void sound_set_loudness(int value);
+void sound_set_avc(int value);
+void sound_set_mdb_strength(int value);
+void sound_set_mdb_harmonics(int value);
+void sound_set_mdb_center(int value);
+void sound_set_mdb_shape(int value);
+void sound_set_mdb_enable(int value);
+void sound_set_superbass(int value);
+#endif /* (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) */
 
 void sound_set(int setting, int value);
 int sound_val2phys(int setting, int value);

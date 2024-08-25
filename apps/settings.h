@@ -30,8 +30,11 @@
 #include "statusbar.h" /* for the statusbar values */
 #include "quickscreen.h"
 #include "button.h"
+#if CONFIG_CODEC == SWCODEC
 #include "audio.h"
 #include "dsp_proc_settings.h"
+#endif
+#include "rbpaths.h"
 
 struct opt_items {
     unsigned const char* string;
@@ -108,49 +111,6 @@ enum
     NUM_REPEAT_MODES
 };
 
-/* single mode options */
-enum {
-    SINGLE_MODE_OFF = 0,
-    SINGLE_MODE_TRACK,
-    SINGLE_MODE_ALBUM,
-    SINGLE_MODE_ALBUM_ARTIST,
-    SINGLE_MODE_ARTIST,
-    SINGLE_MODE_COMPOSER,
-    SINGLE_MODE_GROUPING,
-    SINGLE_MODE_GENRE
-};
-
-enum
-{
-    QUEUE_HIDE = 0,
-    QUEUE_SHOW_AT_TOPLEVEL,
-    QUEUE_SHOW_IN_SUBMENU
-};
-
-enum
-{
-    BROWSER_DEFAULT_FILES = 0,
-#ifdef HAVE_TAGCACHE
-    BROWSER_DEFAULT_DB,
-#endif
-    BROWSER_DEFAULT_PL_CAT
-};
-
-#ifdef HAVE_ALBUMART
-enum
-{
-    AA_OFF = 0,
-    AA_PREFER_EMBEDDED,
-    AA_PREFER_IMAGE_FILE
-};
-#endif
-
-enum
-{
-    TAGCACHE_RAM_OFF = 0,
-    TAGCACHE_RAM_ON = 1,
-    TAGCACHE_RAM_QUICK = 2
-};
 
 /* dir filter options */
 /* Note: Any new filter modes need to be added before NUM_FILTER_MODES.
@@ -163,7 +123,7 @@ enum { SHOW_ALL, SHOW_SUPPORTED, SHOW_MUSIC, SHOW_PLAYLIST, SHOW_ID3DB,
 
 /* file and dir sort options */
 enum { SORT_ALPHA, SORT_DATE, SORT_DATE_REVERSED, SORT_TYPE, /* available as settings */
-       SORT_ALPHA_REVERSED, SORT_TYPE_REVERSED, SORT_AS_FILE }; /* internal use only */
+       SORT_ALPHA_REVERSED, SORT_TYPE_REVERSED };            /* internal use only */
 enum { SORT_INTERPRET_AS_DIGIT, SORT_INTERPRET_AS_NUMBER };
 
 /* recursive dir insert options */
@@ -258,12 +218,13 @@ enum {
 #ifdef HAVE_RECORDING
     SETTINGS_SAVE_RECPRESETS,
 #endif
+#if CONFIG_CODEC == SWCODEC
     SETTINGS_SAVE_EQPRESET,
+#endif
 };
 bool settings_save_config(int options);
 
 struct settings_list;
-struct filename_setting;
 void reset_setting(const struct settings_list *setting, void *var);
 void settings_reset(void);
 void sound_settings_apply(void);
@@ -277,15 +238,13 @@ void settings_apply(bool read_disk);
 void settings_apply_pm_range(void);
 void settings_display(void);
 
-enum optiontype { RB_INT, RB_BOOL };
+enum optiontype { INT, BOOL };
 
-const struct settings_list* find_setting(const void* variable);
-const struct settings_list* find_setting_by_cfgname(const char* name);
-bool cfg_int_to_string(const struct settings_list *setting, int val, char* buf, int buf_len);
-bool cfg_string_to_int(const struct settings_list *setting, int* out, const char* str);
-void cfg_to_string(const struct settings_list *setting, char* buf, int buf_len);
-bool copy_filename_setting(char *buf, size_t buflen, const char *input,
-                           const struct filename_setting *fs);
+const struct settings_list* find_setting(const void* variable, int *id);
+const struct settings_list* find_setting_by_cfgname(const char* name, int *id);
+bool cfg_int_to_string(int setting_id, int val, char* buf, int buf_len);
+bool cfg_string_to_int(int setting_id, int* out, const char* str);
+bool cfg_to_string(int setting_id, char* buf, int buf_len);
 bool set_bool_options(const char* string, const bool* variable,
                       const char* yes_str, int yes_voice,
                       const char* no_str, int no_voice,
@@ -331,7 +290,9 @@ struct system_status
     signed char last_screen;
     int  viewer_icon_count;
     int last_volume_change; /* tick the last volume change happened. skins use this */
+#ifdef HAVE_LCD_BITMAP
     int font_id[NB_SCREENS]; /* font id of the settings font for each screen */
+#endif
 
 };
 
@@ -346,6 +307,17 @@ struct user_settings
     int channel_config; /* Stereo, Mono, Custom, Mono left, Mono right, Karaoke */
     int stereo_width; /* 0-255% */
 
+#if CONFIG_CODEC != SWCODEC
+    int  loudness;      /* loudness eq:          0-100 0=off   100=max         */
+    int  avc;           /* auto volume correct:  0=off, 1=20ms, 2=2s 3=4s 4=8s */
+    int  mdb_strength;  /* 0-127dB */
+    int  mdb_harmonics; /* 0-100% */
+    int  mdb_center;    /* 20-300Hz */
+    int  mdb_shape;     /* 50-300Hz */
+    bool mdb_enable;    /* true/false */
+    bool superbass;     /* true/false */
+#endif
+
 #ifdef AUDIOHW_HAVE_BASS_CUTOFF
     int bass_cutoff;
 #endif
@@ -353,6 +325,7 @@ struct user_settings
     int treble_cutoff;
 #endif
 
+#if CONFIG_CODEC == SWCODEC
 #ifdef HAVE_CROSSFADE
     /* Crossfade */
     int crossfade;     /* Enable crossfade (0=off, 1=shuffle, 2=trackskip,
@@ -387,8 +360,10 @@ struct user_settings
 #ifdef HAVE_PITCHCONTROL
     bool timestretch_enabled;
 #endif
+#endif /* CONFIG_CODEC == SWCODEC */
 
 #ifdef HAVE_RECORDING
+#if CONFIG_CODEC == SWCODEC
     int rec_format;    /* record format index */
     int rec_mono_mode; /* how to create mono: L, R, L+R */
 
@@ -402,6 +377,9 @@ struct user_settings
 #endif
     /* Encoder Settings End */
 
+#else
+    int rec_quality;   /* 0-7 */
+#endif  /* CONFIG_CODEC == SWCODEC */
     int rec_source;    /* 0=mic, 1=line, 2=S/PDIF, 2 or 3=FM Radio */
     int rec_frequency; /* 0 = 44.1kHz (depends on target)
                           1 = 48kHz
@@ -477,9 +455,6 @@ struct user_settings
     unsigned char rfms_file[MAX_FILENAME+1];  /* last remote-fms */
 #endif
 #endif /* CONFIG_TUNER */
-#if defined(HAVE_RDS_CAP) && defined(CONFIG_RTC)
-    bool sync_rds_time; /* use RDS time to set the clock */
-#endif
 
     /* misc options */
 #ifndef HAVE_WHEEL_ACCELERATION
@@ -496,13 +471,13 @@ struct user_settings
 #endif
 
     int  pause_rewind; /* time in s to rewind when pausing */
-#if defined(HAVE_HEADPHONE_DETECTION) || defined(HAVE_LINEOUT_DETECTION)
+#ifdef HAVE_HEADPHONE_DETECTION
     int  unplug_mode; /* pause on headphone unplug */
     bool unplug_autoresume; /* disable auto-resume if no phones */
 #endif
 
 #ifdef HAVE_QUICKSCREEN
-    const struct settings_list *qs_items[QUICKSCREEN_ITEM_COUNT];
+    int qs_items[QUICKSCREEN_ITEM_COUNT];
 #endif
 
     int timeformat;    /* time format: 0=24 hour clock, 1=12 hour clock */
@@ -519,9 +494,8 @@ struct user_settings
     int default_codepage;   /* set default codepage for tag conversion */
     bool hold_lr_for_scroll_in_list; /* hold L/R scrolls the list left/right */
     bool play_selected; /* Plays selected file even in shuffle mode */
-    int single_mode;    /* single mode - stop after every track, album, album artist,
-                           artist, composer, work, or genre */
     bool party_mode;    /* party mode - unstoppable music */
+    bool audioscrobbler; /* Audioscrobbler logging  */
     bool cuesheet;
     bool car_adapter_mode; /* 0=off 1=on */
     int car_adapter_mode_delay; /* delay before resume,  in seconds*/
@@ -541,7 +515,9 @@ struct user_settings
     int peak_meter_max; /* range maximum */
 
     unsigned char wps_file[MAX_FILENAME+1];  /* last wps */
+#ifdef HAVE_LCD_BITMAP
     unsigned char sbs_file[MAX_FILENAME+1];  /* last statusbar skin */
+#endif
 #ifdef HAVE_REMOTE_LCD
     unsigned char rwps_file[MAX_FILENAME+1];  /* last remote-wps */
     unsigned char rsbs_file[MAX_FILENAME+1];  /* last remote statusbar skin */
@@ -559,6 +535,11 @@ struct user_settings
     int remote_statusbar;
 #endif
 
+#if CONFIG_KEYPAD == RECORDER_PAD
+    bool buttonbar;    /* 0=hide, 1=show */
+#endif
+
+#ifdef HAVE_LCD_BITMAP
     int scrollbar;    /* SCROLLBAR_* enum values */
     int scrollbar_width;
 
@@ -569,12 +550,11 @@ struct user_settings
     int list_separator_height; /* -1=auto (== 1 currently), 0=disabled, X=height in pixels */
     int list_separator_color;
 #endif
+#endif
     /* goto current song when exiting WPS */
     bool browse_current; /* 1=goto current song,
                             0=goto previous location */
     bool scroll_paginated; /* 0=dont 1=do */
-    bool list_wraparound;  /* wrap around to opposite end of list when scrolling */
-    int  list_order;       /* order for numeric lists (ascending or descending) */
     int  scroll_speed;     /* long texts scrolling speed: 1-30 */
     int  bidir_limit;      /* bidir scroll length limit */
     int  scroll_delay;     /* delay (in 1/10s) before starting scroll */
@@ -592,7 +572,7 @@ struct user_settings
 #endif
 #ifdef HAVE_TAGCACHE
 #ifdef HAVE_TC_RAMCACHE
-    int tagcache_ram;        /* load tagcache to ram: 1=on, 2=quick (ignore dircache) */
+    bool tagcache_ram;        /* load tagcache to ram? */
 #endif
     bool tagcache_autoupdate; /* automatically keep tagcache in sync? */
     bool autoresume_enable;   /* enable auto-resume feature? */
@@ -601,7 +581,6 @@ struct user_settings
     unsigned char autoresume_paths[MAX_PATHNAME+1]; /* colon-separated list */
     bool runtimedb;           /* runtime database active? */
     unsigned char tagcache_scan_paths[MAX_PATHNAME+1];
-    unsigned char tagcache_db_path[MAX_PATHNAME+1];
 #endif /* HAVE_TAGCACHE */
 
 #if LCD_DEPTH > 1
@@ -617,8 +596,6 @@ struct user_settings
     unsigned char colors_file[MAX_FILENAME+1];
 #endif
 
-    int browser_default;        /* Default browser when accessed from WPS */
-
     /* playlist/playback settings */
     int  repeat_mode; /* 0=off 1=repeat all 2=repeat one 3=shuffle 4=ab */
     int  next_folder; /* move to next folder */
@@ -628,13 +605,6 @@ struct user_settings
     bool fade_on_stop; /* fade on pause/unpause/stop */
     bool playlist_shuffle;
     bool warnon_erase_dynplaylist; /* warn when erasing dynamic playlist */
-    bool keep_current_track_on_replace_playlist;
-    bool show_shuffled_adding_options; /* whether to display options for adding shuffled tracks to dynamic playlist */
-    int show_queue_options; /* how and whether to display options to queue tracks */
-#ifdef HAVE_ALBUMART
-    int album_art; /* switch off album art display or choose preferred source */
-#endif
-    bool rewind_across_tracks;
 
     /* playlist viewer settings */
     bool playlist_viewer_icons; /* display icons on viewer */
@@ -649,7 +619,6 @@ struct user_settings
     bool talk_file_clip; /* use file .talk clips */
     bool talk_filetype; /* say file type */
     bool talk_battery_level;
-    int  talk_mixer_amp; /* Relative volume of voices, MIX_AMP_MPUTE->MIX_AMP_UNITY */
 
     /* file browser sorting */
     bool sort_case; /* dir sort order: 0=case insensitive, 1=sensitive */
@@ -659,9 +628,10 @@ struct user_settings
 
     /* power settings */
     int poweroff;   /* idle power off timer */
-#if BATTERY_CAPACITY_INC > 0
+#if BATTERY_CAPACITY_DEFAULT > 0
     int battery_capacity; /* in mAh */
 #endif
+
 #if BATTERY_TYPES_COUNT > 1
     int battery_type;  /* for units which can take multiple types (Ondio). */
 #endif
@@ -676,6 +646,7 @@ struct user_settings
     int contrast;   /* lcd contrast */
 #endif
 
+#ifdef HAVE_LCD_BITMAP
 #ifdef HAVE_LCD_INVERT
     bool invert;    /* invert display */
 #endif
@@ -694,6 +665,7 @@ struct user_settings
     unsigned char remote_font_file[MAX_FILENAME+1]; /* last font */
 #endif
     unsigned char kbd_file[MAX_FILENAME+1];  /* last keyboard */
+#endif /* HAVE_LCD_BITMAP */
     int  backlight_timeout;  /* backlight off timeout:  -1=never,
                                 0=always, or time in seconds */
     bool caption_backlight; /* turn on backlight at end and start of track */
@@ -708,8 +680,10 @@ struct user_settings
 #ifdef HAVE_BACKLIGHT
     bool bl_selective_actions; /* backlight disable on some actions */
     int  bl_selective_actions_mask;/* mask of actions that will not enable backlight */
+#ifdef HAS_BUTTON_HOLD
     int backlight_on_button_hold; /* what to do with backlight when hold
                                      switch is on */
+#endif
 #ifdef HAVE_LCD_SLEEP_SETTING
     int lcd_sleep_after_backlight_off; /* when to put lcd to sleep after backlight
                                           has turned off:  -1=never, 0=always,
@@ -754,6 +728,10 @@ struct user_settings
 #endif
 #endif /* HAVE_REMOTE_LCD */
 
+#if CONFIG_CODEC == MAS3507D
+    bool line_in;       /* false=off, true=active */
+#endif
+
 #ifdef HAVE_BUTTON_LIGHT
     int buttonlight_timeout;
 #endif
@@ -784,7 +762,9 @@ struct user_settings
 #ifdef HAVE_PITCHCONTROL
     /* pitch screen settings */
     bool pitch_mode_semitone;
+#if CONFIG_CODEC == SWCODEC
     bool pitch_mode_timestretch;
+#endif
 #endif
     /* If values are just added to the end, no need to bump plugin API
        version. */
@@ -799,20 +779,20 @@ struct user_settings
     bool usb_skip_first_drive;
 #endif
 
+#ifdef HAVE_LCD_BITMAP
     unsigned char ui_vp_config[64]; /* viewport string for the lists */
 #ifdef HAVE_REMOTE_LCD
     unsigned char remote_ui_vp_config[64]; /* viewport string for the remote lists */
 #endif
-    char player_name[64];  /* Name of the local player */
+#endif
 
+#if CONFIG_CODEC == SWCODEC
     struct compressor_settings compressor_settings;
+#endif
 
     int sleeptimer_duration; /* In minutes; 0=off */
     bool sleeptimer_on_startup;
     bool keypress_restarts_sleeptimer;
-
-    bool show_shutdown_message; /* toggle whether display lights up and displays message
-                                when shutting down */
 
 #ifdef HAVE_MORSE_INPUT
     bool morse_input; /* text input method setting */
@@ -825,8 +805,10 @@ struct user_settings
     int hotkey_tree;
 #endif
 
+#if CONFIG_CODEC == SWCODEC
     /* When resuming playback (after a stop), rewind this number of seconds */
     int resume_rewind;
+#endif
 
 #ifdef AUDIOHW_HAVE_DEPTH_3D
     int depth_3d;
@@ -836,8 +818,8 @@ struct user_settings
     int roll_off;
 #endif
 
-#ifdef AUDIOHW_HAVE_POWER_MODE
-    int power_mode;
+#ifdef AUDIOHW_HAVE_FUNCTIONAL_MODE
+    int func_mode;
 #endif
 
 #ifdef AUDIOHW_HAVE_EQ
@@ -856,7 +838,9 @@ struct user_settings
 #endif /* AUDIOHW_HAVE_EQ */
 
 #ifdef HAVE_HARDWARE_CLICK
+#if CONFIG_CODEC == SWCODEC
     bool keyclick_hardware; /* hardware piezo keyclick */
+#endif
 #endif
 
     char start_directory[MAX_PATHNAME+1];
@@ -870,11 +854,6 @@ struct user_settings
     int play_frequency; /* core audio output frequency selection */
 #endif
     int volume_limit; /* maximum volume limit */
-
-#ifdef HAVE_PERCEPTUAL_VOLUME
-    int volume_adjust_mode;
-    int volume_adjust_norm_steps;
-#endif
 
     int surround_enabled;
     int surround_balance;
@@ -890,18 +869,7 @@ struct user_settings
 
 #if defined(DX50) || defined(DX90)
     int governor;
-#endif
-#if defined(DX50) || defined(DX90) || (defined(HAVE_USB_POWER) && !defined(USB_NONE) && !defined(SIMULATOR))
     int usb_mode;
-#endif
-#if defined(BUTTON_REC) || \
-    (CONFIG_KEYPAD == GIGABEAT_PAD) || \
-    (CONFIG_KEYPAD == IPOD_4G_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H10_PAD)
-    bool clear_settings_on_hold;
-#endif
-#if defined(HAVE_EROS_QN_CODEC)
-    int stereosw_mode; /* indicates normal, reverse, always 0, always 1 operation */
 #endif
 };
 

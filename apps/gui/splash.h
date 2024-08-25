@@ -39,15 +39,4 @@ extern void splashf(int ticks, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
  *          it will be voiced
  */
 extern void splash(int ticks, const char *str);
-
-/* set a delay before displaying the progress meter the first time */
-extern void splash_progress_set_delay(long delay_ticks);
-/*
- * Puts a splash message centered on all the screens with a progressbar
- *  - current : current progress increment
- *  - total : total increments
- *  - fmt : what to say *printf style
- * updates limited internally to 20 fps - call repeatedly to update progress
- */
-extern void splash_progress(int current, int total, const char *fmt, ...) ATTRIBUTE_PRINTF(3, 4);
 #endif /* _GUI_ICON_H_ */

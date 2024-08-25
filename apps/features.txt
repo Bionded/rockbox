@@ -2,7 +2,7 @@
    when the .lng and .voice files are built. That means that a change in this
    file will break compatibility with older .lng and .voice files and that those
    version numbers should be updated. It also means that changing defines in
-   the various config*.h files could also break back compatibility */
+   the various config*.h files could also break back compatibility */  
 
 #if defined(HAVE_ACCESSORY_SUPPLY)
 accessory_supply
@@ -60,7 +60,9 @@ hold_button
 hotkey
 #endif
 
+#if defined(HAVE_LCD_BITMAP)
 lcd_bitmap
+#endif
 
 #if LCD_DEPTH > 1
 lcd_non-mono
@@ -76,6 +78,14 @@ lcd_invert
 
 #if defined(HAVE_LCD_SLEEP)
 lcd_sleep
+#endif
+
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+masf
+#endif
+
+#if (CONFIG_CODEC == MAS3507D)
+masd
 #endif
 
 #if defined(HAVE_MORSE_INPUT)
@@ -105,12 +115,20 @@ radio_remote
 #endif
 #endif
 
-#if defined(HAVE_RDS_CAP)
-rds
+#if (CONFIG_KEYPAD == RECORDER_PAD)
+recorder_pad
+#if defined(CONFIG_TUNER)
+radio_screen_button_bar
+#endif
 #endif
 
 #if defined(HAVE_RECORDING)
 recording
+#if CONFIG_CODEC == SWCODEC
+recording_swcodec
+#else
+recording_hwcodec
+#endif
 #if defined(HAVE_LINE_IN)
 recording_linein
 #endif
@@ -140,6 +158,10 @@ rtc
 serial_port
 #endif
 
+#if defined(ARCHOS_RECORDER) || defined(ARCHOS_PLAYER)
+soft_shutdown
+#endif
+
 #if defined(HAVE_SPDIF_POWER)
 spdif_power
 #endif
@@ -148,7 +170,11 @@ spdif_power
 speaker
 #endif
 
+#if CONFIG_CODEC == SWCODEC
 swcodec
+#else
+hwcodec
+#endif
 
 #if defined(HAVE_TAGCACHE)
 tagcache
@@ -186,21 +212,12 @@ depth_3d
 #endif
 
 /* This should be AUDIOHW_HAVE_FILTER_ROLL_OFF but that is only defined later */
-#if defined(DX50) || defined(HAVE_DF1704_CODEC) || defined(HAVE_PCM1792_CODEC) || defined(HAVE_CS4398) || defined(HAVE_WM8740) || defined(HAVE_ES9018)|| defined(HAVE_EROS_QN_CODEC) || defined(HAVE_XDUOO_LINUX_CODEC) || defined(HAVE_FIIO_LINUX_CODEC) || defined(HAVE_AK4376) || defined(HAVE_ES9218)
+#if defined(DX50) || defined(HAVE_DF1704_CODEC) || defined(HAVE_PCM1792_CODEC) || defined(HAVE_CS4398) || defined(HAVE_WM8740) || defined(HAVE_ES9018)
 filter_roll_off
 #endif
 
-/* This should be AUDIOHW_HAVE_POWER_MODE but that is not defined yet */
-#if defined(HAVE_AK4376) || defined(HAVE_ES9218)
-dac_power_mode
-#endif
-
-#if defined(HAVE_ES9018) || defined(HAVE_EROS_QN_CODEC)
+#if defined(HAVE_ES9018)
 es9018
-#endif
-
-#if defined(HAVE_ES9218)
-es9218
 #endif
 
 /* These features are only used by the manual so they won't break binary
@@ -231,6 +248,10 @@ disk_storage
 
 #if defined(HAS_REMOTE_BUTTON_HOLD)
 remote_button_hold
+#endif
+
+#if defined(HAVE_LCD_CHARCELLS)
+lcd_charcell
 #endif
 
 #if defined(HAVE_LCD_FLIP)
@@ -266,8 +287,6 @@ recording_digital
 
 #if MEMORYSIZE <= 2
 lowmem
-#elif MEMORYSIZE > 8
-himem
 #endif
 
 #if defined(HAVE_HARDWARE_CLICK)
@@ -284,23 +303,4 @@ boot_data
 
 #if defined(HAVE_MULTIBOOT)
 multi_boot
-#endif
-
-#if defined(HIBY_LINUX)
-hibylinux
-#endif
-
-#if defined(BUTTON_REC) || \
-    (CONFIG_KEYPAD == GIGABEAT_PAD) || \
-    (CONFIG_KEYPAD == IPOD_4G_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H10_PAD)
-clear_settings_on_hold
-#endif
-
-#if defined(HAVE_PERCEPTUAL_VOLUME)
-perceptual_volume
-#endif
-
-#if defined(CODEC_AAC_SBR_DEC)
-codec_aac_he
 #endif

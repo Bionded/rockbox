@@ -46,15 +46,55 @@ static long max_cycle;
    when a new argh is made */
 #define MIN_ARGH_DIST 5
 
-#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
-    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+#if (CONFIG_KEYPAD == RECORDER_PAD)
+#define BTN_DIR_UP BUTTON_UP
+#define BTN_DIR_DOWN BUTTON_DOWN
+#define BTN_DIR_LEFT BUTTON_LEFT
+#define BTN_DIR_RIGHT BUTTON_RIGHT
+#define BTN_PLAYER2_DIR1 BUTTON_F2
+#define BTN_PLAYER2_DIR2 BUTTON_F3
+#define BTN_STARTPAUSE BUTTON_PLAY
+#define BTN_QUIT BUTTON_OFF
+#define BTN_STOPRESET BUTTON_ON
+#define BTN_TOGGLE_KEYS BUTTON_F1
+
+#if BUTTON_REMOTE != 0
+#define BTN_RC_UP BUTTON_RC_VOL_UP
+#define BTN_RC_DOWN BUTTON_RC_VOL_DOWN
+#define REMOTE
+#define MULTIPLAYER
+#endif
+
+#elif (CONFIG_KEYPAD == ARCHOS_AV300_PAD)
+#define BTN_DIR_UP BUTTON_UP
+#define BTN_DIR_DOWN BUTTON_DOWN
+#define BTN_DIR_LEFT BUTTON_LEFT
+#define BTN_DIR_RIGHT BUTTON_RIGHT
+#define BTN_PLAYER2_DIR1 BUTTON_F2
+#define BTN_PLAYER2_DIR2 BUTTON_F3
+#define BTN_STARTPAUSE BUTTON_SELECT
+#define BTN_QUIT BUTTON_OFF
+#define BTN_STOPRESET BUTTON_ON
+#define BTN_TOGGLE_KEYS BUTTON_F1
+
+#elif (CONFIG_KEYPAD == ONDIO_PAD)
+#define BTN_DIR_UP BUTTON_UP
+#define BTN_DIR_DOWN BUTTON_DOWN
+#define BTN_DIR_LEFT BUTTON_LEFT
+#define BTN_DIR_RIGHT BUTTON_RIGHT
+#define BTN_STARTPAUSE (BUTTON_MENU|BUTTON_REL)
+#define BTN_QUIT (BUTTON_OFF|BUTTON_REL)
+#define BTN_STOPRESET (BUTTON_OFF|BUTTON_MENU)
+
+#elif (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+      (CONFIG_KEYPAD == IPOD_1G2G_PAD)
 
 #define BTN_DIR_UP BUTTON_MENU
 #define BTN_DIR_DOWN BUTTON_PLAY
 #define BTN_DIR_LEFT BUTTON_LEFT
 #define BTN_DIR_RIGHT BUTTON_RIGHT
 #define BTN_STARTPAUSE (BUTTON_SELECT|BUTTON_REL)
-#define BTN_QUIT (BUTTON_SELECT|BUTTON_REPEAT)
+#define BTN_QUIT (BUTTON_SELECT|BUTTON_MENU)
 #define BTN_STOPRESET (BUTTON_SELECT|BUTTON_PLAY)
 
 #elif (CONFIG_KEYPAD == IRIVER_H300_PAD) || (CONFIG_KEYPAD == IRIVER_H100_PAD)
@@ -360,27 +400,9 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define BTN_DIR_RIGHT     BUTTON_NEXT
 #define BTN_STARTPAUSE    BUTTON_PLAY
 #define BTN_QUIT          BUTTON_POWER
-#define BTN_STOPRESET     (BUTTON_HOME | BUTTON_PWRALT)
-
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define BTN_DIR_UP        BUTTON_HOME
-#define BTN_DIR_DOWN      BUTTON_OPTION
-#define BTN_DIR_LEFT      BUTTON_PREV
-#define BTN_DIR_RIGHT     BUTTON_NEXT
-#define BTN_STARTPAUSE    BUTTON_PLAY
-#define BTN_QUIT          BUTTON_POWER
 #define BTN_STOPRESET     (BUTTON_HOME | BUTTON_POWER)
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define BTN_DIR_UP        BUTTON_HOME
-#define BTN_DIR_DOWN      BUTTON_OPTION
-#define BTN_DIR_LEFT      BUTTON_PREV
-#define BTN_DIR_RIGHT     BUTTON_NEXT
-#define BTN_STARTPAUSE    BUTTON_PLAY
-#define BTN_QUIT          BUTTON_POWER
-#define BTN_STOPRESET     (BUTTON_HOME | BUTTON_POWER)
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define BTN_DIR_UP        BUTTON_PREV
 #define BTN_DIR_DOWN      BUTTON_NEXT
 #define BTN_DIR_LEFT      BUTTON_HOME
@@ -389,26 +411,14 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define BTN_QUIT          BUTTON_POWER
 #define BTN_STOPRESET     BUTTON_VOL_UP
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define BTN_DIR_UP        BUTTON_PREV
 #define BTN_DIR_DOWN      BUTTON_NEXT
-#define BTN_DIR_LEFT      BUTTON_SCROLL_BACK
-#define BTN_DIR_RIGHT     BUTTON_SCROLL_FWD
+#define BTN_DIR_LEFT      BUTTON_HOME
+#define BTN_DIR_RIGHT     BUTTON_VOL_DOWN
 #define BTN_STARTPAUSE    BUTTON_PLAY
 #define BTN_QUIT          BUTTON_POWER
-#define BTN_STOPRESET     BUTTON_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define BTN_DIR_UP      BUTTON_UP
-#define BTN_DIR_DOWN    BUTTON_DOWN
-#define BTN_DIR_LEFT    BUTTON_LEFT
-#define BTN_DIR_RIGHT   BUTTON_RIGHT
-#define BTN_STARTPAUSE  BUTTON_PLAY
-#define BTN_QUIT        BUTTON_POWER
-#define BTN_STOPRESET   BUTTON_BACK
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define BTN_STOPRESET     BUTTON_VOL_UP
 
 #else
 #error No keymap defined!
@@ -495,8 +505,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define SPEED 4
 #define MAX_WORM_SEGMENTS 512
 #elif ((LCD_WIDTH == 320) && (LCD_HEIGHT == 240)) || \
-    ((LCD_WIDTH == 240) && ((LCD_HEIGHT == 320) || (LCD_HEIGHT == 400))) || \
-    ((LCD_WIDTH == 360) && (LCD_HEIGHT == 400))
+    ((LCD_WIDTH == 240) && ((LCD_HEIGHT == 320) || (LCD_HEIGHT == 400)))
 #define FOOD_SIZE 7
 #define ARGH_SIZE 8
 #define SPEED 4
@@ -2438,10 +2447,8 @@ static bool launch_wormlet(void)
     switch (game_result)
     {
         case 2:
-
             /* Turn on backlight timeout (revert to settings) */
             backlight_use_settings();
-
             return false;
             break;
     }
@@ -2562,24 +2569,24 @@ enum plugin_status plugin_start(const void* parameter)
             case 3:
                 switch(players) {
                     case 0:
-                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote, RB_INT,
+                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote,INT,
                                        nokey_option, 1, NULL);
                         break;
                     case 1:
-                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote, RB_INT,
+                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote,INT,
                                        key24_option, 2, NULL);
                         break;
                     case 2:
 #ifdef REMOTE
-                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote, RB_INT,
+                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote,INT,
                                        remote_option, 2, NULL);
 #else
-                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote, RB_INT,
+                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote,INT,
                                        key2_option, 1, NULL);
 #endif
                         break;
                     case 3:
-                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote, RB_INT,
+                        rb->set_option(rb->str(LANG_CONTROL_STYLE),&use_remote,INT,
                                        remoteonly_option, 1, NULL);
                         break;
                 }
@@ -2608,7 +2615,7 @@ enum plugin_status plugin_start(const void* parameter)
                 break;
             case 9:
                 new_setting = 0;
-                rb->set_option(rb->str(LANG_RESET), &new_setting, RB_INT, noyes , 2, NULL);
+                rb->set_option(rb->str(LANG_RESET), &new_setting, INT, noyes , 2, NULL);
                 if (new_setting == 1)
                     default_settings();
                 break;

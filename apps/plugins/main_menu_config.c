@@ -171,7 +171,7 @@ enum plugin_status plugin_start(const void* parameter)
     struct gui_synclist list;
     bool done = false;
     int action, cur_sel;
-
+    
     menu_table = rb->root_menu_get_options(&menu_item_count);
     load_from_cfg();
 
@@ -188,7 +188,7 @@ enum plugin_status plugin_start(const void* parameter)
     {
         cur_sel = rb->gui_synclist_get_sel_pos(&list);
         action = rb->get_action(CONTEXT_LIST,TIMEOUT_BLOCK);
-        if (rb->gui_synclist_do_button(&list, &action))
+        if (rb->gui_synclist_do_button(&list,&action,LIST_WRAP_UNLESS_HELD))
             continue;
 
         switch (action)

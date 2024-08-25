@@ -155,10 +155,7 @@ const struct image_decoder *load_decoder(struct loader_info *loader_info)
         goto error_close;
     }
 
-    if (lc_hdr->api_version != IMGDEC_API_VERSION ||
-        hdr->img_api_size > sizeof(struct imgdec_api) ||
-        hdr->plugin_api_version != PLUGIN_API_VERSION ||
-        hdr->plugin_api_size > sizeof(struct plugin_api))
+    if (lc_hdr->api_version != IMGDEC_API_VERSION)
     {
         rb->splashf(2*HZ, "%s decoder: Incompatible version.", name);
         goto error_close;

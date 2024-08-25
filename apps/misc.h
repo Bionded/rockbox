@@ -1,10 +1,10 @@
 /***************************************************************************
- *             __________               __   ___.
- *   Open      \______   \ ____   ____ |  | _\_ |__   _______  ___
- *   Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /
- *   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <
- *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \
- *                     \/            \/     \/    \/            \/
+ *             __________               __   ___.                  
+ *   Open      \______   \ ____   ____ |  | _\_ |__   _______  ___  
+ *   Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /  
+ *   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <   
+ *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \  
+ *                     \/            \/     \/    \/            \/ 
  * $Id$
  *
  * Copyright (C) 2002 by Daniel Stenberg
@@ -22,7 +22,6 @@
 #define MISC_H
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <inttypes.h>
 #include "config.h"
 #include "screen_access.h"
@@ -37,7 +36,7 @@ extern const unsigned char * const unit_strings_core[];
  * voiced.*/
 char *output_dyn_value(char *buf,
                        int buf_size,
-                       int64_t value,
+                       int value,
                        const unsigned char * const *units,
                        unsigned int unit_count,
                        bool binary_scale);
@@ -94,29 +93,14 @@ const char *format_time_auto(char *buffer, int buf_len, long value,
  */
 void format_time(char* buf, int buf_size, long t);
 
-const char* format_sleeptimer(char* buffer, size_t buffer_size,
-                              int value, const char* unit);
-
-/* A string representation of either whether a sleep timer will be started or
-   canceled, and how long it will be or how long is remaining in brackets */
-char* string_sleeptimer(char *buffer, size_t buffer_len);
-int toggle_sleeptimer(void);
-void talk_sleeptimer(void);
-
-#if CONFIG_RTC
-void talk_timedate(void);
-#endif
-
 /* Ask the user if they really want to erase the current dynamic playlist
  * returns true if the playlist should be replaced */
 bool warn_on_pl_erase(void);
 
-bool show_search_progress(bool init, int count, int current, int total);
-
 /* Read (up to) a line of text from fd into buffer and return number of bytes
- * read (which may be larger than the number of bytes stored in buffer). If
- * an error occurs, -1 is returned (and buffer contains whatever could be
- * read). A line is terminated by a LF char. Neither LF nor CR chars are
+ * read (which may be larger than the number of bytes stored in buffer). If 
+ * an error occurs, -1 is returned (and buffer contains whatever could be 
+ * read). A line is terminated by a LF char. Neither LF nor CR chars are 
  * stored in buffer.
  */
 int read_line(int fd, char* buffer, int buffer_size);
@@ -128,6 +112,7 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
 long default_event_handler(long event);
 bool list_stop_handler(void);
 void car_adapter_mode_init(void) INIT_ATTR;
+extern int show_logo(void);
 
 /* Unicode byte order mark sequences and lengths */
 #define BOM_UTF_8 "\xef\xbb\xbf"
@@ -137,14 +122,7 @@ void car_adapter_mode_init(void) INIT_ATTR;
 #define BOM_UTF_16_SIZE 2
 
 int split_string(char *str, const char needle, char *vector[], int vector_length);
-#ifndef O_PATH
-#define O_PATH 0x2000
-#endif
-
-void fix_path_part(char* path, int offset, int count);
-int open_pathfmt(char *buf, size_t size, int oflag, const char *pathfmt, ...);
 int open_utf8(const char* pathname, int flags);
-int string_option(const char *option, const char *const oplist[], bool ignore_case);
 
 #ifdef BOOTFILE
 #if !defined(USB_NONE) && !defined(USB_HANDLED_BY_OF) \
@@ -153,30 +131,12 @@ void check_bootfile(bool do_rolo);
 #endif
 #endif
 
-enum volume_adjust_mode
-{
-    VOLUME_ADJUST_DIRECT,       /* adjust in units of the volume step size */
-    VOLUME_ADJUST_PERCEPTUAL,   /* adjust using perceptual steps */
-};
-
-/* min/max values for global_settings.volume_adjust_norm_steps */
-#define MIN_NORM_VOLUME_STEPS 10
-#define MAX_NORM_VOLUME_STEPS 100
-
 /* check range, set volume and save settings */
 void setvol(void);
-void set_normalized_volume(int vol);
-int get_normalized_volume(void);
-void adjust_volume(int steps);
-void adjust_volume_ex(int steps, enum volume_adjust_mode mode);
 
 #ifdef HAVE_LCD_COLOR
 int hex_to_rgb(const char* hex, int* color);
 #endif
-
-int confirm_delete_yesno(const char *name);
-int confirm_overwrite_yesno(void);
-int confirm_remove_queued_yesno(void);
 
 char* strrsplt(char* str, int c);
 char* skip_whitespace(char* const str);
@@ -187,11 +147,13 @@ char* skip_whitespace(char* const str);
  */
 char *strip_extension(char* buffer, int buffer_size, const char *filename);
 
+#ifdef HAVE_LCD_BITMAP
 bool parse_color(enum screen_type screen, char *text, int *value);
 
 /* only used in USB HID and set_time screen */
 #if defined(USB_ENABLE_HID) || (CONFIG_RTC != 0)
 int clamp_value_wrap(int value, int max, int min);
+#endif
 #endif
 
 enum current_activity {
@@ -219,9 +181,7 @@ enum current_activity {
     ACTIVITY_USBSCREEN
 };
 
-/* custom string representation of activity */
-#define MAKE_ACT_STR(act) ((char[3]){'>', 'A'+ (act), 0x0})
-
+#if CONFIG_CODEC == SWCODEC
 void beep_play(unsigned int frequency, unsigned int duration,
                unsigned int amplitude);
 
@@ -249,37 +209,15 @@ void keyclick_click(bool rawbutton, int action);
 struct mp3entry;
 int id3_get_replaygain_mode(const struct mp3entry *id3);
 void replaygain_update(void);
+#else
+static inline void replaygain_update(void) {}
+#endif /* CONFIG_CODEC == SWCODEC */
 
 void push_current_activity(enum current_activity screen);
-void push_activity_without_refresh(enum current_activity screen);
 void pop_current_activity(void);
-void pop_current_activity_without_refresh(void);
 enum current_activity get_current_activity(void);
 
 /* format a sound value like: -1.05 dB */
 int format_sound_value(char *buf, size_t len, int snd, int val);
-
-#ifndef PLUGIN
-enum core_load_bmp_error
-{
-    CLB_ALOC_ERR = 0,
-    CLB_READ_ERR = -1,
-};
-struct buflib_callbacks;
-int core_load_bmp(const char *filename, struct bitmap *bm, const int bmformat,
-                  ssize_t *buf_reqd, struct buflib_callbacks *ops);
-#endif
-
-/* Convert a volume (in tenth dB) in the range [min_vol, max_vol]
- * to a normalized linear value in the range [0, max_norm]. */
-long to_normalized_volume(long vol, long min_vol, long max_vol, long max_norm);
-
-/* Inverse of to_normalized_volume(), returns the volume in tenth dB
- * for the given normalized volume. */
-long from_normalized_volume(long norm, long min_vol, long max_vol, long max_norm);
-
-/* clear the lcd output buffer, if update is true the cleared buffer
- * will be written to the lcd */
-void clear_screen_buffer(bool update);
 
 #endif /* MISC_H */

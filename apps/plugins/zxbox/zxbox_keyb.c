@@ -7,6 +7,12 @@
 #define O_BINARY 0
 #endif
 
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define BUTTONBAR_HEIGHT 8
+#else
+#define BUTTONBAR_HEIGHT 0
+#endif
+
 #define DEFAULT_MARGIN 6
 #define KBD_BUF_SIZE 500
 #define kbd_loaded false
@@ -15,6 +21,30 @@
 #if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
     (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define KBD_SELECT BUTTON_SELECT
+#define KBD_ABORT BUTTON_OFF
+#define KBD_LEFT BUTTON_LEFT
+#define KBD_RIGHT BUTTON_RIGHT
+#define KBD_UP BUTTON_UP
+#define KBD_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == RECORDER_PAD
+#define KBD_SELECT BUTTON_PLAY
+#define KBD_ABORT BUTTON_OFF
+#define KBD_LEFT BUTTON_LEFT
+#define KBD_RIGHT BUTTON_RIGHT
+#define KBD_UP BUTTON_UP
+#define KBD_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define KBD_SELECT BUTTON_SELECT
+#define KBD_ABORT BUTTON_OFF
+#define KBD_LEFT BUTTON_LEFT
+#define KBD_RIGHT BUTTON_RIGHT
+#define KBD_UP BUTTON_UP
+#define KBD_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ONDIO_PAD /* restricted Ondio keypad */
+#define KBD_SELECT BUTTON_MENU
 #define KBD_ABORT BUTTON_OFF
 #define KBD_LEFT BUTTON_LEFT
 #define KBD_RIGHT BUTTON_RIGHT
@@ -31,6 +61,17 @@
 #define KBD_RIGHT BUTTON_RIGHT
 #define KBD_UP BUTTON_SCROLL_BACK
 #define KBD_DOWN BUTTON_SCROLL_FWD
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+
+/* TODO: Check keyboard mappings */
+
+#define KBD_SELECT BUTTON_SELECT 
+#define KBD_ABORT BUTTON_PLAY
+#define KBD_LEFT BUTTON_LEFT
+#define KBD_RIGHT BUTTON_RIGHT
+#define KBD_UP BUTTON_UP
+#define KBD_DOWN BUTTON_DOWN
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 
@@ -101,6 +142,15 @@
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 
 #define KBD_ABORT BUTTON_POWER
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define KBD_SELECT BUTTON_MENU
+#define KBD_ABORT BUTTON_POWER
+#define KBD_LEFT BUTTON_LEFT
+#define KBD_RIGHT BUTTON_RIGHT
+#define KBD_UP BUTTON_STOP
+#define KBD_DOWN BUTTON_PLAY
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 
@@ -237,25 +287,7 @@
 #define KBD_UP     BUTTON_HOME
 #define KBD_DOWN   BUTTON_OPTION
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-
-#define KBD_SELECT BUTTON_PLAY
-#define KBD_ABORT  BUTTON_POWER
-#define KBD_LEFT   BUTTON_PREV
-#define KBD_RIGHT  BUTTON_NEXT
-#define KBD_UP     BUTTON_HOME
-#define KBD_DOWN   BUTTON_OPTION
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-
-#define KBD_SELECT BUTTON_PLAY
-#define KBD_ABORT  BUTTON_POWER
-#define KBD_LEFT   BUTTON_PREV
-#define KBD_RIGHT  BUTTON_NEXT
-#define KBD_UP     BUTTON_HOME
-#define KBD_DOWN   BUTTON_OPTION
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 
 #define KBD_SELECT BUTTON_PLAY
 #define KBD_ABORT  BUTTON_POWER
@@ -264,23 +296,14 @@
 #define KBD_UP     BUTTON_PREV
 #define KBD_DOWN   BUTTON_NEXT
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 
 #define KBD_SELECT BUTTON_PLAY
-#define KBD_ABORT  BUTTON_BACK
-#define KBD_LEFT   BUTTON_SCROLL_BACK
-#define KBD_RIGHT  BUTTON_SCROLL_FWD
+#define KBD_ABORT  BUTTON_POWER
+#define KBD_LEFT   BUTTON_HOME
+#define KBD_RIGHT  BUTTON_VOL_DOWN
 #define KBD_UP     BUTTON_PREV
 #define KBD_DOWN   BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-
-#define KBD_SELECT BUTTON_SELECT
-#define KBD_ABORT  BUTTON_BACK
-#define KBD_LEFT   BUTTON_LEFT
-#define KBD_RIGHT  BUTTON_RIGHT
-#define KBD_UP     BUTTON_UP
-#define KBD_DOWN   BUTTON_DOWN
 
 #endif
 
@@ -379,7 +402,7 @@ int zx_kbd_input(char* text/*, int buflen*/)
         param[l].font_h = param[l].font->height;
 
             /* check if FONT_UI fits the screen */
-        if (2*param[l].font_h+3 >
+        if (2*param[l].font_h+3 + BUTTONBAR_HEIGHT >
             rb->screens[l]->getheight()) {
             param[l].font = rb->font_get(FONT_SYSFIXED);
             param[l].font_h = param[l].font->height;
@@ -459,10 +482,10 @@ int zx_kbd_input(char* text/*, int buflen*/)
             param[l].lines = param[l].DEFAULT_LINES;
             param[l].keyboard_margin = DEFAULT_MARGIN;
         } else {
-            param[l].lines = (rb->screens[l]->lcdheight -
+            param[l].lines = (rb->screens[l]->lcdheight - BUTTONBAR_HEIGHT -
                              statusbar_size) / param[l].font_h - 1;
             param[l].keyboard_margin = rb->screens[l]->lcdheight -
-                                       statusbar_size -
+                                       BUTTONBAR_HEIGHT - statusbar_size -
                                        (param[l].lines+1)*param[l].font_h;
             if (param[l].keyboard_margin < 3) {
                 param[l].lines--;
@@ -492,27 +515,27 @@ int zx_kbd_input(char* text/*, int buflen*/)
         len_utf8 = rb->utf8length(text);
 #endif
         FOR_NB_SCREENS(l)
-        {
             rb->screens[l]->clear_display();
-        }
 
-        /* draw page */
-        FOR_NB_SCREENS(l)
-        {
-            rb->screens[l]->setfont(param[l].curfont);
-            k = param[l].page*param[l].max_chars*param[l].lines;
-            for (i=j=0; j < param[l].lines && k < param[l].nchars; k++) {
-                utf8 = rb->utf8encode(param[l].kbd_buf[k], outline);
-                *utf8 = 0;
-                rb->screens[l]->getstringsize(outline, &w, NULL);
-                rb->screens[l]->putsxy(i*param[l].font_w + (param[l].font_w-w)/2, j*param[l].font_h
-                      + statusbar_size, outline);
-                if (++i == param[l].max_chars) {
-                    i = 0;
-                    j++;
+
+            /* draw page */
+            FOR_NB_SCREENS(l)
+            {
+                rb->screens[l]->setfont(param[l].curfont);
+                k = param[l].page*param[l].max_chars*param[l].lines;
+                for (i=j=0; j < param[l].lines && k < param[l].nchars; k++) {
+                    utf8 = rb->utf8encode(param[l].kbd_buf[k], outline);
+                    *utf8 = 0;
+                    rb->screens[l]->getstringsize(outline, &w, NULL);
+                    rb->screens[l]->putsxy(i*param[l].font_w + (param[l].font_w-w)/2, j*param[l].font_h
+                          + statusbar_size, outline);
+                    if (++i == param[l].max_chars) {
+                        i = 0;
+                        j++;
+                    }
                 }
             }
-        }
+
 
         /* separator */
         FOR_NB_SCREENS(l)
@@ -561,20 +584,19 @@ int zx_kbd_input(char* text/*, int buflen*/)
         }
         cur_blink = !cur_blink;
 
-        /* highlight the key that has focus */
+        
+            /* highlight the key that has focus */
+            FOR_NB_SCREENS(l)
+            {
+                rb->screens[l]->set_drawmode(DRMODE_COMPLEMENT);
+                rb->screens[l]->fillrect(param[l].font_w * param[l].x,
+                                        statusbar_size + param[l].font_h * param[l].y,
+                                        param[l].font_w, param[l].font_h);
+                rb->screens[l]->set_drawmode(DRMODE_SOLID);
+            }
+        
         FOR_NB_SCREENS(l)
-        {
-            rb->screens[l]->set_drawmode(DRMODE_COMPLEMENT);
-            rb->screens[l]->fillrect(param[l].font_w * param[l].x,
-                                    statusbar_size + param[l].font_h * param[l].y,
-                                    param[l].font_w, param[l].font_h);
-            rb->screens[l]->set_drawmode(DRMODE_SOLID);
-        }
-
-        FOR_NB_SCREENS(l)
-        {
-            rb->screens[l]->update();
-        }
+        rb->screens[l]->update();
 
         button = rb->button_get_w_tmo(HZ/2);
 
@@ -668,7 +690,7 @@ int zx_kbd_input(char* text/*, int buflen*/)
                     char_screen = 0;
 
                 /* inserts the selected char */
-
+                
                     /* find input char */
                         k = (param[char_screen].page*param[char_screen].lines +
                             param[char_screen].y)*param[char_screen].max_chars +

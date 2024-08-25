@@ -47,11 +47,9 @@ struct vo_data
 #if NUM_CORES > 1
 /* Cache aligned and padded to avoid clobbering other processors' cacheable
  * data */
-static union {
-	uint8_t __vo_data[CACHEALIGN_UP(sizeof(struct vo_data))];
-	struct vo_data vo;
-} vo_raw CACHEALIGN_ATTR;
-#define vo vo_raw.vo
+static uint8_t __vo_data[CACHEALIGN_UP(sizeof(struct vo_data))]
+        CACHEALIGN_ATTR;
+#define vo (*((struct vo_data *)__vo_data))
 #else
 static struct vo_data vo;
 #endif
@@ -369,7 +367,7 @@ void stretch_image_plane(const uint8_t * src, uint8_t *dst, int stride,
 bool vo_draw_frame_thumb(uint8_t * const * buf, const struct vo_rect *rc)
 {
     void *mem;
-    size_t bufsize = 0;
+    size_t bufsize;
     uint8_t *yuv[3];
     struct vo_rect thumb_rc;
     int thumb_width, thumb_height;

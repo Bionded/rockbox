@@ -201,14 +201,14 @@ _start:
     mov     r3, #CACHE_NONE
     bl      map_section
 
-    /* Enable write-through caching for FLASH */
+    /* Enable caching for FLASH */
     ldr     r0, =_flash_start
     ldr     r1, =_flash_start
     ldr     r2, =_flash_sizem
-    mov     r3, #(CACHE_ALL & ~BUFFERED)
+    mov     r3, #CACHE_ALL
     bl      map_section
 
-    /* Enable write-back caching for RAM */
+    /* Enable caching for RAM */
     ldr     r0, =_sdram_start
     ldr     r1, =_sdram_start
     ldr     r2, =_sdram_sizem

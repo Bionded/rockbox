@@ -26,8 +26,8 @@
 #define REC_SAMPR_CAPS  (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8) */
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
@@ -92,8 +92,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* Define this if you have a software controlled poweroff */
 #define HAVE_SW_POWEROFF
@@ -131,8 +131,8 @@
 
 #define CONFIG_BATTERY_MEASURE VOLTAGE_MEASURE
 
-/* Hardware controlled charging */
-#define CONFIG_CHARGING CHARGING_SIMPLE
+/* Hardware controlled charging? FIXME */
+//#define CONFIG_CHARGING CHARGING_SIMPLE
 
 /* FIXME: Don't shutdown on low battery until we have proper suspend. */
 #define NO_LOW_BATTERY_SHUTDOWN
@@ -159,6 +159,15 @@
 #define CPU_FREQ      11289600
 
 #define CONFIG_LCD LCD_IPOD2BPP
+
+/* Offset ( in the firmware file's header ) to the file length */
+#define FIRMWARE_OFFSET_FILE_LENGTH 0
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define USB_HANDLED_BY_OF
 /* actually firewire only, but handled like USB */

@@ -34,9 +34,6 @@
 #if (CONFIG_STORAGE & STORAGE_SD)
 #include "sd.h"
 #endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-// TODO:  Doesn't matter until we're native
-#endif
 #if (CONFIG_STORAGE & STORAGE_MMC)
 #include "mmc.h"
 #endif
@@ -100,14 +97,11 @@ int nand_event(long id, intptr_t data);
 #if (CONFIG_STORAGE & STORAGE_RAMDISK)
 int ramdisk_event(long id, intptr_t data);
 #endif
-#if (CONFIG_STORAGE & STORAGE_USB)
-// int usb_event(long id, intptr_t data); // TODO: Implement
-#endif
 
 struct storage_info
 {
     unsigned int sector_size;
-    sector_t num_sectors;
+    unsigned int num_sectors;
     char *vendor;
     char *product;
     char *revision;
@@ -124,12 +118,11 @@ static inline void stub_storage_spin(void) {}
 static inline void stub_storage_spindown(int timeout) { (void)timeout; }
 static inline int stub_storage_event(long id, intptr_t data)
     { return 0; (void)id; (void)data; }
-static inline void storage_sleep(void) {};
 #else /* ndef HAVE_HOSTFS */
 #if (CONFIG_STORAGE & STORAGE_ATA)
 void storage_sleep(void);
 #else
-static inline void storage_sleep(void) {};
+static inline void storage_sleep(void) {}
 #endif
 #endif /* HAVE_HOSTFS */
 
@@ -139,11 +132,11 @@ static inline void storage_sleep(void) {};
  */
     #define storage_num_drives() NUM_DRIVES
     #if defined(HAVE_HOSTFS)
-        #define STORAGE_FUNCTION(NAME) (stub_storage_## NAME)
+        #define STORAGE_FUNCTION(NAME) (stub_## NAME)
         #define storage_event stub_storage_event
-        #define storage_spindown(sec) stub_storage_spindown(sec)
-        #define storage_sleep() stub_storage_sleep()
-        #define storage_spin() stub_storage_spin()
+        #define storage_spindown stub_storage_spindown
+        #define storage_sleep stub_storage_sleep
+        #define storage_spin stub_storage_spin
 
         #define storage_enable(on)
         #define storage_sleepnow()
@@ -167,8 +160,9 @@ static inline void storage_sleep(void) {};
         #define storage_driver_type(drive) hostfs_driver_type(IF_MV(drive))
     #elif (CONFIG_STORAGE & STORAGE_ATA)
         #define STORAGE_FUNCTION(NAME) (ata_## NAME)
-        #define storage_spindown(sec) ata_spindown(sec)
-        #define storage_spin() ata_spin()
+        #define storage_spindown ata_spindown
+        #define storage_spin ata_spin
+
         #define storage_enable(on) ata_enable(on)
         #define storage_sleepnow() ata_sleepnow()
         #define storage_disk_is_active() ata_disk_is_active()
@@ -190,8 +184,8 @@ static inline void storage_sleep(void) {};
         #define storage_driver_type(drive) (STORAGE_ATA_NUM)
     #elif (CONFIG_STORAGE & STORAGE_SD)
         #define STORAGE_FUNCTION(NAME) (sd_## NAME)
-        #define storage_spindown(sec) sd_spindown(sec)
-        #define storage_spin() sd_spin()
+        #define storage_spindown sd_spindown
+        #define storage_spin sd_spin
 
         #define storage_enable(on) sd_enable(on)
         #define storage_sleepnow() do {} while (0)
@@ -214,8 +208,8 @@ static inline void storage_sleep(void) {};
         #define storage_driver_type(drive) (STORAGE_SD_NUM)
      #elif (CONFIG_STORAGE & STORAGE_MMC)
         #define STORAGE_FUNCTION(NAME) (mmc_## NAME)
-        #define storage_spindown(sec) mmc_spindown(sec)
-        #define storage_spin() mmc_spin()
+        #define storage_spindown mmc_spindown
+        #define storage_spin mmc_spin
 
         #define storage_enable(on) mmc_enable(on)
         #define storage_sleepnow() mmc_sleepnow()
@@ -227,7 +221,7 @@ static inline void storage_sleep(void) {};
         #define storage_last_disk_activity() mmc_last_disk_activity()
         #define storage_spinup_time() 0
         #define storage_get_identify() mmc_get_identify()
-
+       
         #ifdef STORAGE_GET_INFO
             #define storage_get_info(drive, info) mmc_get_info(IF_MD(drive,) info)
         #endif
@@ -238,8 +232,8 @@ static inline void storage_sleep(void) {};
         #define storage_driver_type(drive) (STORAGE_MMC_NUM)
     #elif (CONFIG_STORAGE & STORAGE_NAND)
         #define STORAGE_FUNCTION(NAME) (nand_## NAME)
-        #define storage_spindown(sec) nand_spindown(sec)
-        #define storage_spin() nand_spin()
+        #define storage_spindown nand_spindown
+        #define storage_spin nand_spin
 
         #define storage_enable(on) (void)0
         #define storage_sleepnow() nand_sleepnow()
@@ -251,7 +245,7 @@ static inline void storage_sleep(void) {};
         #define storage_last_disk_activity() nand_last_disk_activity()
         #define storage_spinup_time() 0
         #define storage_get_identify() nand_get_identify()
-
+       
         #ifdef STORAGE_GET_INFO
             #define storage_get_info(drive, info) nand_get_info(IF_MD(drive,) info)
         #endif
@@ -262,8 +256,8 @@ static inline void storage_sleep(void) {};
         #define storage_driver_type(drive) (STORAGE_NAND_NUM)
     #elif (CONFIG_STORAGE & STORAGE_RAMDISK)
         #define STORAGE_FUNCTION(NAME) (ramdisk_## NAME)
-        #define storage_spindown(sec) ramdisk_spindown(sec)
-        #define storage_spin() ramdisk_spin()
+        #define storage_spindown ramdisk_spindown
+        #define storage_spin ramdisk_spin
 
         #define storage_enable(on) (void)0
         #define storage_sleepnow() ramdisk_sleepnow()
@@ -275,7 +269,7 @@ static inline void storage_sleep(void) {};
         #define storage_last_disk_activity() ramdisk_last_disk_activity()
         #define storage_spinup_time() 0
         #define storage_get_identify() ramdisk_get_identify()
-
+       
         #ifdef STORAGE_GET_INFO
             #define storage_get_info(drive, info) ramdisk_get_info(IF_MD(drive,) info)
         #endif
@@ -284,15 +278,12 @@ static inline void storage_sleep(void) {};
             #define storage_present(drive) ramdisk_present(IF_MD(drive))
         #endif
         #define storage_driver_type(drive) (STORAGE_RAMDISK_NUM)
-    #elif (CONFIG_STORAGE & STORAGE_USB)
-        // TODO:  Eventually fix me
     #else
         //#error No storage driver!
     #endif
 #else /* CONFIG_STORAGE_MULTI || !HAVE_HOSTFS */
 
 /* Multi-driver use normal functions */
-#define STORAGE_FUNCTION(NAME) (storage_## NAME)
 
 void storage_enable(bool on);
 void storage_sleepnow(void);
@@ -310,14 +301,11 @@ void storage_get_info(int drive, struct storage_info *info);
 #ifdef HAVE_HOTSWAP
 bool storage_removable(int drive);
 bool storage_present(int drive);
-#else
-#define storage_removable(x) 0
-#define storage_present(x) 1
 #endif
 int storage_driver_type(int drive);
 
 #endif /* NOT CONFIG_STORAGE_MULTI and NOT SIMULATOR*/
 
-int storage_read_sectors(IF_MD(int drive,) sector_t start, int count, void* buf);
-int storage_write_sectors(IF_MD(int drive,) sector_t start, int count, const void* buf);
+int storage_read_sectors(IF_MD(int drive,) unsigned long start, int count, void* buf);
+int storage_write_sectors(IF_MD(int drive,) unsigned long start, int count, const void* buf);
 #endif

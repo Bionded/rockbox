@@ -17,7 +17,7 @@
 if [ -e "/dev/r1Button" ]
 then
     # running on YP-R1 model (volume up button)
-    BTN=$(echo -e -n "\x03")
+    BTN=$(echo -e -n "\x02")
     VAL=$(dd if=/dev/r1Button bs=4 count=1)
 else
     # running on YP-R0 model (menu button)
@@ -63,13 +63,13 @@ echo "95" > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
 mount --bind /mnt/media0/.rockbox /.rockbox
 mount --bind /mnt/media0/Playlists /Playlists
 
-MAINFILE="/mnt/media0/.rockbox/rockbox"
-# Attempt to copy the executable in the /tmp directory
-# This allows an easier USB Mass Storage Mode to be achieved (file handles)
-cp $MAINFILE /tmp/rockbox
-if [ $? -eq 0 ]
+# replace Samsung's si470x.ko with our si4709.ko to support fm radio
+if [ -e /lib/modules/si4709.ko ]
 then
-    MAINFILE="/tmp/rockbox"
+  rmmod /lib/modules/si470x.ko
+  insmod /lib/modules/si4709.ko
 fi
+
+MAINFILE="/mnt/media0/.rockbox/rockbox"
 MAINFILE_ARGV=''
 MAINFILE_REDIRECT='>/dev/null 2>&1'

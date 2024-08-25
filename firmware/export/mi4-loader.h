@@ -21,9 +21,6 @@
  *
  ****************************************************************************/
 
-#ifndef __MI4_LOADER_H__
-#define __MI4_LOADER_H__
-
 #include <stdint.h>
 
 #define MI4_HEADER_SIZE     0x200
@@ -52,5 +49,3 @@ struct tea_key {
 
 int load_mi4(unsigned char* buf, const char* firmware, unsigned int buffer_size);
 const char *mi4_strerror(int8_t errno);
-
-#endif /* __MI4_LOADER_H__ */

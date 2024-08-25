@@ -490,7 +490,7 @@ int Oset_keys()
         else
         {
             *keys[result]=translatekey(*keys[result]);
-            rb->set_option(menu_[result], keys[result], RB_INT, doomkeys, numdoomkeys, NULL );
+            rb->set_option(menu_[result], keys[result], INT, doomkeys, numdoomkeys, NULL );
             *keys[result]=translatekey(*keys[result]);
         }
    }
@@ -540,7 +540,7 @@ static bool Doptions()
         if(result==0) 
             Oset_keys();
         else if (result > 0)
-            rb->set_option(menu_[result], options[result-1], RB_INT, onoff, 2, NULL );
+            rb->set_option(menu_[result], options[result-1], INT, onoff, 2, NULL );
         else
             menuquit=1;
     }
@@ -620,7 +620,7 @@ int doom_menu()
       result = rb->do_menu(&menu, &selected, NULL, false);
       switch (result) {
          case 0: /* Game picker */
-            rb->set_option("Game WAD", &gamever, RB_INT, names, status, NULL );
+            rb->set_option("Game WAD", &gamever, INT, names, status, NULL );
             break;
 
          case 1: /* Addon picker */
@@ -722,9 +722,7 @@ enum plugin_status plugin_start(const void* parameter)
    systemvol= rb->global_settings->volume-rb->global_settings->volume%mod;
    general_translucency = default_translucency;                    // phares
 
-
    backlight_ignore_timeout();
-
 #ifdef RB_PROFILE
    rb->profile_thread();
 #endif
@@ -738,7 +736,6 @@ enum plugin_status plugin_start(const void* parameter)
 #ifdef RB_PROFILE
    rb->profstop();
 #endif
-
    backlight_use_settings();
 
    M_SaveDefaults ();

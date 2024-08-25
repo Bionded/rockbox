@@ -14,11 +14,12 @@
 # This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
 # KIND, either express or implied.
 #
-# LANGUAGE_IS_RTL
-#
 # Arabic language file, translated by:
 # - Mohamed Tarek
 # - Raafat Akkad
+<options>
+  rtl: 1
+</options>
 <phrase>
   id: LANG_LOUDNESS
   desc: in sound_settings
@@ -69,13 +70,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "نوع خط الاختيار"
+    *: none
+    lcd_bitmap: "نوع خط الاختيار"
   </dest>
   <voice>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </voice>
 </phrase>
 <phrase>
@@ -111,13 +115,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "إعدادات المعادل المتقدمة"
+    *: none
+    swcodec: "إعدادات المعادل المتقدمة"
   </dest>
   <voice>
-    *: "Advanced equalizer settings"
+    *: none
+    swcodec: "Advanced equalizer settings"
   </voice>
 </phrase>
 <phrase>
@@ -257,13 +264,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "معادل تصويرى"
+    *: none
+    swcodec: "معادل تصويرى"
   </dest>
   <voice>
-    *: "Graphical equalizer"
+    *: none
+    swcodec: "Graphical equalizer"
   </voice>
 </phrase>
 <phrase>
@@ -414,13 +424,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "متوسط"
+    *: none
+    swcodec: "متوسط"
   </dest>
   <voice>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </voice>
 </phrase>
 <phrase>
@@ -487,13 +500,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "تردد الانقطاع"
+    *: none
+    swcodec: "تردد الانقطاع"
   </dest>
   <voice>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </voice>
 </phrase>
 <phrase>
@@ -616,13 +632,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "قوى"
+    *: none
+    swcodec: "قوى"
   </dest>
   <voice>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </voice>
 </phrase>
 <phrase>
@@ -766,17 +785,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "الصيغة"
+    *: none
+    recording: "الصيغة"
   </dest>
   <voice>
-    *: "Format"
+    *: none
+    recording: "Format"
   </voice>
 </phrase>
 <phrase>
@@ -1347,13 +1369,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "الانقطاع عند التردد العالى"
+    *: none
+    swcodec: "الانقطاع عند التردد العالى"
   </dest>
   <voice>
-    *: "High-frequency cutoff"
+    *: none
+    swcodec: "High-frequency cutoff"
   </voice>
 </phrase>
 <phrase>
@@ -1448,13 +1473,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "ضغط المفتاح"
+    *: none
+    swcodec: "ضغط المفتاح"
   </dest>
   <voice>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </voice>
 </phrase>
 <phrase>
@@ -1602,13 +1630,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "مؤشر"
+    *: none
+    lcd_bitmap: "مؤشر"
   </dest>
   <voice>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </voice>
 </phrase>
 <phrase>
@@ -1650,13 +1681,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "شريط الحالة"
+    *: none
+    lcd_bitmap: "شريط الحالة"
   </dest>
   <voice>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </voice>
 </phrase>
 <phrase>
@@ -1692,13 +1726,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "تردد الانقطاع"
+    *: none
+    swcodec: "تردد الانقطاع"
   </dest>
   <voice>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </voice>
 </phrase>
 <phrase>
@@ -1938,15 +1975,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "التردد"
+    recording,play_frequency: "التردد"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </voice>
 </phrase>
 <phrase>
@@ -1985,13 +2022,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "تردد المركز"
+    *: none
+    swcodec: "تردد المركز"
   </dest>
   <voice>
-    *: "Center frequency"
+    *: none
+    swcodec: "Center frequency"
   </voice>
 </phrase>
 <phrase>
@@ -2221,13 +2261,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "الكسب المستعرض"
+    *: none
+    swcodec: "الكسب المستعرض"
   </dest>
   <voice>
-    *: "Cross gain"
+    *: none
+    swcodec: "Cross gain"
   </voice>
 </phrase>
 <phrase>
@@ -2280,13 +2323,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </source>
   <dest>
-    *: "الارتجاف"
+    *: none
+    swcodec: "الارتجاف"
   </dest>
   <voice>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </voice>
 </phrase>
 <phrase>
@@ -2339,13 +2385,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "إعدادات المعادل البسيطة"
+    *: none
+    swcodec: "إعدادات المعادل البسيطة"
   </dest>
   <voice>
-    *: "Simple equalizer settings"
+    *: none
+    swcodec: "Simple equalizer settings"
   </voice>
 </phrase>
 <phrase>
@@ -2353,13 +2402,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "خافت"
+    *: none
+    swcodec: "خافت"
   </dest>
   <voice>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </voice>
 </phrase>
 <phrase>
@@ -2409,13 +2461,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "%s : وضع التحرير"
+    *: none
+    swcodec: "%s : وضع التحرير"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -2423,13 +2478,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "تخفيف التردد العالي"
+    *: none
+    swcodec: "تخفيف التردد العالي"
   </dest>
   <voice>
-    *: "High-frequency attenuation"
+    *: none
+    swcodec: "High-frequency attenuation"
   </voice>
 </phrase>
 <phrase>
@@ -2451,18 +2509,21 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "تفعيل المعادل"
+    *: none
+    swcodec: "تفعيل المعادل"
   </dest>
   <voice>
-    *: "Enable equalizer"
+    *: none
+    swcodec: "Enable equalizer"
   </voice>
 </phrase>
 <phrase>
   id: VOICE_EXT_CUESHEET
-  desc:
+  desc: 
   user: core
   <source>
     *: ""
@@ -2572,13 +2633,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "مقلوبة"
+    *: none
+    lcd_bitmap: "مقلوبة"
   </dest>
   <voice>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </voice>
 </phrase>
 <phrase>
@@ -2707,13 +2771,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "عرض إعدادات المعادل المسبقة"
+    *: none
+    swcodec: "عرض إعدادات المعادل المسبقة"
   </dest>
   <voice>
-    *: "Browse equalizer presets"
+    *: none
+    swcodec: "Browse equalizer presets"
   </voice>
 </phrase>
 <phrase>
@@ -2847,13 +2914,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "(الشريط(معكوس"
+    *: none
+    lcd_bitmap: "(الشريط(معكوس"
   </dest>
   <voice>
-    *: "Inverse Bar"
+    *: none
+    lcd_bitmap: "Inverse Bar"
   </voice>
 </phrase>
 <phrase>
@@ -2937,13 +3007,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "المعادل"
+    *: none
+    swcodec: "المعادل"
   </dest>
   <voice>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </voice>
 </phrase>
 <phrase>
@@ -3083,13 +3156,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "الكسب المباشر"
+    *: none
+    swcodec: "الكسب المباشر"
   </dest>
   <voice>
-    *: "Direct gain"
+    *: none
+    swcodec: "Direct gain"
   </voice>
 </phrase>
 <phrase>
@@ -3240,13 +3316,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Browse Fonts"
+    *: none
+    lcd_bitmap: "Browse Fonts"
   </source>
   <dest>
-    *: "عرض الخطوط"
+    *: none
+    lcd_bitmap: "عرض الخطوط"
   </dest>
   <voice>
-    *: "Browse Fonts"
+    *: none
+    lcd_bitmap: "Browse Fonts"
   </voice>
 </phrase>
 <phrase>
@@ -3309,6 +3388,23 @@
   <voice>
     *: none
     crossfade: "Mix"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
   </voice>
 </phrase>
 <phrase>
@@ -3381,13 +3477,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "وضع التحرير : s %s%"
+    *: none
+    swcodec: "وضع التحرير : s %s%"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -3548,16 +3647,19 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
   </source>
   <dest>
     *: "جاري بناء قاعدة البيانات...  عثر على d% (إيقاف للعودة)"
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,iriverh10,iriverh10_5gb,mrobe100,samsungyh*,sansac200*,sansae200*,sansafuze*,vibe500: "جاري بناء قاعدة البيانات...  عثر على d% (يسار للعودة)"
-    ipod*: "جاري بناء قاعدة البيانات...  عثر على d% (السابق للعودة)"
     iriverh100,iriverh120,iriverh300: "جاري بناء قاعدة البيانات...  عثر على d% (إيقاف للعودة)"
+    ipod*: "جاري بناء قاعدة البيانات...  عثر على d% (السابق للعودة)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "جاري بناء قاعدة البيانات...  عثر على d% (يسار للعودة)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "جاري بناء قاعدة البيانات...  عثر على d% (يسار للعودة)"
+    gogearsa9200: "جاري بناء قاعدة البيانات...  عثر على d% (يسار للعودة)"
   </dest>
   <voice>
     *: "المدخلات التي عثر عليها لفاعدة البيانات"
@@ -3626,7 +3728,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -3949,15 +4051,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "أحادي يسار+يمين"
+    recording_swcodec: "أحادي يسار+يمين"
   </dest>
   <voice>
     *: none
-    recording: "Mono Left plus Right"
+    recording_swcodec: "Mono Left plus Right"
   </voice>
 </phrase>
 <phrase>
@@ -4042,15 +4144,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "حساسية اللمس"
+    gigabeatfx,sansafuzeplus: "حساسية اللمس"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </voice>
 </phrase>
 <phrase>
@@ -4072,13 +4174,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -4179,13 +4284,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "تايلاندي (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "تايلاندي (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Thai"
+    *: none
+    lcd_bitmap: "Thai"
   </voice>
 </phrase>
 <phrase>
@@ -4314,13 +4422,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "ياباني (SJIS)"
+    *: none
+    lcd_bitmap: "ياباني (SJIS)"
   </dest>
   <voice>
-    *: "Japanese"
+    *: none
+    lcd_bitmap: "Japanese"
   </voice>
 </phrase>
 <phrase>
@@ -4415,13 +4526,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "عبري (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "عبري (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Hebrew"
+    *: none
+    lcd_bitmap: "Hebrew"
   </voice>
 </phrase>
 <phrase>
@@ -4488,13 +4602,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "امنع القص"
+    *: none
+    swcodec: "امنع القص"
   </dest>
   <voice>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </voice>
 </phrase>
 <phrase>
@@ -4502,13 +4619,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "كوري (KSX1001)"
+    *: none
+    lcd_bitmap: "كوري (KSX1001)"
   </dest>
   <voice>
-    *: "Korean"
+    *: none
+    lcd_bitmap: "Korean"
   </voice>
 </phrase>
 <phrase>
@@ -4607,16 +4727,17 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
+    recording: "القرص مملوء. اضغط إيقاف للاستمرار."
+    iriverh100,iriverh120,iriverh300: "القرص مملوء. اضغط إيقاف للاستمرار."
     iaudiom5,iaudiox5: "القرص مملوء. اضغط زر التشغيل للاستمرار."
-    iriverh100,iriverh120,iriverh300,recording: "القرص مملوء. اضغط إيقاف للاستمرار."
-    sansac200*,sansae200*,vibe500: "القرص مملوء. اضغط السابق للاستمرار."
+    sansae200*,sansac200*,vibe500: "القرص مملوء. اضغط السابق للاستمرار."
   </dest>
   <voice>
     *: none
@@ -4675,13 +4796,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "صينية مبسطة (GB2312)"
+    *: none
+    lcd_bitmap: "صينية مبسطة (GB2312)"
   </dest>
   <voice>
-    *: "Simplified Chinese"
+    *: none
+    lcd_bitmap: "Simplified Chinese"
   </voice>
 </phrase>
 <phrase>
@@ -5015,13 +5139,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "الصينية التقليدية"
+    *: none
+    lcd_bitmap: "الصينية التقليدية"
   </dest>
   <voice>
-    *: "الصينية التقليدية"
+    *: none
+    lcd_bitmap: "الصينية التقليدية"
   </voice>
 </phrase>
 <phrase>
@@ -5286,18 +5413,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "ميكروفون داخلي"
     recording: "ميكروفون"
+    iriverh100,iriverh120,iriverh300: "ميكروفون داخلي"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "ميكروفون داخلي"
     recording: "ميكروفون"
+    iriverh100,iriverh120,iriverh300: "ميكروفون داخلي"
   </voice>
 </phrase>
 <phrase>
@@ -5922,15 +6049,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "معدل البت"
+    recording_swcodec: "معدل البت"
   </dest>
   <voice>
     *: none
-    recording: "معدل البت"
+    recording_swcodec: "معدل البت"
   </voice>
 </phrase>
 <phrase>
@@ -6379,31 +6506,32 @@
   user: core
   <source>
     *: none
-    gigabeatfx: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
+    rtc: "OFF = Revert"
+    iriverh100,iriverh120,iriverh300: "عرض = إاغاء الأمر"
+    ipod*,sansac200*: "قائمة = إاغاء الأمر"
+    iaudiox5,iaudiom5: "سجل = إاغاء الأمر"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "السابق = إاغاء الأمر"
     gigabeatfx: "طاقة = إاغاء الأمر"
+    mrobe100: "DISPLAY = Revert"
     gigabeats: "خلف = إاغاء الأمر"
     gogearsa9200: "يسار = إاغاء الأمر"
-    iaudiom5,iaudiox5: "سجل = إاغاء الأمر"
-    ipod*,sansac200*: "قائمة = إاغاء الأمر"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "السابق = إاغاء الأمر"
-    iriverh100,iriverh120,iriverh300: "عرض = إاغاء الأمر"
-    mrobe100: "DISPLAY = Revert"
-    rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </dest>
   <voice>
     *: none
@@ -6414,13 +6542,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "الرسوم البيانية"
+    *: none
+    lcd_bitmap: "الرسوم البيانية"
   </dest>
   <voice>
-    *: "الرسوم البيانية"
+    *: none
+    lcd_bitmap: "الرسوم البيانية"
   </voice>
 </phrase>
 <phrase>
@@ -6605,13 +6736,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "العربية (CP1256)"
+    *: none
+    lcd_bitmap: "العربية (CP1256)"
   </dest>
   <voice>
-    *: "العربية"
+    *: none
+    lcd_bitmap: "العربية"
   </voice>
 </phrase>
 <phrase>
@@ -6678,13 +6812,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "رقمي"
+    *: none
+    lcd_bitmap: "رقمي"
   </dest>
   <voice>
-    *: "رقمي"
+    *: none
+    lcd_bitmap: "رقمي"
   </voice>
 </phrase>
 <phrase>
@@ -6824,7 +6961,7 @@
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"

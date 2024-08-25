@@ -62,6 +62,14 @@ struct dma_data dma_play_data SHAREDBSS_ATTR =
     .state = 0
 };
 
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    unsigned long addr = (unsigned long)dma_play_data.p;
+    size_t cnt = dma_play_data.size;
+    *count = cnt >> 2;
+    return (void *)((addr + 2) & ~3);
+}
+
 void pcm_play_dma_init(void)
 {
     DAVC = 0x0;         /* Digital Volume = max */
@@ -74,6 +82,19 @@ void pcm_play_dma_init(void)
 
     /* Enable DAI block in Master mode, 256fs->32fs, 16bit LSB */
     DAMR = 0x3c8e80;
+#elif defined(IAUDIO_7)
+    BCLKCTR &= ~DEV_DAI;
+    PCLK_DAI = (0x800a << 16) | (PCLK_DAI & 0xffff);
+    BCLKCTR |= DEV_DAI;
+
+    /* Master mode, 256->64fs, 16bit LSB*/
+    DAMR = 0x3cce20;
+#elif defined(LOGIK_DAX)
+    /* TODO */
+#elif defined(SANSA_M200)
+    /* TODO */
+#elif defined(SANSA_C100)
+    /* TODO */
 #else
 #error "Target isn't supported"
 #endif
@@ -173,6 +194,20 @@ void pcm_play_unlock(void)
    restore_fiq(status);
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause) {
+        play_stop_pcm();
+    } else {
+        play_start_pcm();
+    }
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return dma_play_data.size & ~3;
+}
+
 #ifdef HAVE_RECORDING
 /* TODO: implement */
 void pcm_rec_dma_init(void)
@@ -207,7 +242,7 @@ const void * pcm_rec_dma_get_peak_buffer(void)
 }
 #endif
 
-#if defined(CPU_TCC780X)
+#if defined(CPU_TCC77X) || defined(CPU_TCC780X)
 void fiq_handler(void) ICODE_ATTR __attribute__((naked));
 void fiq_handler(void)
 {
@@ -218,13 +253,15 @@ void fiq_handler(void)
      * r0-r3 and r12 is a working register.
      */
     asm volatile (
-        BEGIN_ARM_ASM_SYNTAX_UNIFIED
         "sub     lr, lr, #4          \n"
         "stmfd   sp!, { r0-r3, lr }  \n" /* stack scratch regs and lr */
         "mov     r14, #0             \n" /* Was the callback called? */
 #if defined(CPU_TCC780X)
         "mov     r8, #0xc000         \n" /* DAI_TX_IRQ_MASK | DAI_RX_IRQ_MASK */
         "ldr     r9, =0xf3001004     \n" /* CREQ */
+#elif defined(CPU_TCC77X)
+        "mov     r8, #0x0030         \n" /* DAI_TX_IRQ_MASK | DAI_RX_IRQ_MASK */
+        "ldr     r9, =0x80000104     \n" /* CREQ */
 #endif
         "str     r8, [r9]            \n" /* clear DAI IRQs */
         "ldmia   r11, { r8-r9 }      \n" /* r8 = p, r9 = size */
@@ -252,7 +289,7 @@ void fiq_handler(void)
         "stmia   r11, { r8-r9 }      \n" /* save p and size */
 
         "cmp     r14, #0             \n" /* Callback called? */
-        "ldmfdeq sp!, { r0-r3, pc }^ \n" /* no? -> exit */
+        "ldmeqfd sp!, { r0-r3, pc }^ \n" /* no? -> exit */
 
         "ldr     r1, =pcm_play_status_callback \n"
         "ldr     r1, [r1]            \n"
@@ -269,12 +306,11 @@ void fiq_handler(void)
         "mov     lr, pc              \n"
         "ldr     pc, =pcm_play_dma_complete_callback \n"
         "cmp     r0, #0              \n" /* any more to play? */
-        "ldmiane r11, { r8-r9 }      \n" /* load new p and size */
+        "ldmneia r11, { r8-r9 }      \n" /* load new p and size */
         "cmpne   r9, #0x0f           \n" /* did we actually get enough data? */
         "bhi     .fill_fifo          \n" /* not stop and enough? refill */
         "ldmfd   sp!, { r0-r3, pc }^ \n" /* exit */
         ".ltorg                      \n"
-        END_ARM_ASM_SYNTAX_UNIFIED
         : : "i"(PCM_DMAST_OK), "i"(PCM_DMAST_STARTED)
     );
 }

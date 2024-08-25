@@ -242,31 +242,31 @@
 #ifndef __MIPS_ASSEMBLER
 
 //n = 0,1,2,3,4,5 (PORTA, PORTB, PORTC, PORTD, PORTE, PORTF)
-#define REG_GPIO_PXPIN(n)	REG32(GPIO_PXPIN(n))  /* PIN Level Register */
-#define REG_GPIO_PXDAT(n)	REG32(GPIO_PXDAT(n))  /* Port Data Register */
-#define REG_GPIO_PXDATS(n)	REG32(GPIO_PXDATS(n)) /* Port Data Set Register */
-#define REG_GPIO_PXDATC(n)	REG32(GPIO_PXDATC(n)) /* Port Data Clear Register */
-#define REG_GPIO_PXIM(n)	REG32(GPIO_PXIM(n))   /* Interrupt Mask Register */
-#define REG_GPIO_PXIMS(n)	REG32(GPIO_PXIMS(n))  /* Interrupt Mask Set Reg */
-#define REG_GPIO_PXIMC(n)	REG32(GPIO_PXIMC(n))  /* Interrupt Mask Clear Reg */
-#define REG_GPIO_PXPE(n)	REG32(GPIO_PXPE(n))   /* Pull Enable Register */
-#define REG_GPIO_PXPES(n)	REG32(GPIO_PXPES(n))  /* Pull Enable Set Register */
-#define REG_GPIO_PXPEC(n)	REG32(GPIO_PXPEC(n))  /* Pull Enable Clear Register */
-#define REG_GPIO_PXFUN(n)	REG32(GPIO_PXFUN(n))  /* Function Register */
-#define REG_GPIO_PXFUNS(n)	REG32(GPIO_PXFUNS(n)) /* Function Set Register */
-#define REG_GPIO_PXFUNC(n)	REG32(GPIO_PXFUNC(n)) /* Function Clear Register */
-#define REG_GPIO_PXSEL(n)	REG32(GPIO_PXSEL(n))  /* Select Register */
-#define REG_GPIO_PXSELS(n)	REG32(GPIO_PXSELS(n)) /* Select Set Register */
-#define REG_GPIO_PXSELC(n)	REG32(GPIO_PXSELC(n)) /* Select Clear Register */
-#define REG_GPIO_PXDIR(n)	REG32(GPIO_PXDIR(n))  /* Direction Register */
-#define REG_GPIO_PXDIRS(n)	REG32(GPIO_PXDIRS(n)) /* Direction Set Register */
-#define REG_GPIO_PXDIRC(n)	REG32(GPIO_PXDIRC(n)) /* Direction Clear Register */
-#define REG_GPIO_PXTRG(n)	REG32(GPIO_PXTRG(n))  /* Trigger Register */
-#define REG_GPIO_PXTRGS(n)	REG32(GPIO_PXTRGS(n)) /* Trigger Set Register */
-#define REG_GPIO_PXTRGC(n)	REG32(GPIO_PXTRGC(n)) /* Trigger Clear Register */
-#define REG_GPIO_PXFLG(n)	REG32(GPIO_PXFLG(n))  /* Port Flag Register */
-#define REG_GPIO_PXFLGC(n)	REG32(GPIO_PXFLGC(n)) /* Port Flag clear Register */
-#define REG_GPIO_PXDS0(n) 	REG32(GPIO_PXDS0(n))  /* Port Drive Strength*/
+#define REG_GPIO_PXPIN(n)	REG32(GPIO_PXPIN(n))
+#define REG_GPIO_PXDAT(n)	REG32(GPIO_PXDAT(n))
+#define REG_GPIO_PXDATS(n)	REG32(GPIO_PXDATS(n))
+#define REG_GPIO_PXDATC(n)	REG32(GPIO_PXDATC(n))
+#define REG_GPIO_PXIM(n)	REG32(GPIO_PXIM(n))
+#define REG_GPIO_PXIMS(n)	REG32(GPIO_PXIMS(n))
+#define REG_GPIO_PXIMC(n)	REG32(GPIO_PXIMC(n))
+#define REG_GPIO_PXPE(n)	REG32(GPIO_PXPE(n))
+#define REG_GPIO_PXPES(n)	REG32(GPIO_PXPES(n))
+#define REG_GPIO_PXPEC(n)	REG32(GPIO_PXPEC(n))
+#define REG_GPIO_PXFUN(n)	REG32(GPIO_PXFUN(n))
+#define REG_GPIO_PXFUNS(n)	REG32(GPIO_PXFUNS(n))
+#define REG_GPIO_PXFUNC(n)	REG32(GPIO_PXFUNC(n))
+#define REG_GPIO_PXSEL(n)	REG32(GPIO_PXSEL(n))
+#define REG_GPIO_PXSELS(n)	REG32(GPIO_PXSELS(n))
+#define REG_GPIO_PXSELC(n)	REG32(GPIO_PXSELC(n))
+#define REG_GPIO_PXDIR(n)	REG32(GPIO_PXDIR(n))
+#define REG_GPIO_PXDIRS(n)	REG32(GPIO_PXDIRS(n))
+#define REG_GPIO_PXDIRC(n)	REG32(GPIO_PXDIRC(n))
+#define REG_GPIO_PXTRG(n)	REG32(GPIO_PXTRG(n))
+#define REG_GPIO_PXTRGS(n)	REG32(GPIO_PXTRGS(n))
+#define REG_GPIO_PXTRGC(n)	REG32(GPIO_PXTRGC(n))
+#define REG_GPIO_PXFLG(n)	REG32(GPIO_PXFLG(n))
+#define REG_GPIO_PXFLGC(n)	REG32(GPIO_PXFLGC(n))
+#define REG_GPIO_PXDS0(n) 	REG32(GPIO_PXDS0(n))
 #define REG_GPIO_PXDS0S(n) 	REG32(GPIO_PXDS0S(n))
 #define REG_GPIO_PXDS0C(n) 	REG32(GPIO_PXDS0C(n))
 #define REG_GPIO_PXDS1(n) 	REG32(GPIO_PXDS1(n))
@@ -275,9 +275,9 @@
 #define REG_GPIO_PXDS2(n) 	REG32(GPIO_PXDS2(n))
 #define REG_GPIO_PXDS2S(n) 	REG32(GPIO_PXDS2S(n))
 #define REG_GPIO_PXDS2C(n) 	REG32(GPIO_PXDS2C(n))
-#define REG_GPIO_PXSL(n) 	REG32(GPIO_PXSL(n))   /* Port Slew */
-#define REG_GPIO_PXSLS(n) 	REG32(GPIO_PXSLS(n))  /* Port Slew -- Fast */
-#define REG_GPIO_PXSLC(n) 	REG32(GPIO_PXSLC(n))  /* Port Slew -- Slow */
+#define REG_GPIO_PXSL(n) 	REG32(GPIO_PXSL(n))
+#define REG_GPIO_PXSLS(n) 	REG32(GPIO_PXSLS(n))
+#define REG_GPIO_PXSLC(n) 	REG32(GPIO_PXSLC(n))
 
 /*----------------------------------------------------------------
  * p is the port number (0,1,2,3,4,5)
@@ -6992,11 +6992,7 @@ do {								\
 #define USB_OUTCSRH		(USB_BASE + 0x17) /* EP1-15 OUT CSR MSB 8-bit */
 #define USB_OUTCOUNT		(USB_BASE + 0x18) /* EP1-15 OUT FIFO count 16-bit */
 
-#define USB_CONFIGDATA          (USB_BASE + 0x1f) /* Fixed config */
-
 #define USB_FIFO_EP(n)		(USB_BASE + (n)*4 + 0x20)
-
-#define USB_HWVERS              (USB_BASE + 0x6c)
 
 #define USB_EPINFO		(USB_BASE + 0x78) /* Endpoint information */
 #define USB_RAMINFO		(USB_BASE + 0x79) /* RAM information */
@@ -7017,11 +7013,6 @@ do {								\
 #define USB_INTR_SUSPEND	0x01
 #define USB_INTR_RESUME		0x02
 #define USB_INTR_RESET		0x04
-#define USB_INTR_SOF		0x08
-#define USB_INTR_CONNECT        0x10
-#define USB_INTR_DISCONNECT     0x20
-#define USB_INTR_SESS_REQ       0x40
-#define USB_INTR_VBUS_ERR       0x80
 
 #define USB_INTR_EP(n)		(1 << (n))
 
@@ -7043,7 +7034,6 @@ do {								\
 #define USB_INCSRH_DMAREQENAB	0x10
 #define USB_INCSRH_FRCDATATOG	0x08
 #define USB_INCSRH_DMAREQMODE	0x04
-#define USB_INCSR_INCOMPTX      0x80
 #define USB_INCSR_CDT		0x40
 #define USB_INCSR_SENTSTALL	0x20
 #define USB_INCSR_SENDSTALL	0x10
@@ -7087,10 +7077,6 @@ do {								\
 #define USB_CNTL_BURST_8	(2 << 9)
 #define USB_CNTL_BURST_16	(3 << 9)
 
-/* USB HW revision */
-#define USB_HWVERS_MAJOR(x)    ((x >> 10) & 0x1f)
-#define USB_HWVERS_MINOR(x)    (x & 0x3ff)
-
 /* DMA interrupt bits */
 #define USB_INTR_DMA_BULKIN	1
 #define USB_INTR_DMA_BULKOUT	2
@@ -7118,15 +7104,12 @@ do {								\
 #define REG_USB_OUTCSRH		REG8(USB_OUTCSRH)
 #define REG_USB_OUTCOUNT	REG16(USB_OUTCOUNT)
 
-#define REG_USB_CONFIGDATA      REG8(USB_CONFIGDATA)
 #define REG_USB_FIFO_EP(n)	REG32(USB_FIFO_EP(n))
 
 #define REG_USB_INTR		REG8(USB_INTR)
 #define REG_USB_CNTL(n)		REG16(USB_CNTL(n))
 #define REG_USB_ADDR(n)		REG32(USB_ADDR(n))
 #define REG_USB_COUNT(n)	REG32(USB_COUNT(n))
-
-#define REG_USB_HWVERS          REG16(USB_HWVERS)
 
 #define REG_USB_EPINFO		REG8(USB_EPINFO)
 #define REG_USB_RAMINFO		REG8(USB_RAMINFO)

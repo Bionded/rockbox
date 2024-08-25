@@ -8,7 +8,6 @@
  * $Id$
  *
  * Copyright (C) 2010 Thomas Martitz
- * Copyright (C) 2020 Solomon Peachy
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,33 +36,28 @@
 #include "rbpaths.h"
 #include "logf.h"
 
-/* PIVOT_ROOT adds a fixed prefix to all paths */
-#if defined(BOOTLOADER) || defined(CHECKWPS) || defined(SIMULATOR) || defined(__PCTOOL__)
-/* We don't want to use pivot root on these! */
-#undef PIVOT_ROOT
+
+#if defined(AGPTEK_ROCKER) && !defined(BOOTLOADER)
+#define PIVOT_ROOT "/mnt/sd_0"
 #endif
 
-#if defined(DBTOOL)
-#define PIVOT_ROOT "."
-#endif
-
-#if defined(__PCTOOL__)
-/* We don't want this for tools */
-#undef HAVE_SPECIAL_DIRS
-#endif
-
-#if defined(HAVE_MULTIDRIVE) || defined(HAVE_SPECIAL_DIRS)
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
 static const char rbhome[] = "/sdcard";
 #elif (CONFIG_PLATFORM & (PLATFORM_SDL|PLATFORM_MAEMO|PLATFORM_PANDORA)) \
         && !defined(__PCTOOL__)
 static const char *rbhome;
-#elif defined(PIVOT_ROOT)
-static const char rbhome[] = PIVOT_ROOT;
 #else
-/* Anything else? */
+/* YPR0, YPR1, NWZ */
 static const char rbhome[] = HOME_DIR;
 #endif
+
+#if !(defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1) || defined(DX50) || \
+    defined(SONY_NWZ_LINUX) || defined(DX90) || defined(AGPTEK_ROCKER)) && \
+    !defined(__PCTOOL__)
+/* Special dirs are user-accessible (and user-writable) dirs which take priority
+ * over the ones where Rockbox is installed to. Classic example would be
+ * $HOME/.config/rockbox.org vs /usr/share/rockbox */
+#define HAVE_SPECIAL_DIRS
 #endif
 
 #ifdef HAVE_MULTIDRIVE
@@ -101,23 +95,16 @@ static const char *handle_special_links(const char* link, unsigned flags,
 
     return link;
 }
+#endif
 
+#ifdef HAVE_MULTIDRIVE
 /* we keep an open descriptor of the home directory to detect when it has been
    opened by opendir() so that its "symlinks" may be enumerated */
-void cleanup_rbhome(void)
+static void cleanup_rbhome(void)
 {
     os_close(rbhome_fildes);
     rbhome_fildes = -1;
 }
-void startup_rbhome(void)
-{
-    /* if this fails then alternate volumes will not work, but this function
-       cannot return that fact */
-    rbhome_fildes = os_opendirfd(rbhome);
-    if (rbhome_fildes >= 0)
-        atexit(cleanup_rbhome);
-}
-
 #endif /* HAVE_MULTIDRIVE */
 
 void paths_init(void)
@@ -153,9 +140,14 @@ void paths_init(void)
     os_mkdir(config_dir __MKDIR_MODE_ARG);
 #endif
 #endif /* HAVE_SPECIAL_DIRS */
+
 #ifdef HAVE_MULTIDRIVE
-    startup_rbhome();
-#endif
+    /* if this fails then alternate volumes will not work, but this function
+       cannot return that fact */
+    rbhome_fildes = os_opendirfd(rbhome);
+    if (rbhome_fildes >= 0)
+        atexit(cleanup_rbhome);
+#endif /* HAVE_MULTIDRIVE */
 }
 
 #ifdef HAVE_SPECIAL_DIRS
@@ -168,7 +160,7 @@ static const char* _get_user_file_path(const char *path,
     const char *pos = path;
     /* replace ROCKBOX_DIR in path with $HOME/.config/rockbox.org */
     pos += ROCKBOX_DIR_LEN;
-    while (*pos == PATH_SEPCH) pos++;
+    if (*pos == '/') pos += 1;
 
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
     if (path_append(buf, "/sdcard/rockbox", pos, bufsize) >= bufsize)
@@ -205,37 +197,22 @@ const char * handle_special_dirs(const char *dir, unsigned flags,
 {
     (void) flags; (void) buf; (void) bufsize;
 #ifdef HAVE_SPECIAL_DIRS
-#define HOME_DIR_LEN (sizeof(HOME_DIR)-1)
-    /* This replaces HOME_DIR (ie '<HOME'>') with runtime rbhome */
     if (!strncmp(HOME_DIR, dir, HOME_DIR_LEN))
     {
         const char *p = dir + HOME_DIR_LEN;
-        while (*p == PATH_SEPCH) p++; /* strip leading slashes */
-        path_append(buf, rbhome, p, bufsize);
+        while (*p == '/') p++;
+        snprintf(buf, bufsize, "%s/%s", rbhome, p);
         dir = buf;
     }
     else if (!strncmp(ROCKBOX_DIR, dir, ROCKBOX_DIR_LEN))
         dir = _get_user_file_path(dir, flags, buf, bufsize);
 #endif
 #ifdef HAVE_MULTIDRIVE
-#define MULTIDRIVE_DIR_LEN (sizeof(MULTIDRIVE_DIR)-1)
-
     dir = handle_special_links(dir, flags, buf, bufsize);
 #endif
 #ifdef PIVOT_ROOT
-#define PIVOT_ROOT_LEN (sizeof(PIVOT_ROOT)-1)
-    /* Prepend root prefix to find actual path */
-    if (strncmp(PIVOT_ROOT, dir, PIVOT_ROOT_LEN)
-#if defined(MULTIDRIVE_DIR) && defined(MULTIDRIVE_DIR_LEN)
-	/* Unless it's a MULTIDRIVE dir, in which case use as-is */
-	&& strncmp(MULTIDRIVE_DIR, dir, MULTIDRIVE_DIR_LEN)
-#endif
-       )
-    {
-        while (*dir == PATH_SEPCH) dir++; /* strip leading slashes */
-        path_append(buf, PIVOT_ROOT, dir, bufsize);
-        dir = buf;
-    }
+    snprintf(buf, bufsize, "%s/%s", PIVOT_ROOT, dir);
+    dir = buf;
 #endif
     return dir;
 }
@@ -252,7 +229,6 @@ int app_open(const char *path, int oflag, ...)
     if (!fpath)
         FILE_ERROR_RETURN(ENAMETOOLONG, -1);
 
-    oflag |= O_CLOEXEC;
     return os_open(fpath, oflag __OPEN_MODE_ARG);
 }
 
@@ -585,11 +561,10 @@ ssize_t app_readlink(const char *path, char *buf, size_t bufsiz)
 
 int os_volume_path(IF_MV(int volume, ) char *buffer, size_t bufsize)
 {
-#if defined(HAVE_MULTIVOLUME) && !(CONFIG_PLATFORM & PLATFORM_HOSTED)
+#ifdef HAVE_MULTIVOLUME
     char volname[VOL_MAX_LEN + 1];
     get_volume_name(volume, volname);
 #else
-    IF_MV((void)volume;)
     const char *volname = "/";
 #endif
 
@@ -600,9 +575,4 @@ int os_volume_path(IF_MV(int volume, ) char *buffer, size_t bufsize)
     }
 
     return 0;
-}
-
-const char* app_root_realpath(void)
-{
-    return PATH_ROOTSTR;
 }

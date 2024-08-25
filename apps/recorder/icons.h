@@ -26,31 +26,15 @@
 #include <lcd.h>
 #include "metadata.h"
 
+#ifdef HAVE_LCD_BITMAP
+
 /* External bitmaps */
 
 #include "bitmaps/rockboxlogo.h"
 #ifdef HAVE_REMOTE_LCD
 #include "bitmaps/remote_rockboxlogo.h"
 #endif
-#endif /* PLUGIN */
 
-struct cbmp_bitmap_info_entry /* */
-{
-    const unsigned char* pbmp;
-    unsigned char width;
-    unsigned char height; /* !ASSUMES MULTIPLES OF 8! */
-    unsigned char count;
-};
-
-enum cbmp_bitmap_format
-{
-    CBMP_Mono_5x8 = 0,
-    CBMP_Mono_7x8,
-    CBMP_Mono_12x8,
-    CBMP_BitmapFormatLast
-};
-
-extern const struct cbmp_bitmap_info_entry core_bitmaps[CBMP_BitmapFormatLast];
 
 /* Symbolic names for icons */
 enum icons_5x8 {
@@ -58,6 +42,9 @@ enum icons_5x8 {
     Icon_Lock_Remote,
     Icon_Stereo,
     Icon_Mono,
+#if CONFIG_CODEC != SWCODEC
+    Icon_q,
+#endif
     Icon5x8Last
 };
 
@@ -83,13 +70,7 @@ enum icons_7x8 {
     Icon7x8Last
 };
 
-enum icons_12x8 {
-    Icon_Disk,
-    Icon12x8Last
-};
-
-#ifndef PLUGIN
-#if defined (HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined (HAVE_RECORDING)
 #define BM_GLYPH_WIDTH 4
 enum Glyphs_4x8 {
     Glyph_4x8_0 = 0,
@@ -119,7 +100,7 @@ enum rec_format_18x8 {
 };
 extern const unsigned char bitmap_formats_18x8[Format_18x8Last][18];
 
-#endif /* defined (HAVE_RECORDING) */
+#endif /* CONFIG_CODEC == SWCODEC && defined (HAVE_RECORDING) */
 
 extern const unsigned char bitmap_icons_5x8[Icon5x8Last][5];
 extern const unsigned char bitmap_icons_7x8[Icon7x8Last][7];
@@ -127,15 +108,14 @@ extern const unsigned char bitmap_icon_disk[];
 
 #define STATUSBAR_X_POS       0
 #define STATUSBAR_Y_POS       0 /* MUST be a multiple of 8 */
-#define STATUSBAR_HEIGHT      SYSFONT_HEIGHT
+#define STATUSBAR_HEIGHT      8
 #define STATUSBAR_WIDTH       LCD_WIDTH
-#define SB_ICON_HEIGHT        8 /* ... for now */
 #define ICON_BATTERY_X_POS    0
-#define ICON_BATTERY_WIDTH    (2+(2*SYSFONT_WIDTH))
+#define ICON_BATTERY_WIDTH    18
 #define ICON_PLUG_X_POS       STATUSBAR_X_POS+ICON_BATTERY_WIDTH+2
 #define ICON_PLUG_WIDTH       7
 #define ICON_VOLUME_X_POS     STATUSBAR_X_POS+ICON_BATTERY_WIDTH+ICON_PLUG_WIDTH+2+2
-#define ICON_VOLUME_WIDTH     (2+(2*SYSFONT_WIDTH))
+#define ICON_VOLUME_WIDTH     16
 #define ICON_PLAY_STATE_X_POS STATUSBAR_X_POS+ICON_BATTERY_WIDTH+ICON_PLUG_WIDTH+ICON_VOLUME_WIDTH+2+2+2
 #define ICON_PLAY_STATE_WIDTH 7
 #define ICON_PLAY_MODE_X_POS  STATUSBAR_X_POS+ICON_BATTERY_WIDTH+ICON_PLUG_WIDTH+ICON_VOLUME_WIDTH+ICON_PLAY_STATE_WIDTH+2+2+2+2
@@ -148,9 +128,6 @@ extern const unsigned char bitmap_icon_disk[];
 #define ICON_DISK_X_POS       STATUSBAR_WIDTH-ICON_DISK_WIDTH
 #define TIME_X_END            STATUSBAR_WIDTH-1
 
-#if defined(SYSFONT_HEIGHT) && (SB_ICON_HEIGHT > STATUSBAR_HEIGHT)
-#error "Icons larger than statusbar!"
-#endif
-
+#endif /* End HAVE_LCD_BITMAP */
 #endif /* PLUGIN */
 #endif /*  _ICONS_H_ */

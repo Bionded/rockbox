@@ -67,7 +67,6 @@ void audio_input_mux(int source, unsigned flags)
     {
         default:                        /* playback - no recording */
             source = AUDIO_SRC_PLAYBACK;
-        /*fallthrough*/
         case AUDIO_SRC_PLAYBACK:
             if (source != last_source)
             {

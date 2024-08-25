@@ -38,38 +38,23 @@
 #include "option_select.h"
 #include "misc.h"
 
-static const char* vol_limit_format(char* buffer, size_t buffer_size, int value,
-                      const char* unit)
-{
-    (void)unit;
-    format_sound_value(buffer, buffer_size, SOUND_VOLUME, value);
-    return buffer;
-}
-
-static int volume_limit_callback(int action,
-                                 const struct menu_item_ex *this_item,
-                                 struct gui_synclist *this_list)
+static int volume_limit_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
 
     static struct int_setting volume_limit_int_setting;
-
-    volume_limit_int_setting = (struct int_setting)
-    {
-        .option_callback = NULL,
-        .unit = UNIT_DB,
-        .step = sound_steps(SOUND_VOLUME),
-        .min = sound_min(SOUND_VOLUME),
-        .max = sound_max(SOUND_VOLUME),
-        .formatter = vol_limit_format,
-        .get_talk_id = NULL
-    };
+    volume_limit_int_setting.option_callback = NULL;
+    volume_limit_int_setting.unit = UNIT_DB;
+    volume_limit_int_setting.min = sound_min(SOUND_VOLUME);
+    volume_limit_int_setting.max = sound_max(SOUND_VOLUME);
+    volume_limit_int_setting.step = sound_steps(SOUND_VOLUME);
+    volume_limit_int_setting.formatter = NULL;
+    volume_limit_int_setting.get_talk_id = NULL;
 
     struct settings_list setting;
     setting.flags = F_BANFROMQS|F_INT_SETTING|F_T_INT|F_NO_WRAP;
     setting.lang_id = LANG_VOLUME_LIMIT;
-    setting.default_val.int_ = volume_limit_int_setting.max;
+    setting.default_val.int_ = sound_max(SOUND_VOLUME);
     setting.int_setting = &volume_limit_int_setting;
 
     switch (action)
@@ -77,7 +62,6 @@ static int volume_limit_callback(int action,
         case ACTION_ENTER_MENUITEM:
             setting.setting = &global_settings.volume_limit;
             option_screen(&setting, NULL, false, ID2P(LANG_VOLUME_LIMIT));
-            /* Fallthrough */
         case ACTION_EXIT_MENUITEM: /* on exit */
             setvol();
             break;
@@ -121,10 +105,18 @@ MENUITEM_SETTING(treble_cutoff, &global_settings.treble_cutoff, NULL);
 
 MENUITEM_SETTING(balance, &global_settings.balance, NULL);
 MENUITEM_SETTING(channel_config, &global_settings.channel_config,
+#if CONFIG_CODEC == SWCODEC
     lowlatency_callback
+#else
+    NULL
+#endif
 );
 MENUITEM_SETTING(stereo_width, &global_settings.stereo_width,
+#if CONFIG_CODEC == SWCODEC
     lowlatency_callback
+#else
+    NULL
+#endif
 );
 
 #ifdef AUDIOHW_HAVE_DEPTH_3D
@@ -135,14 +127,11 @@ MENUITEM_SETTING(depth_3d, &global_settings.depth_3d, NULL);
 MENUITEM_SETTING(roll_off, &global_settings.roll_off, NULL);
 #endif
 
-#ifdef HAVE_EROS_QN_CODEC
-MENUITEM_SETTING(stereosw_mode, &global_settings.stereosw_mode,NULL);
+#ifdef AUDIOHW_HAVE_FUNCTIONAL_MODE
+MENUITEM_SETTING(func_mode, &global_settings.func_mode, NULL);
 #endif
 
-#ifdef AUDIOHW_HAVE_POWER_MODE
-MENUITEM_SETTING(power_mode, &global_settings.power_mode, NULL);
-#endif
-
+#if CONFIG_CODEC == SWCODEC
     /* Crossfeed Submenu */
     MENUITEM_SETTING(crossfeed, &global_settings.crossfeed, lowlatency_callback);
     MENUITEM_SETTING(crossfeed_direct_gain,
@@ -158,11 +147,8 @@ MENUITEM_SETTING(power_mode, &global_settings.power_mode, NULL);
               &crossfeed_hf_attenuation, &crossfeed_hf_cutoff);
 
 #ifdef HAVE_PITCHCONTROL
-static int timestretch_callback(int action,
-                                const struct menu_item_ex *this_item,
-                                struct gui_synclist *this_list)
+static int timestretch_callback(int action,const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     switch (action)
     {
         case ACTION_EXIT_MENUITEM: /* on exit */
@@ -170,7 +156,7 @@ static int timestretch_callback(int action,
                 splash(HZ*2, ID2P(LANG_PLEASE_REBOOT));
             break;
     }
-    lowlatency_callback(action, this_item, NULL);
+    lowlatency_callback(action, this_item);
     return action;
 }
     MENUITEM_SETTING(timestretch_enabled,
@@ -224,6 +210,18 @@ static int timestretch_callback(int action,
     MAKE_MENU(compressor_menu,ID2P(LANG_COMPRESSOR), NULL, Icon_NOICON,
               &compressor_threshold, &compressor_gain, &compressor_ratio,
               &compressor_knee, &compressor_attack, &compressor_release);
+#endif
+
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    MENUITEM_SETTING(loudness, &global_settings.loudness, NULL);
+    MENUITEM_SETTING(avc, &global_settings.avc, NULL);
+    MENUITEM_SETTING(superbass, &global_settings.superbass, NULL);
+    MENUITEM_SETTING(mdb_enable, &global_settings.mdb_enable, NULL);
+    MENUITEM_SETTING(mdb_strength, &global_settings.mdb_strength, NULL);
+    MENUITEM_SETTING(mdb_harmonics, &global_settings.mdb_harmonics, NULL);
+    MENUITEM_SETTING(mdb_center, &global_settings.mdb_center, NULL);
+    MENUITEM_SETTING(mdb_shape, &global_settings.mdb_shape, NULL);
+#endif
 
 #ifdef HAVE_SPEAKER
     MENUITEM_SETTING(speaker_mode, &global_settings.speaker_mode, NULL);
@@ -257,19 +255,23 @@ MAKE_MENU(sound_settings, ID2P(LANG_SOUND_SETTINGS), NULL, Icon_Audio,
 #ifdef AUDIOHW_HAVE_FILTER_ROLL_OFF
           ,&roll_off
 #endif
-#ifdef HAVE_EROS_QN_CODEC
-          ,&stereosw_mode
+#ifdef AUDIOHW_HAVE_FUNCTIONAL_MODE
+          ,&func_mode
 #endif
-#ifdef AUDIOHW_HAVE_POWER_MODE
-          ,&power_mode
-#endif
+#if CONFIG_CODEC == SWCODEC
           ,&crossfeed_menu, &equalizer_menu, &dithering_enabled
           ,&surround_menu, &pbe_menu, &afr_enabled
 #ifdef HAVE_PITCHCONTROL
           ,&timestretch_enabled
 #endif
           ,&compressor_menu
+#endif
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+         ,&loudness,&avc,&superbass,&mdb_enable,&mdb_strength
+         ,&mdb_harmonics,&mdb_center,&mdb_shape
+#endif
 #ifdef HAVE_SPEAKER
          ,&speaker_mode
 #endif
          );
+

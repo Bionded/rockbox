@@ -31,19 +31,13 @@ extern void system_reboot (void);
 /* Called from any UIE handler and panicf - wait for a key and return
  * to reboot system. */
 extern void system_exception_wait(void);
-
-#if NUM_CORES == 1
-extern void system_init(void) INIT_ATTR;
-#else
-/* TODO: probably safe to use INIT_ATTR on multicore but this needs checking */
 extern void system_init(void);
-#endif
 
 extern long cpu_frequency;
 
 struct flash_header {
-    uint32_t magic;
-    uint32_t length;
+    unsigned long magic;
+    unsigned long length;
     char version[32];
 };
 
@@ -259,16 +253,9 @@ static inline void cpu_boost_unlock(void)
     #define MIN_STACK_ALIGN 8
 #endif
 
-#ifdef CPU_MIPS
-    #define HAVE_CPU_CACHE_ALIGN
-#endif
-
 /* Define this if target has support for generating backtraces */
-#if defined(CPU_ARM) || \
-    (defined(CPU_MIPS) && (CONFIG_PLATFORM & PLATFORM_NATIVE))
-#ifndef DISABLE_BACKTRACE
+#ifdef CPU_ARM
     #define HAVE_RB_BACKTRACE
-#endif
 #endif
 
 #ifndef MIN_STACK_ALIGN
@@ -316,8 +303,8 @@ static inline void cpu_boost_unlock(void)
 
 /* Define MEM_ALIGN_ATTR which may be used to align e.g. buffers for faster
  * access. */
-#if defined(HAVE_CPU_CACHE_ALIGN)
-    /* Align to a cache line. */
+#if defined(CPU_ARM)
+    /* Use ARMs cache alignment. */
     #define MEM_ALIGN_ATTR CACHEALIGN_ATTR
     #define MEM_ALIGN_SIZE CACHEALIGN_SIZE
 #elif defined(CPU_COLDFIRE)
@@ -360,7 +347,7 @@ static inline void cpu_boost_unlock(void)
 #ifndef SIMULATOR
 bool dbg_ports(void);
 #endif
-#if (CONFIG_PLATFORM & PLATFORM_NATIVE) || defined(SONY_NWZ_LINUX) || defined(HIBY_LINUX) || defined(FIIO_M3K_LINUX)
+#if (CONFIG_PLATFORM & PLATFORM_NATIVE) || defined(SONY_NWZ_LINUX)
 bool dbg_hw_info(void);
 #endif
 

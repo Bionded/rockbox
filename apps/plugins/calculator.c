@@ -110,8 +110,40 @@ F3: equal to "="
 #endif
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define CALCULATOR_LEFT BUTTON_LEFT
+#define CALCULATOR_RIGHT BUTTON_RIGHT
+#define CALCULATOR_UP   BUTTON_UP
+#define CALCULATOR_DOWN BUTTON_DOWN
+#define CALCULATOR_QUIT BUTTON_OFF
+#define CALCULATOR_INPUT BUTTON_PLAY
+#define CALCULATOR_CALC BUTTON_F3
+#define CALCULATOR_OPERATORS BUTTON_F2
+#define CALCULATOR_CLEAR BUTTON_F1
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define CALCULATOR_LEFT BUTTON_LEFT
+#define CALCULATOR_RIGHT BUTTON_RIGHT
+#define CALCULATOR_UP   BUTTON_UP
+#define CALCULATOR_DOWN BUTTON_DOWN
+#define CALCULATOR_QUIT BUTTON_OFF
+#define CALCULATOR_INPUT BUTTON_SELECT
+#define CALCULATOR_CALC BUTTON_F3
+#define CALCULATOR_OPERATORS BUTTON_F2
+#define CALCULATOR_CLEAR BUTTON_F1
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define CALCULATOR_LEFT BUTTON_LEFT
+#define CALCULATOR_RIGHT BUTTON_RIGHT
+#define CALCULATOR_UP   BUTTON_UP
+#define CALCULATOR_DOWN BUTTON_DOWN
+#define CALCULATOR_QUIT BUTTON_OFF
+#define CALCULATOR_INPUT_CALC_PRE BUTTON_MENU
+#define CALCULATOR_INPUT (BUTTON_MENU | BUTTON_REL)
+#define CALCULATOR_CALC (BUTTON_MENU | BUTTON_REPEAT)
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define CALCULATOR_LEFT BUTTON_LEFT
 #define CALCULATOR_RIGHT BUTTON_RIGHT
 #define CALCULATOR_UP   BUTTON_UP
@@ -268,6 +300,19 @@ F3: equal to "="
 
 #define CALCULATOR_QUIT           BUTTON_POWER
 #define CALCULATOR_CLEAR          BUTTON_MENU
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define CALCULATOR_LEFT BUTTON_LEFT
+#define CALCULATOR_RIGHT BUTTON_RIGHT
+#define CALCULATOR_UP   BUTTON_VOLUP
+#define CALCULATOR_DOWN BUTTON_VOLDOWN
+#define CALCULATOR_QUIT BUTTON_POWER
+#define CALCULATOR_INPUT BUTTON_PLAY
+#define CALCULATOR_CALC BUTTON_MENU
+#define CALCULATOR_CLEAR BUTTON_STOP
+
+#define CALCULATOR_RC_QUIT (BUTTON_MENU|BUTTON_PLAY)
 
 #elif (CONFIG_KEYPAD == CREATIVEZVM_PAD)
 
@@ -480,7 +525,7 @@ F3: equal to "="
 #define CALCULATOR_CALC    BUTTON_VOLUP
 #define CALCULATOR_CLEAR   (BUTTON_SELECT|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define CALCULATOR_LEFT      BUTTON_PREV
 #define CALCULATOR_RIGHT     BUTTON_NEXT
 #define CALCULATOR_UP        BUTTON_HOME
@@ -491,18 +536,7 @@ F3: equal to "="
 #define CALCULATOR_CALC      (BUTTON_PLAY|BUTTON_REPEAT)
 #define CALCULATOR_CLEAR     (BUTTON_POWER|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define CALCULATOR_LEFT      BUTTON_PREV
-#define CALCULATOR_RIGHT     BUTTON_NEXT
-#define CALCULATOR_UP        BUTTON_HOME
-#define CALCULATOR_DOWN      BUTTON_OPTION
-#define CALCULATOR_QUIT      BUTTON_POWER
-#define CALCULATOR_INPUT_CALC_PRE (BUTTON_OPTION|BUTTON_REPEAT)
-#define CALCULATOR_INPUT     (BUTTON_PLAY|BUTTON_REL)
-#define CALCULATOR_CALC      (BUTTON_PLAY|BUTTON_REPEAT)
-#define CALCULATOR_CLEAR     (BUTTON_POWER|BUTTON_REPEAT)
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define CALCULATOR_LEFT      BUTTON_HOME
 #define CALCULATOR_RIGHT     BUTTON_VOL_DOWN
 #define CALCULATOR_UP        BUTTON_PREV
@@ -513,28 +547,16 @@ F3: equal to "="
 #define CALCULATOR_CALC      (BUTTON_PLAY|BUTTON_REPEAT)
 #define CALCULATOR_CLEAR     (BUTTON_POWER|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
-#define CALCULATOR_LEFT    BUTTON_SCROLL_BACK
-#define CALCULATOR_RIGHT   BUTTON_SCROLL_FWD
-#define CALCULATOR_UP      BUTTON_PREV
-#define CALCULATOR_DOWN    BUTTON_NEXT
-#define CALCULATOR_QUIT    BUTTON_POWER
-#define CALCULATOR_INPUT   BUTTON_PLAY
-#define CALCULATOR_CALC    BUTTON_MENU
-#define CALCULATOR_CLEAR   BUTTON_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define CALCULATOR_LEFT     BUTTON_LEFT
-#define CALCULATOR_RIGHT    BUTTON_RIGHT
-#define CALCULATOR_UP       BUTTON_UP
-#define CALCULATOR_DOWN     BUTTON_DOWN
-#define CALCULATOR_QUIT     BUTTON_POWER
-#define CALCULATOR_INPUT    BUTTON_PLAY
-#define CALCULATOR_CALC     BUTTON_MENU
-#define CALCULATOR_CLEAR    BUTTON_BACK
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#define CALCULATOR_QUIT     BUTTON_POWER
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+#define CALCULATOR_LEFT      BUTTON_HOME
+#define CALCULATOR_RIGHT     BUTTON_VOL_DOWN
+#define CALCULATOR_UP        BUTTON_PREV
+#define CALCULATOR_DOWN      BUTTON_NEXT
+#define CALCULATOR_QUIT      BUTTON_POWER
+#define CALCULATOR_INPUT_CALC_PRE (BUTTON_HOME|BUTTON_REPEAT)
+#define CALCULATOR_INPUT     (BUTTON_PLAY|BUTTON_REL)
+#define CALCULATOR_CALC      (BUTTON_PLAY|BUTTON_REPEAT)
+#define CALCULATOR_CLEAR     (BUTTON_POWER|BUTTON_REPEAT)
 
 #else
 #error No keymap defined!
@@ -723,88 +745,12 @@ static void doMultiple(double* operandOne, int* powerOne,
                        double  operandTwo, int  powerTwo);
 static void doAdd (double* operandOne, int* powerOne,
                    double  operandTwo, int  powerTwo);
-static void doExponent(double* operandOne, int* powerOne,
-                       double  operandTwo, int  powerTwo);
 static void printResult(void);
 static void formatResult(void);
 static void oneOperand(void);
 
 static void drawLines(void);
 static void drawButtons(int group);
-
-#ifndef _WIN32
-double      strtod(const char *nptr, char **endptr);
-#endif
-long long atoll(const char *nptr);
-
-/* -----------------------------------------------------------------------
-Standard library function
------------------------------------------------------------------------ */
-#ifndef _WIN32
-double strtod(const char *nptr, char **endptr)
-{
-    double out;
-    long mantissa;
-    int length=0, end=0;
-    mantissa=atoll(nptr);
-    while(!end)
-    {
-        switch(*nptr)
-        {
-            case '\0':
-              end=1;
-              break;
-            case ',':
-            case '.':
-            case '\'':
-              end=1;
-              /* fallthrough */
-            default:
-              nptr++;
-        }
-    }
-    out=atoll(nptr);
-    while( (*nptr == '0')||(*nptr == '1')||(*nptr == '2')||(*nptr == '3')||(*nptr == '4')||
-        (*nptr == '5')||(*nptr == '6')||(*nptr == '7')||(*nptr == '8')||(*nptr == '9') )
-    {
-        nptr++;
-        length++;
-    }
-    for(;length;length--)
-        out /= 10;
-    out += mantissa;
-    if(endptr != NULL)
-        *endptr=(char *) nptr;
-    return out;
-}
-#endif
-
-// WARNING Unsafe: Use strtoll instead
-long long atoll(const char *nptr)
-{
-    long long result=0;
-    char negative=0;
-    while( (*nptr == ' ') || (*nptr == '\f') || (*nptr == '\n')||
-      (*nptr == '\r') || (*nptr == '\t') || (*nptr == '\v') )
-        nptr++;
-    if(*nptr == '+')
-        nptr++;
-    if(*nptr == '-')
-    {
-        negative++;
-        nptr++;
-    }
-    while (*nptr)
-    {
-        if( (*nptr < '0') || (*nptr > '9') )
-            break;
-        result *=10;
-        result+= (*(nptr++) -'0');
-    }
-    if(negative)
-        result = 0 - result;
-    return result;
-}
 
 /* -----------------------------------------------------------------------
 Handy functions
@@ -1128,93 +1074,6 @@ static void doMultiple(double* operandOne, int* powerOne,
 }
 
 /* -----------------------------------------------------------------------
-exponentiate in scientific number format
------------------------------------------------------------------------ */
-static void doExponent(double* operandOne, int* powerOne,
-                       double  operandTwo, int  powerTwo)
-{
-    char negative=0;
-    char *lastDigit;
-    char negativeBuffer[25];
-    if (*operandOne == 0)
-    {
-        if (operandTwo == 0)
-        {
-            calStatus=cal_error; // result is undefined
-        }
-        else{
-            *powerOne = 0;
-            *operandOne = 0;
-        }
-        return;
-    }
-    if (operandTwo == 0)
-    {
-        *powerOne = 1;
-        *operandOne = 0.1;
-        return;
-    }
-    if (operandTwo < 0)
-    {
-        negative+=2;
-        operandTwo= ABS(operandTwo);
-    }
-    if (*operandOne < 0)
-    {
-#if MEMORYSIZE < 8
-        (void)negativeBuffer;
-        (void)lastDigit;
-        calStatus=cal_error;
-        return;
-#else
-        if(powerTwo < 0)
-        {
-            calStatus=cal_error; // result is imaginary
-            return;
-        }
-
-        /*Truncate operandTwo to three places past the radix
-        in order to eliminate floating point artifacts
-        (function should set error if truncating a non-integer) */
-        rb->snprintf(negativeBuffer, 25, "%.*f", powerTwo+3, operandTwo);
-        operandTwo = strtod(negativeBuffer, NULL);
-
-        /*Truncate operandTwo to powerTwo digits by way of string
-        in order to confirm operandTwo *10^powerTwo is an integer*/
-        rb->snprintf(negativeBuffer, 25, "%.*f", powerTwo, operandTwo);
-
-        if(strtod(negativeBuffer, &lastDigit) != operandTwo)
-        {
-            calStatus=cal_error; // result is imaginary
-            return;
-        }
-        if(rb->atoi(lastDigit-1) % 2)
-            negative++;
-#endif
-    }
-    (*operandOne) = myLn(ABS(*operandOne)) + (double) (*powerOne) * 2.302585092994046;
-    (*powerOne) = 0;
-    doMultiple(operandOne, powerOne, ABS(operandTwo), powerTwo);
-   while(*powerOne)
-    {
-        if(*powerOne > 0)
-        {
-            (*operandOne) *= 10;
-            (*powerOne) --;
-        }
-        else{
-            (*operandOne) /= 10;
-            (*powerOne) ++;
-        }
-    }
-    (*operandOne) = myExp(*operandOne);
-    if(negative & 2)
-        (*operandOne) = 1/(*operandOne);
-    if(negative & 1)
-        *operandOne = -(*operandOne);
-}
-
-/* -----------------------------------------------------------------------
 Handles all one operand calculations
 ----------------------------------------------------------------------- */
 static void oneOperand(void)
@@ -1357,9 +1216,6 @@ static void twoOperands(void)
             }
             else
                 calStatus = cal_error;
-            break;
-        case '^':
-            doExponent(&operand, &operandPower, result, power);
             break;
         default: /* ' ' */
             switchOperands(); /* counter switchOperands() below */
@@ -1692,7 +1548,6 @@ static void typingProcess(void){
                     clearInput();
                     *typingbufPointer = '0';
                     typingbufPointer++;
-                    /* Fallthrough */
                 case cal_typing:
                     calStatus = cal_dotted;
                     *typingbufPointer = '.';
@@ -1854,9 +1709,7 @@ static void basicButtonsProcess(void){
 #ifdef CALCULATOR_OPERATORS
                     case_cycle_operators:  /* F2 shortkey entrance */
 #endif
-                    if (calStatus == cal_typing ||
-                        calStatus == cal_dotted)
-                            calStatus = cal_normal;
+                    calStatus = cal_normal;
                     formatResult();
                     operand = result;
                     operandPower = power;
@@ -1912,14 +1765,8 @@ static void sciButtonsProcess(void){
                     break;
 
                 case sci_xy:
-                    if(!operInputted) {twoOperands(); operInputted = true;}
-                    oper = '^';
-                    if (calStatus == cal_typing ||
-                        calStatus == cal_dotted)
-                            calStatus = cal_normal;
-                    formatResult();
-                    operand = result;
-                    operandPower = power;
+                    /*Not implemented yet
+                    Maybe it could use x^y = exp(y*ln(x))*/
                     break;
 
                 case sci_sci:

@@ -22,8 +22,9 @@ while (scalar @ARGV > 0) {
         print <<MOO
 Usage: w32sims [-v] [-u] [-s] [-w] [-r VERSION] [-f filename] [buildonly]
        -v Verbose output
-       -u Run 'git pull' before building
-       -r Use the specified version string for filenames (defaults to git revision)
+       -u Run svn up before building
+       -r Use the specified version string for filenames (defaults to SVN
+          revision)
        -s Strip binaries before zipping them up.
        -w Crosscompile for Windows (requires mingw32)
        -f Filename format string (without extension). This can include a
@@ -69,8 +70,8 @@ MOO
 }
 
 if($update) {
-    # Update git repo!
-    system("git pull");
+    # svn update!
+    system("svn -q up");
 }
 
 $test = `sdl-config --libs`;
@@ -81,6 +82,7 @@ if ($test eq "") {
 
 $rev = `tools/version.sh .`;
 chomp $rev;
+print "rev $rev\n" if($verbose);
 
 if (@doonly) {
     printf("Build only %s\n", join(', ', @doonly)) if($verbose);
@@ -89,7 +91,6 @@ if (@doonly) {
 if (!defined($version)) {
     $version = $rev;
 }
-print "version $version\n" if($verbose);
 
 # made once for all targets
 sub runone {
@@ -124,7 +125,7 @@ sub runone {
         my $AS=(grep(/^export AS=/, <MAKE>))[0];
         chomp($AS);
         (my $striptool = $AS) =~ s/^export AS=(.*)as$/$1strip/;
-
+        
         $cmd = "find \\( -name 'rockboxui*' -o -iname '*dll' -o -name '*.rock' -o -name '*.codec' \\) -exec $striptool '{}' ';'";
         print("$cmd\n") if ($verbose);
         `$cmd`;
@@ -188,14 +189,40 @@ sub buildit {
     `make install 2>/dev/null`;
 }
 
-for my $b (sort &simbuilds) {
-    if ($builds{$b}{ram} ne '')
+for my $b (sort byname keys %builds) {
+    if ($builds{$b}{status} >= 2)
     {
-	# These builds need the ram size sent to configure
-	runone($b, $builds{$b}{ram} . '\n');
-    }
-    else
-    {
-	runone($b);
+        # ipodvideo64mb uses the ipodvideo simulator
+        # sansae200r uses the sansae200 simulator
+        if ($b ne 'ipodvideo64mb' && $b ne 'sansae200r')
+        {
+            if ($builds{$b}{ram} ne '')
+            {
+                # These builds need the ram size sent to configure
+                runone($b, $builds{$b}{ram} . '\n');
+            }
+            else
+            {
+                runone($b);
+            }
+        }
     }
 }
+
+#The following ports are in the unusable category, but the simulator does build
+runone("mini2440");
+runone("ondavx747");
+runone("ondavx747p");
+runone("ondavx777");
+runone("sansam200v4");
+runone("zenvision");
+runone("zenvisionm30gb");
+runone("zenvisionm60gb");
+runone("creativezenxfi2");
+runone("creativezenxfi3");
+runone("sonynwze360");
+runone("sonynwze370");
+runone("creativezenxfi");
+runone("creativezen");
+runone("creativezenmozaic");
+runone("xduoox3");

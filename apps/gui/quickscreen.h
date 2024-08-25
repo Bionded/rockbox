@@ -36,13 +36,6 @@ enum quickscreen_item {
     QUICKSCREEN_ITEM_COUNT,
 };
 
-enum quickscreen_return {
-    QUICKSCREEN_OK = 0,
-    QUICKSCREEN_IN_USB = 0x1,
-    QUICKSCREEN_GOTO_SHORTCUTS_MENU = 0x2,
-    QUICKSCREEN_CHANGED = 0x4,
-};
-
 struct gui_quickscreen
 {
     const struct settings_list *items[QUICKSCREEN_ITEM_COUNT];
@@ -50,9 +43,13 @@ struct gui_quickscreen
                                                     item is changed */
 };
 
-extern int quick_screen_quick(int button_enter);
+#ifdef BUTTON_F3
+extern bool quick_screen_f3(int button_enter);
+#endif
+extern bool quick_screen_quick(int button_enter);
 int quickscreen_set_option(void *data);
 bool is_setting_quickscreenable(const struct settings_list *setting);
-
+void set_as_qs_item(const struct settings_list *setting,
+                    enum quickscreen_item item);
 #endif /*_GUI_QUICK_SCREEN_H_*/
 #endif /* HAVE_QUICKSCREEN */

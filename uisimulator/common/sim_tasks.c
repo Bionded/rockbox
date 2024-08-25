@@ -30,7 +30,6 @@
 #include "usb.h"
 #include "mv.h"
 #include "ata_idle_notify.h"
-
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -46,13 +45,13 @@ enum {
     SIM_SCREENDUMP,
     SIM_USB_INSERTED,
     SIM_USB_EXTRACTED,
-#ifdef HAVE_HOTSWAP
+#ifdef HAVE_MULTIDRIVE
     SIM_EXT_INSERTED,
     SIM_EXT_EXTRACTED,
 #endif
 };
 
-#ifdef HAVE_HOTSWAP
+#ifdef HAVE_MULTIDRIVE
 extern void sim_ext_extracted(int drive);
 #endif
 
@@ -61,7 +60,7 @@ void sim_thread(void)
     struct queue_event ev;
     long last_broadcast_tick = current_tick;
     int num_acks_to_expect = 0;
-
+    
     while (1)
     {
         queue_wait_w_tmo(&sim_queue, &ev, 5*HZ);
@@ -70,7 +69,7 @@ void sim_thread(void)
             case SYS_TIMEOUT:
                 call_storage_idle_notifys(false);
                 break;
-
+    
             case SIM_SCREENDUMP:
                 screen_dump();
 #ifdef HAVE_REMOTE_LCD
@@ -93,9 +92,7 @@ void sim_thread(void)
                     last_broadcast_tick = current_tick;
                 }
 
-                /* NOTE: Unlike the USB code, we do not subtract one here
-                 * because the sim_queue is not registered for broadcasts! */
-                num_acks_to_expect += queue_broadcast(SYS_USB_CONNECTED, 0);
+                num_acks_to_expect += queue_broadcast(SYS_USB_CONNECTED, 0) - 1;
                 DEBUGF("USB inserted. Waiting for %d acks...\n",
                        num_acks_to_expect);
                 break;
@@ -115,7 +112,7 @@ void sim_thread(void)
                  * do it here anyway but don't depend on the acks */
                 queue_broadcast(SYS_USB_DISCONNECTED, 0);
                 break;
-#ifdef HAVE_HOTSWAP
+#ifdef HAVE_MULTIDRIVE
             case SIM_EXT_INSERTED:
             case SIM_EXT_EXTRACTED:
                 sim_ext_extracted(ev.data);
@@ -135,7 +132,7 @@ void sim_thread(void)
 void sim_tasks_init(void)
 {
     queue_init(&sim_queue, false);
-
+    
     create_thread(sim_thread, sim_thread_stack, sizeof(sim_thread_stack), 0,
                   sim_thread_name IF_PRIO(,PRIORITY_BACKGROUND) IF_COP(,CPU));
 }
@@ -145,49 +142,14 @@ void sim_trigger_screendump(void)
     queue_post(&sim_queue, SIM_SCREENDUMP, 0);
 }
 
-#ifdef HAVE_HEADPHONE_DETECTION
-static bool is_hp_inserted = true;
-bool headphones_inserted(void)
-{
-    return is_hp_inserted;
-}
-void sim_trigger_hp(bool inserted)
-{
-    is_hp_inserted = inserted;
-    DEBUGF("Headphone %s.\n", inserted ? "inserted":"removed");
-}
-#endif
-
-#ifdef HAVE_LINEOUT_DETECTION
-static bool is_lo_inserted = false;
-bool lineout_inserted(void)
-{
-    return is_lo_inserted;
-}
-void sim_trigger_lo(bool inserted)
-{
-    is_lo_inserted = inserted;
-    DEBUGF("Lineout %s.\n", inserted ? "inserted":"removed");
-}
-#endif
-
 static bool is_usb_inserted;
 void sim_trigger_usb(bool inserted)
 {
-    int usbmode = -1;
     if (inserted)
-    {
-        send_event(SYS_EVENT_USB_INSERTED, &usbmode);
         queue_post(&sim_queue, SIM_USB_INSERTED, 0);
-    }
     else
-    {
-        send_event(SYS_EVENT_USB_EXTRACTED, NULL);
         queue_post(&sim_queue, SIM_USB_EXTRACTED, 0);
-        DEBUGF("USB %s.\n", inserted ? "inserted":"removed");
-    }
     is_usb_inserted = inserted;
-
 }
 
 int usb_detect(void)
@@ -221,9 +183,9 @@ void usb_wait_for_disconnect(struct event_queue *q)
     }
 }
 
+#ifdef HAVE_MULTIDRIVE
 static bool is_ext_inserted;
 
-#ifdef HAVE_HOTSWAP
 void sim_trigger_external(bool inserted)
 {
     is_ext_inserted = inserted;
@@ -233,10 +195,7 @@ void sim_trigger_external(bool inserted)
         queue_post(&sim_queue, SIM_EXT_INSERTED, drive);
     else
         queue_post(&sim_queue, SIM_EXT_EXTRACTED, drive);
-
-    DEBUGF("Ext %s\n", inserted ? "inserted":"removed");
 }
-#endif
 
 bool hostfs_present(int drive)
 {
@@ -248,7 +207,7 @@ bool hostfs_removable(int drive)
     return drive > 0;
 }
 
-#ifdef HAVE_HOTSWAP
+#ifdef HAVE_MULTIVOLUME
 bool volume_removable(int volume)
 {
     /* volume == drive for now */
@@ -260,22 +219,13 @@ bool volume_present(int volume)
     /* volume == drive for now */
     return hostfs_present(volume);
 }
-#endif /* HAVE_HOTSWAP */
 
-#ifdef HAVE_MULTIDRIVE
 int volume_drive(int volume)
 {
     /* volume == drive for now */
     return volume;
 }
-#endif
-
-int volume_partition(int volume)
-{
-    (void)volume;
-    /* Sims only implement a single parition per drive */
-    return 0;
-}
+#endif /* HAVE_MULTIVOLUME */
 
 #if (CONFIG_STORAGE & STORAGE_MMC)
 bool mmc_touched(void)
@@ -298,8 +248,6 @@ int hostfs_driver_type(int drive)
  #define SIMEXT1_TYPE_NUM   STORAGE_NAND_NUM
 #elif (CONFIG_STORAGE & STORAGE_RAMDISK)
  #define SIMEXT1_TYPE_NUM   STORAGE_RAMDISK_NUM
-#elif (CONFIG_STORAGE & STORAGE_USB)
- #define SIMEXT1_TYPE_NUM   STORAGE_USB_NUM
 #else
 #error Unknown storage driver
 #endif /* CONFIG_STORAGE */
@@ -307,3 +255,5 @@ int hostfs_driver_type(int drive)
     return drive > 0 ? SIMEXT1_TYPE_NUM : STORAGE_HOSTFS_NUM;
 }
 #endif /* CONFIG_STORAGE_MULTI */
+
+#endif /* CONFIG_STORAGE & STORAGE_MMC */

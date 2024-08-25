@@ -15,7 +15,7 @@ TLSFLIB := $(BUILDDIR)/lib/libtlsf.a
 OTHER_SRC += $(TLSFLIB_SRC)
 INCLUDES += -I$(TLSFLIB_DIR)/src
 
-TLSFLIBFLAGS = $(CFLAGS) -fstrict-aliasing -ffunction-sections $(SHARED_CFLAGS) -DHAVE_CONFIG_H
+TLSFLIBFLAGS = $(CFLAGS) -fstrict-aliasing -ffunction-sections $(SHARED_CFLAGS)
 
 # Enable statistics in the sim
 ifneq ($(findstring sdl-sim, $(APP_TYPE)), sdl-sim)

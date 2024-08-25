@@ -26,13 +26,12 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "platform.h"
-#include "string-extra.h"
+#include "strlcpy.h"
 #include "strcasecmp.h"
 #include "metadata.h"
 #include "debug.h"
 #include "replaygain.h"
 #include "fixedpoint.h"
-#include "metadata_common.h"
 
 #define FP_BITS         (12)
 #define FP_ONE          (1 << FP_BITS)
@@ -44,7 +43,7 @@ void replaygain_itoa(char* buffer, int length, long int_gain)
     /* int_gain uses Q19.12 format. */
     int one  = abs(int_gain) >> FP_BITS;
     int cent = ((abs(int_gain) & 0x0fff) * 100 + (FP_ONE/2)) >> FP_BITS;
-    snprintf(buffer, length, "%s%d.%02d dB", (int_gain<0) ? "-":"+", one, cent);
+    snprintf(buffer, length, "%s%d.%02d dB", (int_gain<0) ? "-":"", one, cent);
 }
 
 static long fp_atof(const char* s, int precision)
@@ -168,29 +167,29 @@ long get_replaygain_int(long int_gain)
 void parse_replaygain(const char* key, const char* value, 
                       struct mp3entry* entry)
 {
-    static const char *rg_options[] = {"replaygain_track_gain", "rg_radio",
-                                       "replaygain_album_gain", "rg_audiophile",
-                                       "replaygain_track_peak", "rg_peak",
-                                       "replaygain_album_peak", NULL};
-
-    int rg_op = string_option(key, rg_options, true);
-
-    if ((rg_op == 0 || rg_op == 1) && !entry->track_gain)
-    {  /*replaygain_track_gain||rg_radio*/
+    if (((strcasecmp(key, "replaygain_track_gain") == 0) || 
+         (strcasecmp(key, "rg_radio") == 0)) && 
+        !entry->track_gain)
+    {
         entry->track_level = get_replaygain(value);
         entry->track_gain  = convert_gain(entry->track_level);
     }
-    else if ((rg_op == 2 || rg_op == 3) && !entry->album_gain)
-    {  /*replaygain_album_gain||rg_audiophile*/
+    else if (((strcasecmp(key, "replaygain_album_gain") == 0) || 
+              (strcasecmp(key, "rg_audiophile") == 0)) && 
+             !entry->album_gain)
+    {
         entry->album_level = get_replaygain(value);
         entry->album_gain  = convert_gain(entry->album_level);
     }
-    else if ((rg_op == 4 || rg_op == 5) && !entry->track_peak)
-    { /*replaygain_track_peak||rg_peak*/
+    else if (((strcasecmp(key, "replaygain_track_peak") == 0) || 
+              (strcasecmp(key, "rg_peak") == 0)) && 
+             !entry->track_peak)
+    {
         entry->track_peak = get_replaypeak(value);
     }
-    else if ((rg_op == 6) && !entry->album_peak)
-    { /*replaygain_album_peak*/
+    else if ((strcasecmp(key, "replaygain_album_peak") == 0) && 
+             !entry->album_peak)
+    {
         entry->album_peak = get_replaypeak(value);
     }
 }

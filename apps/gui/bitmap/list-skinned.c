@@ -197,9 +197,6 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
     wps.data = listcfg[screen]->data;
     display_lines = skinlist_get_line_count(screen, list);
     label = (char *)SKINOFFSETTOPTR(get_skin_buffer(wps.data), listcfg[screen]->label);
-    if (!label)
-        return false;
-
     display->set_viewport(parent);
     display->clear_viewport();
     current_item = list->selected_item;
@@ -213,7 +210,8 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
         if (list_start_item+cur_line+1 > list->nb_items)
             break;
         current_drawing_line = list_start_item+cur_line;
-        is_selected = list_start_item+cur_line == list->selected_item;
+        is_selected = list->show_selection_marker &&
+                list_start_item+cur_line == list->selected_item;
 
         for (viewport = SKINOFFSETTOPTR(get_skin_buffer(wps.data), listcfg[screen]->data->tree);
              viewport;
@@ -221,9 +219,7 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
         {
             int original_x, original_y;
             skin_viewport = SKINOFFSETTOPTR(get_skin_buffer(wps.data), viewport->data);
-            char *viewport_label = NULL;
-            if (skin_viewport)
-                viewport_label = SKINOFFSETTOPTR(get_skin_buffer(wps.data), skin_viewport->label);
+            char *viewport_label = SKINOFFSETTOPTR(get_skin_buffer(wps.data), skin_viewport->label);
             if (viewport->children == 0 || !viewport_label ||
                 (skin_viewport->label && strcmp(label, viewport_label))
                 )
@@ -240,7 +236,7 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
                 int cols = (parent->width / listcfg[screen]->width);
                 current_column = (cur_line)%cols;
                 current_row = (cur_line)/cols;
-
+                
                 skin_viewport->vp.x = parent->x + listcfg[screen]->width*current_column + original_x;
                 skin_viewport->vp.y = parent->y + listcfg[screen]->height*current_row + original_y;
             }
@@ -253,23 +249,23 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
                                    (listcfg[screen]->height*cur_line);
             }
             display->set_viewport(&skin_viewport->vp);
+#ifdef HAVE_LCD_BITMAP
             /* Set images to not to be displayed */
             struct skin_token_list *imglist = SKINOFFSETTOPTR(get_skin_buffer(wps.data), wps.data->images);
             while (imglist)
             {
                 struct wps_token *token = SKINOFFSETTOPTR(get_skin_buffer(wps.data), imglist->token);
-                struct gui_img *img = NULL;
-                if (token)
-                    img = SKINOFFSETTOPTR(get_skin_buffer(wps.data), token->value.data);
-                if (img)
-                    img->display = -1;
+                struct gui_img *img = SKINOFFSETTOPTR(get_skin_buffer(wps.data), token->value.data);
+                img->display = -1;
                 imglist = SKINOFFSETTOPTR(get_skin_buffer(wps.data), imglist->next);
             }
+#endif
             struct skin_element** children = SKINOFFSETTOPTR(get_skin_buffer(wps.data), viewport->children);
-            if (children && *children)
-                skin_render_viewport(SKINOFFSETTOPTR(get_skin_buffer(wps.data), (intptr_t)children[0]),
-                                     &wps, skin_viewport, SKIN_REFRESH_ALL);
+            skin_render_viewport(SKINOFFSETTOPTR(get_skin_buffer(wps.data), (intptr_t)children[0]),
+                                 &wps, skin_viewport, SKIN_REFRESH_ALL);
+#ifdef HAVE_LCD_BITMAP
             wps_display_images(&wps, &skin_viewport->vp);
+#endif
             /* force disableing scroll because it breaks later */
             if (!is_selected)
             {
@@ -286,3 +282,4 @@ bool skinlist_draw(struct screen *display, struct gui_synclist *list)
     current_drawing_line = list->selected_item;
     return true;
 }
+

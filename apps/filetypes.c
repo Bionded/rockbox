@@ -38,180 +38,131 @@
 #include "splash.h"
 #include "core_alloc.h"
 #include "icons.h"
-/*#define LOGF_ENABLE*/
 #include "logf.h"
 
 /* max filetypes (plugins & icons stored here) */
+#if CONFIG_CODEC == SWCODEC
 #define MAX_FILETYPES 192
+#else
+#define MAX_FILETYPES 128
+#endif
 /* max viewer plugins */
+#ifdef HAVE_LCD_BITMAP
 #define MAX_VIEWERS 56
-
-static void read_builtin_types_init(void) INIT_ATTR;
-static void read_viewers_config_init(void) INIT_ATTR;
-static void read_config_init(int fd) INIT_ATTR;
+#else
+#define MAX_VIEWERS 24
+#endif
 
 /* a table for the known file types */
 static const struct filetype inbuilt_filetypes[] = {
-    { "mp3",  FILE_ATTR_AUDIO },
-    { "mp2",  FILE_ATTR_AUDIO },
-    { "mpa",  FILE_ATTR_AUDIO },
-    { "mp1",  FILE_ATTR_AUDIO },
-    { "ogg",  FILE_ATTR_AUDIO },
-    { "oga",  FILE_ATTR_AUDIO },
-    { "wma",  FILE_ATTR_AUDIO },
-    { "wmv",  FILE_ATTR_AUDIO },
-    { "asf",  FILE_ATTR_AUDIO },
-    { "wav",  FILE_ATTR_AUDIO },
-    { "flac", FILE_ATTR_AUDIO },
-    { "ac3",  FILE_ATTR_AUDIO },
-    { "a52",  FILE_ATTR_AUDIO },
-    { "mpc",  FILE_ATTR_AUDIO },
-    { "wv",   FILE_ATTR_AUDIO },
-    { "m4a",  FILE_ATTR_AUDIO },
-    { "m4b",  FILE_ATTR_AUDIO },
-    { "mp4",  FILE_ATTR_AUDIO },
-    { "mod",  FILE_ATTR_AUDIO },
-    { "mpga", FILE_ATTR_AUDIO },
-    { "shn",  FILE_ATTR_AUDIO },
-    { "aif",  FILE_ATTR_AUDIO },
-    { "aiff", FILE_ATTR_AUDIO },
-    { "spx" , FILE_ATTR_AUDIO },
-    { "opus", FILE_ATTR_AUDIO },
-    { "sid",  FILE_ATTR_AUDIO },
-    { "adx",  FILE_ATTR_AUDIO },
-    { "nsf",  FILE_ATTR_AUDIO },
-    { "nsfe", FILE_ATTR_AUDIO },
-    { "spc",  FILE_ATTR_AUDIO },
-    { "ape",  FILE_ATTR_AUDIO },
-    { "mac",  FILE_ATTR_AUDIO },
-    { "sap" , FILE_ATTR_AUDIO },
-    { "rm",   FILE_ATTR_AUDIO },
-    { "ra",   FILE_ATTR_AUDIO },
-    { "rmvb", FILE_ATTR_AUDIO },
-    { "cmc",  FILE_ATTR_AUDIO },
-    { "cm3",  FILE_ATTR_AUDIO },
-    { "cmr",  FILE_ATTR_AUDIO },
-    { "cms",  FILE_ATTR_AUDIO },
-    { "dmc",  FILE_ATTR_AUDIO },
-    { "dlt",  FILE_ATTR_AUDIO },
-    { "mpt",  FILE_ATTR_AUDIO },
-    { "mpd",  FILE_ATTR_AUDIO },
-    { "rmt",  FILE_ATTR_AUDIO },
-    { "tmc",  FILE_ATTR_AUDIO },
-    { "tm8",  FILE_ATTR_AUDIO },
-    { "tm2",  FILE_ATTR_AUDIO },
-    { "oma",  FILE_ATTR_AUDIO },
-    { "aa3",  FILE_ATTR_AUDIO },
-    { "at3",  FILE_ATTR_AUDIO },
-    { "mmf",  FILE_ATTR_AUDIO },
-    { "au",   FILE_ATTR_AUDIO },
-    { "snd",  FILE_ATTR_AUDIO },
-    { "vox",  FILE_ATTR_AUDIO },
-    { "w64",  FILE_ATTR_AUDIO },
-    { "tta",  FILE_ATTR_AUDIO },
-    { "ay",   FILE_ATTR_AUDIO },
-    { "vtx",  FILE_ATTR_AUDIO },
-    { "gbs",  FILE_ATTR_AUDIO },
-    { "hes",  FILE_ATTR_AUDIO },
-    { "sgc",  FILE_ATTR_AUDIO },
-    { "vgm",  FILE_ATTR_AUDIO },
-    { "vgz",  FILE_ATTR_AUDIO },
-    { "kss",  FILE_ATTR_AUDIO },
-    { "aac",  FILE_ATTR_AUDIO },
-    { "m3u",  FILE_ATTR_M3U },
-    { "m3u8", FILE_ATTR_M3U },
-    { "cfg",  FILE_ATTR_CFG },
-    { "wps",  FILE_ATTR_WPS },
+    { "mp3", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mp2", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mpa", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+#if CONFIG_CODEC == SWCODEC
+    /* Temporary hack to allow playlist creation */
+    { "mp1", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "ogg", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "oga", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "wma", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "wmv", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "asf", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "wav", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "flac",FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "ac3", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "a52", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mpc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "wv",  FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "m4a", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "m4b", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mp4", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mod", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "shn", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "aif", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "aiff",FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "spx" ,FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "opus",FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "sid", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "adx", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "nsf", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "nsfe",FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "spc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "ape", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mac", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "sap" ,FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "rm",  FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "ra",  FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "rmvb",FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "cmc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "cm3", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "cmr", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "cms", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "dmc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "dlt", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mpt", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mpd", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "rmt", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "tmc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "tm8", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "tm2", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "oma", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "aa3", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "at3", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "mmf", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "au",  FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "snd", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "vox", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "w64", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "tta", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "ay", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "gbs", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "hes", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "sgc", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "vgm", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "vgz", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "kss", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+    { "aac", FILE_ATTR_AUDIO, Icon_Audio, VOICE_EXT_MPA },
+#endif
+    { "m3u", FILE_ATTR_M3U, Icon_Playlist, LANG_PLAYLIST },
+    { "m3u8",FILE_ATTR_M3U, Icon_Playlist, LANG_PLAYLIST },
+    { "cfg", FILE_ATTR_CFG, Icon_Config,   VOICE_EXT_CFG },
+    { "wps", FILE_ATTR_WPS, Icon_Wps,      VOICE_EXT_WPS },
 #ifdef HAVE_REMOTE_LCD
-    { "rwps", FILE_ATTR_RWPS },
+    { "rwps",FILE_ATTR_RWPS, Icon_Wps,     VOICE_EXT_RWPS },
 #endif
 #if CONFIG_TUNER
-    { "fmr",  FILE_ATTR_FMR },
-    { "fms",  FILE_ATTR_FMS },
+    { "fmr", FILE_ATTR_FMR, Icon_Preset, LANG_FMR },
+    { "fms", FILE_ATTR_FMS, Icon_Wps, VOICE_EXT_FMS },
 #endif
-    { "log",  FILE_ATTR_LOG   },
-    { "lng",  FILE_ATTR_LNG   },
-    { "rock", FILE_ATTR_ROCK  },
-    { "lua",  FILE_ATTR_LUA   },
-    { "opx",  FILE_ATTR_OPX   },
-    { "fnt",  FILE_ATTR_FONT  },
-    { "kbd",  FILE_ATTR_KBD   },
-    { "bmark",FILE_ATTR_BMARK },
-    { "cue",  FILE_ATTR_CUE   },
-    { "sbs",  FILE_ATTR_SBS   },
+    { "lng", FILE_ATTR_LNG, Icon_Language, LANG_LANGUAGE },
+    { "rock",FILE_ATTR_ROCK,Icon_Plugin,   VOICE_EXT_ROCK },
+    { "lua", FILE_ATTR_LUA, Icon_Plugin,   VOICE_EXT_ROCK },
+#ifdef HAVE_LCD_BITMAP
+    { "fnt", FILE_ATTR_FONT,Icon_Font,     VOICE_EXT_FONT },
+    { "kbd", FILE_ATTR_KBD, Icon_Keyboard, VOICE_EXT_KBD },
+#endif
+    { "bmark",FILE_ATTR_BMARK, Icon_Bookmark,  VOICE_EXT_BMARK },
+    { "cue",  FILE_ATTR_CUE,   Icon_Bookmark,  VOICE_EXT_CUESHEET },
+#ifdef HAVE_LCD_BITMAP
+    { "sbs",  FILE_ATTR_SBS,  Icon_Wps,   VOICE_EXT_SBS },
+#endif
 #ifdef HAVE_REMOTE_LCD
-    { "rsbs", FILE_ATTR_RSBS },
+    { "rsbs", FILE_ATTR_RSBS, Icon_Wps,   VOICE_EXT_RSBS },
 #if CONFIG_TUNER
-    { "rfms", FILE_ATTR_RFMS },
+    { "rfms", FILE_ATTR_RFMS, Icon_Wps, VOICE_EXT_RFMS },
 #endif
 #endif
 #ifdef BOOTFILE_EXT
-    { BOOTFILE_EXT,  FILE_ATTR_MOD },
+    { BOOTFILE_EXT, FILE_ATTR_MOD, Icon_Firmware, VOICE_EXT_AJZ },
 #endif
 #ifdef BOOTFILE_EXT2
-    { BOOTFILE_EXT2, FILE_ATTR_MOD },
+    { BOOTFILE_EXT2, FILE_ATTR_MOD, Icon_Firmware, VOICE_EXT_AJZ },
 #endif
 };
 
-struct fileattr_icon_voice {
-    int tree_attr;
-    uint16_t icon;
-    uint16_t voiceclip;
-};
-
-/* a table for the known file types icons & voice clips */
-static const struct fileattr_icon_voice inbuilt_attr_icons_voices[] = {
-    { FILE_ATTR_AUDIO, Icon_Audio,     VOICE_EXT_MPA },
-    { FILE_ATTR_M3U,   Icon_Playlist,  LANG_PLAYLIST },
-    { FILE_ATTR_CFG,   Icon_Config,    VOICE_EXT_CFG },
-    { FILE_ATTR_WPS,   Icon_Wps,       VOICE_EXT_WPS },
-#ifdef HAVE_REMOTE_LCD
-    {FILE_ATTR_RWPS,   Icon_Wps,       VOICE_EXT_RWPS },
-#endif
-#if CONFIG_TUNER
-    { FILE_ATTR_FMR,   Icon_Preset,    LANG_FMR },
-    { FILE_ATTR_FMS,   Icon_Wps,       VOICE_EXT_FMS },
-#endif
-    { FILE_ATTR_LNG,   Icon_Language,  LANG_LANGUAGE },
-    { FILE_ATTR_ROCK,  Icon_Plugin,    VOICE_EXT_ROCK },
-    { FILE_ATTR_LUA,   Icon_Plugin,    VOICE_EXT_ROCK },
-    { FILE_ATTR_OPX,   Icon_Plugin,    VOICE_EXT_ROCK },
-    { FILE_ATTR_FONT,  Icon_Font,      VOICE_EXT_FONT },
-    { FILE_ATTR_KBD,   Icon_Keyboard,  VOICE_EXT_KBD },
-    { FILE_ATTR_BMARK, Icon_Bookmark,  VOICE_EXT_BMARK },
-    { FILE_ATTR_CUE,   Icon_Bookmark,  VOICE_EXT_CUESHEET },
-    { FILE_ATTR_SBS,   Icon_Wps,       VOICE_EXT_SBS },
-#ifdef HAVE_REMOTE_LCD
-    { FILE_ATTR_RSBS,  Icon_Wps,       VOICE_EXT_RSBS },
-#if CONFIG_TUNER
-    { FILE_ATTR_RFMS,  Icon_Wps,       VOICE_EXT_RFMS },
-#endif
-#endif
-#if defined(BOOTFILE_EXT) || defined(BOOTFILE_EXT2)
-    { FILE_ATTR_MOD,   Icon_Firmware,  VOICE_EXT_AJZ },
-#endif
-};
-
-long tree_get_filetype_voiceclip(int attr)
+void tree_get_filetypes(const struct filetype** types, int* count)
 {
-    if (global_settings.talk_filetype)
-    {
-        size_t count = ARRAY_SIZE(inbuilt_attr_icons_voices);
-        /* try to find a voice ID for the extension, if known */
-        attr &= FILE_ATTR_MASK; /* file type */
-
-        for (size_t i = count - 1; i < count; i--)
-        {
-            if (attr == inbuilt_attr_icons_voices[i].tree_attr)
-            {
-                logf("%s found attr %d id %d", __func__, attr,
-                     inbuilt_attr_icons_voices[i].voiceclip);
-                return inbuilt_attr_icons_voices[i].voiceclip;
-            }
-        }
-    }
-    logf("%s not found attr %d", __func__, attr);
-    return -1;
+    *types = inbuilt_filetypes;
+    *count = sizeof(inbuilt_filetypes) / sizeof(*inbuilt_filetypes);
 }
 
 #define ROCK_EXTENSION "rock"
@@ -247,8 +198,7 @@ static int filetype_count = 0;
 static unsigned char highest_attr = 0;
 static int viewer_count = 0;
 
-static int strdup_handle, strdup_cur_idx;
-static size_t strdup_bufsize;
+static int strdup_handle, strdup_bufsize, strdup_cur_idx;
 static int move_callback(int handle, void* current, void* new)
 {
     /*could compare to strdup_handle, but ops is only used once */
@@ -305,6 +255,8 @@ static int find_extension(const char* extension)
     return -1;
 }
 
+static void read_builtin_types(void);
+static void read_config(int fd);
 #ifdef HAVE_LCD_COLOR
 /* Colors file format is similar to icons:
  * ext:hex_color
@@ -318,12 +270,9 @@ void read_color_theme_file(void) {
     for (i = 0; i < MAX_FILETYPES; i++) {
         custom_colors[i] = -1;
     }
-    unknown_file.color = -1;
-    if (!global_settings.colors_file[0] || global_settings.colors_file[0] == '-')
-        return;
-
-    fd = open_pathfmt(buffer, sizeof(buffer), O_RDONLY,
-                      THEME_DIR "/%s.colours", global_settings.colors_file);
+    snprintf(buffer, MAX_PATH, THEME_DIR "/%s.colours",
+             global_settings.colors_file);
+    fd = open(buffer, O_RDONLY);
     if (fd < 0)
         return;
     while (read_line(fd, buffer, MAX_PATH) > 0)
@@ -347,6 +296,7 @@ void read_color_theme_file(void) {
     close(fd);
 }
 #endif
+#ifdef HAVE_LCD_BITMAP
 void read_viewer_theme_file(void)
 {
     char buffer[MAX_PATH];
@@ -361,12 +311,12 @@ void read_viewer_theme_file(void)
     {
         custom_filetype_icons[i] = filetypes[i].icon;
     }
-
-    fd = open_pathfmt(buffer, sizeof(buffer), O_RDONLY,
-                      ICON_DIR "/%s.icons", global_settings.viewers_icon_file);
+    
+    snprintf(buffer, MAX_PATH, "%s/%s.icons", ICON_DIR, 
+             global_settings.viewers_icon_file);
+    fd = open(buffer, O_RDONLY);
     if (fd < 0)
         return;
-
     while (read_line(fd, buffer, MAX_PATH) > 0)
     {
         if (!settings_parseline(buffer, &ext, &icon))
@@ -397,31 +347,9 @@ void read_viewer_theme_file(void)
     close(fd);
     custom_icons_loaded = true;
 }
+#endif
 
-static void read_viewers_config_init(void)
-{
-    int fd = open(VIEWERS_CONFIG, O_RDONLY);
-    if(fd < 0)
-        return;
-
-    off_t filesz = filesize(fd);
-    if(filesz <= 0)
-        goto out;
-
-    /* estimate bufsize with the filesize, will not be larger */
-    strdup_bufsize = (size_t)filesz;
-    strdup_handle = core_alloc_ex(strdup_bufsize, &ops);
-    if(strdup_handle <= 0)
-        goto out;
-
-    read_config_init(fd);
-    core_shrink(strdup_handle, NULL, strdup_cur_idx);
-
-  out:
-    close(fd);
-}
-
-void filetype_init(void)
+void  filetype_init(void)
 {
     /* set the directory item first */
     filetypes[0].extension = NULL;
@@ -429,15 +357,31 @@ void filetype_init(void)
     filetypes[0].attr   = 0;
     filetypes[0].icon   = Icon_Folder;
 
+    /* estimate bufsize with the filesize, will not be larger */
     viewer_count = 0;
     filetype_count = 1;
 
-    read_builtin_types_init();
-    read_viewers_config_init();
+    int fd = open(VIEWERS_CONFIG, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    strdup_bufsize = filesize(fd);
+    strdup_handle = core_alloc_ex("filetypes", strdup_bufsize, &ops);
+    if (strdup_handle <= 0)
+    {
+        close(fd);
+        return;
+    }
+    read_builtin_types();
+    read_config(fd);
+    close(fd);
+#ifdef HAVE_LCD_BITMAP
     read_viewer_theme_file();
+#endif
 #ifdef HAVE_LCD_COLOR
     read_color_theme_file();
 #endif
+    core_shrink(strdup_handle, core_get_data(strdup_handle), strdup_cur_idx);
 }
 
 /* remove all white spaces from string */
@@ -456,35 +400,22 @@ static void rm_whitespaces(char* str)
     *s = '\0';
 }
 
-static void read_builtin_types_init(void)
+static void read_builtin_types(void)
 {
-    int tree_attr; 
-    size_t count = ARRAY_SIZE(inbuilt_filetypes);
-    size_t icon_count = ARRAY_SIZE(inbuilt_attr_icons_voices);
-    for(size_t i = 0; (i < count) && (filetype_count < MAX_FILETYPES); i++)
+    int count = sizeof(inbuilt_filetypes)/sizeof(*inbuilt_filetypes), i;
+    for(i=0; i<count && (filetype_count < MAX_FILETYPES); i++)
     {
         filetypes[filetype_count].extension = inbuilt_filetypes[i].extension;
         filetypes[filetype_count].plugin = NULL;
-
-        tree_attr = inbuilt_filetypes[i].tree_attr;
-        filetypes[filetype_count].attr   = tree_attr>>8;
+        filetypes[filetype_count].attr   = inbuilt_filetypes[i].tree_attr>>8;
         if (filetypes[filetype_count].attr > highest_attr)
             highest_attr = filetypes[filetype_count].attr;
-
-        filetypes[filetype_count].icon = unknown_file.icon;
-        for (size_t j = icon_count - 1; j < icon_count; j--)
-        {
-            if (tree_attr == inbuilt_attr_icons_voices[j].tree_attr)
-            {
-                filetypes[filetype_count].icon = inbuilt_attr_icons_voices[j].icon;
-                break;
-            }
-        }
+        filetypes[filetype_count].icon   = inbuilt_filetypes[i].icon;
         filetype_count++;
     }
 }
 
-static void read_config_init(int fd)
+static void read_config(int fd)
 {
     char line[64], *s, *e;
     char *extension, *plugin;
@@ -604,47 +535,17 @@ int filetype_get_icon(int attr)
     return filetypes[index].icon;
 }
 
-static int filetype_get_plugin_index(int attr)
+char* filetype_get_plugin(const struct entry* file)
 {
-    int index = find_attr(attr);
+    static char plugin_name[MAX_PATH];
+    int index = find_attr(file->attr);
     if (index < 0)
-        return -1;
-    struct file_type *ft_indexed = &filetypes[index];
-
-    /* attempt to find a suitable viewer by file extension */
-    if(ft_indexed->plugin == NULL && ft_indexed->extension != NULL)
-    {
-        struct file_type *ft;
-        int i = filetype_count;
-        while (--i > index)
-        {
-            ft = &filetypes[i];
-            if (ft->plugin == NULL || ft->extension == NULL)
-                continue;
-            else if (ft->plugin != NULL &&
-                     strcmp(ft->extension, ft_indexed->extension) == 0)
-            {
-                /*splashf(HZ*3, "Found %d %s %s", i, ft->extension, ft->plugin);*/
-                return i;
-            }
-        }
-    }
-    if (ft_indexed->plugin == NULL)
-        index = -1;
-    return index; /* Not Found */
-}
-
-char* filetype_get_plugin(int attr, char *buffer, size_t buffer_len)
-{
-    int index = filetype_get_plugin_index(attr);
-    if (index < 0 || !buffer)
         return NULL;
-
-    struct file_type *ft_indexed = &filetypes[index];
-
-    snprintf(buffer, buffer_len, "%s/%s." ROCK_EXTENSION,
-             PLUGIN_DIR, ft_indexed->plugin);
-    return buffer;
+    if (filetypes[index].plugin == NULL)
+        return NULL;
+    snprintf(plugin_name, MAX_PATH, "%s/%s.%s", 
+             PLUGIN_DIR, filetypes[index].plugin, ROCK_EXTENSION);
+    return plugin_name;
 }
 
 bool filetype_supported(int attr)
@@ -677,56 +578,46 @@ static int openwith_get_talk(int selected_item, void * data)
 {
     (void)data;
     char viewer_filename[MAX_FILENAME];
-    snprintf(viewer_filename, MAX_FILENAME, "%s." ROCK_EXTENSION,
-             filetypes[viewers[selected_item]].plugin);
+    snprintf(viewer_filename, MAX_FILENAME, "%s.%s",
+             filetypes[viewers[selected_item]].plugin, ROCK_EXTENSION);
     talk_file_or_spell(PLUGIN_DIR, viewer_filename,
                        NULL, false);
     return 0;
 }
 
-char* filetype_get_viewer(char *buffer, size_t buffer_len, const char* current_file)
+static int openwith_action_callback(int action, struct gui_synclist *lists)
 {
-    int attr = filetype_get_attr(current_file);
-
-    struct simplelist_info info;
-    simplelist_info_init(&info, str(LANG_ONPLAY_OPEN_WITH), viewer_count, NULL);
-
-    int default_index = filetype_get_plugin_index(attr);
-
-    if (default_index >= 0)
+    struct cb_data *info = (struct cb_data *)lists->data;
+    int i;
+    if (action == ACTION_STD_OK)
     {
-        for (int i = 0; i < viewer_count; i++)
-            if (viewers[i] == default_index)
-            {
-                info.selection = i;
-                break;
-            }
+        char plugin[MAX_PATH];
+        i = viewers[gui_synclist_get_sel_pos(lists)];
+        snprintf(plugin, MAX_PATH, "%s/%s.%s",
+                    PLUGIN_DIR, filetypes[i].plugin, ROCK_EXTENSION);
+        plugin_load(plugin, info->current_file);
+        return ACTION_STD_CANCEL;
     }
-
-    info.get_name = openwith_get_name;
-    info.get_icon = global_settings.show_icons?openwith_get_icon:NULL;
-    info.get_talk = openwith_get_talk;
-
-    simplelist_show_list(&info);
-
-    if (info.selection >= 0) /* run user selected viewer */
-    {
-        int i = viewers[info.selection];
-        snprintf(buffer, buffer_len, "%s/%s." ROCK_EXTENSION,
-                    PLUGIN_DIR, filetypes[i].plugin);
-        return buffer;
-    }
-    return NULL;
-
+    return action;
 }
 
 int filetype_list_viewers(const char* current_file)
 {
-    int ret = PLUGIN_ERROR;
-    char plugin[MAX_PATH];
-    if (filetype_get_viewer(plugin, sizeof(plugin), current_file) != NULL)
-        ret = plugin_load(plugin, current_file);
-    return ret;
+    struct simplelist_info info;
+    struct cb_data data = { current_file };
+#ifndef HAVE_LCD_BITMAP
+    if (viewer_count == 0)
+    {
+        splash(HZ*2, ID2P(LANG_NO_VIEWERS));
+        return PLUGIN_OK;
+    }
+#endif
+    simplelist_info_init(&info, str(LANG_ONPLAY_OPEN_WITH), viewer_count, &data);
+    info.action_callback = openwith_action_callback;
+    info.get_name = openwith_get_name;
+    info.get_icon = global_settings.show_icons?openwith_get_icon:NULL;
+    info.get_talk = openwith_get_talk;
+    return simplelist_show_list(&info);
 }
 
 int filetype_load_plugin(const char* plugin, const char* file)
@@ -751,7 +642,7 @@ int filetype_load_plugin(const char* plugin, const char* file)
     }
     if (i >= filetype_count)
         return PLUGIN_ERROR;
-    snprintf(plugin_name, MAX_PATH, "%s/%s." ROCK_EXTENSION,
-             PLUGIN_DIR, filetypes[i].plugin);
+    snprintf(plugin_name, MAX_PATH, "%s/%s.%s",
+             PLUGIN_DIR, filetypes[i].plugin, ROCK_EXTENSION);
     return plugin_load(plugin_name, file);
 }

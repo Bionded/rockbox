@@ -72,8 +72,8 @@
 /* put the lcd frame buffer in IRAM */
 /* #define IRAM_LCDFRAMEBUFFER IDATA_ATTR */
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
@@ -95,8 +95,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #ifndef BOOTLOADER
@@ -192,6 +192,12 @@
 #define BOOTFILE_EXT    "mi4"
 #define BOOTFILE        "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC    0x00
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA   0x00
 
 #define ICODE_ATTR_TREMOR_NOT_MDCT
 

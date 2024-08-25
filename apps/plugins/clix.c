@@ -66,7 +66,9 @@
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define CLIX_BUTTON_QUIT        BUTTON_MENU
+#define CLIX_BUTTON_QUIT        (BUTTON_SELECT | BUTTON_MENU)
+#define CLIX_BUTTON_UP          BUTTON_MENU
+#define CLIX_BUTTON_DOWN        BUTTON_PLAY
 #define CLIX_BUTTON_SCROLL_FWD  BUTTON_SCROLL_FWD
 #define CLIX_BUTTON_SCROLL_BACK BUTTON_SCROLL_BACK
 #define CLIX_BUTTON_CLICK       BUTTON_SELECT
@@ -97,6 +99,14 @@
 #define CLIX_BUTTON_CLICK   BUTTON_PLAY
 #define CLIX_BUTTON_UP      BUTTON_SCROLL_UP
 #define CLIX_BUTTON_DOWN    BUTTON_SCROLL_DOWN
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define CLIX_BUTTON_QUIT    BUTTON_POWER
+#define CLIX_BUTTON_LEFT    BUTTON_LEFT
+#define CLIX_BUTTON_RIGHT   BUTTON_RIGHT
+#define CLIX_BUTTON_CLICK   BUTTON_PLAY
+#define CLIX_BUTTON_UP      BUTTON_STOP
+#define CLIX_BUTTON_DOWN    BUTTON_PLAY
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define CLIX_BUTTON_QUIT    BUTTON_POWER
@@ -274,23 +284,7 @@
 #define CLIX_BUTTON_RIGHT         BUTTON_NEXT
 #define CLIX_BUTTON_CLICK         BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define CLIX_BUTTON_QUIT          BUTTON_POWER
-#define CLIX_BUTTON_UP            BUTTON_HOME
-#define CLIX_BUTTON_DOWN          BUTTON_OPTION
-#define CLIX_BUTTON_LEFT          BUTTON_PREV
-#define CLIX_BUTTON_RIGHT         BUTTON_NEXT
-#define CLIX_BUTTON_CLICK         BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define CLIX_BUTTON_QUIT          BUTTON_POWER
-#define CLIX_BUTTON_UP            BUTTON_HOME
-#define CLIX_BUTTON_DOWN          BUTTON_OPTION
-#define CLIX_BUTTON_LEFT          BUTTON_PREV
-#define CLIX_BUTTON_RIGHT         BUTTON_NEXT
-#define CLIX_BUTTON_CLICK         BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define CLIX_BUTTON_QUIT          BUTTON_POWER
 #define CLIX_BUTTON_UP            BUTTON_PREV
 #define CLIX_BUTTON_DOWN          BUTTON_NEXT
@@ -298,24 +292,13 @@
 #define CLIX_BUTTON_RIGHT         BUTTON_VOL_DOWN
 #define CLIX_BUTTON_CLICK         BUTTON_VOL_UP
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define CLIX_BUTTON_QUIT          BUTTON_POWER
 #define CLIX_BUTTON_UP            BUTTON_PREV
 #define CLIX_BUTTON_DOWN          BUTTON_NEXT
-#define CLIX_BUTTON_LEFT          BUTTON_SCROLL_BACK
-#define CLIX_BUTTON_RIGHT         BUTTON_SCROLL_FWD
-#define CLIX_BUTTON_CLICK         BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define CLIX_BUTTON_QUIT        BUTTON_POWER
-#define CLIX_BUTTON_UP          BUTTON_UP
-#define CLIX_BUTTON_DOWN        BUTTON_DOWN
-#define CLIX_BUTTON_LEFT        BUTTON_LEFT
-#define CLIX_BUTTON_RIGHT       BUTTON_RIGHT
-#define CLIX_BUTTON_CLICK       BUTTON_SELECT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-#define CLIX_BUTTON_QUIT        BUTTON_POWER
+#define CLIX_BUTTON_LEFT          BUTTON_HOME
+#define CLIX_BUTTON_RIGHT         BUTTON_VOL_DOWN
+#define CLIX_BUTTON_CLICK         BUTTON_VOL_UP
 
 #else
 #error "no keymap"
@@ -745,11 +728,8 @@ static bool clix_help(void)
 }
 
 static bool _ingame;
-static int clix_menu_cb(int action,
-                        const struct menu_item_ex *this_item,
-                        struct gui_synclist *this_list)
+static int clix_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     if(action == ACTION_REQUEST_MENUITEM
        && !_ingame && ((intptr_t)this_item)==0)
         return ACTION_EXIT_MENUITEM;
@@ -919,10 +899,8 @@ static int clix_handle_game(struct clix_game_state_t* state)
                 case CLIX_BUTTON_SCROLL_BACK:
                 case CLIX_BUTTON_SCROLL_BACK|BUTTON_REPEAT:
 #endif
-#ifdef CLIX_BUTTON_UP
                 case CLIX_BUTTON_UP:
                 case CLIX_BUTTON_UP|BUTTON_REPEAT:
-#endif
                     if( state->y == 0 ||
                         state->board[ XYPOS( state->x, state->y - 1)] ==
                             CC_BLACK
@@ -938,10 +916,8 @@ static int clix_handle_game(struct clix_game_state_t* state)
                 case CLIX_BUTTON_SCROLL_FWD:
                 case CLIX_BUTTON_SCROLL_FWD|BUTTON_REPEAT:
 #endif
-#ifdef CLIX_BUTTON_DOWN
                 case CLIX_BUTTON_DOWN:
                 case CLIX_BUTTON_DOWN|BUTTON_REPEAT:
-#endif
                     if( state->y == (BOARD_HEIGHT - 1))
                         state->y = 0;
                     else

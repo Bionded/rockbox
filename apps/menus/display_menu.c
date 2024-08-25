@@ -30,7 +30,9 @@
 #include "menu.h"
 #include "tree.h"
 #include "list.h"
+#ifdef HAVE_LCD_BITMAP
 #include "peakmeter.h"
+#endif
 #include "talk.h"
 #include "lcd.h"
 #ifdef HAVE_REMOTE_LCD
@@ -48,12 +50,10 @@
 #include "rbunicode.h"
 
 #ifdef HAVE_BACKLIGHT
-static int selectivebacklight_callback(int action,
-                                       const struct menu_item_ex *this_item,
-                                       struct gui_synclist *this_list)
+static int selectivebacklight_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
+
     switch (action)
     {
         case ACTION_EXIT_MENUITEM:
@@ -69,11 +69,10 @@ static int selectivebacklight_callback(int action,
     return action;
 }
 
-static int filterfirstkeypress_callback(int action,
-                                        const struct menu_item_ex *this_item,
-                                        struct gui_synclist *this_list)
+static int filterfirstkeypress_callback(int action,const struct menu_item_ex *this_item)
 {
     /*(void)this_item;REMOVED*/
+
     switch (action)
     {
         case ACTION_EXIT_MENUITEM:
@@ -82,7 +81,7 @@ static int filterfirstkeypress_callback(int action,
             set_remote_backlight_filter_keypress(
                                 global_settings.remote_bl_filter_first_keypress);
 #endif /* HAVE_REMOTE_LCD */
-            selectivebacklight_callback(action,this_item, this_list);/*uses Filter First KP*/
+            selectivebacklight_callback(action,this_item);/*uses Filter First KP*/
             break;
     }
 
@@ -94,7 +93,7 @@ static int selectivebacklight_set_mask(void* param)
     (void)param;
      int mask = global_settings.bl_selective_actions_mask;
             struct s_mask_items maskitems[]={
-                                       {ID2P(LANG_ACTION_VOLUME)   , SEL_ACTION_VOL},
+                                       {ID2P(LANG_VOLUME)   , SEL_ACTION_VOL},
                                        {ID2P(LANG_ACTION_PLAY), SEL_ACTION_PLAY},
                                        {ID2P(LANG_ACTION_SEEK), SEL_ACTION_SEEK},
                                        {ID2P(LANG_ACTION_SKIP), SEL_ACTION_SKIP},
@@ -119,12 +118,9 @@ static int selectivebacklight_set_mask(void* param)
 
 #endif /* HAVE_BACKLIGHT */
 #ifdef HAVE_LCD_FLIP
-static int flipdisplay_callback(int action,
-                                const struct menu_item_ex *this_item,
-                                struct gui_synclist *this_list)
+static int flipdisplay_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     switch (action)
     {
         case ACTION_EXIT_MENUITEM:
@@ -149,10 +145,10 @@ MENUITEM_SETTING(backlight_timeout, &global_settings.backlight_timeout, NULL);
 MENUITEM_SETTING(backlight_timeout_plugged,
                 &global_settings.backlight_timeout_plugged, NULL);
 #endif
-
+#ifdef HAS_BUTTON_HOLD
 MENUITEM_SETTING(backlight_on_button_hold,
                 &global_settings.backlight_on_button_hold, NULL);
-
+#endif
 MENUITEM_SETTING(caption_backlight, &global_settings.caption_backlight, NULL);
 #if    defined(HAVE_BACKLIGHT_FADING_INT_SETTING) \
     || defined(HAVE_BACKLIGHT_FADING_BOOL_SETTING)
@@ -168,8 +164,8 @@ MENUITEM_SETTING(bl_selective_actions,
                                                     selectivebacklight_callback);
 
 MENUITEM_FUNCTION(sel_backlight_mask, 0, ID2P(LANG_SETTINGS),
-                  selectivebacklight_set_mask, selectivebacklight_callback,
-                  Icon_Menu_setting);
+                  selectivebacklight_set_mask, NULL,
+                                selectivebacklight_callback, Icon_Menu_setting);
 
 MAKE_MENU(sel_backlight, ID2P(LANG_BACKLIGHT_SELECTIVE),
           NULL, Icon_Menu_setting, &bl_selective_actions, &sel_backlight_mask);
@@ -185,12 +181,16 @@ MENUITEM_SETTING(brightness_item, &global_settings.brightness, NULL);
 #ifdef HAVE_LCD_CONTRAST
 MENUITEM_SETTING(contrast, &global_settings.contrast, NULL);
 #endif
+#ifdef HAVE_LCD_BITMAP
 #ifdef HAVE_LCD_INVERT
 MENUITEM_SETTING(invert, &global_settings.invert, NULL);
 #endif
 #ifdef HAVE_LCD_FLIP
 MENUITEM_SETTING(flip_display, &global_settings.flip_display, flipdisplay_callback);
 #endif
+#endif /* HAVE_LCD_BITMAP */
+
+
 
 /* now the actual menu */
 MAKE_MENU(lcd_settings,ID2P(LANG_LCD_MENU),
@@ -200,7 +200,9 @@ MAKE_MENU(lcd_settings,ID2P(LANG_LCD_MENU),
 # if CONFIG_CHARGING
             ,&backlight_timeout_plugged
 # endif
+# ifdef HAS_BUTTON_HOLD
             ,&backlight_on_button_hold
+# endif
             ,&caption_backlight
 #if    defined(HAVE_BACKLIGHT_FADING_INT_SETTING) \
     || defined(HAVE_BACKLIGHT_FADING_BOOL_SETTING)
@@ -218,12 +220,14 @@ MAKE_MENU(lcd_settings,ID2P(LANG_LCD_MENU),
 #ifdef HAVE_LCD_CONTRAST
             ,&contrast
 #endif
+#ifdef HAVE_LCD_BITMAP
 # ifdef HAVE_LCD_INVERT
             ,&invert
 # endif
 # ifdef HAVE_LCD_FLIP
             ,&flip_display
 # endif
+#endif /* HAVE_LCD_BITMAP */
          );
 /*    LCD MENU                    */
 /***********************************/
@@ -261,12 +265,9 @@ MENUITEM_SETTING(remote_flip_display,
 #endif
 
 #ifdef HAVE_REMOTE_LCD_TICKING
-static int ticking_callback(int action,
-                            const struct menu_item_ex *this_item,
-                            struct gui_synclist *this_list)
+static int ticking_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     switch (action)
     {
         case ACTION_EXIT_MENUITEM:
@@ -308,8 +309,10 @@ MAKE_MENU(lcd_remote_settings, ID2P(LANG_LCD_REMOTE_MENU),
 MENUITEM_SETTING_W_TEXT(scroll_speed, &global_settings.scroll_speed,
                          ID2P(LANG_SCROLL), NULL);
 MENUITEM_SETTING(scroll_delay, &global_settings.scroll_delay, NULL);
+#ifdef HAVE_LCD_BITMAP
 MENUITEM_SETTING_W_TEXT(scroll_step, &global_settings.scroll_step,
                         ID2P(LANG_SCROLL_STEP_EXAMPLE), NULL);
+#endif
 MENUITEM_SETTING(bidir_limit, &global_settings.bidir_limit, NULL);
 #ifdef HAVE_REMOTE_LCD
 MENUITEM_SETTING_W_TEXT(remote_scroll_speed, &global_settings.remote_scroll_speed,
@@ -330,23 +333,37 @@ MENUITEM_SETTING(list_accel_start_delay,
                  &global_settings.list_accel_start_delay, NULL);
 MENUITEM_SETTING(list_accel_wait, &global_settings.list_accel_wait, NULL);
 #endif /* HAVE_WHEEL_ACCELERATION */
-MENUITEM_SETTING(offset_out_of_view, &global_settings.offset_out_of_view, NULL);
+#ifdef HAVE_LCD_BITMAP
+static int screenscroll_callback(int action,const struct menu_item_ex *this_item)
+{
+    (void)this_item;
+    switch (action)
+    {
+        case ACTION_EXIT_MENUITEM:
+            gui_list_screen_scroll_out_of_view(global_settings.offset_out_of_view);
+            break;
+    }
+    return action;
+}
+MENUITEM_SETTING(offset_out_of_view, &global_settings.offset_out_of_view,
+                 screenscroll_callback);
 MENUITEM_SETTING(screen_scroll_step, &global_settings.screen_scroll_step, NULL);
+#endif
 MENUITEM_SETTING(scroll_paginated, &global_settings.scroll_paginated, NULL);
-MENUITEM_SETTING(list_wraparound, &global_settings.list_wraparound, NULL);
-MENUITEM_SETTING(list_order, &global_settings.list_order, NULL);
 
 MAKE_MENU(scroll_settings_menu, ID2P(LANG_SCROLL_MENU), 0, Icon_NOICON,
           &scroll_speed, &scroll_delay,
+#ifdef HAVE_LCD_BITMAP
           &scroll_step,
+#endif
           &bidir_limit,
 #ifdef HAVE_REMOTE_LCD
           &remote_scroll_sets,
 #endif
+#ifdef HAVE_LCD_BITMAP
           &offset_out_of_view, &screen_scroll_step,
+#endif
           &scroll_paginated,
-          &list_wraparound,
-          &list_order,
 #ifndef HAVE_WHEEL_ACCELERATION
           &list_accel_start_delay, &list_accel_wait
 #endif
@@ -357,12 +374,10 @@ MAKE_MENU(scroll_settings_menu, ID2P(LANG_SCROLL_MENU), 0, Icon_NOICON,
 /***********************************/
 /*    PEAK METER MENU              */
 
-static int peakmeter_callback(int action,
-                              const struct menu_item_ex *this_item,
-                              struct gui_synclist *this_list)
+#ifdef HAVE_LCD_BITMAP
+static int peakmeter_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     switch (action)
     {
         case ACTION_EXIT_MENUITEM:
@@ -515,20 +530,21 @@ static bool history_interval(void)
 
     return set_option(str(LANG_HISTOGRAM_INTERVAL),
                           &global_settings.histogram_interval,
-                          RB_INT, names, 4, NULL );
+                          INT, names, 4, NULL );
 }
 
-MENUITEM_FUNCTION(histogram, 0, ID2P(LANG_HISTOGRAM_INTERVAL),
-                  history_interval, NULL, Icon_Menu_setting);
+MENUITEM_FUNCTION(histogram, 0,
+                  ID2P(LANG_HISTOGRAM_INTERVAL),
+                  history_interval, NULL, NULL, Icon_Menu_setting);
 
 #endif
 
 MENUITEM_FUNCTION(peak_meter_scale_item, 0, ID2P(LANG_PM_SCALE),
-                  peak_meter_scale, NULL, Icon_NOICON);
+                    peak_meter_scale, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(peak_meter_min_item, 0, ID2P(LANG_PM_MIN),
-                  peak_meter_min, NULL, Icon_NOICON);
+                    peak_meter_min, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(peak_meter_max_item, 0, ID2P(LANG_PM_MAX),
-                  peak_meter_max, NULL, Icon_NOICON);
+                    peak_meter_max, NULL, NULL, Icon_NOICON);
 MAKE_MENU(peak_meter_menu, ID2P(LANG_PM_MENU), NULL, Icon_NOICON,
           &peak_meter_release, &peak_meter_hold,
           &peak_meter_clip_hold,
@@ -539,17 +555,15 @@ MAKE_MENU(peak_meter_menu, ID2P(LANG_PM_MENU), NULL, Icon_NOICON,
           &histogram,
 #endif
           &peak_meter_scale_item, &peak_meter_min_item, &peak_meter_max_item);
+#endif /*  HAVE_LCD_BITMAP */
 /*    PEAK METER MENU              */
 /***********************************/
 
 
 #ifdef HAVE_TOUCHSCREEN
-static int touch_mode_callback(int action,
-                               const struct menu_item_ex *this_item,
-                               struct gui_synclist *this_list)
+static int touch_mode_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     switch (action)
     {
         case ACTION_EXIT_MENUITEM: /* on exit */
@@ -559,12 +573,10 @@ static int touch_mode_callback(int action,
     return action;
 }
 
-static int line_padding_callback(int action,
-                                 const struct menu_item_ex *this_item,
-                                 struct gui_synclist *this_list)
+static int line_padding_callback(int action,const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
+
     if (action == ACTION_EXIT_MENUITEM)
         viewportmanager_theme_changed(THEME_LISTS);
     return action;
@@ -572,25 +584,21 @@ static int line_padding_callback(int action,
 
 MENUITEM_SETTING(touch_mode, &global_settings.touch_mode, touch_mode_callback);
 
-MENUITEM_FUNCTION(touchscreen_menu_calibrate, 0,
-	              ID2P(LANG_TOUCHSCREEN_CALIBRATE), calibrate, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(touchscreen_menu_reset_calibration, 0,
-	              ID2P(LANG_TOUCHSCREEN_RESET_CALIBRATION),
-	              reset_mapping, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(touchscreen_menu_calibrate, 0, ID2P(LANG_TOUCHSCREEN_CALIBRATE), calibrate,
+                    NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(touchscreen_menu_reset_calibration, 0, ID2P(LANG_TOUCHSCREEN_RESET_CALIBRATION), reset_mapping,
+                    NULL, NULL, Icon_NOICON);
 MENUITEM_SETTING(list_line_padding, &global_settings.list_line_padding, line_padding_callback);
 
 MAKE_MENU(touchscreen_menu, ID2P(LANG_TOUCHSCREEN_SETTINGS), NULL, Icon_NOICON, &list_line_padding, &touch_mode,
             &touchscreen_menu_calibrate, &touchscreen_menu_reset_calibration);
 #endif
 
-static int codepage_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int codepage_callback(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_item;
-    (void)this_list;
     static int old_codepage;
     int new_codepage = global_settings.default_codepage;
+    (void)this_item;
     switch (action)
     {
         case ACTION_ENTER_MENUITEM:
@@ -614,7 +622,9 @@ MAKE_MENU(display_menu, ID2P(LANG_DISPLAY),
             &lcd_remote_settings,
 #endif
             &scroll_settings_menu,
+#ifdef HAVE_LCD_BITMAP
             &peak_meter_menu,
+#endif
             &codepage_setting,
 #ifdef HAVE_TOUCHSCREEN
             &touchscreen_menu,

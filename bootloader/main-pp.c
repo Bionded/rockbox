@@ -37,7 +37,7 @@
 #include "adc.h"
 #include "button.h"
 #include "disk.h"
-#include "crc32.h"
+#include "crc32-mi4.h"
 #include "mi4-loader.h"
 #include "loader_strerror.h"
 #include <string.h>
@@ -50,9 +50,6 @@
 #include "usb.h"
 #if defined(SANSA_E200) || defined(SANSA_C200) || defined(PHILIPS_SA9200)
 #include "usb_drv.h"
-#endif
-#if defined(SANSA_E200) && defined(HAVE_BOOTLOADER_USB_MODE)
-#include "core_alloc.h"
 #endif
 #if defined(SAMSUNG_YH925)
 /* this function (in lcd-yh925.c) resets the screen orientation for the OF
@@ -134,7 +131,7 @@ int load_mi4_part(unsigned char* buf, struct partinfo* pinfo,
     unsigned long sum;
     
     /* Read header to find out how long the mi4 file is. */
-    storage_read_sectors(IF_MD(0,) pinfo->start + PPMI_SECTOR_OFFSET,
+    storage_read_sectors(pinfo->start + PPMI_SECTOR_OFFSET,
                          PPMI_SECTORS, &ppmi_header);
     
     /* The first four characters at 0x80000 (sector 1024) should be PPMI*/
@@ -144,7 +141,7 @@ int load_mi4_part(unsigned char* buf, struct partinfo* pinfo,
     printf("BL mi4 size: %x", ppmi_header.length);
     
     /* Read mi4 header of the OF */
-    storage_read_sectors(IF_MD(0,) pinfo->start + PPMI_SECTOR_OFFSET + PPMI_SECTORS 
+    storage_read_sectors(pinfo->start + PPMI_SECTOR_OFFSET + PPMI_SECTORS 
                        + (ppmi_header.length/512), MI4_HEADER_SECTORS, &mi4header);
     
     /* We don't support encrypted mi4 files yet */
@@ -167,12 +164,12 @@ int load_mi4_part(unsigned char* buf, struct partinfo* pinfo,
     printf("Binary type: %.4s", mi4header.type);
 
     /* Load firmware */
-    storage_read_sectors(IF_MD(0,) pinfo->start + PPMI_SECTOR_OFFSET + PPMI_SECTORS
+    storage_read_sectors(pinfo->start + PPMI_SECTOR_OFFSET + PPMI_SECTORS
                         + (ppmi_header.length/512) + MI4_HEADER_SECTORS,
                         (mi4header.mi4size-MI4_HEADER_SIZE)/512, buf);
 
     /* Check CRC32 to see if we have a valid file */
-    sum = crc_32r (buf,mi4header.mi4size-MI4_HEADER_SIZE,0);
+    sum = chksum_crc32 (buf,mi4header.mi4size-MI4_HEADER_SIZE);
 
     printf("Calculated CRC32: %x", sum);
 
@@ -186,9 +183,9 @@ int load_mi4_part(unsigned char* buf, struct partinfo* pinfo,
         
         printf("Disabling database rebuild");
         
-        storage_read_sectors(IF_MD(0,) pinfo->start + 0x3c08, 1, block);
+        storage_read_sectors(pinfo->start + 0x3c08, 1, block);
         block[0xe1] = 0;
-        storage_write_sectors(IF_MD(0,) pinfo->start + 0x3c08, 1, block);
+        storage_write_sectors(pinfo->start + 0x3c08, 1, block);
     }
 #else
     (void) disable_rebuild;
@@ -234,18 +231,7 @@ static int handle_usb(int connect_timeout)
 
             usb = USB_HANDLED;
             usb_acknowledge(SYS_USB_CONNECTED_ACK);
-#if defined(SANSA_E200) && defined(HAVE_BOOTLOADER_USB_MODE)
-            /* E200 misses unplug randomly
-               probably fine for other targets too but needs tested */
-            while (usb_wait_for_disconnect_w_tmo(&q, HZ * 5) > 0)
-            {
-                /* timeout */
-                if (!usb_plugged())
-                    break;
-            }
-#else
             usb_wait_for_disconnect(&q);
-#endif
             break;
         }
 
@@ -301,6 +287,7 @@ static int handle_usb(int connect_timeout)
 
 void* main(void)
 {
+    char filename[MAX_PATH];
     int i;
     int btn;
     int rc;
@@ -313,9 +300,6 @@ void* main(void)
     int usb = USB_EXTRACTED;
 
     system_init();
-#if defined(SANSA_E200) && defined(HAVE_BOOTLOADER_USB_MODE)
-    core_allocator_init();
-#endif
     kernel_init();
 
 #ifdef HAVE_BOOTLOADER_USB_MODE
@@ -416,8 +400,9 @@ void* main(void)
     if((btn & BOOTLOADER_BOOT_OF) == 0)
     {
         printf("Loading Rockbox...");
+        snprintf(filename,sizeof(filename), BOOTDIR "/%s", BOOTFILE);
 
-        rc = load_mi4(loadbuffer, BOOTFILE, MAX_LOADSIZE);
+        rc = load_mi4(loadbuffer, filename, MAX_LOADSIZE);
         if (rc <= EFILE_EMPTY)
         {
             bool old_verbose = verbose;

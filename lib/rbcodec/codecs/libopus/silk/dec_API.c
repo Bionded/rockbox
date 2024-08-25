@@ -85,8 +85,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     opus_int                        newPacketFlag,      /* I    Indicates first decoder call for this packet    */
     ec_dec                          *psRangeDec,        /* I/O  Compressor data structure                       */
     opus_int16                      *samplesOut,        /* O    Decoded output speech vector                    */
-    opus_int32                      *nSamplesOut,       /* O    Number of samples decoded                       */
-    int                             arch                /* I    Run-time architecture                           */
+    opus_int32                      *nSamplesOut        /* O    Number of samples decoded                       */
 )
 {
     opus_int   i, n, decode_only_middle = 0, ret = SILK_NO_ERROR;
@@ -104,7 +103,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     int delay_stack_alloc;
     SAVE_STACK;
 
-    celt_assert( decControl->nChannelsInternal == 1 || decControl->nChannelsInternal == 2 );
+    silk_assert( decControl->nChannelsInternal == 1 || decControl->nChannelsInternal == 2 );
 
     /**********************************/
     /* Test if first frame in payload */
@@ -143,13 +142,13 @@ opus_int silk_Decode(                                   /* O    Returns error co
                 channel_state[ n ].nFramesPerPacket = 3;
                 channel_state[ n ].nb_subfr = 4;
             } else {
-                celt_assert( 0 );
+                silk_assert( 0 );
                 RESTORE_STACK;
                 return SILK_DEC_INVALID_FRAME_SIZE;
             }
             fs_kHz_dec = ( decControl->internalSampleRate >> 10 ) + 1;
             if( fs_kHz_dec != 8 && fs_kHz_dec != 12 && fs_kHz_dec != 16 ) {
-                celt_assert( 0 );
+                silk_assert( 0 );
                 RESTORE_STACK;
                 return SILK_DEC_INVALID_SAMPLING_FREQUENCY;
             }
@@ -297,7 +296,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
             } else {
                 condCoding = CODE_CONDITIONALLY;
             }
-            ret += silk_decode_frame( &channel_state[ n ], psRangeDec, &samplesOut1_tmp[ n ][ 2 ], &nSamplesOutDec, lostFlag, condCoding, arch);
+            ret += silk_decode_frame( &channel_state[ n ], psRangeDec, &samplesOut1_tmp[ n ][ 2 ], &nSamplesOutDec, lostFlag, condCoding);
         } else {
             silk_memset( &samplesOut1_tmp[ n ][ 2 ], 0, nSamplesOutDec * sizeof( opus_int16 ) );
         }

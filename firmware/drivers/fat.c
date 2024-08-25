@@ -22,7 +22,7 @@
 #include "config.h"
 #include "system.h"
 #include "sys/types.h"
-#include "string-extra.h"
+#include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -173,16 +173,13 @@ union raw_dirent
 
 struct fsinfo
 {
-    sector_t freecount; /* last known free cluster count */
-    sector_t nextfree;  /* first cluster to start looking for free
-                           clusters, or 0xffffffff for no hint */
+    unsigned long freecount; /* last known free cluster count */
+    unsigned long nextfree;  /* first cluster to start looking for free
+                                clusters, or 0xffffffff for no hint */
 };
 /* fsinfo offsets */
-#define FSINFO_SIGNATURE 0
 #define FSINFO_FREECOUNT 488
 #define FSINFO_NEXTFREE  492
-
-#define FSINFO_SIGNATURE_VAL 0x41615252
 
 #ifdef HAVE_FAT16SUPPORT
 #define BPB_FN_SET16(bpb, fn)      (bpb)->fn##__ = fn##16
@@ -233,7 +230,7 @@ static struct bpb
     unsigned long totalsectors;
     unsigned long rootdirsector;
     unsigned long firstdatasector;
-    sector_t startsector;
+    unsigned long startsector;
     unsigned long dataclusters;
     unsigned long fatrgnstart;
     unsigned long fatrgnend;
@@ -241,8 +238,8 @@ static struct bpb
 #ifdef HAVE_FAT16SUPPORT
     unsigned int bpb_rootentcnt;    /* Number of dir entries in the root */
     /* internals for FAT16 support */
-    sector_t rootdirsectornum; /* sector offset of root dir relative to start
-                                * of first pseudo cluster */
+    unsigned long rootdirsectornum; /* sector offset of root dir relative to start
+                                     * of first pseudo cluster */
 #endif /* HAVE_FAT16SUPPORT */
 
     /** Additional information kept for each volume **/
@@ -265,13 +262,6 @@ static struct bpb
 #endif /* HAVE_FAT16SUPPORT */
 
 } fat_bpbs[NUM_VOLUMES]; /* mounted partition info */
-
-#ifdef STORAGE_NEEDS_BOUNCE_BUFFER
-#define FAT_BOUNCE_SECTORS 10
-static uint8_t fat_bounce_buffers[NUM_VOLUMES][SECTOR_SIZE*FAT_BOUNCE_SECTORS] STORAGE_ALIGN_ATTR;
-#define FAT_BOUNCE_BUFFER(bpb) \
-    (fat_bounce_buffers[IF_MV_VOL((bpb)->volume)])
-#endif
 
 #define IS_FAT_SECTOR(bpb, sector) \
     (!((sector) >= (bpb)->fatrgnend || (sector) < (bpb)->fatrgnstart))
@@ -329,7 +319,7 @@ static void cache_discard(IF_MV_NONVOID(struct bpb *fat_bpb))
 }
 
 /* caches a FAT or data area sector */
-static void * cache_sector(struct bpb *fat_bpb, sector_t secnum)
+static void * cache_sector(struct bpb *fat_bpb, unsigned long secnum)
 {
     unsigned int flags;
     void *buf = dc_cache_probe(IF_MV(fat_bpb->volume,) secnum, &flags);
@@ -340,8 +330,8 @@ static void * cache_sector(struct bpb *fat_bpb, sector_t secnum)
                                       secnum + fat_bpb->startsector, 1, buf);
         if (UNLIKELY(rc < 0))
         {
-            DEBUGF("%s() - Could not read sector %llu"
-                   " (error %d)\n", __func__, (uint64_t)secnum, rc);
+            DEBUGF("%s() - Could not read sector %ld"
+                   " (error %d)\n", __func__, secnum, rc);
             dc_discard_buf(buf);
             return NULL;
         }
@@ -354,14 +344,14 @@ static void * cache_sector(struct bpb *fat_bpb, sector_t secnum)
  * contents are NOT loaded before returning - use when completely overwriting
  * a sector's contents in order to avoid a fill */
 static void * cache_sector_buffer(IF_MV(struct bpb *fat_bpb,)
-                                  sector_t secnum)
+                                  unsigned long secnum)
 {
     unsigned int flags;
     return dc_cache_probe(IF_MV(fat_bpb->volume,) secnum, &flags);
 }
 
 /* flush a cache buffer to storage */
-void dc_writeback_callback(IF_MV(int volume,) sector_t sector, void *buf)
+void dc_writeback_callback(IF_MV(int volume,) unsigned long sector, void *buf)
 {
     struct bpb * const fat_bpb = &fat_bpbs[IF_MV_VOL(volume)];
     unsigned int copies = !IS_FAT_SECTOR(fat_bpb, sector) ?
@@ -374,8 +364,8 @@ void dc_writeback_callback(IF_MV(int volume,) sector_t sector, void *buf)
         int rc = storage_write_sectors(IF_MD(fat_bpb->drive,) sector, 1, buf);
         if (rc < 0)
         {
-            panicf("%s() - Could not write sector %llu"
-                   " (error %d)\n", __func__, (uint64_t)sector, rc);
+            panicf("%s() - Could not write sector %ld"
+                   " (error %d)\n", __func__, sector, rc);
         }
 
         if (--copies == 0)
@@ -401,12 +391,7 @@ static int bpb_is_sane(struct bpb *fat_bpb)
         return -1;
     }
 
-    /* The fat_bpb struct does not hold the raw value of bpb_bytspersec, the
-     * value is multiplied in cases where bpb_bytspersec != SECTOR_SIZE. We need
-     * to undo that multiplication before we do the sanity check. */
-    unsigned long secmult = fat_bpb->bpb_bytspersec / SECTOR_SIZE;
-
-    if (fat_bpb->bpb_secperclus * fat_bpb->bpb_bytspersec / secmult > 128*1024ul)
+    if (fat_bpb->bpb_secperclus * fat_bpb->bpb_bytspersec > 128*1024ul)
     {
         DEBUGF("%s() - Error: cluster size is larger than 128K "
                "(%lu * %lu = %lu)\n", __func__,
@@ -659,14 +644,11 @@ static inline unsigned int longent_char_next(unsigned int i)
 {
     switch (i += 2)
     {
-    /* flip endian for elements 14 - 27 */
     case 26: i -= 1; /* return 28 */
-    /* Fall-Through */
     case 11: i += 3; /* return 14 */
     }
-    /* BYTES2INT16() uses [i + 0] and [i + 1] therefore
-     * 30 is the max element available in the raw byte array of size 32 */
-    return i < 31 ? i : 0;
+
+    return i < 32 ? i : 0;
 }
 
 /* initialize the parse state; call before parsing first long entry */
@@ -1264,14 +1246,6 @@ static int fat_mount_internal(struct bpb *fat_bpb)
             FAT_ERROR(rc * 10 - 8);
         }
 
-	/* Sanity check FS info */
-	long info = BYTES2INT32(buf, FSINFO_SIGNATURE);
-	if (info != FSINFO_SIGNATURE_VAL) {
-		DEBUGF("%s() FSInfo signature mismatch (%lx)\n",
-		       __func__, info);
-		FAT_ERROR(-9);
-	}
-
         fat_bpb->fsinfo.freecount = BYTES2INT32(buf, FSINFO_FREECOUNT);
         fat_bpb->fsinfo.nextfree = BYTES2INT32(buf, FSINFO_NEXTFREE);
     }
@@ -1701,8 +1675,8 @@ static int add_dir_entry(struct bpb *fat_bpb, struct fat_filestr *parentstr,
     int rc;
 
     unsigned char basisname[11], shortname[11];
+    int n;
     int entries_needed;
-    int n = -1;
     unsigned long ucslen = 0;
 
     if (is_dotdir_name(name) && (attr & ATTR_DIRECTORY))
@@ -1711,7 +1685,6 @@ static int add_dir_entry(struct bpb *fat_bpb, struct fat_filestr *parentstr,
         int dots = strlcpy(shortname, name, 11);
         memset(&shortname[dots], ' ', 11 - dots);
         entries_needed = 1;
-        basisname[0] = '\0';
     }
     else
     {
@@ -2280,41 +2253,6 @@ fat_error:
     return rc;
 }
 
-int fat_modtime(struct fat_file *parent, struct fat_file *file,
-                time_t modtime)
-{
-    struct bpb * const fat_bpb = FAT_BPB(parent->volume);
-
-    if (!fat_bpb)
-        return -1;
-
-    int rc;
-
-    struct fat_filestr parentstr;
-    fat_filestr_init(&parentstr, parent);
-
-    dc_lock_cache();
-
-    union raw_dirent *ent = cache_direntry(fat_bpb, &parentstr, file->e.entry);
-    if (!ent)
-        FAT_ERROR(-2);
-
-    uint16_t date;
-    uint16_t time;
-    dostime_localtime(modtime, &date, &time);
-
-    ent->wrttime    = htole16(time);
-    ent->wrtdate    = htole16(date);
-    ent->lstaccdate = htole16(date);
-
-    dc_dirty_buf(ent);
-
-    rc = 0;
-fat_error:
-    dc_unlock_cache();
-    cache_commit(fat_bpb);
-    return rc;
-}
 
 /** File stream functions **/
 
@@ -2397,12 +2335,12 @@ unsigned long fat_query_sectornum(const struct fat_filestr *filestr)
 }
 
 /* helper for fat_readwrite */
-static long transfer(struct bpb *fat_bpb, sector_t start, long count,
+static long transfer(struct bpb *fat_bpb, unsigned long start, long count,
                      char *buf, bool write)
 {
     long rc = 0;
 
-    DEBUGF("%s(s=%llx, c=%lx, wr=%u)\n", __func__,
+    DEBUGF("%s(s=%lx, c=%lx, wr=%u)\n", __func__,
            start + fat_bpb->startsector, count, write ? 1 : 0);
 
     if (write)
@@ -2416,50 +2354,24 @@ static long transfer(struct bpb *fat_bpb, sector_t start, long count,
             firstallowed = fat_bpb->firstdatasector;
 
         if (start < firstallowed)
-            panicf("Write %llu before data\n", (uint64_t)(firstallowed - start));
+            panicf("Write %ld before data\n", firstallowed - start);
 
         if (start + count > fat_bpb->totalsectors)
         {
-            panicf("Write %llu after data\n",
-                   (uint64_t)(start + count - fat_bpb->totalsectors));
+            panicf("Write %ld after data\n",
+                   start + count - fat_bpb->totalsectors);
         }
-    }
-
-#ifdef STORAGE_NEEDS_BOUNCE_BUFFER
-    if(UNLIKELY(STORAGE_OVERLAP((uintptr_t)buf))) {
-        void* xfer_buf = FAT_BOUNCE_BUFFER(fat_bpb);
-        while(count > 0) {
-            int xfer_count = MIN(count, FAT_BOUNCE_SECTORS);
-
-            if(write) {
-                memcpy(xfer_buf, buf, xfer_count * SECTOR_SIZE);
-                rc = storage_write_sectors(IF_MD(fat_bpb->drive,)
-                                           start + fat_bpb->startsector, xfer_count, xfer_buf);
-            } else {
-                rc = storage_read_sectors(IF_MD(fat_bpb->drive,)
-                                          start + fat_bpb->startsector, xfer_count, xfer_buf);
-                memcpy(buf, xfer_buf, xfer_count * SECTOR_SIZE);
-            }
-
-            if(rc < 0)
-                break;
-
-            buf += xfer_count * SECTOR_SIZE;
-            start += xfer_count;
-            count -= xfer_count;
-        }
-    } else {
-#endif
-        if(write) {
+        else
+        {
             rc = storage_write_sectors(IF_MD(fat_bpb->drive,)
                                        start + fat_bpb->startsector, count, buf);
-        } else {
-            rc = storage_read_sectors(IF_MD(fat_bpb->drive,)
-                                      start + fat_bpb->startsector, count, buf);
         }
-#ifdef STORAGE_NEEDS_BOUNCE_BUFFER
     }
-#endif
+    else
+    {
+        rc = storage_read_sectors(IF_MD(fat_bpb->drive,)
+                                  start + fat_bpb->startsector, count, buf);
+    }
 
     if (rc < 0)
     {
@@ -2487,14 +2399,14 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
     long rc;
 
     long          cluster    = filestr->lastcluster;
-    sector_t sector     = filestr->lastsector;
+    unsigned long sector     = filestr->lastsector;
     long          clusternum = filestr->clusternum;
     unsigned long sectornum  = filestr->sectornum;
 
     DEBUGF("%s(file:%lx,count:0x%lx,buf:%lx,%s)\n", __func__,
            file->firstcluster, sectorcount, (long)buf,
            write ? "write":"read");
-    DEBUGF("%s: sec:%llx numsec:%ld eof:%d\n", __func__,
+    DEBUGF("%s: sec:%lx numsec:%ld eof:%d\n", __func__,
            sector, (long)sectornum, eof ? 1 : 0);
 
     eof = false;
@@ -2534,7 +2446,7 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
 
     unsigned long transferred = 0;
     unsigned long count = 0;
-    sector_t last = sector;
+    unsigned long last = sector;
 
     while (transferred + count < sectorcount)
     {
@@ -2961,7 +2873,7 @@ void fat_recalc_free(IF_MV_NONVOID(int volume))
     dc_unlock_cache();
 }
 
-bool fat_size(IF_MV(int volume,) sector_t *size, sector_t *free)
+bool fat_size(IF_MV(int volume,) unsigned long *size, unsigned long *free)
 {
     struct bpb * const fat_bpb = FAT_BPB(volume);
     if (!fat_bpb)
@@ -2991,6 +2903,20 @@ void fat_empty_fat_direntry(struct fat_direntry *entry)
     entry->wrtdate      = 0;
     entry->filesize     = 0;
     entry->firstcluster = 0;
+}
+
+time_t fattime_mktime(uint16_t fatdate, uint16_t fattime)
+{
+    /* this knows our mktime() only uses these struct tm fields */
+    struct tm tm;
+    tm.tm_sec  = ((fattime      ) & 0x1f) * 2;
+    tm.tm_min  = ((fattime >>  5) & 0x3f);
+    tm.tm_hour = ((fattime >> 11)       );
+    tm.tm_mday = ((fatdate      ) & 0x1f);
+    tm.tm_mon  = ((fatdate >>  5) & 0x0f) - 1;
+    tm.tm_year = ((fatdate >>  9)       ) + 80;
+
+    return mktime(&tm);
 }
 
 void fat_init(void)

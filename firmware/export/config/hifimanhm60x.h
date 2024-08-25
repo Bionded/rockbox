@@ -18,8 +18,8 @@
 
 #define HAVE_DUMMY_CODEC
 #define CODEC_SLAVE
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 /* #define HAVE_LCD_FLIP */
@@ -90,8 +90,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 /* #define CONFIG_RTC RTC_NANO2G */
@@ -167,6 +167,12 @@
 
 /* define this if the hardware can be powered off while charging */
 /* #define HAVE_POWEROFF_WHILE_CHARGING */
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ

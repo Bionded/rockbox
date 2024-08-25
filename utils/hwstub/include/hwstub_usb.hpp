@@ -34,7 +34,6 @@ class context : public hwstub::context
 {
 protected:
     context(libusb_context *ctx, bool cleanup_ctx);
-    context(libusb_context *ctx, bool cleanup_ctx, std::string *error, device_filter_t f);
 public:
     virtual ~context();
     /** Return native libusb context */
@@ -43,7 +42,7 @@ public:
      * called on the context on deletion of this class. If ctx is NULL, libusb_init()
      * will be called with NULL so there is no need to init the default context. */
     static std::shared_ptr<context> create(libusb_context *ctx, bool cleanup_ctx = false,
-        std::string *error = nullptr, device_filter_t f = [](ctx_dev_t d){(void)d; return true;});
+        std::string *error = nullptr);
 
 protected:
     /* NOTE ctx_dev_t = libusb_device* */
@@ -78,8 +77,6 @@ public:
     uint16_t get_vid();
     /** Get device PID */
     uint16_t get_pid();
-    /** Return true if device matches provided bus and address */
-    static bool is_bus_addr_device(libusb_device *dev, uint8_t bus, uint8_t addr);
 
 protected:
     /** Return true if this might be a hwstub device and should appear in the list */

@@ -95,9 +95,10 @@ struct tv_preferences {
 
     bool night_mode;
 
+#ifdef HAVE_LCD_BITMAP
     unsigned char font_name[MAX_PATH];
     int font_id;
-
+#endif
     unsigned char file_name[MAX_PATH];
 };
 

@@ -40,6 +40,10 @@ const unsigned char bitmap_icons_5x8[][5] =
         {0x7f, 0x22, 0x1c, 0x22, 0x7f}, /* Stereo recording */
     [Icon_Mono] =
         {0x00, 0x1c, 0x22, 0x7f, 0x00}, /* Mono recording */
+#if CONFIG_CODEC != SWCODEC
+    [Icon_q] =
+        {0x1e, 0x21, 0x31, 0x21, 0x5e}  /* Q icon */
+#endif
 };
 
 const unsigned char bitmap_icons_7x8[][7] =
@@ -64,7 +68,7 @@ const unsigned char bitmap_icons_7x8[][7] =
     {0x7f,0x04,0x4e,0x5f,0x44,0x38,0x7f}  /* Repeat-AB playmode */
 };
 
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING)
 const unsigned char bitmap_glyphs_4x8[][4] =
 {
     /* Keep digits together and first! */
@@ -112,7 +116,7 @@ const unsigned char bitmap_formats_18x8[Format_18x8Last][18]=
         {0x00, 0x1e, 0x20, 0x18, 0x20, 0x1e, 0x00, 0x3c, 0x0a,
          0x0a, 0x0a, 0x3c, 0x00, 0x0e, 0x10, 0x20, 0x10, 0x0e}, /* WAV */
 };
-#endif /* defined(HAVE_RECORDING) */
+#endif /* CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING) */
 
 /* Disk/MMC activity */
 const unsigned char bitmap_icon_disk[12] =
@@ -121,12 +125,4 @@ const unsigned char bitmap_icon_disk[12] =
 #else
     {0x00,0x00,0x00,0x1c,0x2e,0x4f,0x77,0x79,0x3a,0x1c,0x00,0x00};
 #endif
-
-const struct cbmp_bitmap_info_entry core_bitmaps[CBMP_BitmapFormatLast] = /* */
-{
-/* index, pointer, w, h, count */
-[CBMP_Mono_5x8] = {bitmap_icons_5x8[0], 5,8, Icon5x8Last},
-[CBMP_Mono_7x8] = {bitmap_icons_7x8[0], 7, 8, Icon7x8Last},
-[CBMP_Mono_12x8] = {bitmap_icon_disk, 12, 8, 1},
-};
 

@@ -1,13 +1,9 @@
 #include "config.h"
-#define __ASSEMBLY__
-#include "cpu.h"
 
 OUTPUT_FORMAT("elf32-littlemips")
 OUTPUT_ARCH(MIPS)
 ENTRY(_start)
 STARTUP(target/mips/ingenic_jz47xx/crt0.o)
-INPUT(target/mips/exception-mips.o)
-INPUT(target/mips/system-mips.o)
 
 #define STUBOFFSET    0x4000
 
@@ -22,15 +18,10 @@ INPUT(target/mips/system-mips.o)
 /* Where the codec buffer ends, and the plugin buffer starts */
 #define ENDCODECADDR  (ENDAUDIOADDR + CODEC_SIZE)
 
-/* Place init code in the codec buffer */
-#define INITBASE   ENDAUDIOADDR
-#define INITSIZE   CODEC_SIZE
-
 MEMORY
 {
    DRAM : ORIGIN = DRAMORIG, LENGTH = DRAMSIZE
    IRAM : ORIGIN = IRAMORIG, LENGTH = IRAMSIZE
-   INIT : ORIGIN = INITBASE, LENGTH = INITSIZE
 }
 
 SECTIONS
@@ -43,9 +34,6 @@ SECTIONS
         _loadaddress = .;
         *(.init.text);
         *(.text*);
-#ifndef HAVE_INIT_ATTR
-        *(.init*);
-#endif
     } > DRAM
 
     . = ALIGN(4);
@@ -78,7 +66,7 @@ SECTIONS
         KEEP(*(.vectors.4));
         KEEP(*(.vectors));
 
-        *(.icode*);
+        *(.icode);
         *(.irodata);
         *(.idata);
         KEEP(*(.vectors))
@@ -87,27 +75,17 @@ SECTIONS
     } > IRAM
     _iramcopy = LOADADDR(.iram);
 
-#ifdef HAVE_INIT_ATTR
-    .init :
-    {
-        _initstart = .;
-        *(.init*);
-        _initend = .;
-    } > INIT AT> DRAM
-    _initcopy = LOADADDR(.init);
-#endif
-
     . = ALIGN(4);
 
     .stack (NOLOAD):
     {
          *(.stack);
          stackbegin = .;
-         . += 0x1d00;
+         . += 0x1E00;
          stackend = .;
-         _irqstackbegin = .;
-         . += 0x400;
-         _irqstackend = .;
+         irqstackbegin = .;
+         . += 0x300;
+         irqstackend = .;
     } > IRAM
 
     .bss (NOLOAD):
@@ -133,7 +111,6 @@ SECTIONS
 
     /DISCARD/ :
     {
-        *(.MIPS.abiflags);
         *(.eh_frame);
         *(.rel.dyn);
     }

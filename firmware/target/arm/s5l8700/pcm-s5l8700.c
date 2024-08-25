@@ -35,6 +35,7 @@
 /*  Driver for the IIS/PCM part of the s5l8700 using DMA
 
     Notes:
+    - pcm_play_dma_pause is untested, not sure if implemented the right way
     - pcm_play_dma_stop is untested, not sure if implemented the right way
     - recording is not implemented
 */
@@ -172,6 +173,17 @@ void pcm_play_dma_stop(void)
                (0 << 0);    /* 0 = LRCK on */
 }
 
+/* pause playback by disabling the I2S interface */
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause) {
+        I2STXCOM |= (1 << 0);   /* LRCK off */
+    }
+    else {
+        I2STXCOM &= ~(1 << 0);  /* LRCK on */
+    }
+}
+
 static void pcm_dma_set_freq(enum hw_freq_indexes idx)
 {
     struct div_entry div = div_table[idx];
@@ -259,7 +271,18 @@ void pcm_play_dma_postinit(void)
 /* set the configured PCM frequency */
 void pcm_dma_apply_settings(void)
 {
-    pcm_dma_set_freq(pcm_fsel);
+    pcm_dma_set_freq(pcm_fsel);    
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return (nextsize + DMACTCNT0 + 2) << 1;
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    *count = DMACTCNT0 >> 1;
+    return (void *)(((DMACADDR0 + 2) & ~3) | 0x40000000);
 }
 
 #ifdef HAVE_PCM_DMA_ADDRESS

@@ -86,7 +86,7 @@ static int db_errorfb (lua_State *L) {
   if (lua_gettop(L) == arg)
     lua_pushliteral(L, "");
   else if (!lua_isstring(L, arg+1)) return 1;  /* message is not a string */
-  else lua_pushliteral(L, "\n\n");
+  else lua_pushliteral(L, "\n");
   lua_pushliteral(L, "stack traceback: ");
   while (lua_getstack(L1, level++, &ar)) {
     if (level > LEVELS1 && firstpart) {
@@ -101,7 +101,7 @@ static int db_errorfb (lua_State *L) {
       firstpart = 0;
       continue;
     }
-    lua_pushliteral(L, "\n\n\t");
+    lua_pushliteral(L, "\n\t");
     lua_getinfo(L1, "Snl", &ar);
     char* filename = rb->strrchr(ar.short_src, '/'); /* remove path */
     lua_pushfstring(L, "%s:", filename ? filename : ar.short_src);
@@ -118,10 +118,8 @@ static int db_errorfb (lua_State *L) {
         lua_pushfstring(L, " in function <%s:%d>",
                            ar.short_src, ar.linedefined);
     }
-
     lua_concat(L, lua_gettop(L) - arg);
   }
-  lua_pushfstring(L, "\n\nRam Used: %d Kb", lua_gc (L, LUA_GCCOUNT, 0));
   lua_concat(L, lua_gettop(L) - arg);
   return 1;
 }
@@ -148,47 +146,26 @@ static int docall (lua_State *L) {
 }
 
 static void lua_atexit(void);
-static int lua_split_arguments(lua_State *L, const char *filename);
-
 static int loadfile_newstate(lua_State **L, const char *filename)
 {
-  const char *file;
-  int ret;
-
-  *L = luaL_newstate();
-  rb_atexit(lua_atexit);
-
-  lua_gc(*L, LUA_GCSTOP, 0);  /* stop collector during initialization */
-  rocklua_openlibs(*L);
-
-  lua_split_arguments(*L, filename);
-  lua_setglobal (*L, "_arguments");
-  file = lua_tostring (*L, -1);
-  lua_setglobal (*L, "_fullpath");
-  /* lua manual -> no guarantee pointer valid after value is removed from stack */
-  ret = luaL_loadfile(*L, file);
-  lua_gc(*L, LUA_GCRESTART, 0);
-
-  return ret;
+        *L = luaL_newstate();
+        rb_atexit(lua_atexit);
+        rocklua_openlibs(*L);
+        return luaL_loadfile(*L, filename);
 }
 
 static void lua_atexit(void)
 {
   char *filename;
-  int err_n;
+
   if(Ls && lua_gettop(Ls) > 1)
   {
-    err_n = lua_tointeger(Ls, -1); /* os.exit? */
     if (Ls == lua_touserdata(Ls, -1)) /* signal from restart_lua */
     {
-      filename = (char *) malloc((MAX_PATH * 2) + 1);
+      filename = (char *) malloc(MAX_PATH);
 
-      if (filename) {/* out of memory? */
-        filename[MAX_PATH * 2] = '\0';
-        rb->strlcpy(filename, lua_tostring(Ls, -2), MAX_PATH * 2);
-      } else {
-        goto ERR_RUN;
-      }
+      if (filename) /* out of memory? */
+        rb->strlcpy(filename, lua_tostring(Ls, -2), MAX_PATH);
       lua_close(Ls); /* close old state */
 
       lu_status = loadfile_newstate(&Ls, filename);
@@ -196,14 +173,8 @@ static void lua_atexit(void)
       free(filename);
       plugin_start(NULL);
     }
-    else if (err_n >= PLUGIN_USB_CONNECTED) /* INTERNAL PLUGIN RETVAL */
+    else if (lua_tointeger(Ls, -1) != 0) /* os.exit */
     {
-      lua_close(Ls);
-      _exit(err_n);  /* don't call exit handler */
-    }
-    else if (err_n != 0)
-    {
-ERR_RUN:
       lu_status = LUA_ERRRUN;
       lua_pop(Ls, 1); /* put exit string on top of stack */
       plugin_start(NULL);
@@ -211,50 +182,9 @@ ERR_RUN:
     else
       lua_close(Ls);
   }
-  _exit(PLUGIN_OK); /* don't call exit handler */
+  _exit(0); /* don't call exit handler */
 }
 
-/* split filename at argchar
- * remainder of filename pushed on stack (-1)
-* argument string pushed on stack or nil if doesn't exist (-2)
- */
-static int lua_split_arguments(lua_State *L, const char *filename)
-{
-  const char argchar = '?';
-  const char* arguments = strchr(filename, argchar);
-  if(arguments) {
-    lua_pushstring(L, (arguments + 1));
-  } else {
-    arguments = strlen(filename) + filename;
-    lua_pushnil(L);
-  }
-  lua_pushlstring(L, filename, arguments - filename);
-  lua_insert(L, -2); /* swap filename and argument */
-  return 2;
-}
-
-static void display_traceback(const char *errstr)
-{
-#if 1
-  splash_scroller(HZ * 5, errstr); /*rockaux.c*/
-#else
-  rb->splash(10 * HZ, errstr);
-#endif
-}
-
-int browse_scripts(void)
-{
-    static char buf[MAX_PATH];
-    const char *fname = rb->plugin_get_current_filename();
-    /* strip plugin dir to save space in the param buffer */
-    if (rb->strncmp(fname, PLUGIN_DIR, sizeof(PLUGIN_DIR) - 1) == 0)
-        fname += sizeof(PLUGIN_DIR) - 1; /* leave slash */
-    /* -r return to this plugin, -f looking for lua files,
-       -s start in lua_scripts, -d lock to that directory */
-    snprintf(buf, sizeof(buf), "-r'%s'-f'.lua'-s'%s'-d",
-             fname, PLUGIN_DEMOS_DIR"/lua_scripts/");
-    return rb->plugin_open(VIEWERS_DIR "/file_picker.rock", buf);
-}
 /***************** Plugin Entry Point *****************/
 enum plugin_status plugin_start(const void* parameter)
 {
@@ -263,10 +193,7 @@ enum plugin_status plugin_start(const void* parameter)
     if (parameter == NULL)
     {
       if (!Ls)
-      {
         rb->splash(HZ, "Play a .lua file!");
-        return browse_scripts();
-      }
     }
     else
     {
@@ -284,8 +211,7 @@ enum plugin_status plugin_start(const void* parameter)
 
         if (lu_status) {
             DEBUGF("%s\n", lua_tostring(Ls, -1));
-            display_traceback(lua_tostring(Ls, -1));
-            //rb->splash(10 * HZ, lua_tostring(Ls, -1));
+            rb->splash(10 * HZ, lua_tostring(Ls, -1));
             /*lua_pop(Ls, 1);*/
         }
         lua_close(Ls);

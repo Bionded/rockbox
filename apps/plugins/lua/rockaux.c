@@ -27,7 +27,6 @@
 #include "lib/pluginlib_actions.h"
 
 extern long strtol(const char *nptr, char **endptr, int base);
-extern const char *strpbrk_n(const char *s, int smax, const char *accept);
 
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE)
 int errno = 0;
@@ -40,130 +39,6 @@ char *strerror(int errnum)
     DEBUGF("strerror(%d)\n", errnum);
 
     return NULL;
-}
-
-/* splash string and allow user to scroll around
- * provides rudimentary text reflow
- * timeout is disabled on user interaction
- * returns the action that caused quit
- * [ACTION_NONE, ACTION_STD_CANCEL, ACTION_STD_OK]
- * !ACTION_NONE (only on initial timeout)!
- * TIMEOUT can be TIMEOUT_BLOCK or time in ticks
-*/
-int splash_scroller(int timeout, const char* str)
-{
-    if (!str)
-        str = "[nil]";
-    int w, ch_w, ch_h;
-    rb->lcd_getstringsize("W", &ch_w, &ch_h);
-
-    const int max_w = LCD_WIDTH - (ch_w * 2);
-    const int max_lines = LCD_HEIGHT / ch_h - 1;
-    const int wrap_thresh = (LCD_WIDTH / 3);
-    const char *ch;
-    const char *brk;
-
-    const int max_ch = (LCD_WIDTH / ch_w - 1) * 2;
-    char line[max_ch + 2]; /* display buffer */
-    const char break_chars[] = "@#$%^&*+-{}[]()/\\|<>:;.,? _\n\r\t";
-
-    int linepos, curline, linesdisp, realline, chars_next_break;
-    int action = ACTION_NONE;
-    int firstline = 0;
-    int cycles = 2; /* get action timeout returns immediately on first call */
-
-    while (cycles > 0)
-    {
-        /* walk whole buffer every refresh, only display relevant portion */
-        rb->lcd_clear_display();
-        curline = 0;
-        linepos = 0;
-        linesdisp = 0;
-        ch = str;
-        for (; *ch && linepos < max_ch; ch++)
-        {
-            if (ch[0] == '\t')
-            {
-                line[linepos++] = ' ';
-                line[linepos] = ' ';
-            }
-            else if (ch[0] == '\b' && timeout > 0)
-            {
-                line[linepos] = ' ';
-                rb->beep_play(1000, HZ, 1000);
-            }
-            else if (ch[0] < ' ') /* Dont copy control characters */
-                line[linepos] = (linepos == 0) ? '\0' : ' ';
-            else
-                line[linepos] = ch[0];
-
-            line[linepos + 1] = '\0'; /* terminate to check text extent */
-            rb->lcd_getstringsize(line, &w, NULL);
-
-            /* try to not split in middle of words */
-            if (w + wrap_thresh >= max_w &&
-                strpbrk_n(ch, 1, break_chars))
-            {
-                brk = strpbrk_n(ch+1, max_ch, break_chars);
-                chars_next_break = (brk - ch);
-                if (brk &&
-                 (chars_next_break < 2 || w + (ch_w * chars_next_break) > max_w))
-                {
-                    if (!isprint(line[linepos]))
-                    {
-                        line[linepos] = '\0';
-                        ch--; /* back-up we want it on the next line */
-                    }
-                    w += max_w;
-                }
-            }
-
-            if (w > max_w ||
-               (ch[0] >= '\n' && iscntrl(ch[0])) ||
-                ch[1] == '\0')
-            {
-                realline = curline - firstline;
-                if (realline >= 0 && realline < max_lines)
-                {
-                    rb->lcd_putsxy(0, realline * ch_h, line);
-                    linesdisp++;
-                }
-                linepos = 0;
-                curline++;
-                continue;
-            }
-            linepos++;
-        }
-
-        rb->lcd_update();
-        if (timeout >= TIMEOUT_BLOCK)
-        {
-            action = rb->get_action(CONTEXT_STD, timeout);
-            switch(action)
-            {
-                case ACTION_STD_OK:
-                case ACTION_STD_CANCEL:
-                    cycles--;
-                /* Fall Through */
-                case ACTION_NONE:
-                    cycles--;
-                    break;
-                case ACTION_STD_PREV:
-                    timeout = TIMEOUT_BLOCK; /* disable timeout */
-                    if(firstline > 0)
-                        firstline--;
-                    break;
-                case ACTION_STD_NEXT:
-                    timeout = TIMEOUT_BLOCK; /* disable timeout */
-                    if (linesdisp == max_lines)
-                        firstline++;
-                    break;
-            }
-        }
-        else
-            break;
-    }
-    return action;
 }
 
 long rb_pow(long x, long n)
@@ -202,13 +77,11 @@ int strcoll(const char * str1, const char * str2)
     return rb->strcmp(str1, str2);
 }
 
-#ifndef _WIN32
 struct tm * gmtime(const time_t *timep)
 {
     static struct tm time;
     return rb->gmtime_r(timep, &time);
 }
-#endif
 
 int get_current_path(lua_State *L, int level)
 {
@@ -229,7 +102,7 @@ int get_current_path(lua_State *L, int level)
         }
     }
 
-    lua_pushnil(L);
+    lua_pushnil(L);    
     return 1;
 }
 
@@ -253,32 +126,25 @@ int filetol(int fd, long *num)
 
     while (rb->read(fd, &chbuf, 1) == 1)
     {
-        if(retn || !isspace(chbuf))
+        if(!isspace(chbuf) || retn == 1)
         {
-            switch(chbuf)
+            if(chbuf == '0') /* strip preceeding zeros */
             {
-                case '-':
-                {
-                    if (retn > 0) /* 0 preceeds, this negative sign must be in error */
-                        goto get_digits;
-                    neg = true;
-                    continue;
-                }
-                case '0':  /* strip preceeding zeros */
-                {
-                    *num = 0;
-                    retn = 1;
-                    continue;
-                }
-                default:
-                    goto get_digits;
+                *num = 0;
+                retn = 1;
+            }
+            else if(chbuf == '-' && retn != 1)
+                neg = true;
+            else
+            {
+                rb->lseek(fd, -1, SEEK_CUR);
+                break;
             }
         }
     }
 
     while (rb->read(fd, &chbuf, 1) == 1)
     {
-get_digits:
         if(!isdigit(chbuf))
         {
             rb->lseek(fd, -1, SEEK_CUR);

@@ -31,7 +31,6 @@
 #include "pcm.h"
 #include "pcm_mixer.h"
 #include "codecs/libspeex/speex/speex.h"
-#include "settings.h"
 
 /* Default number of PCM frames to queue - adjust as necessary per-target */
 #define VOICE_FRAMES 4
@@ -78,15 +77,9 @@
 
 /* Voice thread variables */
 static unsigned int voice_thread_id = 0;
-#if defined(CPU_MIPS)
-/* MIPS is stack-hungry */
-#define VOICE_STACK_EXTRA   0x500
-#elif defined(CPU_COLDFIRE)
+#ifdef CPU_COLDFIRE
 /* ISR uses any available stack - need a bit more room */
 #define VOICE_STACK_EXTRA   0x400
-#elif (CONFIG_PLATFORM & PLATFORM_HOSTED)
-/* Needed at least on the Sony NWZ hosted targets, but probably a good idea on all of them */
-#define VOICE_STACK_EXTRA   0x500
 #else
 #define VOICE_STACK_EXTRA   0x3c0
 #endif
@@ -110,7 +103,6 @@ enum voice_state
     VOICE_STATE_MESSAGE = 0,
     VOICE_STATE_DECODE,
     VOICE_STATE_BUFFER_INSERT,
-    VOICE_STATE_QUIT,
 };
 
 /* A delay to not bring audio back to normal level too soon */
@@ -120,14 +112,13 @@ enum voice_thread_messages
 {
     Q_VOICE_PLAY = 0, /* Play a clip */
     Q_VOICE_STOP,     /* Stop current clip */
-    Q_VOICE_KILL,     /* Kill voice thread till restart*/
 };
 
 /* Structure to store clip data callback info */
 struct voice_info
 {
     /* Callback to get more clips */
-    voice_play_callback_t get_more;
+    mp3_play_callback_t get_more;
     /* Start of clip */
     const void *start;
     /* Size of clip */
@@ -282,8 +273,8 @@ static void voice_buf_commit(int count)
 }
 
 /* Stop any current clip and start playing a new one */
-void voice_play_data(const void *start, size_t size,
-                     voice_play_callback_t get_more)
+void mp3_play_data(const void *start, size_t size,
+                   mp3_play_callback_t get_more)
 {
     if (voice_thread_id && start && size && get_more)
     {
@@ -300,13 +291,25 @@ void voice_play_data(const void *start, size_t size,
 }
 
 /* Stop current voice clip from playing */
-void voice_play_stop(void)
+void mp3_play_stop(void)
 {
     if (voice_thread_id != 0)
     {
         LOGFQUEUE("mp3 >| voice Q_VOICE_STOP");
         queue_send(&voice_queue, Q_VOICE_STOP, 0);
     }
+}
+
+void mp3_play_pause(bool play)
+{
+    /* a dummy */
+    (void)play;
+}
+
+/* Tell if voice is still in a playing state */
+bool mp3_is_playing(void)
+{
+    return voice_playing;
 }
 
 /* This function is meant to be used by the buffer request functions to
@@ -328,13 +331,6 @@ void voice_wait(void)
         sleep(1);
 }
 
-void voice_set_mixer_level(int percent)
-{
-    percent *= MIX_AMP_UNITY;
-    percent /= 100;
-    mixer_channel_set_amplitude(PCM_MIXER_CHAN_VOICE, percent);
-}
-
 /* Initialize voice thread data that must be valid upon starting and the
  * setup the DSP parameters */
 static void voice_data_init(struct voice_thread_data *td)
@@ -345,8 +341,7 @@ static void voice_data_init(struct voice_thread_data *td)
     dsp_configure(td->dsp, DSP_SET_SAMPLE_DEPTH, VOICE_SAMPLE_DEPTH);
     dsp_configure(td->dsp, DSP_SET_STEREO_MODE, STEREO_MONO);
 
-    voice_set_mixer_level(global_settings.talk_mixer_amp);
-
+    mixer_channel_set_amplitude(PCM_MIXER_CHAN_VOICE, MIX_AMP_UNITY);
     voice_buf->td = td;
     td->dst = NULL;
 }
@@ -361,11 +356,12 @@ static enum voice_state voice_message(struct voice_thread_data *td)
     {
     case Q_VOICE_PLAY:
         LOGFQUEUE("voice < Q_VOICE_PLAY");
-
-        /* Boost CPU now */
-        trigger_cpu_boost();
-
-        if (quiet_counter != 0)
+        if (quiet_counter == 0)
+        {
+            /* Boost CPU now */
+            trigger_cpu_boost();
+        }
+        else
         {
             /* Stop any clip still playing */
             voice_stop_playback();
@@ -396,9 +392,7 @@ static enum voice_state voice_message(struct voice_thread_data *td)
         speex_decoder_ctl(td->st, SPEEX_GET_LOOKAHEAD, &td->lookahead);
 
         return VOICE_STATE_DECODE;
-    case Q_VOICE_KILL:
-        queue_delete(&voice_queue);
-        return VOICE_STATE_QUIT;
+
     case SYS_TIMEOUT:
         if (voice_unplayed_frames())
         {
@@ -527,7 +521,7 @@ static enum voice_state voice_buffer_insert(struct voice_thread_data *td)
 }
 
 /* Voice thread entrypoint */
-static void voice_thread(void)
+static void NORETURN_ATTR voice_thread(void)
 {
     struct voice_thread_data td;
     enum voice_state state = VOICE_STATE_MESSAGE;
@@ -547,20 +541,8 @@ static void voice_thread(void)
         case VOICE_STATE_BUFFER_INSERT:
             state = voice_buffer_insert(&td);
             break;
-        case VOICE_STATE_QUIT:
-            logf("Exiting voice thread");
-            core_free(voice_buf_hid);
-            voice_buf_hid = 0;
-            return;
         }
     }
-    return;
-}
-
-/* kill voice thread and dont allow re-init*/
-void voice_thread_kill(void)
-{
-    queue_send(&voice_queue, Q_VOICE_KILL, 0);
 }
 
 /* Initialize buffers, all synchronization objects and create the thread */
@@ -569,7 +551,7 @@ void voice_thread_init(void)
     if (voice_thread_id != 0)
         return; /* Already did an init and succeeded at it */
 
-    voice_buf_hid = core_alloc_ex(sizeof (*voice_buf), &ops);
+    voice_buf_hid = core_alloc_ex("voice buf", sizeof (*voice_buf), &ops);
 
     if (voice_buf_hid <= 0)
     {

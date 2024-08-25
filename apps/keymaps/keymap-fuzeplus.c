@@ -128,8 +128,7 @@ static const struct button_mapping button_context_keyboard[]  = {
 }; /* button_context_keyboard */
 
 static const struct button_mapping button_context_quickscreen[]  = {
-    { ACTION_STD_CONTEXT,               BUTTON_SELECT|BUTTON_REPEAT,       BUTTON_SELECT },
-    { ACTION_STD_CANCEL,                BUTTON_SELECT|BUTTON_REL,          BUTTON_SELECT },
+    { ACTION_STD_CANCEL,                BUTTON_SELECT,                     BUTTON_NONE },
     { ACTION_STD_CANCEL,                BUTTON_BACK,                       BUTTON_NONE },
     { ACTION_STD_CANCEL,                BUTTON_PLAYPAUSE,                  BUTTON_NONE },
     { ACTION_STD_CANCEL,                BUTTON_BOTTOMRIGHT,                BUTTON_NONE },
@@ -226,6 +225,7 @@ static const struct button_mapping button_context_settings[]  = {
     { ACTION_SETTINGS_DECBIGSTEP,       BUTTON_BOTTOMLEFT|BUTTON_REPEAT,   BUTTON_NONE },
 
     { ACTION_STD_OK,                    BUTTON_SELECT|BUTTON_REL,          BUTTON_SELECT },
+    { ACTION_SETTINGS_RESET,            BUTTON_SELECT|BUTTON_REPEAT,       BUTTON_NONE },
 
     { ACTION_STD_CANCEL,                BUTTON_BACK,                       BUTTON_NONE },
 
@@ -407,7 +407,7 @@ static const struct button_mapping button_context_usb_hid_mode_mouse[] = {
 /* get_context_mapping returns a pointer to one of the above defined arrays depending on the context */
 const struct button_mapping* get_context_mapping(int context)
 {
-    switch (context & ~CONTEXT_LOCKED)
+    switch (context)
     {
         case CONTEXT_STD:
             return button_context_standard;

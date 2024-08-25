@@ -6,12 +6,12 @@
 	it under the terms of the GNU Library General Public License as
 	published by the Free Software Foundation; either version 2 of
 	the License, or (at your option) any later version.
-
+ 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Library General Public License for more details.
-
+ 
 	You should have received a copy of the GNU Library General Public
 	License along with this library; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
@@ -19,6 +19,8 @@
 */
 
 /*==============================================================================
+
+  $Id: mmio.c,v 1.3 2005/03/30 19:10:58 realtech Exp $
 
   Portable file I/O routines
 
@@ -49,14 +51,10 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 
+#include "mikmod.h"
 #include "mikmod_internals.h"
 
 #ifdef SUNOS
@@ -68,6 +66,8 @@ extern int fseek(FILE *, long, int);
 extern size_t fwrite(const void *, size_t, size_t, FILE *);
 #endif
 
+#define COPY_BUFSIZE  1024
+
 /* some prototypes */
 static int _mm_MemReader_Eof(MREADER* reader);
 static int _mm_MemReader_Read(MREADER* reader,void* ptr,size_t size);
@@ -75,13 +75,16 @@ static int _mm_MemReader_Get(MREADER* reader);
 static int _mm_MemReader_Seek(MREADER* reader,long offset,int whence);
 static long _mm_MemReader_Tell(MREADER* reader);
 
-int _mm_fopen(const CHAR* fname, const CHAR* attrib)
+//static long _mm_iobase=0,temp_iobase=0;
+
+int _mm_fopen(CHAR* fname,CHAR* attrib)
 {
 	int fp;
-	(void)attrib;
+    (void)attrib;
+
 	//if(!(fp=fopen(fname,attrib))) {
-	//      _mm_errno = MMERR_OPENING_FILE;
-	//      if(_mm_errorhandler) _mm_errorhandler();
+	//	_mm_errno = MMERR_OPENING_FILE;
+	//	if(_mm_errorhandler) _mm_errorhandler();
 	//}
 	fp = open(fname, O_RDONLY);
 	if( fp < 0 ) {
@@ -91,7 +94,7 @@ int _mm_fopen(const CHAR* fname, const CHAR* attrib)
 	return fp;
 }
 
-int _mm_FileExists(const CHAR* fname)
+int _mm_FileExists(CHAR* fname)
 {
 	int fp;
 
@@ -100,7 +103,7 @@ int _mm_FileExists(const CHAR* fname)
 	fp = open(fname, O_RDONLY);
 	if ( fp < 0 ) return 0;
 	close(fp);
-
+    
 	return 1;
 }
 
@@ -127,12 +130,12 @@ void _mm_iobase_revert(MREADER* reader)
 
 typedef struct MFILEREADER {
 	MREADER core;
-	int   file;
+	int file;
 } MFILEREADER;
 
 static int _mm_FileReader_Eof(MREADER* reader)
 {
-	//return feof(((MFILEREADER*)reader)->file);
+    //return feof(((MFILEREADER*)reader)->file);
 	int size   = filesize(((MFILEREADER*)reader)->file);
 	int offset = lseek(((MFILEREADER*)reader)->file, 0, SEEK_CUR);
 	return (size <= 0 || offset < 0 || offset >= size) ? 1 : 0;
@@ -140,8 +143,8 @@ static int _mm_FileReader_Eof(MREADER* reader)
 
 static int _mm_FileReader_Read(MREADER* reader,void* ptr,size_t size)
 {
-	return read(((MFILEREADER*)reader)->file, ptr, size);
 	//return !!fread(ptr,size,1,((MFILEREADER*)reader)->file);
+	return read(((MFILEREADER*)reader)->file, ptr, size);
 }
 
 static int _mm_FileReader_Get(MREADER* reader)
@@ -157,9 +160,9 @@ static int _mm_FileReader_Get(MREADER* reader)
 static int _mm_FileReader_Seek(MREADER* reader,long offset,int whence)
 {
 	//return fseek(((MFILEREADER*)reader)->file,
-	//                       (whence==SEEK_SET)?offset+reader->iobase:offset,whence);
+	//			 (whence==SEEK_SET)?offset+reader->iobase:offset,whence);
 	return lseek(((MFILEREADER*)reader)->file,
-                     (whence==SEEK_SET)?offset+reader->iobase:offset,whence) >= 0 ? 0 : -1;
+				 (whence==SEEK_SET)?offset+reader->iobase:offset,whence);
 }
 
 static long _mm_FileReader_Tell(MREADER* reader)
@@ -170,7 +173,7 @@ static long _mm_FileReader_Tell(MREADER* reader)
 
 MREADER *_mm_new_file_reader(int fp)
 {
-	MFILEREADER* reader=(MFILEREADER*)MikMod_calloc(1,sizeof(MFILEREADER));
+	MFILEREADER* reader=(MFILEREADER*)MikMod_malloc(sizeof(MFILEREADER));
 	if (reader) {
 		reader->core.Eof =&_mm_FileReader_Eof;
 		reader->core.Read=&_mm_FileReader_Read;
@@ -184,14 +187,14 @@ MREADER *_mm_new_file_reader(int fp)
 
 void _mm_delete_file_reader (MREADER* reader)
 {
-	MikMod_free(reader);
+	if(reader) MikMod_free(reader);
 }
 
 /*========== File Writer */
 
 typedef struct MFILEWRITER {
 	MWRITER core;
-	int   file;
+	int file;
 } MFILEWRITER;
 
 static int _mm_FileWriter_Seek(MWRITER* writer,long offset,int whence)
@@ -206,26 +209,27 @@ static long _mm_FileWriter_Tell(MWRITER* writer)
 	return lseek(((MFILEWRITER*)writer)->file, 0, SEEK_CUR);
 }
 
-static int _mm_FileWriter_Write(MWRITER* writer, const void* ptr, size_t size)
+static int _mm_FileWriter_Write(MWRITER* writer,void* ptr,size_t size)
 {
 	//return (fwrite(ptr,size,1,((MFILEWRITER*)writer)->file)==size);
-	(void)writer;
-	(void)ptr;
-	(void)size;
-	return 0;
+	//return (write(ptr,size,((MFILEWRITER*)writer)->file)==(int)size);
+    (void)writer;
+    (void)ptr;
+    (void)size;
+    return 0;
 }
 
 static int _mm_FileWriter_Put(MWRITER* writer,int value)
 {
-	(void)writer;
-	(void)value;
+    (void)writer;
+    (void)value;
 	//return fputc(value,((MFILEWRITER*)writer)->file);
-	return 1; // TODO
+    return 1; // TODO
 }
 
 MWRITER *_mm_new_file_writer(int fp)
 {
-	MFILEWRITER* writer=(MFILEWRITER*)MikMod_calloc(1,sizeof(MFILEWRITER));
+	MFILEWRITER* writer=(MFILEWRITER*)MikMod_malloc(sizeof(MFILEWRITER));
 	if (writer) {
 		writer->core.Seek =&_mm_FileWriter_Seek;
 		writer->core.Tell =&_mm_FileWriter_Tell;
@@ -238,10 +242,11 @@ MWRITER *_mm_new_file_writer(int fp)
 
 void _mm_delete_file_writer (MWRITER* writer)
 {
-	MikMod_free (writer);
+	if(writer) MikMod_free (writer);
 }
 
 /*========== Memory Reader */
+
 
 typedef struct MMEMREADER {
 	MREADER core;
@@ -252,12 +257,12 @@ typedef struct MMEMREADER {
 
 void _mm_delete_mem_reader(MREADER* reader)
 {
-	MikMod_free(reader);
+	if (reader) { MikMod_free(reader); }
 }
 
-MREADER *_mm_new_mem_reader(const void *buffer, long len)
+MREADER *_mm_new_mem_reader(const void *buffer, int len)
 {
-	MMEMREADER* reader=(MMEMREADER*)MikMod_calloc(1,sizeof(MMEMREADER));
+	MMEMREADER* reader=(MMEMREADER*)MikMod_malloc(sizeof(MMEMREADER));
 	if (reader)
 	{
 		reader->core.Eof =&_mm_MemReader_Eof;
@@ -274,86 +279,74 @@ MREADER *_mm_new_mem_reader(const void *buffer, long len)
 
 static int _mm_MemReader_Eof(MREADER* reader)
 {
-	MMEMREADER* mr = (MMEMREADER*) reader;
-	if (!mr) return 1;
-	if (mr->pos >= mr->len) return 1;
+	if (!reader) { return 1; }
+	if ( ((MMEMREADER*)reader)->pos > ((MMEMREADER*)reader)->len ) { 
+		return 1; 
+	}
 	return 0;
 }
 
 static int _mm_MemReader_Read(MREADER* reader,void* ptr,size_t size)
 {
-	unsigned char *d;
+	unsigned char *d=ptr;
 	const unsigned char *s;
-	MMEMREADER* mr;
-	long siz;
-	int ret;
+	
+	if (!reader) { return 0; }
 
-	if (!reader || !size || (size > (size_t) LONG_MAX))
-		return 0;
+	if (reader->Eof(reader)) { return 0; }
 
-	mr = (MMEMREADER*) reader;
-	siz = (long) size;
-	if (mr->pos >= mr->len) return 0;	/* @ eof */
-	if (mr->pos + siz > mr->len) {
-		siz = mr->len - mr->pos;
-		ret = 0; /* not enough remaining bytes */
-	}
-	else {
-		ret = 1;
+	s = ((MMEMREADER*)reader)->buffer;
+	s += ((MMEMREADER*)reader)->pos;
+
+	if ( ((MMEMREADER*)reader)->pos + (long)size > ((MMEMREADER*)reader)->len) 
+	{
+		((MMEMREADER*)reader)->pos = ((MMEMREADER*)reader)->len;
+		return 0; /* not enough remaining bytes */
 	}
 
-	s = (const unsigned char *) mr->buffer;
-	s += mr->pos;
-	mr->pos += siz;
-	d = (unsigned char *) ptr;
+	((MMEMREADER*)reader)->pos += (long)size;
 
-	while (siz) {
-		*d++ = *s++;
-		siz--;
+	while (size--)
+	{
+		*d = *s;
+		s++;
+		d++;	
 	}
-
-	return ret;
+	
+	return 1;
 }
 
 static int _mm_MemReader_Get(MREADER* reader)
 {
-	MMEMREADER* mr;
-	int c;
+	int pos;
 
-	mr = (MMEMREADER*) reader;
-	if (mr->pos >= mr->len) return EOF;
-	c = ((const unsigned char*) mr->buffer)[mr->pos];
-	mr->pos++;
+	if (reader->Eof(reader)) { return 0; }
+	
+	pos = ((MMEMREADER*)reader)->pos;
+	((MMEMREADER*)reader)->pos++;
 
-	return c;
+	return ((unsigned char*)(((MMEMREADER*)reader)->buffer))[pos];
 }
 
 static int _mm_MemReader_Seek(MREADER* reader,long offset,int whence)
 {
-	MMEMREADER* mr;
-
-	if (!reader) return -1;
-	mr = (MMEMREADER*) reader;
+	if (!reader) { return -1; }
+	
 	switch(whence)
 	{
-	case SEEK_CUR:
-		mr->pos += offset;
-		break;
-	case SEEK_SET:
-		mr->pos = reader->iobase + offset;
-		break;
-	case SEEK_END:
-		mr->pos = mr->len + offset;
-		break;
-	default: /* invalid */
-		return -1;
+		case SEEK_CUR:
+			((MMEMREADER*)reader)->pos += offset;
+			break;
+		case SEEK_SET:
+			((MMEMREADER*)reader)->pos = offset;
+			break;
+		case SEEK_END:
+			((MMEMREADER*)reader)->pos = ((MMEMREADER*)reader)->len - offset - 1;
+			break;
 	}
-	if (mr->pos < reader->iobase) {
-		mr->pos = mr->core.iobase;
-		return -1;
-	}
-	if (mr->pos > mr->len) {
-		mr->pos = mr->len;
+	if ( ((MMEMREADER*)reader)->pos < 0) { ((MMEMREADER*)reader)->pos = 0; }
+	if ( ((MMEMREADER*)reader)->pos > ((MMEMREADER*)reader)->len ) { 
+		((MMEMREADER*)reader)->pos = ((MMEMREADER*)reader)->len;
 	}
 	return 0;
 }
@@ -361,14 +354,13 @@ static int _mm_MemReader_Seek(MREADER* reader,long offset,int whence)
 static long _mm_MemReader_Tell(MREADER* reader)
 {
 	if (reader) {
-		return ((MMEMREADER*)reader)->pos - reader->iobase;
+		return ((MMEMREADER*)reader)->pos;
 	}
 	return 0;
 }
 
 /*========== Write functions */
-
-void _mm_write_string(const CHAR* data,MWRITER* writer)
+void _mm_write_string(CHAR* data,MWRITER* writer)
 {
 	if(data)
 		_mm_write_UBYTES(data,strlen(data),writer);
@@ -418,51 +410,37 @@ void _mm_write_I_SLONG(SLONG data,MWRITER* writer)
 	_mm_write_I_ULONG((ULONG)data,writer);
 }
 
-void _mm_write_M_SWORDS(SWORD *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_M_SWORD(*(buffer++),writer);
+#if defined __STDC__ || defined _MSC_VER || defined MPW_C
+#define DEFINE_MULTIPLE_WRITE_FUNCTION(type_name,type)						\
+void _mm_write_##type_name##S (type *buffer,int number,MWRITER* writer)		\
+{																			\
+	while(number-->0)														\
+		_mm_write_##type_name(*(buffer++),writer);							\
 }
+#else
+#define DEFINE_MULTIPLE_WRITE_FUNCTION(type_name,type)						\
+void _mm_write_/**/type_name/**/S (type *buffer,int number,MWRITER* writer)	\
+{																			\
+	while(number-->0)														\
+		_mm_write_/**/type_name(*(buffer++),writer);						\
+}
+#endif
 
-void _mm_write_M_UWORDS(UWORD *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_M_UWORD(*(buffer++),writer);
-}
+DEFINE_MULTIPLE_WRITE_FUNCTION(M_SWORD,SWORD)
+DEFINE_MULTIPLE_WRITE_FUNCTION(M_UWORD,UWORD)
+DEFINE_MULTIPLE_WRITE_FUNCTION(I_SWORD,SWORD)
+DEFINE_MULTIPLE_WRITE_FUNCTION(I_UWORD,UWORD)
 
-void _mm_write_I_SWORDS(SWORD *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_I_SWORD(*(buffer++),writer);
-}
-
-void _mm_write_I_UWORDS(UWORD *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_I_UWORD(*(buffer++),writer);
-}
-
-void _mm_write_M_SLONGS(SLONG *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_M_SLONG(*(buffer++),writer);
-}
-
-void _mm_write_M_ULONGS(ULONG *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_M_ULONG(*(buffer++),writer);
-}
-
-void _mm_write_I_SLONGS(SLONG *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_I_SLONG(*(buffer++),writer);
-}
-
-void _mm_write_I_ULONGS(ULONG *buffer,int cnt,MWRITER* writer)
-{
-	while(cnt-- > 0) _mm_write_I_ULONG(*(buffer++),writer);
-}
+DEFINE_MULTIPLE_WRITE_FUNCTION(M_SLONG,SLONG)
+DEFINE_MULTIPLE_WRITE_FUNCTION(M_ULONG,ULONG)
+DEFINE_MULTIPLE_WRITE_FUNCTION(I_SLONG,SLONG)
+DEFINE_MULTIPLE_WRITE_FUNCTION(I_ULONG,ULONG)
 
 /*========== Read functions */
 
-int _mm_read_string(CHAR* buffer,int cnt,MREADER* reader)
+int _mm_read_string(CHAR* buffer,int number,MREADER* reader)
 {
-	return reader->Read(reader,buffer,cnt);
+	return reader->Read(reader,buffer,number);
 }
 
 UWORD _mm_read_M_UWORD(MREADER* reader)
@@ -513,52 +491,32 @@ SLONG _mm_read_I_SLONG(MREADER* reader)
 	return((SLONG)_mm_read_I_ULONG(reader));
 }
 
-int _mm_read_M_SWORDS(SWORD *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_M_SWORD(reader);
-	return !reader->Eof(reader);
+#if defined __STDC__ || defined _MSC_VER || defined MPW_C
+#define DEFINE_MULTIPLE_READ_FUNCTION(type_name,type)						\
+int _mm_read_##type_name##S (type *buffer,int number,MREADER* reader)		\
+{																			\
+	while(number-->0)														\
+		*(buffer++)=_mm_read_##type_name(reader);							\
+	return !reader->Eof(reader);											\
 }
+#else
+#define DEFINE_MULTIPLE_READ_FUNCTION(type_name,type)						\
+int _mm_read_/**/type_name/**/S (type *buffer,int number,MREADER* reader)	\
+{																			\
+	while(number-->0)														\
+		*(buffer++)=_mm_read_/**/type_name(reader);							\
+	return !reader->Eof(reader);											\
+}
+#endif
 
-int _mm_read_M_UWORDS(UWORD *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_M_UWORD(reader);
-	return !reader->Eof(reader);
-}
+DEFINE_MULTIPLE_READ_FUNCTION(M_SWORD,SWORD)
+DEFINE_MULTIPLE_READ_FUNCTION(M_UWORD,UWORD)
+DEFINE_MULTIPLE_READ_FUNCTION(I_SWORD,SWORD)
+DEFINE_MULTIPLE_READ_FUNCTION(I_UWORD,UWORD)
 
-int _mm_read_I_SWORDS(SWORD *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_I_SWORD(reader);
-	return !reader->Eof(reader);
-}
-
-int _mm_read_I_UWORDS(UWORD *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_I_UWORD(reader);
-	return !reader->Eof(reader);
-}
-
-int _mm_read_M_SLONGS(SLONG *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_M_SLONG(reader);
-	return !reader->Eof(reader);
-}
-
-int _mm_read_M_ULONGS(ULONG *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_M_ULONG(reader);
-	return !reader->Eof(reader);
-}
-
-int _mm_read_I_SLONGS(SLONG *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_I_SLONG(reader);
-	return !reader->Eof(reader);
-}
-
-int _mm_read_I_ULONGS(ULONG *buffer,int cnt,MREADER* reader)
-{
-	while(cnt-- > 0) *(buffer++)=_mm_read_I_ULONG(reader);
-	return !reader->Eof(reader);
-}
+DEFINE_MULTIPLE_READ_FUNCTION(M_SLONG,SLONG)
+DEFINE_MULTIPLE_READ_FUNCTION(M_ULONG,ULONG)
+DEFINE_MULTIPLE_READ_FUNCTION(I_SLONG,SLONG)
+DEFINE_MULTIPLE_READ_FUNCTION(I_ULONG,ULONG)
 
 /* ex:set ts=4: */

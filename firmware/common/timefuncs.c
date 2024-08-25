@@ -32,37 +32,6 @@
 
 static struct tm tm;
 
-time_t dostime_mktime(uint16_t dosdate, uint16_t dostime)
-{
-    /* this knows our mktime() only uses these struct tm fields */
-    struct tm tm;
-    tm.tm_sec  = ((dostime      ) & 0x1f) * 2;
-    tm.tm_min  = ((dostime >>  5) & 0x3f);
-    tm.tm_hour = ((dostime >> 11)       );
-    tm.tm_mday = ((dosdate      ) & 0x1f);
-    tm.tm_mon  = ((dosdate >>  5) & 0x0f) - 1;
-    tm.tm_year = ((dosdate >>  9)       ) + 80;
-
-    return mktime(&tm);
-}
-
-void dostime_localtime(time_t time, uint16_t* dosdate, uint16_t* dostime)
-{
-    struct tm tm;
-#if (CONFIG_PLATFORM & PLATFORM_NATIVE)
-    gmtime_r(&time, &tm);
-#else
-    localtime_r(&time, &tm);
-#endif
-
-    *dostime = ((tm.tm_sec  /  2) <<  0)|
-               ((tm.tm_min      ) <<  5)|
-               ((tm.tm_hour     ) << 11);
-    *dosdate = ((tm.tm_mday     ) <<  0)|
-               ((tm.tm_mon  +  1) <<  5)|
-               ((tm.tm_year - 80) <<  9);
-}
-
 #if !CONFIG_RTC
 static inline bool rtc_dirty(void)
 {
@@ -86,13 +55,13 @@ static inline int rtc_read_datetime(struct tm *tm)
 #if CONFIG_RTC
 bool valid_time(const struct tm *tm)
 {
-    if (!tm || (tm->tm_hour < 0 || tm->tm_hour > 23 ||
+    if (tm->tm_hour < 0 || tm->tm_hour > 23 ||
         tm->tm_sec < 0 || tm->tm_sec > 59 || 
         tm->tm_min < 0 || tm->tm_min > 59 ||
         tm->tm_year < 100 || tm->tm_year > 199 ||
         tm->tm_mon < 0 || tm->tm_mon > 11 ||
         tm->tm_wday < 0 || tm->tm_wday > 6 ||
-        tm->tm_mday < 1 || tm->tm_mday > 31))
+        tm->tm_mday < 1 || tm->tm_mday > 31)
         return false;
     else
         return true;
@@ -165,22 +134,6 @@ void set_day_of_week(struct tm *tm)
 
     if(m == 0 || m == 1) y--;
     tm->tm_wday = (d + mo[m] + y + y/4 - y/100 + y/400) % 7;
-}
-
-void set_day_of_year(struct tm *tm)
-{
-    int y=tm->tm_year+1900;
-    int d=tm->tm_mday;
-    int m=tm->tm_mon;
-    d+=m*30;
-    if( ( (m>1) && !(y%4) ) &&  (  (y%100) ||  !(y%400)  )  )
-        d++;
-    if(m>6)
-    {
-        d+=4;
-        m-=7;
-    }
-    tm->tm_yday = d + ((m+1) /2);
 }
 #endif /* CONFIG_RTC */
 

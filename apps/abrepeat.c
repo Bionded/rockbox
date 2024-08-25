@@ -39,6 +39,7 @@ static inline bool ab_B_marker_set(void)
 }
 
 
+#if (CONFIG_CODEC == SWCODEC)
 void ab_end_of_track_report(void)
 {
     if ( ab_A_marker_set() && ! ab_B_marker_set() )
@@ -46,23 +47,58 @@ void ab_end_of_track_report(void)
         ab_jump_to_A_marker();
     }
 }
+#else
+static int ab_audio_event_handler(unsigned short event, unsigned long data)
+{
+    int rc = AUDIO_EVENT_RC_IGNORED;
+    if ( ab_repeat_mode_enabled() )
+    {
+        switch(event)
+        {
+            case AUDIO_EVENT_POS_REPORT:
+            {
+                if ( ! (audio_status() & AUDIO_STATUS_PAUSE) &&
+                        ab_reached_B_marker(data) )
+                {
+                    ab_jump_to_A_marker();
+                    rc = AUDIO_EVENT_RC_HANDLED;
+                }
+                break;
+            }
+            case AUDIO_EVENT_END_OF_TRACK:
+            {
+                if ( ab_A_marker_set() && ! ab_B_marker_set() )
+                {
+                    ab_jump_to_A_marker();
+                    rc = AUDIO_EVENT_RC_HANDLED;
+                }
+                break;
+            }
+        }
+    }
+    return rc;
+}
+#endif
 
-#if 0
 void ab_repeat_init(void)
 {
     static bool ab_initialized = false;
     if ( ! ab_initialized )
     {
         ab_initialized = true;
+#if (CONFIG_CODEC != SWCODEC)
+        audio_register_event_handler(ab_audio_event_handler,
+            AUDIO_EVENT_POS_REPORT | AUDIO_EVENT_END_OF_TRACK );
+#endif
     }
 }
-#endif
 
 /* determines if the given song position is earlier than the A mark;
 intended for use in handling the jump NEXT and PREV commands */
 bool ab_before_A_marker(unsigned int song_position)
 {
-    return (song_position < ab_A_marker);
+    return (ab_A_marker != AB_MARKER_NONE)
+        && (song_position < ab_A_marker);
 }
 
 /* determines if the given song position is later than the A mark;
@@ -80,7 +116,16 @@ reasonable amount of time for the typical user to react */
 
 void ab_jump_to_A_marker(void)
 {
+#if (CONFIG_CODEC != SWCODEC)
+    bool paused = (audio_status() & AUDIO_STATUS_PAUSE) != 0;
+    if ( ! paused )
+        audio_pause();
+#endif
     audio_ff_rewind(ab_A_marker);
+#if (CONFIG_CODEC != SWCODEC)
+    if ( ! paused )
+        audio_resume();
+#endif
 }
 
 void ab_reset_markers(void)
@@ -98,20 +143,20 @@ by this fudge factor when setting a mark */
 void ab_set_A_marker(unsigned int song_position)
 {
     ab_A_marker = song_position;
-    ab_A_marker = (ab_A_marker >= EAR_TO_HAND_LATENCY_FUDGE)
-        ? (ab_A_marker - EAR_TO_HAND_LATENCY_FUDGE) : AB_MARKER_NONE;
+    ab_A_marker = (ab_A_marker >= EAR_TO_HAND_LATENCY_FUDGE) 
+        ? (ab_A_marker - EAR_TO_HAND_LATENCY_FUDGE) : 0;
     /* check if markers are out of order */
-    if (ab_A_marker > ab_B_marker)
+    if ( (ab_B_marker != AB_MARKER_NONE) && (ab_A_marker > ab_B_marker) )
         ab_B_marker = AB_MARKER_NONE;
 }
 
 void ab_set_B_marker(unsigned int song_position)
 {
     ab_B_marker = song_position;
-    ab_B_marker = (ab_B_marker >= EAR_TO_HAND_LATENCY_FUDGE)
-        ? (ab_B_marker - EAR_TO_HAND_LATENCY_FUDGE) : AB_MARKER_NONE;
+    ab_B_marker = (ab_B_marker >= EAR_TO_HAND_LATENCY_FUDGE) 
+        ? (ab_B_marker - EAR_TO_HAND_LATENCY_FUDGE) : 0;
     /* check if markers are out of order */
-    if (ab_B_marker < ab_A_marker)
+    if ( (ab_A_marker != AB_MARKER_NONE) && (ab_B_marker < ab_A_marker) )
         ab_A_marker = AB_MARKER_NONE;
 }
 

@@ -14,8 +14,8 @@
 /*define this if the ATA controller and method of USB access support LBA48 */
 #define HAVE_LBA48
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -66,8 +66,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_PCF50606
@@ -157,9 +157,6 @@
 /* Define this if you want to use coldfire's i2c interface */
 #define CONFIG_I2C I2C_COLDFIRE
 
-/* Define this if you can run rockbox from flash memory */
-#define HAVE_FLASHED_ROCKBOX
-
 /* The size of the flash ROM */
 #define FLASH_SIZE 0x400000
 
@@ -171,6 +168,12 @@
 
 #define CONFIG_LCD LCD_H300
 
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
+
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ISP1362
 
@@ -181,17 +184,12 @@
 #define BOOTFILE "rockbox." BOOTFILE_EXT
 #define BOOTDIR "/.rockbox"
 
-#define FLASH_BASE             0x00000000
-#define BOOTLOADER_ENTRYPOINT  0x003F0000
-#define FLASH_RAMIMAGE_ENTRY   0x00001000
-#define FLASH_ROMIMAGE_ENTRY   0x00200000
+#define BOOTLOADER_ENTRYPOINT  0x001F0000
+#define FLASH_ENTRYPOINT       0x00001000
 #define FLASH_MAGIC            0xfbfbfbf1
 
 /* Define this if there is an EEPROM chip */
 #define HAVE_EEPROM
-
-/* Define this if the EEPROM chip is used */
-#define HAVE_EEPROM_SETTINGS
 
 /* Define this for FM radio input available */
 #define HAVE_FMRADIO_IN

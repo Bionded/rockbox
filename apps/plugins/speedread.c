@@ -141,9 +141,7 @@ static void cleanup(void)
 {
     if(custom_font != FONT_UI)
         rb->font_unload(custom_font);
-
     backlight_use_settings();
-
 }
 
 /* returns height of drawn area */
@@ -303,7 +301,6 @@ static void begin_anim(void)
 static void init_drawing(void)
 {
     backlight_ignore_timeout();
-
     atexit(cleanup);
 
     rb->lcd_set_background(OUTSIDE_COLOR);
@@ -482,19 +479,16 @@ static void load_font(void)
 static void font_menu(void)
 {
     /* taken from text_viewer */
+    struct browse_context browse;
     char font[MAX_PATH], name[MAX_FILENAME+10];
-    rb->snprintf(name, sizeof(name), "%s.fnt", rb->global_settings->font_file);
 
-    struct browse_context browse = {
-        .dirfilter = SHOW_FONT,
-        .flags = BROWSE_SELECTONLY | BROWSE_NO_CONTEXT_MENU,
-        .title = rb->str(LANG_CUSTOM_FONT),
-        .icon = Icon_Menu_setting,
-        .root = FONT_DIR,
-        .selected = name,
-        .buf = font,
-        .bufsize = sizeof(font),
-    };
+    rb->snprintf(name, sizeof(name), "%s.fnt", rb->global_settings->font_file);
+    rb->browse_context_init(&browse, SHOW_FONT,
+                            BROWSE_SELECTONLY|BROWSE_NO_CONTEXT_MENU,
+                            "Font", Icon_Menu_setting, FONT_DIR, name);
+
+    browse.buf = font;
+    browse.bufsize = sizeof(font);
 
     rb->rockbox_browse(&browse);
 

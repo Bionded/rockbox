@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "codeclib.h"
+#include "inttypes.h"
 #include "libatrac/atrac3.h"
 
 CODEC_HEADER
@@ -108,7 +109,7 @@ enum codec_status codec_run(void)
     scrambling_unit_size = h * (fs + packet_header_size);
     spn = h * fs / sps;
 
-    res = atrac3_decode_init(&q, ci->id3, rmctx.nb_channels, rmctx.extradata_size);
+    res = atrac3_decode_init(&q, ci->id3);
     if(res < 0) {
         DEBUGF("failed to initialize RM atrac decoder\n");
         return CODEC_ERROR;

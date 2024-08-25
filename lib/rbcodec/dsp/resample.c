@@ -26,7 +26,6 @@
 #include "fixedpoint.h"
 #include "dsp_proc_entry.h"
 #include "dsp_misc.h"
-#include "resample.h"
 #include <string.h>
 
 /**
@@ -263,7 +262,8 @@ static intptr_t resample_new_format(struct dsp_proc_entry *this,
     return PROC_NEW_FORMAT_DEACTIVATED;
 }
 
-void dsp_resample_init(struct dsp_config *dsp, unsigned int dsp_id)
+static void INIT_ATTR resample_dsp_init(struct dsp_config *dsp,
+                                        enum dsp_ids dsp_id)
 {
     int32_t *lbuf, *rbuf;
 
@@ -280,7 +280,7 @@ void dsp_resample_init(struct dsp_config *dsp, unsigned int dsp_id)
 
     default:
         /* huh? */
-        DEBUGF("DSP_PROC_RESAMPLE- unknown DSP %u\n", dsp_id);
+        DEBUGF("DSP_PROC_RESAMPLE- unknown DSP %d\n", (int)dsp_id);
         return;
     }
 
@@ -291,8 +291,8 @@ void dsp_resample_init(struct dsp_config *dsp, unsigned int dsp_id)
     resample_data[dsp_id].resample_out_p[1] = rbuf;
 }
 
-static void resample_proc_init(struct dsp_proc_entry *this,
-                               struct dsp_config *dsp)
+static void INIT_ATTR resample_proc_init(struct dsp_proc_entry *this,
+                                         struct dsp_config *dsp)
 {
     struct resample_data *data = &resample_data[dsp_get_id(dsp)];
     this->data = (intptr_t)data;
@@ -311,6 +311,10 @@ static intptr_t resample_configure(struct dsp_proc_entry *this,
 
     switch (setting)
     {
+    case DSP_INIT:
+        resample_dsp_init(dsp, (enum dsp_ids)value);
+        break;
+
     case DSP_FLUSH:
         resample_flush(this);
         break;

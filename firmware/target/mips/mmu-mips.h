@@ -24,40 +24,23 @@
 
 #include "system-target.h"
 
-/* By default the cache management functions go in .icode so they can be
- * called safely eg. by the bootloader or RoLo, which need to flush the
- * cache before jumping to the loaded binary.
- */
-#define MIPS_CACHEFUNC_API(ret, name, args) \
-    ret name args __attribute__((section( ".icode." #name )))
-
 void map_address(unsigned long virtual, unsigned long physical,
                  unsigned long length, unsigned int cache_flags);
 void mmu_init(void);
 
-/* Commits entire DCache */
-#if 0 /* NOTE:  This is currently aliased to commit_discard_dcache.  Causes compilation errors with newer GCC if we try to assign it to a section here */
-//MIPS_CACHEFUNC_API(void, commit_dcache, (void));
-#else
-void commit_dcache(void);
-#endif
-/* Commit and discard entire DCache, will do writeback */
-MIPS_CACHEFUNC_API(void, commit_discard_dcache, (void));
+#define HAVE_CPUCACHE_INVALIDATE
+//#define HAVE_CPUCACHE_FLUSH
 
-/* Write DCache back to RAM for the given range and remove cache lines
- * from DCache afterwards */
-MIPS_CACHEFUNC_API(void, commit_discard_dcache_range, (const void *base, unsigned int size));
+void __idcache_invalidate_all(void);
+void __icache_invalidate_all(void);
+void __dcache_invalidate_all(void);
+void __dcache_writeback_all(void);
 
-/* Write DCache back to RAM for the given range */
-MIPS_CACHEFUNC_API(void, commit_dcache_range, (const void *base, unsigned int size));
+void dma_cache_wback_inv(unsigned long addr, unsigned long size);
 
-/*
- * Remove cache lines for the given range from DCache
- * will *NOT* do write back except for buffer edges not on a line boundary
- */
-MIPS_CACHEFUNC_API(void, discard_dcache_range, (const void *base, unsigned int size));
-
-/* Discards the entire ICache, and commit+discards the entire DCache */
-MIPS_CACHEFUNC_API(void, commit_discard_idcache, (void));
+#define commit_discard_idcache   __idcache_invalidate_all
+#define commit_discard_icache    __icache_invalidate_all
+#define commit_discard_dcache    __dcache_invalidate_all
+#define commit_dcache            __dcache_writeback_all
 
 #endif /* __MMU_MIPS_INCLUDE_H */

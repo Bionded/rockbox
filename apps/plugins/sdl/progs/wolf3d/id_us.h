@@ -96,6 +96,6 @@ void	        USL_PrintInCenter(const char *s,Rect r);
 char 	        *USL_GiveSaveName(word game);
 
 void            US_InitRndT(int randomize);
-int             US_RndT(void);
+int             US_RndT();
 
 #endif

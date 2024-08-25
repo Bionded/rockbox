@@ -28,7 +28,37 @@
 #include "pluginbitmaps/jewels.h"
 
 /* button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define JEWELS_UP     BUTTON_UP
+#define JEWELS_DOWN   BUTTON_DOWN
+#define JEWELS_LEFT   BUTTON_LEFT
+#define JEWELS_RIGHT  BUTTON_RIGHT
+#define JEWELS_SELECT BUTTON_PLAY
+#define JEWELS_CANCEL BUTTON_OFF
+#define HK_SELECT "PLAY"
+#define HK_CANCEL "OFF"
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define JEWELS_UP     BUTTON_UP
+#define JEWELS_DOWN   BUTTON_DOWN
+#define JEWELS_LEFT   BUTTON_LEFT
+#define JEWELS_RIGHT  BUTTON_RIGHT
+#define JEWELS_SELECT BUTTON_SELECT
+#define JEWELS_CANCEL BUTTON_OFF
+#define HK_SELECT "SELECT"
+#define HK_CANCEL "OFF"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define JEWELS_UP     BUTTON_UP
+#define JEWELS_DOWN   BUTTON_DOWN
+#define JEWELS_LEFT   BUTTON_LEFT
+#define JEWELS_RIGHT  BUTTON_RIGHT
+#define JEWELS_SELECT BUTTON_MENU
+#define JEWELS_CANCEL BUTTON_OFF
+#define HK_SELECT "MENU"
+#define HK_CANCEL "OFF"
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define JEWELS_UP     BUTTON_UP
 #define JEWELS_DOWN   BUTTON_DOWN
 #define JEWELS_LEFT   BUTTON_LEFT
@@ -49,9 +79,9 @@
 #define JEWELS_PREV   BUTTON_SCROLL_BACK
 #define JEWELS_NEXT   BUTTON_SCROLL_FWD
 #define JEWELS_SELECT BUTTON_SELECT
-#define JEWELS_CANCEL (BUTTON_SELECT | BUTTON_REPEAT)
+#define JEWELS_CANCEL (BUTTON_SELECT | BUTTON_MENU)
 #define HK_SELECT "SELECT"
-#define HK_CANCEL "Long SELECT"
+#define HK_CANCEL "SEL + MENU"
 
 #elif (CONFIG_KEYPAD == IPOD_3G_PAD)
 #define JEWELS_LEFT   BUTTON_LEFT
@@ -62,6 +92,16 @@
 #define JEWELS_CANCEL BUTTON_MENU
 #define HK_SELECT "SELECT"
 #define HK_CANCEL "MENU"
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define JEWELS_UP     BUTTON_UP
+#define JEWELS_DOWN   BUTTON_DOWN
+#define JEWELS_LEFT   BUTTON_LEFT
+#define JEWELS_RIGHT  BUTTON_RIGHT
+#define JEWELS_SELECT BUTTON_SELECT
+#define JEWELS_CANCEL BUTTON_PLAY
+#define HK_SELECT "SELECT"
+#define HK_CANCEL "PLAY"
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define JEWELS_UP     BUTTON_UP
@@ -189,6 +229,16 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define JEWELS_CANCEL BUTTON_POWER
+#define HK_CANCEL "POWER"
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define JEWELS_UP     BUTTON_STOP
+#define JEWELS_DOWN   BUTTON_PLAY
+#define JEWELS_LEFT   BUTTON_LEFT
+#define JEWELS_RIGHT  BUTTON_RIGHT
+#define JEWELS_SELECT BUTTON_MENU
+#define JEWELS_CANCEL BUTTON_POWER
+#define HK_SELECT "MENU"
 #define HK_CANCEL "POWER"
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
@@ -327,7 +377,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define JEWELS_CANCEL BUTTON_POWER
 #define HK_CANCEL "Power"
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define JEWELS_UP     BUTTON_HOME
 #define JEWELS_DOWN   BUTTON_OPTION
 #define JEWELS_LEFT   BUTTON_PREV
@@ -337,17 +387,7 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define HK_SELECT "PLAY"
 #define HK_CANCEL "POWER"
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define JEWELS_UP     BUTTON_HOME
-#define JEWELS_DOWN   BUTTON_OPTION
-#define JEWELS_LEFT   BUTTON_PREV
-#define JEWELS_RIGHT  BUTTON_NEXT
-#define JEWELS_SELECT BUTTON_PLAY
-#define JEWELS_CANCEL BUTTON_POWER
-#define HK_SELECT "PLAY"
-#define HK_CANCEL "POWER"
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define JEWELS_UP     BUTTON_PREV
 #define JEWELS_DOWN   BUTTON_NEXT
 #define JEWELS_LEFT   BUTTON_HOME
@@ -357,28 +397,15 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define HK_SELECT "PLAY"
 #define HK_CANCEL "POWER"
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define JEWELS_UP     BUTTON_PREV
 #define JEWELS_DOWN   BUTTON_NEXT
-#define JEWELS_LEFT   BUTTON_SCROLL_BACK
-#define JEWELS_RIGHT  BUTTON_SCROLL_FWD
+#define JEWELS_LEFT   BUTTON_HOME
+#define JEWELS_RIGHT  BUTTON_VOL_DOWN
 #define JEWELS_SELECT BUTTON_PLAY
-#define JEWELS_CANCEL BUTTON_BACK
+#define JEWELS_CANCEL BUTTON_POWER
 #define HK_SELECT "PLAY"
-#define HK_CANCEL "BACK"
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define JEWELS_UP       BUTTON_UP
-#define JEWELS_DOWN     BUTTON_DOWN
-#define JEWELS_LEFT     BUTTON_LEFT
-#define JEWELS_RIGHT    BUTTON_RIGHT
-#define JEWELS_SELECT   BUTTON_SELECT
-#define JEWELS_CANCEL   BUTTON_BACK
-#define HK_SELECT "SELECT"
-#define HK_CANCEL "BACK"
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define HK_CANCEL "POWER"
 
 #else
 #error No keymap defined!
@@ -635,14 +662,14 @@ static void jewels_drawboard(struct game_context* bj) {
                                 TILE_WIDTH, TILE_HEIGHT);
             rb->lcd_bitmap_transparent_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard[i+1][j].type),
-                           STRIDE(  SCREEN_MAIN,
-                                    BMPWIDTH_jewels, BMPHEIGHT_jewels),
+                           STRIDE(  SCREEN_MAIN, 
+                                    BMPWIDTH_jewels, BMPHEIGHT_jewels), 
                            j*TILE_WIDTH, i*TILE_HEIGHT+YOFS,
                            TILE_WIDTH, TILE_HEIGHT);
 #else
             rb->lcd_bitmap_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard[i+1][j].type),
-                           STRIDE(  SCREEN_MAIN,
+                           STRIDE(  SCREEN_MAIN, 
                                     BMPWIDTH_jewels, BMPHEIGHT_jewels),
                            j*TILE_WIDTH, i*TILE_HEIGHT+YOFS,
                            TILE_WIDTH, TILE_HEIGHT);
@@ -658,7 +685,7 @@ static void jewels_drawboard(struct game_context* bj) {
 
     rb->lcd_hline(BJ_WIDTH*TILE_WIDTH, LCD_WIDTH-1, 18);
     rb->lcd_hline(BJ_WIDTH*TILE_WIDTH, LCD_WIDTH-1, LCD_HEIGHT-10);
-
+    
     /* draw progress bar */
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(LCD_RGBPACK(104, 63, 63));
@@ -681,7 +708,7 @@ static void jewels_drawboard(struct game_context* bj) {
                      (LCD_WIDTH-BJ_WIDTH*TILE_WIDTH)/2,
                      ((LCD_HEIGHT-10)-18)*tempscore/size+1);
 #endif
-
+    
     /* print text */
     rb->lcd_getstringsize(title, &w, &h);
     rb->lcd_putsxy(LCD_WIDTH-(LCD_WIDTH-BJ_WIDTH*TILE_WIDTH)/2-w/2, 1, title);
@@ -703,7 +730,7 @@ static void jewels_drawboard(struct game_context* bj) {
     rb->lcd_hline(0, LCD_WIDTH-1, 8*TILE_HEIGHT+YOFS);
     rb->lcd_hline(0, LCD_WIDTH-1, LCD_HEIGHT-14);
     rb->lcd_vline(LCD_WIDTH/2, LCD_HEIGHT-14, LCD_HEIGHT-1);
-
+    
     /* draw progress bar */
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(LCD_RGBPACK(104, 63, 63));
@@ -724,10 +751,10 @@ static void jewels_drawboard(struct game_context* bj) {
                      LCD_WIDTH*tempscore/size+1,
                      (LCD_HEIGHT-14-(8*TILE_HEIGHT+YOFS))/2);
 #endif
-
+    
     /* print text */
     rb->lcd_putsxyf(1, LCD_HEIGHT-10, "%s %d", title, bj->level);
-
+    
     if (bj->type == GAME_TYPE_NORMAL) {
         rb->snprintf(str, 6, "%d", (bj->level-1)*LEVEL_PTS+bj->score);
         rb->lcd_getstringsize(str, &w, &h);
@@ -769,7 +796,7 @@ static void jewels_drawboard(struct game_context* bj) {
     /* print text */
     rb->lcd_putsxyf(1, LCD_HEIGHT-(LCD_HEIGHT-(8*TILE_HEIGHT+YOFS))/2-3,"%s %d",
                    title, bj->level);
-
+    
     if (bj->type == GAME_TYPE_NORMAL) {
         rb->snprintf(str, 6, "%d", (bj->level-1)*LEVEL_PTS+bj->score);
         rb->lcd_getstringsize(str, &w, &h);
@@ -854,8 +881,8 @@ static void jewels_putjewels(struct game_context* bj){
 #ifdef HAVE_LCD_COLOR
                         rb->lcd_bitmap_transparent_part(jewels, 0,
                                        TILE_HEIGHT*(bj->playboard[i][j].type),
-                                       STRIDE(  SCREEN_MAIN,
-                                                BMPWIDTH_jewels,
+                                       STRIDE(  SCREEN_MAIN, 
+                                                BMPWIDTH_jewels, 
                                                 BMPHEIGHT_jewels),
                                        j*TILE_WIDTH,
                                        (i-1)*TILE_HEIGHT+YOFS+
@@ -864,8 +891,8 @@ static void jewels_putjewels(struct game_context* bj){
 #else
                         rb->lcd_bitmap_part(jewels, 0,
                                        TILE_HEIGHT*(bj->playboard[i][j].type),
-                                       STRIDE(  SCREEN_MAIN,
-                                                BMPWIDTH_jewels,
+                                       STRIDE(  SCREEN_MAIN, 
+                                                BMPWIDTH_jewels, 
                                                 BMPHEIGHT_jewels),
                                        j*TILE_WIDTH,
                                        (i-1)*TILE_HEIGHT+YOFS+
@@ -1086,7 +1113,7 @@ static unsigned int jewels_swapjewels(struct game_context* bj,
             rb->lcd_bitmap_transparent_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard
                                [y+1+vertmod][x+horzmod].type),
-                           STRIDE(  SCREEN_MAIN,
+                           STRIDE(  SCREEN_MAIN, 
                                     BMPWIDTH_jewels, BMPHEIGHT_jewels),
                            (x+horzmod)*TILE_WIDTH-horzmod*
                                ((((movelen<<10)*k)/8)>>10),
@@ -1095,7 +1122,7 @@ static unsigned int jewels_swapjewels(struct game_context* bj,
                            TILE_WIDTH, TILE_HEIGHT);
             rb->lcd_bitmap_transparent_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard[y+1][x].type),
-                           STRIDE(  SCREEN_MAIN,
+                           STRIDE(  SCREEN_MAIN, 
                                     BMPWIDTH_jewels, BMPHEIGHT_jewels),
                            x*TILE_WIDTH+horzmod*
                                ((((movelen<<10)*k)/8)>>10),
@@ -1106,7 +1133,7 @@ static unsigned int jewels_swapjewels(struct game_context* bj,
             rb->lcd_bitmap_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard
                                [y+1+vertmod][x+horzmod].type),
-                           STRIDE(  SCREEN_MAIN,
+                           STRIDE(  SCREEN_MAIN, 
                                     BMPWIDTH_jewels, BMPHEIGHT_jewels),
                            (x+horzmod)*TILE_WIDTH-horzmod*
                                ((((movelen<<10)*k)/8)>>10),
@@ -1116,7 +1143,7 @@ static unsigned int jewels_swapjewels(struct game_context* bj,
             rb->lcd_set_drawmode(DRMODE_FG);
             rb->lcd_bitmap_part(jewels,
                            0, TILE_HEIGHT*(bj->playboard[y+1][x].type),
-                           STRIDE(  SCREEN_MAIN,
+                           STRIDE(  SCREEN_MAIN, 
                                     BMPWIDTH_jewels, BMPHEIGHT_jewels),
                            x*TILE_WIDTH+horzmod*
                                ((((movelen<<10)*k)/8)>>10),
@@ -1403,7 +1430,7 @@ static bool jewels_help(void)
 {
     static char *help_text[] = {
         "Jewels", "", "Aim", "",
-        "Swap", "pairs", "of", "jewels", "to", "form", "connected",
+        "Swap", "pairs", "of", "jewels", "to", "form", "connected", 
         "segments", "of", "three", "or", "more", "of", "the", "same",
         "type.", "",
         "The", "goal", "of", "the", "game", "is", "to", "score", "as", "many",
@@ -1434,11 +1461,8 @@ static bool jewels_help(void)
 }
 
 static bool _ingame;
-static int jewels_menu_cb(int action,
-                          const struct menu_item_ex *this_item,
-                          struct gui_synclist *this_list)
+static int jewels_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM
        && !_ingame && (i==0 || i==6))
@@ -1481,7 +1505,7 @@ static int jewels_game_menu(struct game_context* bj, bool ingame)
                 jewels_init(bj);
                 return 0;
             case 2:
-                rb->set_option("Mode", &bj->tmp_type, RB_INT, mode, 2, NULL);
+                rb->set_option("Mode", &bj->tmp_type, INT, mode, 2, NULL);
                 break;
             case 3:
                 if(jewels_help())

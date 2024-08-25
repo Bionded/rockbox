@@ -524,7 +524,6 @@ plugin_start (const void *parameter)
 
         case BUTTON_NONE:
             is_idle = true;
-            /* fallthrough */
         default:
             if (rb->default_event_handler (btn) == SYS_USB_CONNECTED)
             {
@@ -678,7 +677,7 @@ do_main_menu (void)
         case MAIN_SAVE_AS:
             rb->strcpy (new_save_file, save_file);
 
-            if (!rb->kbd_input(new_save_file, SAVE_FILE_LENGTH, NULL))
+            if (!rb->kbd_input (new_save_file, SAVE_FILE_LENGTH))
             {
                 break;
             }
@@ -922,7 +921,7 @@ do_gameinfo_menu (void)
                 break;
             }
 
-            rb->kbd_input(gameinfo_string, gameinfo_string_size, NULL);
+            rb->kbd_input (gameinfo_string, gameinfo_string_size);
             sanitize_string (gameinfo_string);
             set_game_modified();
             break;
@@ -1192,7 +1191,7 @@ do_comment_edit (void)
         return false;
     }
 
-    if (!rb->kbd_input (cbuffer, sizeof (cbuffer), NULL))
+    if (!rb->kbd_input (cbuffer, sizeof (cbuffer)))
     {
         /* user didn't edit, no reason to write it back */
         return true;

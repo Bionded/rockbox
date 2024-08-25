@@ -34,13 +34,11 @@
 
 #define STRETCH_MAX (250L * PITCH_SPEED_PRECISION) /* 250% */
 #define STRETCH_MIN (35L  * PITCH_SPEED_PRECISION) /* 35%  */
-#define TDSPEED_NBUFFERS 4
 
 void dsp_timestretch_enable(bool enable);
 void dsp_set_timestretch(int32_t percent);
 int32_t dsp_get_timestretch(void);
 bool dsp_timestretch_available(void);
-void dsp_timestretch_init(struct dsp_config *dsp, unsigned int dsp_id) INIT_ATTR;
 void tdspeed_move(int i, void* current, void* new);
 
 #endif /* _TDSPEED_H */

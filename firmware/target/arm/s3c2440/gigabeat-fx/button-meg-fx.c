@@ -77,14 +77,10 @@ int button_read_device(void)
     static int lastbutton;
     unsigned short remote_adc;
     int btn = BUTTON_NONE;
-#ifndef BOOTLOADER
     bool hold_button_old;
-#endif
 
     /* normal buttons */
-#ifndef BOOTLOADER
     hold_button_old = hold_button;
-#endif
     hold_button = button_hold();
 
 #ifndef BOOTLOADER
@@ -125,7 +121,7 @@ int button_read_device(void)
     {
         btn |= buttons;
     }
-
+    
     /* the touchpad - only watch the lines we actually read */
     touchpad = GPJDAT & touchpad_mask;
 
@@ -155,7 +151,7 @@ int button_read_device(void)
             btn |= BUTTON_LEFT;
 
     }
-
+    
     /* the cradle buttons */
     buttons = ~GPFDAT & 0xc0;
     if (buttons)
@@ -167,7 +163,7 @@ int button_read_device(void)
             btn |= BUTTON_POWER;
         buttonlight_on();
     }
-
+    
     return btn;
 }
 

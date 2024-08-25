@@ -22,7 +22,11 @@
 #include "plugin.h"
 #include "display_text.h"
 
+#ifdef HAVE_LCD_CHARCELLS
+#define MARGIN 0
+#else
 #define MARGIN 5
+#endif
 
 static bool wait_key_press(void)
 {
@@ -39,7 +43,9 @@ static bool wait_key_press(void)
 bool display_text(unsigned short words, char** text, struct style_text* style,
                   struct viewport* vp_text, bool wait_key)
 {
+#ifdef HAVE_LCD_BITMAP
     int prev_drawmode;
+#endif
 #ifdef HAVE_LCD_COLOR
     int standard_fgcolor;
 #endif
@@ -53,8 +59,10 @@ bool display_text(unsigned short words, char** text, struct style_text* style,
         vp_height = vp_text->height;
     }
     rb->screens[SCREEN_MAIN]->set_viewport(vp_text);
+#ifdef HAVE_LCD_BITMAP
     prev_drawmode = rb->lcd_get_drawmode();
     rb->lcd_set_drawmode(DRMODE_SOLID);
+#endif
 #ifdef HAVE_LCD_COLOR
     standard_fgcolor = rb->lcd_get_foreground();
 #endif
@@ -117,9 +125,11 @@ bool display_text(unsigned short words, char** text, struct style_text* style,
 #endif
             rb->lcd_putsxy(x, y, text[i]);
             /* underline the word */
+#ifdef HAVE_LCD_BITMAP
             if (style[style_index].flags&TEXT_UNDERLINE) {
                 rb->lcd_hline(x, x+width, y+height-1);
             }
+#endif
 #ifdef HAVE_LCD_COLOR
             rb->lcd_set_foreground(standard_fgcolor);
 #endif
@@ -128,7 +138,9 @@ bool display_text(unsigned short words, char** text, struct style_text* style,
         x += width + space_w;
     }
     rb->screens[SCREEN_MAIN]->update_viewport();
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_set_drawmode(prev_drawmode);
+#endif
     if (wait_key)
     {
         if (wait_key_press())

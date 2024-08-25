@@ -330,39 +330,6 @@
 #elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define ROCKPAINT_QUIT        BUTTON_POWER
 #define ROCKPAINT_DRAW        BUTTON_PLAY
-#define ROCKPAINT_MENU        (BUTTON_HOME | BUTTON_PWRALT)
-#define ROCKPAINT_TOOLBAR     BUTTON_VOL_UP
-#define ROCKPAINT_TOOLBAR2    BUTTON_VOL_DOWN
-#define ROCKPAINT_UP          BUTTON_HOME
-#define ROCKPAINT_DOWN        BUTTON_OPTION
-#define ROCKPAINT_LEFT        BUTTON_PREV
-#define ROCKPAINT_RIGHT       BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD
-#define ROCKPAINT_QUIT        BUTTON_POWER
-#define ROCKPAINT_DRAW        BUTTON_PLAY
-#define ROCKPAINT_MENU        (BUTTON_HOME | BUTTON_POWER)
-#define ROCKPAINT_TOOLBAR     BUTTON_VOL_UP
-#define ROCKPAINT_TOOLBAR2    BUTTON_VOL_DOWN
-#define ROCKPAINT_UP          BUTTON_HOME
-#define ROCKPAINT_DOWN        BUTTON_OPTION
-#define ROCKPAINT_LEFT        BUTTON_PREV
-#define ROCKPAINT_RIGHT       BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == XDUOO_X20_PAD
-#define ROCKPAINT_QUIT        BUTTON_POWER
-#define ROCKPAINT_DRAW        BUTTON_PLAY
-#define ROCKPAINT_MENU        (BUTTON_HOME | BUTTON_POWER)
-#define ROCKPAINT_TOOLBAR     BUTTON_VOL_UP
-#define ROCKPAINT_TOOLBAR2    BUTTON_VOL_DOWN
-#define ROCKPAINT_UP          BUTTON_HOME
-#define ROCKPAINT_DOWN        BUTTON_OPTION
-#define ROCKPAINT_LEFT        BUTTON_PREV
-#define ROCKPAINT_RIGHT       BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define ROCKPAINT_QUIT        BUTTON_POWER
-#define ROCKPAINT_DRAW        BUTTON_PLAY
 #define ROCKPAINT_MENU        (BUTTON_HOME | BUTTON_POWER)
 #define ROCKPAINT_TOOLBAR     BUTTON_VOL_UP
 #define ROCKPAINT_TOOLBAR2    BUTTON_VOL_DOWN
@@ -392,31 +359,6 @@
 #define ROCKPAINT_DOWN        BUTTON_NEXT
 #define ROCKPAINT_LEFT        BUTTON_HOME
 #define ROCKPAINT_RIGHT       BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define ROCKPAINT_QUIT      BUTTON_POWER
-#define ROCKPAINT_DRAW      BUTTON_SELECT
-#define ROCKPAINT_MENU      BUTTON_MENU
-#define ROCKPAINT_TOOLBAR   BUTTON_VOL_UP
-#define ROCKPAINT_TOOLBAR2  BUTTON_VOL_DOWN
-#define ROCKPAINT_UP        BUTTON_UP
-#define ROCKPAINT_DOWN      BUTTON_DOWN
-#define ROCKPAINT_LEFT      BUTTON_LEFT
-#define ROCKPAINT_RIGHT     BUTTON_RIGHT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
-
-#elif CONFIG_KEYPAD == EROSQ_PAD
-#define ROCKPAINT_QUIT      BUTTON_POWER
-#define ROCKPAINT_DRAW      BUTTON_PLAY
-#define ROCKPAINT_MENU      BUTTON_MENU
-#define ROCKPAINT_TOOLBAR   BUTTON_VOL_UP
-#define ROCKPAINT_TOOLBAR2  BUTTON_VOL_DOWN
-#define ROCKPAINT_UP        BUTTON_PREV
-#define ROCKPAINT_DOWN      BUTTON_NEXT
-#define ROCKPAINT_LEFT      BUTTON_SCROLL_BACK
-#define ROCKPAINT_RIGHT     BUTTON_SCROLL_FWD
 
 #else
 #error "Please define keys for this keypad"
@@ -1084,15 +1026,15 @@ static bool callback_show_item(char *name, int attr, struct tree_context *tc)
 
 static bool browse( char *dst, int dst_size, const char *start )
 {
-    struct browse_context browse = {
-        .dirfilter = SHOW_ALL,
-        .flags = BROWSE_SELECTONLY | BROWSE_NO_CONTEXT_MENU,
-        .icon = Icon_NOICON,
-        .root = start,
-        .buf = dst,
-        .bufsize = dst_size,
-        .callback_show_item = callback_show_item,
-    };
+    struct browse_context browse;
+
+    rb->browse_context_init(&browse, SHOW_ALL,
+                            BROWSE_SELECTONLY|BROWSE_NO_CONTEXT_MENU,
+                            NULL, NOICON, start, NULL);
+
+    browse.callback_show_item = callback_show_item;
+    browse.buf = dst;
+    browse.bufsize = dst_size;
 
     rb->rockbox_browse(&browse);
 
@@ -1852,7 +1794,7 @@ static void draw_text( int x, int y )
         {
             case TEXT_MENU_TEXT:
                 rb->lcd_set_foreground(COLOR_BLACK);
-                rb->kbd_input( buffer->text.text, MAX_TEXT, NULL );
+                rb->kbd_input( buffer->text.text, MAX_TEXT );
                 break;
 
             case TEXT_MENU_FONT:
@@ -1907,7 +1849,6 @@ static void draw_text( int x, int y )
                 rb->lcd_set_foreground( rp_colors[ drawcolor ] );
                 buffer_putsxyofs( save_buffer, COLS, ROWS, x, y, 0,
                                   buffer->text.text );
-                /* fallthrough */
             case TEXT_MENU_CANCEL:
             default:
                 restore_screen();
@@ -2849,7 +2790,7 @@ static void goto_menu(void)
                 rb->lcd_set_foreground(COLOR_BLACK);
                 if (!filename[0])
                     rb->strcpy(filename,"/");
-                if( !rb->kbd_input( filename, MAX_PATH, NULL ) )
+                if( !rb->kbd_input( filename, MAX_PATH ) )
                 {
                     if( !check_extention( filename, ".bmp" ) )
                         rb->strcat(filename, ".bmp");
@@ -2869,7 +2810,7 @@ static void goto_menu(void)
             case MAIN_MENU_BRUSH_SIZE:
                 for(multi = 0; multi<4; multi++)
                     if(bsize == times_list[multi]) break;
-                rb->set_option( "Brush Size", &multi, RB_INT, times_options, 4, NULL );
+                rb->set_option( "Brush Size", &multi, INT, times_options, 4, NULL );
                 if( multi >= 0 )
                     bsize = times_list[multi];
                 break;
@@ -2877,7 +2818,7 @@ static void goto_menu(void)
             case MAIN_MENU_BRUSH_SPEED:
                 for(multi = 0; multi<3; multi++)
                     if(bspeed == times_list[multi]) break;
-                rb->set_option( "Brush Speed", &multi, RB_INT, times_options, 3, NULL );
+                rb->set_option( "Brush Speed", &multi, INT, times_options, 3, NULL );
                 if( multi >= 0 ) {
                     bspeed = times_list[multi];
                     incdec_x.step[0] = bspeed;
@@ -2894,7 +2835,7 @@ static void goto_menu(void)
             case MAIN_MENU_GRID_SIZE:
                 for(multi = 0; multi<4; multi++)
                     if(gridsize == gridsize_list[multi]) break;
-                rb->set_option( "Grid Size", &multi, RB_INT, gridsize_options, 4, NULL );
+                rb->set_option( "Grid Size", &multi, INT, gridsize_options, 4, NULL );
                 if( multi >= 0 )
                     gridsize = gridsize_list[multi];
                 break;

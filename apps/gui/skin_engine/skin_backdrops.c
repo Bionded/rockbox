@@ -41,6 +41,7 @@ static struct skin_backdrop {
 } backdrops[NB_BDROPS];
 
 #define NB_BDROPS SKINNABLE_SCREENS_COUNT*NB_SCREENS
+static int handle_being_loaded;
 static int current_lcd_backdrop[NB_SCREENS];
 
 bool skin_backdrop_get_debug(int index, char **path, int *ref_count, size_t *size)
@@ -64,8 +65,8 @@ bool skin_backdrop_get_debug(int index, char **path, int *ref_count, size_t *siz
 
 static int buflib_move_callback(int handle, void* current, void* new)
 {
-    (void)handle;
-
+    if (handle == handle_being_loaded)
+        return BUFLIB_CB_CANNOT_MOVE;
     for (int i=0; i<NB_BDROPS; i++)
     {
         if (backdrops[i].buffer == current)
@@ -80,9 +81,8 @@ static int buflib_move_callback(int handle, void* current, void* new)
 }
 static struct buflib_callbacks buflib_ops = {buflib_move_callback, NULL, NULL};
 static bool first_go = true;
-bool skin_backdrop_init(void)
+void skin_backdrop_init(void)
 {
-    bool go_status = first_go;
     if (first_go)
     {
         for (int i=0; i<NB_BDROPS; i++)
@@ -95,9 +95,9 @@ bool skin_backdrop_init(void)
         }
         FOR_NB_SCREENS(i)
             current_lcd_backdrop[i] = -1;
+        handle_being_loaded = -1;
         first_go = false;
     }
-    return go_status;
 }
 
 int skin_backdrop_assign(char* backdrop, char *bmpdir,
@@ -137,7 +137,7 @@ int skin_backdrop_assign(char* backdrop, char *bmpdir,
     }
     if (free >= 0)
     {
-        strmemccpy(backdrops[free].name, filename, MAX_PATH);
+        strlcpy(backdrops[free].name, filename, MAX_PATH);
         backdrops[free].buffer = NULL;
         backdrops[free].screen = screen;
         backdrops[free].ref_count = 1;
@@ -174,22 +174,22 @@ bool skin_backdrops_preload(void)
             }
             if (*filename && *filename != '-')
             {
-                backdrops[i].buflib_handle = core_alloc_ex(buf_size, &buflib_ops);
+                backdrops[i].buflib_handle = core_alloc_ex(filename, buf_size, &buflib_ops);
                 if (backdrops[i].buflib_handle > 0)
                 {
                     backdrops[i].buffer = core_get_data(backdrops[i].buflib_handle);
                     if (strcmp(filename, BACKDROP_BUFFERNAME))
                     {
-                        core_pin(backdrops[i].buflib_handle);
+                        handle_being_loaded = backdrops[i].buflib_handle;
                         backdrops[i].loaded =
                                 screens[screen].backdrop_load(filename, backdrops[i].buffer);
-                        core_unpin(backdrops[i].buflib_handle);
                         if (!backdrops[i].loaded)
                         {
                             core_free(backdrops[i].buflib_handle);
                             backdrops[i].buflib_handle = -1;
                             retval = false;
                         }
+                        handle_being_loaded = -1;
                     }
                     else
                         backdrops[i].loaded = true;
@@ -204,37 +204,11 @@ bool skin_backdrops_preload(void)
     return retval;
 }
 
-void skin_backdrop_set_buffer(int backdrop_id, struct skin_viewport *svp)
+void* skin_backdrop_get_buffer(int backdrop_id)
 {
-    if (UNLIKELY(!svp))
-        return;
-    else if (backdrop_id < 0)
-    {
-#if 1
-        /* ensure the current vp has been removed so it has to be reselected */
-        screens[SCREEN_MAIN].set_viewport_ex(NULL, 0);
-#   if defined(HAVE_REMOTE_LCD)
-        screens[SCREEN_REMOTE].set_viewport_ex(NULL, 0);
-#   endif
-#endif
-        /* WARNING: vp-> buffer is invaid till viewport is set to a screen */
-        svp->vp.buffer = NULL; /*Default*/
-        return;
-    }
-
-    enum screen_type screen = backdrops[backdrop_id].screen;
-    svp->framebuf.ch_ptr = backdrops[backdrop_id].buffer;
-#if defined(HAVE_REMOTE_LCD)
-    if (screen == SCREEN_REMOTE)
-        svp->framebuf.elems = REMOTE_LCD_BACKDROP_BYTES / sizeof(fb_remote_data);
-    else
-#endif
-    {
-        svp->framebuf.elems = LCD_BACKDROP_BYTES / sizeof(fb_data);
-    }
-    svp->framebuf.stride = 0; /* default stride */
-    svp->framebuf.get_address_fn = NULL; /*Default iterator*/
-    screens[screen].viewport_set_buffer(&svp->vp, &svp->framebuf);
+    if (backdrop_id < 0)
+        return NULL;
+    return backdrops[backdrop_id].buffer;
 }
 
 void skin_backdrop_show(int backdrop_id)
@@ -265,7 +239,8 @@ void skin_backdrop_unload(int backdrop_id)
     backdrops[backdrop_id].ref_count--;
     if (backdrops[backdrop_id].ref_count <= 0)
     {
-        core_free(backdrops[backdrop_id].buflib_handle);
+        if (backdrops[backdrop_id].buflib_handle > 0)
+            core_free(backdrops[backdrop_id].buflib_handle);
         backdrops[backdrop_id].buffer = NULL;
         backdrops[backdrop_id].buflib_handle = -1;
         backdrops[backdrop_id].loaded = false;
@@ -287,17 +262,18 @@ void skin_backdrop_load_setting(void)
                 if (backdrops[i].buflib_handle <= 0)
                 {
                     backdrops[i].buflib_handle =
-                            core_alloc_ex(LCD_BACKDROP_BYTES, &buflib_ops);
+                            core_alloc_ex(global_settings.backdrop_file,
+                                        LCD_BACKDROP_BYTES, &buflib_ops);
                     if (backdrops[i].buflib_handle <= 0)
                         return;
                 }
                 bool loaded;
-                core_pin(backdrops[i].buflib_handle);
                 backdrops[i].buffer = core_get_data(backdrops[i].buflib_handle);
+                handle_being_loaded = backdrops[i].buflib_handle;
                 loaded = screens[SCREEN_MAIN].backdrop_load(
                                                    global_settings.backdrop_file,
                                                    backdrops[i].buffer);
-                core_unpin(backdrops[i].buflib_handle);
+                handle_being_loaded = -1;
                 backdrops[i].name[2] = loaded ? '.' : '\0';
                 backdrops[i].loaded = loaded;
                 return;
@@ -329,20 +305,8 @@ void skin_backdrop_unload(int backdrop_id)
     (void)backdrop_id;
 }
 #else
-static bool first_go = true;
-bool skin_backdrop_init(void)
-{
-    bool go_status = first_go;
-    first_go = false;
-    return go_status;
-}
 
-void skin_backdrop_load_setting(void)
+void skin_backdrop_init(void)
 {
-}
-
-void skin_backdrop_show(int backdrop_id)
-{
-    (void) backdrop_id;
 }
 #endif

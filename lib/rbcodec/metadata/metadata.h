@@ -24,8 +24,6 @@
 
 #include "platform.h"
 
-#define METADATA_EXCLUDE_ID3_PATH (0x01) /* don't copy filename path to the id3 path buffer */
-#define METADATA_CLOSE_FD_ON_EXIT (0x02) /* close the filedescriptor when finished */
 /* Audio file types. */
 /* NOTE: The values of the AFMT_* items are used for the %fc tag in the WPS
          - so new entries MUST be added to the end to maintain compatibility.
@@ -39,6 +37,7 @@ enum
     AFMT_MPA_L2,       /* MPEG Audio layer 2 */
     AFMT_MPA_L3,       /* MPEG Audio layer 3 */
 
+#if CONFIG_CODEC == SWCODEC
     AFMT_AIFF,         /* Audio Interchange File Format */
     AFMT_PCM_WAV,      /* Uncompressed PCM in a WAV file */
     AFMT_OGG_VORBIS,   /* Ogg Vorbis */
@@ -85,9 +84,6 @@ enum
     AFMT_MPC_SV8,      /* Musepack SV8 */
     AFMT_MP4_AAC_HE,   /* Advanced Audio Coding (AAC-HE) in M4A container */
     AFMT_AY,             /* AY (ZX Spectrum, Amstrad CPC Sound Format) */
-#ifdef HAVE_FPU
-    AFMT_VTX,            /* VTX (ZX Spectrum Sound Format) */
-#endif
     AFMT_GBS,          /* GBS (Game Boy Sound Format) */
     AFMT_HES,          /* HES (Hudson Entertainment System Sound Format) */
     AFMT_SGC,          /* SGC (Sega Master System, Game Gear, Coleco Vision Sound Format) */
@@ -95,6 +91,7 @@ enum
     AFMT_KSS,          /* KSS (MSX computer KSS Music File) */
     AFMT_OPUS,         /* Opus (see http://www.opus-codec.org ) */
     AFMT_AAC_BSF,
+#endif
 
     /* add new formats at any index above this line to have a sensible order -
        specified array index inits are used */
@@ -102,7 +99,7 @@ enum
 
     AFMT_NUM_CODECS,
 
-#if defined(HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING)
     /* masks to decompose parts */
     CODEC_AFMT_MASK    = 0x0fff,
     CODEC_TYPE_MASK    = 0x7000,
@@ -110,9 +107,10 @@ enum
     /* switch for specifying codec type when requesting a filename */
     CODEC_TYPE_DECODER = (0 << 12), /* default */
     CODEC_TYPE_ENCODER = (1 << 12),
-#endif /* defined(HAVE_RECORDING) */
+#endif /* CONFIG_CODEC == SWCODEC && defined(HAVE_RECORDING) */
 };
 
+#if CONFIG_CODEC == SWCODEC
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
 #define CODEC_EXTENSION "so"
 #define CODEC_PREFIX "lib"
@@ -145,7 +143,7 @@ enum rec_format_indexes
     REC_FORMAT_CFG_NUM_BITS = 2
 };
 
-#define REC_FORMAT_CFG_VAL_LIST "wave,aiff,wvpk,mpa3"
+#define REC_FORMAT_CFG_VAL_LIST "wave,aiff,wvpk,mpa3" 
 
 /* get REC_FORMAT_* corresponding AFMT_* */
 extern const int rec_format_afmt[REC_NUM_FORMATS];
@@ -159,15 +157,23 @@ extern const int rec_format_afmt[REC_NUM_FORMATS];
     { label, root_fname, func, ext_list }
 #endif /* HAVE_RECORDING */
 
+#else /* !SWCODEC */
+
+#define AFMT_ENTRY(label, root_fname, enc_root_fname, func, ext_list) \
+    { label, func, ext_list }
+#endif /* CONFIG_CODEC == SWCODEC */
+
 /** Database of audio formats **/
 /* record describing the audio format */
 struct mp3entry;
 struct afmt_entry
 {
     const char *label;      /* format label */
+#if CONFIG_CODEC == SWCODEC
     const char *codec_root_fn; /* root codec filename (sans _enc and .codec) */
 #ifdef HAVE_RECORDING
     const char *codec_enc_root_fn; /* filename of encoder codec */
+#endif
 #endif
     bool (*parse_func)(int fd, struct mp3entry *id3); /* return true on success */
     const char *ext_list;    /* NULL terminated extension
@@ -178,10 +184,7 @@ struct afmt_entry
 /* database of labels and codecs. add formats per above enum */
 extern const struct afmt_entry audio_formats[AFMT_NUM_CODECS];
 
-#if MEMORYSIZE > 8
-#define ID3V2_BUF_SIZE 1800
-#define ID3V2_MAX_ITEM_SIZE 500
-#elif MEMORYSIZE > 2
+#if MEMORYSIZE > 2
 #define ID3V2_BUF_SIZE 900
 #define ID3V2_MAX_ITEM_SIZE 240
 #else
@@ -240,7 +243,7 @@ struct mp3entry {
     char* comment;
     char* albumartist;
     char* grouping;
-    int discnum;
+    int discnum;    
     int tracknum;
     int layer;
     int year;
@@ -261,7 +264,7 @@ struct mp3entry {
     int tail_trim;          /* Number of samples to remove from the end */
 
     /* Added for Vorbis, used by mp4 parser as well. */
-    uint64_t samples;  /* number of samples in track */
+    unsigned long samples;  /* number of samples in track */
 
     /* MP3 stream specific info */
     unsigned long frame_count; /* number of frames in the file (if VBR) */
@@ -274,6 +277,10 @@ struct mp3entry {
     bool has_toc;           /* True if there is a VBR header in the file */
     unsigned char toc[100]; /* table of contents */
 
+    /* Added for ATRAC3 */
+    unsigned int channels;       /* Number of channels in the stream */
+    unsigned int extradata_size; /* Size (in bytes) of the codec's extradata from the container */
+
     /* Added for AAC HE SBR */
     bool needs_upsampling_correction; /* flag used by aac codec */
 
@@ -284,11 +291,10 @@ struct mp3entry {
     /* resume related */
     unsigned long offset;  /* bytes played */
     int index;             /* playlist index */
-    bool skip_resume_adjustments;
 
 #ifdef HAVE_TAGCACHE
     unsigned char autoresumable; /* caches result of autoresumable() */
-
+    
     /* runtime database fields */
     long tagcache_idx;     /* 0=invalid, otherwise idx+1 */
     int rating;
@@ -297,14 +303,16 @@ struct mp3entry {
     long lastplayed;
     long playtime;
 #endif
-
+    
     /* replaygain support */
+#if CONFIG_CODEC == SWCODEC
     long track_level;   /* holds the level in dB * (1<<FP_BITS) */
     long album_level;
     long track_gain;    /* s19.12 signed fixed point. 0 for no gain. */
     long album_gain;
     long track_peak;    /* s19.12 signed fixed point. 0 for no peak. */
     long album_peak;
+#endif
 
 #ifdef HAVE_ALBUMART
     bool has_embedded_albumart;
@@ -318,22 +326,23 @@ struct mp3entry {
 
     /* Musicbrainz Track ID */
     char* mb_track_id;
-
-    /* For ASF files with MP3 audio stream */
-    bool is_asf_stream;
 };
 
 unsigned int probe_file_format(const char *filename);
 bool get_metadata(struct mp3entry* id3, int fd, const char* trackname);
-bool get_metadata_ex(struct mp3entry* id3, int fd, const char* trackname, int flags);
+bool mp3info(struct mp3entry *entry, const char *filename);
 void adjust_mp3entry(struct mp3entry *entry, void *dest, const void *orig);
 void copy_mp3entry(struct mp3entry *dest, const struct mp3entry *orig);
 void wipe_mp3entry(struct mp3entry *id3);
 
+#if CONFIG_CODEC == SWCODEC
 void fill_metadata_from_path(struct mp3entry *id3, const char *trackname);
 int get_audio_base_codec_type(int type);
-const char * get_codec_string(int type);
+void strip_tags(int handle_id);
 bool rbcodec_format_is_atomic(int afmt);
 bool format_buffers_with_offset(int afmt);
+#endif
 
 #endif
+
+

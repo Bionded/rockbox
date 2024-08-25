@@ -7,12 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
@@ -62,7 +57,7 @@ struct game_state {
     int *nums;                  /* numbers, size n */
     unsigned int *flags;        /* flags, size n */
     int *next, *prev;           /* links to other cell indexes, size n (-1 absent) */
-    DSF *dsf;                   /* connects regions with a dsf. */
+    int *dsf;                   /* connects regions with a dsf. */
     int *numsi;                 /* for each number, which index is it in? (-1 absent) */
 };
 
@@ -173,7 +168,7 @@ static bool isvalidmove(const game_state *state, bool clever,
 
     /* can't create a new connection between cells in the same region
      * as that would create a loop. */
-    if (dsf_equivalent(state->dsf, from, to))
+    if (dsf_canonify(state->dsf, from) == dsf_canonify(state->dsf, to))
         return false;
 
     /* if both cells are actual numbers, can't drag if we're not
@@ -282,7 +277,7 @@ static void strip_nums(game_state *state) {
     memset(state->next, -1, state->n*sizeof(int));
     memset(state->prev, -1, state->n*sizeof(int));
     memset(state->numsi, -1, (state->n+1)*sizeof(int));
-    dsf_reinit(state->dsf);
+    dsf_init(state->dsf, state->n);
 }
 
 static bool check_nums(game_state *orig, game_state *copy, bool only_immutable)
@@ -426,8 +421,6 @@ static const char *validate_params(const game_params *params, bool full)
 {
     if (params->w < 1) return "Width must be at least one";
     if (params->h < 1) return "Height must be at least one";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
     if (full && params->w == 1 && params->h == 1)
 	/* The UI doesn't let us move these from unsolved to solved,
 	 * so we disallow generating (but not playing) them. */
@@ -461,7 +454,7 @@ static game_state *blank_game(int w, int h)
     state->flags = snewn(state->n, unsigned int);
     state->next  = snewn(state->n, int);
     state->prev  = snewn(state->n, int);
-    state->dsf = dsf_new(state->n);
+    state->dsf = snew_dsf(state->n);
     state->numsi  = snewn(state->n+1, int);
 
     blank_game_into(state);
@@ -482,7 +475,7 @@ static void dup_game_to(game_state *to, const game_state *from)
     memcpy(to->next, from->next, to->n*sizeof(int));
     memcpy(to->prev, from->prev, to->n*sizeof(int));
 
-    dsf_copy(to->dsf, from->dsf);
+    memcpy(to->dsf, from->dsf, to->n*sizeof(int));
     memcpy(to->numsi, from->numsi, (to->n+1)*sizeof(int));
 }
 
@@ -500,7 +493,7 @@ static void free_game(game_state *state)
     sfree(state->flags);
     sfree(state->next);
     sfree(state->prev);
-    dsf_free(state->dsf);
+    sfree(state->dsf);
     sfree(state->numsi);
     sfree(state);
 }
@@ -1018,7 +1011,7 @@ static void connect_numbers(game_state *state)
 {
     int i, di, dni;
 
-    dsf_reinit(state->dsf);
+    dsf_init(state->dsf, state->n);
     for (i = 0; i < state->n; i++) {
         if (state->next[i] != -1) {
             assert(state->prev[state->next[i]] == i);
@@ -1035,8 +1028,8 @@ static void connect_numbers(game_state *state)
 
 static int compare_heads(const void *a, const void *b)
 {
-    const struct head_meta *ha = (const struct head_meta *)a;
-    const struct head_meta *hb = (const struct head_meta *)b;
+    struct head_meta *ha = (struct head_meta *)a;
+    struct head_meta *hb = (struct head_meta *)b;
 
     /* Heads with preferred colours first... */
     if (ha->preference && !hb->preference) return -1;
@@ -1387,31 +1380,7 @@ struct game_ui {
     bool dragging, drag_is_from;
     int sx, sy;         /* grid coords of start cell */
     int dx, dy;         /* pixel coords of drag posn */
-
-    /*
-     * Trivial and foolish configurable option done on purest whim.
-     * With this option enabled, the victory flash is done by rotating
-     * each square in the opposite direction from its immediate
-     * neighbours, so that they behave like a field of interlocking
-     * gears. With it disabled, they all rotate in the same direction.
-     * Choose for yourself which is more brain-twisting :-)
-     */
-    bool gear_mode;
 };
-
-static void legacy_prefs_override(struct game_ui *ui_out)
-{
-    static bool initialised = false;
-    static int gear_mode = -1;
-
-    if (!initialised) {
-        initialised = true;
-        gear_mode = getenv_bool("SIGNPOST_GEARS", -1);
-    }
-
-    if (gear_mode != -1)
-        ui_out->gear_mode = gear_mode;
-}
 
 static game_ui *new_ui(const game_state *state)
 {
@@ -1421,13 +1390,10 @@ static game_ui *new_ui(const game_state *state)
      * copy to clone, there's code that needs fixing in game_redraw too. */
 
     ui->cx = ui->cy = 0;
-    ui->cshow = getenv_bool("PUZZLES_SHOW_CURSOR", false);
+    ui->cshow = false;
 
     ui->dragging = false;
     ui->sx = ui->sy = ui->dx = ui->dy = 0;
-
-    ui->gear_mode = false;
-    legacy_prefs_override(ui);
 
     return ui;
 }
@@ -1437,28 +1403,13 @@ static void free_ui(game_ui *ui)
     sfree(ui);
 }
 
-static config_item *get_prefs(game_ui *ui)
+static char *encode_ui(const game_ui *ui)
 {
-    config_item *ret;
-
-    ret = snewn(2, config_item);
-
-    ret[0].name = "Victory rotation effect";
-    ret[0].kw = "flash-type";
-    ret[0].type = C_CHOICES;
-    ret[0].u.choices.choicenames = ":Unidirectional:Meshing gears";
-    ret[0].u.choices.choicekws = ":unidirectional:gears";
-    ret[0].u.choices.selected = ui->gear_mode;
-
-    ret[1].name = NULL;
-    ret[1].type = C_END;
-
-    return ret;
+    return NULL;
 }
 
-static void set_prefs(game_ui *ui, const config_item *cfg)
+static void decode_ui(game_ui *ui, const char *encoding)
 {
-    ui->gear_mode = cfg[0].u.choices.selected;
 }
 
 static void game_changed_state(game_ui *ui, const game_state *oldstate,
@@ -1468,26 +1419,6 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
         ui->cshow = false;
         ui->dragging = false;
     }
-}
-
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    if (IS_CURSOR_SELECT(button) && ui->cshow) {
-        if (ui->dragging) {
-            if (ui->drag_is_from) {
-                if (isvalidmove(state, false, ui->sx, ui->sy, ui->cx, ui->cy))
-                    return "To here";
-            } else {
-                if (isvalidmove(state, false, ui->cx, ui->cy, ui->sx, ui->sy))
-                    return "From here";
-            }
-            return "Cancel";
-        } else {
-            return button == CURSOR_SELECT ? "From here" : "To here";
-        }
-    }
-    return "";
 }
 
 struct game_drawstate {
@@ -1511,27 +1442,26 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     char buf[80];
 
     if (IS_CURSOR_MOVE(button)) {
-        char *ret;
-        ret = move_cursor(button, &ui->cx, &ui->cy, state->w, state->h, false,
-                          &ui->cshow);
+        move_cursor(button, &ui->cx, &ui->cy, state->w, state->h, false);
+        ui->cshow = true;
         if (ui->dragging) {
             ui->dx = COORD(ui->cx) + TILE_SIZE/2;
             ui->dy = COORD(ui->cy) + TILE_SIZE/2;
         }
-        return ret;
+        return UI_UPDATE;
     } else if (IS_CURSOR_SELECT(button)) {
         if (!ui->cshow)
             ui->cshow = true;
         else if (ui->dragging) {
             ui->dragging = false;
-            if (ui->sx == ui->cx && ui->sy == ui->cy) return MOVE_UI_UPDATE;
+            if (ui->sx == ui->cx && ui->sy == ui->cy) return UI_UPDATE;
             if (ui->drag_is_from) {
                 if (!isvalidmove(state, false, ui->sx, ui->sy, ui->cx, ui->cy))
-                    return MOVE_UI_UPDATE;
+                    return UI_UPDATE;
                 sprintf(buf, "L%d,%d-%d,%d", ui->sx, ui->sy, ui->cx, ui->cy);
             } else {
                 if (!isvalidmove(state, false, ui->cx, ui->cy, ui->sx, ui->sy))
-                    return MOVE_UI_UPDATE;
+                    return UI_UPDATE;
                 sprintf(buf, "L%d,%d-%d,%d", ui->cx, ui->cy, ui->sx, ui->sy);
             }
             return dupstr(buf);
@@ -1543,7 +1473,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
             ui->dy = COORD(ui->cy) + TILE_SIZE/2;
             ui->drag_is_from = (button == CURSOR_SELECT);
         }
-        return MOVE_UI_UPDATE;
+        return UI_UPDATE;
     }
     if (IS_MOUSE_DOWN(button)) {
         if (ui->cshow) {
@@ -1572,19 +1502,19 @@ static char *interpret_move(const game_state *state, game_ui *ui,
         ui->dx = mx;
         ui->dy = my;
         ui->cshow = false;
-        return MOVE_UI_UPDATE;
+        return UI_UPDATE;
     } else if (IS_MOUSE_DRAG(button) && ui->dragging) {
         ui->dx = mx;
         ui->dy = my;
-        return MOVE_UI_UPDATE;
+        return UI_UPDATE;
     } else if (IS_MOUSE_RELEASE(button) && ui->dragging) {
         ui->dragging = false;
-        if (ui->sx == x && ui->sy == y) return MOVE_UI_UPDATE; /* single click */
+        if (ui->sx == x && ui->sy == y) return UI_UPDATE; /* single click */
 
         if (!INGRID(state, x, y)) {
             int si = ui->sy*w+ui->sx;
             if (state->prev[si] == -1 && state->next[si] == -1)
-                return MOVE_UI_UPDATE;
+                return UI_UPDATE;
             sprintf(buf, "%c%d,%d",
                     (int)(ui->drag_is_from ? 'C' : 'X'), ui->sx, ui->sy);
             return dupstr(buf);
@@ -1592,11 +1522,11 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 
         if (ui->drag_is_from) {
             if (!isvalidmove(state, false, ui->sx, ui->sy, x, y))
-                return MOVE_UI_UPDATE;
+                return UI_UPDATE;
             sprintf(buf, "L%d,%d-%d,%d", ui->sx, ui->sy, x, y);
         } else {
             if (!isvalidmove(state, false, x, y, ui->sx, ui->sy))
-                return MOVE_UI_UPDATE;
+                return UI_UPDATE;
             sprintf(buf, "L%d,%d-%d,%d", x, y, ui->sx, ui->sy);
         }
         return dupstr(buf);
@@ -1605,7 +1535,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     else if ((button == 'x' || button == 'X') && ui->cshow) {
         int si = ui->cy*w + ui->cx;
         if (state->prev[si] == -1 && state->next[si] == -1)
-            return MOVE_UI_UPDATE;
+            return UI_UPDATE;
         sprintf(buf, "%c%d,%d",
                 (int)((button == 'x') ? 'C' : 'X'), ui->cx, ui->cy);
         return dupstr(buf);
@@ -1711,7 +1641,7 @@ static game_state *execute_move(const game_state *state, const char *move)
  */
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int tilesize, order; } ads, *ds = &ads;
@@ -1895,8 +1825,9 @@ static void draw_star(drawing *dr, int cx, int cy, int rad, int npoints,
     coords = snewn(npoints * 2 * 2, int);
 
     for (n = 0; n < npoints * 2; n++) {
-        a = 2.0 * PI * ((double)n / ((double)npoints * 2.0)) + angle_offset;
-        r = (n % 2) ? (double)rad/2.0 : (double)rad;
+        /* hack to accomodate rockbox's concave polygon drawing */
+        a = 2.0 * PI * ((double)n / ((double)npoints * 2.0)) + angle_offset - PI / npoints;
+        r = (n % 2 == 0) ? (double)rad/2.0 : (double)rad;
 
         /* We're rotating the point at (0, -r) by a degrees */
         coords[2*n+0] = cx + (int)( r * sin(a));
@@ -2151,6 +2082,7 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     if (!ds->started) {
         int aw = TILE_SIZE * state->w;
         int ah = TILE_SIZE * state->h;
+        draw_rect(dr, 0, 0, aw + 2 * BORDER, ah + 2 * BORDER, COL_BACKGROUND);
         draw_rect_outline(dr, BORDER - 1, BORDER - 1, aw + 2, ah + 2, COL_GRID);
         draw_update(dr, 0, 0, aw + 2 * BORDER, ah + 2 * BORDER);
     }
@@ -2195,7 +2127,28 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
             if (state->nums[i] != ds->nums[i] ||
                 f != ds->f[i] || dirp != ds->dirp[i] ||
                 force || !ds->started) {
-                int sign = (ui->gear_mode ? 1 - 2 * ((x ^ y) & 1) : 1);
+                int sign;
+                {
+                    /*
+                     * Trivial and foolish configurable option done on
+                     * purest whim. With this option enabled, the
+                     * victory flash is done by rotating each square
+                     * in the opposite direction from its immediate
+                     * neighbours, so that they behave like a field of
+                     * interlocking gears. With it disabled, they all
+                     * rotate in the same direction. Choose for
+                     * yourself which is more brain-twisting :-)
+                     */
+                    static int gear_mode = -1;
+                    if (gear_mode < 0) {
+                        char *env = getenv("SIGNPOST_GEARS");
+                        gear_mode = (env && (env[0] == 'y' || env[0] == 'Y'));
+                    }
+                    if (gear_mode)
+                        sign = 1 - 2 * ((x ^ y) & 1);
+                    else
+                        sign = 1;
+                }
                 tile_redraw(dr, ds,
                             BORDER + x * TILE_SIZE,
                             BORDER + y * TILE_SIZE,
@@ -2235,36 +2188,26 @@ static float game_flash_length(const game_state *oldstate,
         return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    if(ui->cshow) {
-        *x = COORD(ui->cx);
-        *y = COORD(ui->cy);
-        *w = *h = TILE_SIZE;
-    }
-}
-
 static int game_status(const game_state *state)
 {
     return state->completed ? +1 : 0;
 }
 
-static void game_print_size(const game_params *params, const game_ui *ui,
-                            float *x, float *y)
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
 {
     int pw, ph;
 
-    game_compute_size(params, 1300, ui, &pw, &ph);
+    game_compute_size(params, 1300, &pw, &ph);
     *x = pw / 100.0F;
     *y = ph / 100.0F;
 }
 
-static void game_print(drawing *dr, const game_state *state, const game_ui *ui,
-                       int tilesize)
+static void game_print(drawing *dr, const game_state *state, int tilesize)
 {
     int ink = print_mono_colour(dr, 0);
     int x, y;
@@ -2317,14 +2260,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    get_prefs, set_prefs,
     new_ui,
     free_ui,
-    NULL, /* encode_ui */
-    NULL, /* decode_ui */
+    encode_ui,
+    decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
@@ -2334,11 +2275,10 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
     true, false, game_print_size, game_print,
     false,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     REQUIRE_RBUTTON,		       /* flags */
 };
 
@@ -2347,9 +2287,10 @@ const struct game thegame = {
 #include <time.h>
 #include <stdarg.h>
 
-static const char *quis = NULL;
+const char *quis = NULL;
+int verbose = 0;
 
-static void usage(FILE *out) {
+void usage(FILE *out) {
     fprintf(out, "usage: %s [--stdin] [--soak] [--seed SEED] <params>|<game id>\n", quis);
 }
 
@@ -2450,7 +2391,7 @@ static void process_desc(char *id)
     thegame.free_params(p);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     char *id = NULL, *desc, *aux = NULL;
     const char *err;

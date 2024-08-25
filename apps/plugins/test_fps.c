@@ -401,7 +401,6 @@ enum plugin_status plugin_start(const void* parameter)
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE)
     cpu_freq = *rb->cpu_frequency; /* remember CPU frequency */
 #endif
-
     backlight_ignore_timeout();
 
     time_main_update();
@@ -424,7 +423,6 @@ enum plugin_status plugin_start(const void* parameter)
                      (cpu_freq + 500000) / 1000000);
     log_text(str);
 #endif
-
     backlight_use_settings();
 
     /* wait until user closes plugin */

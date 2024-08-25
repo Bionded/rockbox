@@ -363,11 +363,8 @@ static void settings_menu(void) {
 }
 
 static bool resume;
-static int menu_cb(int action,
-                   const struct menu_item_ex *this_item,
-                   struct gui_synclist *this_list)
+static int menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = ((intptr_t)this_item);
     if ((action == ACTION_REQUEST_MENUITEM) && (!resume && (i==0)))
         return ACTION_EXIT_MENUITEM;
@@ -437,13 +434,6 @@ enum plugin_status plugin_start(const void* parameter) {
                 button = get_button();
                 if (button == PLA_SELECT)
                     break;
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-                if (button == PLA_UP) /* Menu button */
-                    button = PLA_CANCEL;
-#endif
 
                 switch (button) {
 

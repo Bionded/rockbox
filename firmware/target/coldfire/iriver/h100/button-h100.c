@@ -40,7 +40,7 @@ bool button_hold(void)
 }
 
 static bool remote_button_hold_only(void)
-{
+{        
     if(remote_type() == REMOTETYPE_H300_NONLCD)
         return adc_scan(ADC_REMOTE)<0x0d; /* hold should be 0x00 */
     else
@@ -68,17 +68,14 @@ int button_read_device(void)
     static bool remote_hold_button = false;
     static int prev_data = 0xff;
     static int last_valid = 0xff;
-#ifndef BOOTLOADER
     bool hold_button_old;
     bool remote_hold_button_old;
-#endif
 
     /* normal buttons */
-#ifndef BOOTLOADER
     hold_button_old = hold_button;
-#endif
     hold_button = button_hold();
-
+    
+    
 #ifndef BOOTLOADER
     if (hold_button != hold_button_old)
         backlight_hold_changed(hold_button);
@@ -123,9 +120,7 @@ int button_read_device(void)
     }
 
     /* remote buttons */
-#ifndef BOOTLOADER
     remote_hold_button_old = remote_hold_button;
-#endif
     remote_hold_button = remote_button_hold_only();
 
 #ifndef BOOTLOADER

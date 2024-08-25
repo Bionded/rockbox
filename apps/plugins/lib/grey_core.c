@@ -36,7 +36,35 @@
 
 #ifndef SIMULATOR
 
-#if defined IAUDIO_M3         /* verified */
+#if defined ARCHOS_RECORDER     /* verified */  \
+ || defined ARCHOS_FMRECORDER   /* should be identical */  \
+ || defined ARCHOS_RECORDERV2   /* should be identical */  \
+ || defined ARCHOS_ONDIOFM      /* verified */  \
+ || defined ARCHOS_ONDIOSP      /* verified */
+/* Average measurements of a Recorder v1, an Ondio FM, a backlight-modded 
+ * Ondio FM, and an Ondio SP. */
+static const unsigned char lcdlinear[256] = {
+  5,   8,  10,  12,  14,  16,  18,  20,  22,  24,  26,  28,  29,  31,  33,  35,
+ 37,  39,  40,  42,  43,  45,  46,  48,  49,  50,  51,  53,  54,  55,  57,  58,
+ 59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  68,  69,  70,  71,  71,  72,
+ 73,  74,  74,  75,  76,  77,  77,  78,  79,  79,  80,  80,  81,  81,  82,  82,
+ 83,  84,  84,  85,  86,  86,  87,  87,  88,  88,  89,  89,  90,  90,  91,  91,
+ 92,  92,  93,  93,  94,  94,  95,  95,  96,  96,  97,  98,  98,  99, 100, 100,
+101, 101, 102, 103, 103, 104, 105, 105, 106, 106, 107, 107, 108, 108, 109, 109,
+110, 110, 111, 112, 112, 113, 114, 114, 115, 115, 116, 117, 117, 118, 119, 119,
+120, 120, 121, 122, 123, 123, 124, 125, 126, 126, 127, 128, 129, 129, 130, 131,
+132, 132, 133, 134, 135, 135, 136, 137, 138, 138, 139, 140, 140, 141, 141, 142,
+143, 144, 145, 146, 147, 147, 148, 149, 150, 151, 152, 153, 154, 154, 155, 156,
+157, 158, 159, 160, 161, 161, 162, 163, 164, 165, 166, 167, 168, 168, 169, 170,
+171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 184, 185, 186, 187,
+188, 189, 191, 192, 194, 195, 197, 198, 199, 200, 202, 203, 204, 205, 207, 208,
+209, 210, 212, 213, 215, 216, 218, 219, 220, 221, 222, 223, 225, 226, 227, 228,
+229, 230, 232, 233, 234, 235, 237, 238, 239, 240, 242, 243, 244, 246, 247, 248
+};
+/* The actual LCD scanrate varies a lot with temperature on these targets */
+#define LCD_SCANRATE 67 /* Hz */
+
+#elif defined IAUDIO_M3         /* verified */
 /* Average measurements of 2 iAudio remotes connected to an M3. */
 static const unsigned char lcdlinear[256] = {
   5,   9,  13,  17,  21,  26,  30,  34,  38,  42,  46,  50,  54,  58,  62,  66,
@@ -294,6 +322,7 @@ static const unsigned char lcdlinear[256] = {
 #define LCD_SCANRATE 73 /* Hz */
 
 #else  /* not yet calibrated targets - generic linear mapping */
+/* TODO: calibrate iFP7xx */
 static const unsigned char lcdlinear[256] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
@@ -764,11 +793,6 @@ static const unsigned char colorindex[4] = {128, 85, 43, 0};
    content (b&w and greyscale overlay) to an 8-bit BMP file. */
 static void grey_screendump_hook(int fd)
 {
-	fb_data *lcd_fb;
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    rb->viewport_set_fullscreen(vp_main, SCREEN_MAIN);
-    lcd_fb = vp_main->buffer->fb_ptr;
-
     int i;
     int y, gx, gy;
 #if LCD_PIXELFORMAT == VERTICAL_PACKING
@@ -849,7 +873,7 @@ static void grey_screendump_hook(int fd)
         gsrc = _grey_info.values + _GREY_MULUQ(_grey_info.width, gy);
 
 #if LCD_DEPTH == 2
-        src = lcd_fb + _GREY_MULUQ(LCD_FBWIDTH, y);
+        src = rb->lcd_framebuffer + _GREY_MULUQ(LCD_FBWIDTH, y);
         
         do
         {
@@ -880,7 +904,7 @@ static void grey_screendump_hook(int fd)
 
 #if LCD_DEPTH == 1
         mask = BIT_N(y & 7);
-        src = lcd_fb + _GREY_MULUQ(LCD_WIDTH, y >> 3);
+        src = rb->lcd_framebuffer + _GREY_MULUQ(LCD_WIDTH, y >> 3);
 
         do
         {
@@ -912,7 +936,7 @@ static void grey_screendump_hook(int fd)
 
 #elif LCD_DEPTH == 2
         shift = 2 * (y & 3);
-        src = lcd_fb + _GREY_MULUQ(LCD_WIDTH, y >> 2);
+        src = rb->lcd_framebuffer + _GREY_MULUQ(LCD_WIDTH, y >> 2);
         
         do
         {
@@ -937,7 +961,7 @@ static void grey_screendump_hook(int fd)
 
 #if LCD_DEPTH == 2
         shift = y & 7;
-        src = lcd_fb + _GREY_MULUQ(LCD_WIDTH, y >> 3);
+        src = rb->lcd_framebuffer + _GREY_MULUQ(LCD_WIDTH, y >> 3);
         
         do
         {

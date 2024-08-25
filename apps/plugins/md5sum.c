@@ -42,11 +42,11 @@ static int hash( char *string, const char *path )
     while( !quit && ( len = rb->read( in, buffer, sizeof(buffer) ) ) > 0 )
     {
         AddMD5( &md5, buffer, len );
-
+        
         if( rb->get_action(CONTEXT_STD, TIMEOUT_NOBLOCK) == ACTION_STD_CANCEL )
             quit = true;
     }
-
+    
     EndMD5( &md5 );
 
     psz_md5_hash( string, &md5 );
@@ -66,10 +66,10 @@ static void hash_file( int out, const char *path )
         done++;
         rb->splashf( 0, "%d / %d : %s", done, count, path );
         status = hash( string, path );
-
+        
         if( quit )
             return;
-
+        
         if( status )
             rb->write( out, "error", 5 );
         else
@@ -77,7 +77,7 @@ static void hash_file( int out, const char *path )
         rb->write( out, "  ", 2 );
         rb->write( out, path, rb->strlen( path ) );
         rb->write( out, "\n", 1 );
-
+        
         rb->yield();
     }
 }
@@ -95,7 +95,7 @@ static void hash_dir( int out, const char *path )
             char childpath[MAX_PATH];
             rb->snprintf( childpath, MAX_PATH, "%s/%s",
                           rb->strcmp( path, "/" ) ? path : "", entry->d_name );
-
+            
             struct dirinfo info = rb->dir_get_info(dir, entry);
             if (info.attribute & ATTR_DIRECTORY)
             {
@@ -181,44 +181,9 @@ static void hash_check( int out, const char *path )
     rb->close( list );
 }
 
-/*
- * Return the last name from a pathname (ignoring a trailing slash if
- * it exists). The returned pointer points to a statically allocated
- * buffer.
- */
-static char *get_basename(const char *path) {
-    static char temp[MAX_PATH];
-    char *p;
-    int len, isdir = 0;
-
-    rb->strcpy(temp, path);
-
-    len = rb->strlen(temp);
-
-    if (temp[len - 1] == '/')
-    {
-        /* strip trailing slash, and update length accordingly */
-        temp[--len] = '\0';
-        isdir = 1;
-    }
-
-    /* find the last slash, if there is one */
-    p = rb->strrchr(temp, '/');
-
-    /*
-     * re-append trailing slash if we previously removed it (the
-     * original NUL is still present)
-     */
-    if(isdir)
-        temp[len++] = '/';
-
-    return p ? (p + 1) : temp;
-}
-
 enum plugin_status plugin_start(const void* parameter)
 {
-    const char *arg = (const char *)parameter; /* input file path, if any */
-    char *basename;
+    const char *arg = (const char *)parameter; /* input file name, if any */
     int out = -1; /* output file descriptor */
     char filename[MAX_PATH]; /* output file name */
 
@@ -276,15 +241,9 @@ enum plugin_status plugin_start(const void* parameter)
         arg = "/";
     }
 
-    basename = get_basename(arg);
+    rb->lcd_puts( 0, 1, "Output file:" );
+    rb->lcd_puts( 0, 2, filename );
 
-    rb->lcd_putsf( 0, 1, "Hashing %s", basename );
-    rb->lcd_puts( 0, 2, rb->str(LANG_ACTION_STD_CANCEL) );
-
-    rb->lcd_puts( 0, 3, "Output file:" );
-    rb->lcd_puts( 0, 4, filename );
-
-    rb->lcd_update();
     count = 0;
     done = 0;
     action( out, arg );

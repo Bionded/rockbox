@@ -22,6 +22,7 @@
 ***************************************************************************/
 #include "plugin.h"
 #include "fixedpoint.h"
+#include "lib/playergfx.h"
 #include "lib/pluginlib_exit.h"
 #if LCD_DEPTH > 1
 #include "lib/mylcd.h" /* MYLCD_CFG_RB_XLCD or MYLCD_CFG_PGFX */
@@ -36,7 +37,49 @@
 #define DISP_TIME 30
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define CUBE_QUIT          BUTTON_OFF
+#define CUBE_NEXT          BUTTON_RIGHT
+#define CUBE_PREV          BUTTON_LEFT
+#define CUBE_INC           BUTTON_UP
+#define CUBE_DEC           BUTTON_DOWN
+#define CUBE_MODE          BUTTON_F1
+#define CUBE_PAUSE         BUTTON_PLAY
+#define CUBE_HIGHSPEED     BUTTON_ON
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define CUBE_QUIT          BUTTON_OFF
+#define CUBE_NEXT          BUTTON_RIGHT
+#define CUBE_PREV          BUTTON_LEFT
+#define CUBE_INC           BUTTON_UP
+#define CUBE_DEC           BUTTON_DOWN
+#define CUBE_MODE          BUTTON_F1
+#define CUBE_PAUSE         BUTTON_SELECT
+#define CUBE_HIGHSPEED     BUTTON_ON
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+#define CUBE_QUIT          BUTTON_STOP
+#define CUBE_INC           BUTTON_RIGHT
+#define CUBE_DEC           BUTTON_LEFT
+#define CUBE_NEXT          (BUTTON_ON | BUTTON_RIGHT)
+#define CUBE_PREV          (BUTTON_ON | BUTTON_LEFT)
+#define CUBE_MODE          BUTTON_MENU
+#define CUBE_PAUSE         BUTTON_PLAY
+#define CUBE_HIGHSPEED_PRE BUTTON_ON
+#define CUBE_HIGHSPEED     (BUTTON_ON | BUTTON_REL)
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define CUBE_QUIT          BUTTON_OFF
+#define CUBE_NEXT          BUTTON_RIGHT
+#define CUBE_PREV          BUTTON_LEFT
+#define CUBE_INC           BUTTON_UP
+#define CUBE_DEC           BUTTON_DOWN
+#define CUBE_MODE_PRE      BUTTON_MENU
+#define CUBE_MODE          (BUTTON_MENU | BUTTON_REL)
+#define CUBE_PAUSE         (BUTTON_MENU | BUTTON_LEFT)
+#define CUBE_HIGHSPEED     (BUTTON_MENU | BUTTON_RIGHT)
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define CUBE_QUIT          BUTTON_OFF
 #define CUBE_NEXT          BUTTON_RIGHT
@@ -52,17 +95,25 @@
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define CUBE_QUIT_PRE      BUTTON_MENU
-#define CUBE_QUIT          (BUTTON_MENU | BUTTON_REL)
+#define CUBE_QUIT          (BUTTON_SELECT | BUTTON_MENU)
 #define CUBE_NEXT          BUTTON_RIGHT
 #define CUBE_PREV          BUTTON_LEFT
 #define CUBE_INC           BUTTON_SCROLL_FWD
 #define CUBE_DEC           BUTTON_SCROLL_BACK
-#define CUBE_MODE_PRE      BUTTON_MENU
-#define CUBE_MODE          (BUTTON_MENU | BUTTON_REPEAT)
+#define CUBE_MODE          BUTTON_MENU
 #define CUBE_PAUSE         BUTTON_PLAY
 #define CUBE_HIGHSPEED_PRE BUTTON_SELECT
 #define CUBE_HIGHSPEED     (BUTTON_SELECT | BUTTON_REL)
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define CUBE_QUIT          BUTTON_PLAY
+#define CUBE_NEXT          BUTTON_RIGHT
+#define CUBE_PREV          BUTTON_LEFT
+#define CUBE_INC           BUTTON_UP
+#define CUBE_DEC           BUTTON_DOWN
+#define CUBE_MODE          BUTTON_MODE
+#define CUBE_PAUSE         BUTTON_SELECT
+#define CUBE_HIGHSPEED     BUTTON_EQ
 
 #elif (CONFIG_KEYPAD == IAUDIO_X5M5_PAD)
 #define CUBE_QUIT          BUTTON_POWER
@@ -162,6 +213,16 @@
 
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define CUBE_QUIT          BUTTON_POWER
+
+#elif (CONFIG_KEYPAD == IAUDIO67_PAD)
+#define CUBE_QUIT          BUTTON_POWER
+#define CUBE_NEXT          BUTTON_RIGHT
+#define CUBE_PREV          BUTTON_LEFT
+#define CUBE_INC           BUTTON_VOLUP
+#define CUBE_DEC           BUTTON_VOLDOWN
+#define CUBE_MODE          BUTTON_MENU
+#define CUBE_PAUSE         BUTTON_PLAY
+#define CUBE_HIGHSPEED     BUTTON_STOP
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define CUBE_QUIT          BUTTON_BACK
@@ -352,7 +413,7 @@
 #define CUBE_HIGHSPEED     (BUTTON_SELECT | BUTTON_REPEAT)
 #define CUBE_PAUSE         (BUTTON_LEFT | BUTTON_REPEAT)
 
-#elif (CONFIG_KEYPAD == XDUOO_X3_PAD) || (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
+#elif (CONFIG_KEYPAD == XDUOO_X3_PAD)
 #define CUBE_QUIT          BUTTON_POWER
 #define CUBE_NEXT          BUTTON_NEXT
 #define CUBE_PREV          BUTTON_PREV
@@ -362,17 +423,7 @@
 #define CUBE_PAUSE         BUTTON_HOME
 #define CUBE_HIGHSPEED     BUTTON_PLAY
 
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
-#define CUBE_QUIT          BUTTON_POWER
-#define CUBE_NEXT          BUTTON_NEXT
-#define CUBE_PREV          BUTTON_PREV
-#define CUBE_INC           BUTTON_VOL_UP
-#define CUBE_DEC           BUTTON_VOL_DOWN
-#define CUBE_MODE          BUTTON_OPTION
-#define CUBE_PAUSE         BUTTON_HOME
-#define CUBE_HIGHSPEED     BUTTON_PLAY
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define CUBE_QUIT          BUTTON_POWER
 #define CUBE_NEXT          BUTTON_NEXT
 #define CUBE_PREV          BUTTON_PREV
@@ -382,28 +433,15 @@
 #define CUBE_PAUSE         BUTTON_HOME
 #define CUBE_HIGHSPEED     BUTTON_PLAY
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
 #define CUBE_QUIT          BUTTON_POWER
 #define CUBE_NEXT          BUTTON_NEXT
 #define CUBE_PREV          BUTTON_PREV
-#define CUBE_INC           BUTTON_SCROLL_FWD
-#define CUBE_DEC           BUTTON_SCROLL_BACK
-#define CUBE_MODE          BUTTON_MENU
-#define CUBE_PAUSE         BUTTON_BACK
+#define CUBE_INC           BUTTON_VOL_UP
+#define CUBE_DEC           BUTTON_VOL_DOWN
+#define CUBE_MODE          (BUTTON_HOME | BUTTON_POWER)
+#define CUBE_PAUSE         BUTTON_HOME
 #define CUBE_HIGHSPEED     BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define CUBE_QUIT           BUTTON_POWER
-#define CUBE_NEXT           BUTTON_RIGHT
-#define CUBE_PREV           BUTTON_LEFT
-#define CUBE_INC            BUTTON_SCROLL_FWD
-#define CUBE_DEC            BUTTON_SCROLL_BACK
-#define CUBE_MODE           BUTTON_MENU
-#define CUBE_PAUSE          BUTTON_PLAY
-#define CUBE_HIGHSPEED      BUTTON_BACK
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -436,6 +474,9 @@
 #endif
 #endif
 
+
+#ifdef HAVE_LCD_BITMAP
+
 #define DIST (10 * MIN(LCD_HEIGHT, LCD_WIDTH) / 16)
 static int x_off = LCD_WIDTH/2;
 static int y_off = LCD_HEIGHT/2;
@@ -467,6 +508,16 @@ static struct my_lcd *mylcd = &greyfuncs;
 #else
 #define ASPECT 256 /* = 1.00 */
 #endif
+
+#else /* !LCD_BITMAP */
+
+#define MYLCD(fn) pgfx_ ## fn
+#define DIST 9
+static int x_off = 10;
+static int y_off = 7;
+#define ASPECT 300 /* = 1.175 */
+
+#endif /* !LCD_BITMAP */
 
 struct point_3D {
     long x, y, z;
@@ -641,7 +692,7 @@ static void cube_draw(void)
     {
 #if LCD_DEPTH > 1 || defined(USEGSLIB)
       case SOLID:
-
+      
         old_foreground = mylcd_get_foreground();
         for (i = 0; i < 6; i++)
         {
@@ -717,6 +768,8 @@ static void cleanup(void)
 {
 #ifdef USEGSLIB
     grey_release();
+#elif defined HAVE_LCD_CHARCELLS
+    pgfx_release();
 #endif
 }
 
@@ -731,7 +784,6 @@ enum plugin_status plugin_start(const void* parameter)
 
     int button;
 #if defined(CUBE_MODE_PRE) || \
-    defined(CUBE_QUIT_PRE) || \
     defined(CUBE_PAUSE_PRE) || \
     defined(CUBE_HIGHSPEED_PRE)
     int lastbutton = BUTTON_NONE;
@@ -744,6 +796,7 @@ enum plugin_status plugin_start(const void* parameter)
 
     (void)(parameter);
 
+#ifdef HAVE_LCD_BITMAP
 #if defined(USEGSLIB)
     gbuf = (unsigned char *)rb->plugin_get_buffer(&gbuf_size);
     if (!grey_init(gbuf, gbuf_size, GREY_BUFFERED,
@@ -766,6 +819,14 @@ enum plugin_status plugin_start(const void* parameter)
     grey_setfont(FONT_SYSFIXED);
 #endif
     rb->lcd_setfont(FONT_SYSFIXED);
+#else /* LCD_CHARCELLS */
+    if (!pgfx_init(4, 2))
+    {
+        rb->splash(HZ*2, "Old LCD :(");
+        return PLUGIN_OK;
+    }
+    pgfx_display(0, 0);
+#endif
 
     atexit(cleanup);
     while(!quit)
@@ -779,6 +840,7 @@ enum plugin_status plugin_start(const void* parameter)
             redraw = false;
         }
 
+#ifdef HAVE_LCD_BITMAP
         if (t_disp > 0)
         {
             char buffer[30];
@@ -791,6 +853,24 @@ enum plugin_status plugin_start(const void* parameter)
             if (t_disp == 0)
                 redraw = true;
         }
+#else
+        if (t_disp > 0)
+        {
+            if (t_disp == DISP_TIME)
+            {
+                rb->lcd_puts(5, 0, axes[curr].label);
+                rb->lcd_putsf(5, 1, "%d %c",
+                             paused ? axes[curr].angle : axes[curr].speed,
+                             highspeed ? 'H' : ' ');
+            }
+            t_disp--;
+            if (t_disp == 0)
+            {
+                rb->lcd_clear_display();
+                pgfx_display(0, 0);
+            }
+        }
+#endif
 #ifdef USEGSLIB
         if (mode_switch)
         {
@@ -858,7 +938,7 @@ enum plugin_status plugin_start(const void* parameter)
                 t_disp = DISP_TIME;
                 redraw = true;
                 break;
-
+                
             case CUBE_NEXT:
                 if (++curr > 2)
                     curr = 0;
@@ -906,10 +986,6 @@ enum plugin_status plugin_start(const void* parameter)
             case CUBE_RC_QUIT:
 #endif
             case CUBE_QUIT:
-#ifdef CUBE_QUIT_PRE
-                if (lastbutton != CUBE_QUIT_PRE)
-                    break;
-#endif
                 quit = true;
                 break;
 
@@ -918,7 +994,6 @@ enum plugin_status plugin_start(const void* parameter)
                 break;
         }
 #if defined(CUBE_MODE_PRE) || \
-    defined(CUBE_QUIT_PRE) || \
     defined(CUBE_PAUSE_PRE) || \
     defined(CUBE_HIGHSPEED_PRE)
         if (button != BUTTON_NONE)
@@ -928,3 +1003,5 @@ enum plugin_status plugin_start(const void* parameter)
 
     return PLUGIN_OK;
 }
+
+

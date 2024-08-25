@@ -128,7 +128,8 @@ static int boot_of(void)
     __cpm_start_all();
 
     disable_interrupt();
-    commit_discard_idcache();
+    __dcache_writeback_all();
+    __icache_invalidate_all();
 
     for(i=8000; i>0; i--)
         asm volatile("nop\n");

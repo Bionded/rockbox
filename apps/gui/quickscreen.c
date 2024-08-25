@@ -26,7 +26,6 @@
 #include "font.h"
 #include "kernel.h"
 #include "misc.h"
-#include "sound.h"
 #include "action.h"
 #include "settings_list.h"
 #include "lang.h"
@@ -39,9 +38,6 @@
 #include "option_select.h"
 #include "debug.h"
 #include "shortcuts.h"
-#ifdef HAVE_ALBUMART
-#include "playback.h"
-#endif
 
  /* 1 top, 1 bottom, 2 on either side, 1 for the icons
   * if enough space, top and bottom have 2 lines */
@@ -176,9 +172,9 @@ static void gui_quickscreen_draw(const struct gui_quickscreen *qs,
     char buf[MAX_PATH];
     unsigned const char *title, *value;
     int temp;
-    struct viewport *last_vp = display->set_viewport(parent);
+    display->set_viewport(parent);
     display->clear_viewport();
-
+    
     for (i = 0; i < QUICKSCREEN_ITEM_COUNT; i++)
     {
         struct viewport *vp = &vps[i];
@@ -229,7 +225,7 @@ static void gui_quickscreen_draw(const struct gui_quickscreen *qs,
 
     display->set_viewport(parent);
     display->update_viewport();
-    display->set_viewport(last_vp);
+    display->set_viewport(NULL);
 }
 
 static void talk_qs_option(const struct settings_list *opt, bool enqueue)
@@ -251,21 +247,20 @@ static void talk_qs_option(const struct settings_list *opt, bool enqueue)
 static bool gui_quickscreen_do_button(struct gui_quickscreen * qs, int button)
 {
     int item;
-    bool previous = false;
+    bool invert = false;
     switch(button)
     {
         case ACTION_QS_TOP:
+            invert = true;
             item = QUICKSCREEN_TOP;
             break;
-
         case ACTION_QS_LEFT:
+            invert = true;
             item = QUICKSCREEN_LEFT;
-            previous = true;
             break;
 
         case ACTION_QS_DOWN:
             item = QUICKSCREEN_BOTTOM;
-            previous = true;
             break;
 
         case ACTION_QS_RIGHT:
@@ -275,58 +270,47 @@ static bool gui_quickscreen_do_button(struct gui_quickscreen * qs, int button)
         default:
             return false;
     }
-
     if (qs->items[item] == NULL)
         return false;
-
-    option_select_next_val(qs->items[item], previous, true);
+#ifdef ASCENDING_INT_SETTINGS
+    if (((qs->items[item]->flags & F_INT_SETTING) == F_INT_SETTING) &&
+        ( button == ACTION_QS_DOWN || button == ACTION_QS_TOP))
+    {
+        invert = !invert;
+    }
+#endif
+    option_select_next_val(qs->items[item], invert, true);
     talk_qs_option(qs->items[item], false);
     return true;
 }
 
 #ifdef HAVE_TOUCHSCREEN
-static int quickscreen_touchscreen_button(void)
+static int quickscreen_touchscreen_button(const struct viewport
+                                                    vps[QUICKSCREEN_ITEM_COUNT])
 {
     short x,y;
+    /* only hitting the text counts, everything else is exit */
     if (action_get_touchscreen_press(&x, &y) != BUTTON_REL)
         return ACTION_NONE;
-
-    enum { left=1, right=2, top=4, bottom=8 };
-
-    int bits = 0;
-
-    if(x < LCD_WIDTH/3)
-        bits |= left;
-    else if(x > 2*LCD_WIDTH/3)
-        bits |= right;
-
-    if(y < LCD_HEIGHT/3)
-        bits |= top;
-    else if(y > 2*LCD_HEIGHT/3)
-        bits |= bottom;
-
-    switch(bits) {
-    case top:
+    else if (viewport_point_within_vp(&vps[QUICKSCREEN_TOP], x, y))
         return ACTION_QS_TOP;
-    case bottom:
+    else if (viewport_point_within_vp(&vps[QUICKSCREEN_BOTTOM], x, y))
         return ACTION_QS_DOWN;
-    case left:
+    else if (viewport_point_within_vp(&vps[QUICKSCREEN_LEFT], x, y))
         return ACTION_QS_LEFT;
-    case right:
+    else if (viewport_point_within_vp(&vps[QUICKSCREEN_RIGHT], x, y))
         return ACTION_QS_RIGHT;
-    default:
-        return ACTION_STD_CANCEL;
-    }
+    return ACTION_STD_CANCEL;
 }
 #endif
 
-static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter, bool *usb)
+static bool gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter, bool *usb)
 {
     int button;
     struct viewport parent[NB_SCREENS];
     struct viewport vps[NB_SCREENS][QUICKSCREEN_ITEM_COUNT];
     struct viewport vp_icons[NB_SCREENS];
-    int ret = QUICKSCREEN_OK;
+    bool changed = false;
     /* To quit we need either :
      *  - a second press on the button that made us enter
      *  - an action taken while pressing the enter button,
@@ -334,7 +318,7 @@ static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter
     bool can_quit = false;
 
     push_current_activity(ACTIVITY_QUICKSCREEN);
-
+    
     FOR_NB_SCREENS(i)
     {
         screens[i].set_viewport(NULL);
@@ -358,7 +342,7 @@ static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter
         button = get_action(CONTEXT_QUICKSCREEN, HZ/5);
 #ifdef HAVE_TOUCHSCREEN
         if (button == ACTION_TOUCHSCREEN)
-            button = quickscreen_touchscreen_button();
+            button = quickscreen_touchscreen_button(vps[SCREEN_MAIN]);
 #endif
         if (default_event_handler(button) == SYS_USB_CONNECTED)
         {
@@ -367,7 +351,7 @@ static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter
         }
         if (gui_quickscreen_do_button(qs, button))
         {
-            ret |= QUICKSCREEN_CHANGED;
+            changed = true;
             can_quit = true;
             FOR_NB_SCREENS(i)
                 gui_quickscreen_draw(qs, &screens[i], &parent[i],
@@ -377,21 +361,7 @@ static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter
         }
         else if (button == button_enter)
             can_quit = true;
-        else if (button == ACTION_QS_VOLUP) {
-            adjust_volume(1);
-            FOR_NB_SCREENS(i)
-                skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_NON_STATIC);
-        }
-        else if (button == ACTION_QS_VOLDOWN) {
-            adjust_volume(-1);
-            FOR_NB_SCREENS(i)
-                skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_NON_STATIC);
-        }
-        else if (button == ACTION_STD_CONTEXT)
-        {
-            ret |= QUICKSCREEN_GOTO_SHORTCUTS_MENU;
-            break;
-        }
+
         if ((button == button_enter) && can_quit)
             break;
 
@@ -404,60 +374,100 @@ static int gui_syncquickscreen_run(struct gui_quickscreen * qs, int button_enter
     {   /* stop scrolling before exiting */
         for (int j = 0; j < QUICKSCREEN_ITEM_COUNT; j++)
             screens[i].scroll_stop_viewport(&vps[i][j]);
-        viewportmanager_theme_undo(i, !(ret & QUICKSCREEN_GOTO_SHORTCUTS_MENU));
+        viewportmanager_theme_undo(i, true);
     }
 
-    if (ret & QUICKSCREEN_GOTO_SHORTCUTS_MENU) /* Eliminate flashing of parent during */
-        pop_current_activity_without_refresh();   /* transition to Shortcuts */
-    else
-        pop_current_activity();
-
-    return ret;
+    pop_current_activity();
+    return changed;
 }
 
-int quick_screen_quick(int button_enter)
+static const struct settings_list *get_setting(int gs_value,
+                                        const struct settings_list *defaultval)
+{
+    if (gs_value != -1 && gs_value < nb_settings &&
+        is_setting_quickscreenable(&settings[gs_value]))
+        return &settings[gs_value];
+    return defaultval;
+}
+
+bool quick_screen_quick(int button_enter)
 {
     struct gui_quickscreen qs;
-#ifdef HAVE_ALBUMART
-    int old_album_art = global_settings.album_art;
-#endif
+    bool oldshuffle = global_settings.playlist_shuffle;
+    int oldrepeat = global_settings.repeat_mode;
     bool usb = false;
 
-    for (int i = 0; i < 4; ++i)
-    {
-        qs.items[i] = global_settings.qs_items[i];
+    if (global_settings.shortcuts_replaces_qs)
+        return do_shortcut_menu(NULL);
 
-        if (!is_setting_quickscreenable(qs.items[i]))
-            qs.items[i] = NULL;
-    }
+    qs.items[QUICKSCREEN_TOP] =
+            get_setting(global_settings.qs_items[QUICKSCREEN_TOP], NULL);
+    qs.items[QUICKSCREEN_LEFT] =
+            get_setting(global_settings.qs_items[QUICKSCREEN_LEFT],
+                        find_setting(&global_settings.playlist_shuffle, NULL));
+    qs.items[QUICKSCREEN_RIGHT] =
+            get_setting(global_settings.qs_items[QUICKSCREEN_RIGHT],
+                        find_setting(&global_settings.repeat_mode, NULL));
+    qs.items[QUICKSCREEN_BOTTOM] =
+            get_setting(global_settings.qs_items[QUICKSCREEN_BOTTOM], NULL);
 
     qs.callback = NULL;
-    int ret = gui_syncquickscreen_run(&qs, button_enter, &usb);
-    if (ret & QUICKSCREEN_CHANGED)
+    if (gui_syncquickscreen_run(&qs, button_enter, &usb))
     {
         settings_save();
-#ifdef HAVE_ALBUMART
-        if (old_album_art != global_settings.album_art)
-            set_albumart_mode(global_settings.album_art);
-#endif
+        settings_apply(false);
+        /* make sure repeat/shuffle/any other nasty ones get updated */
+        if ( oldrepeat != global_settings.repeat_mode &&
+             (audio_status() & AUDIO_STATUS_PLAY) )
+        {
+            audio_flush_and_reload_tracks();
+        }
+        if (oldshuffle != global_settings.playlist_shuffle
+            && audio_status() & AUDIO_STATUS_PLAY)
+        {
+            replaygain_update();
+            if (global_settings.playlist_shuffle)
+                playlist_randomise(NULL, current_tick, true);
+            else
+                playlist_sort(NULL, true);
+        }
     }
-    if (usb)
-        return QUICKSCREEN_IN_USB;
-    return ret & QUICKSCREEN_GOTO_SHORTCUTS_MENU ? QUICKSCREEN_GOTO_SHORTCUTS_MENU :
-                                                   QUICKSCREEN_OK;
+    return usb;
 }
+
+#ifdef BUTTON_F3
+bool quick_screen_f3(int button_enter)
+{
+    struct gui_quickscreen qs;
+    bool usb = false;
+    qs.items[QUICKSCREEN_TOP] = NULL;
+    qs.items[QUICKSCREEN_LEFT] =
+                    find_setting(&global_settings.scrollbar, NULL);
+    qs.items[QUICKSCREEN_RIGHT] =
+                    find_setting(&global_settings.statusbar, NULL);
+    qs.items[QUICKSCREEN_BOTTOM] =
+#ifdef HAVE_LCD_FLIP
+                    find_setting(&global_settings.flip_display, NULL);
+#else
+                    NULL;
+#endif
+    qs.callback = NULL;
+    if (gui_syncquickscreen_run(&qs, button_enter, &usb))
+    {
+        settings_save();
+        settings_apply(false);
+    }
+    return usb;
+}
+#endif /* BUTTON_F3 */
 
 /* stuff to make the quickscreen configurable */
 bool is_setting_quickscreenable(const struct settings_list *setting)
 {
-    if (!setting)
-        return true;
-
     /* to keep things simple, only settings which have a lang_id set are ok */
-    if (setting->lang_id < 0 || (setting->flags & F_BANFROMQS))
+    if (setting->lang_id < 0 || (setting->flags&F_BANFROMQS))
         return false;
-
-    switch (setting->flags & F_T_MASK)
+    switch (setting->flags&F_T_MASK)
     {
         case F_T_BOOL:
             return true;
@@ -467,4 +477,17 @@ bool is_setting_quickscreenable(const struct settings_list *setting)
         default:
             return false;
     }
+}
+
+void set_as_qs_item(const struct settings_list *setting,
+                    enum quickscreen_item item)
+{
+    int i;
+    for (i = 0; i < nb_settings; i++)
+    {
+        if (&settings[i] == setting)
+            break;
+    }
+
+    global_settings.qs_items[item] = i;
 }

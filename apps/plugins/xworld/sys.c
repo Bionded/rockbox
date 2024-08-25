@@ -40,7 +40,6 @@
 #include "engine.h"
 
 static struct System* save_sys;
-static fb_data *lcd_fb = NULL;
 
 static bool sys_save_settings(struct System* sys)
 {
@@ -122,7 +121,6 @@ void exit_handler(void)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(false);
 #endif
-
     backlight_use_settings();
 }
 
@@ -206,7 +204,7 @@ static void do_video_settings(struct System* sys)
 #else
         case 2:
 #endif
-            rb->set_option("Scaling", &sys->settings.scaling_quality, RB_INT, scaling_settings,
+            rb->set_option("Scaling", &sys->settings.scaling_quality, INT, scaling_settings,
 #ifdef HAVE_LCD_COLOR
                            3
 #else
@@ -225,7 +223,7 @@ static void do_video_settings(struct System* sys)
 #else
         case 3:
 #endif
-            rb->set_option("Rotation", &sys->settings.rotation_option, RB_INT, rotation_settings, 3, NULL);
+            rb->set_option("Rotation", &sys->settings.rotation_option, INT, rotation_settings, 3, NULL);
             if(sys->settings.rotation_option &&
                sys->settings.zoom)
             {
@@ -286,7 +284,7 @@ static void do_sound_settings(struct System* sys)
         case 2:
         {
             const struct settings_list* vol =
-                rb->find_setting(&rb->global_settings->volume);
+                rb->find_setting(&rb->global_settings->volume, NULL);
             rb->option_screen((struct settings_list*)vol, NULL, false, "Volume");
             break;
         }
@@ -313,11 +311,8 @@ static void sys_reset_settings(struct System* sys)
 
 static struct System* mainmenu_sysptr;
 
-static int mainmenu_cb(int action,
-                       const struct menu_item_ex *this_item,
-                       struct gui_synclist *this_list)
+static int mainmenu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int idx = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM && !mainmenu_sysptr->loaded && (idx == 0 || idx == 8 || idx == 10))
         return ACTION_EXIT_MENUITEM;
@@ -427,7 +422,6 @@ void sys_menu(struct System* sys)
 void sys_init(struct System* sys, const char* title)
 {
     (void) title;
-
     backlight_ignore_timeout();
     rb_atexit(exit_handler);
     save_sys = sys;
@@ -437,8 +431,6 @@ void sys_init(struct System* sys, const char* title)
     {
         sys_reset_settings(sys);
     }
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
 }
 
 void sys_destroy(struct System* sys)
@@ -494,7 +486,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
                 for (int i = 0; i < w / 2; ++i) {
                     uint8_t pix1 = *(buf + i) >> 4;
                     uint8_t pix2 = *(buf + i) & 0xF;
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
                     framebuffer[( (h * 2)    ) * 320 + i] = sys->palette[pix1];
                     framebuffer[( (h * 2) + 1) * 320 + i] = sys->palette[pix2];
 #else
@@ -513,7 +505,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
                 for (int i = 0; i < w / 2; ++i) {
                     uint8_t pix1 = *(buf + i) >> 4;
                     uint8_t pix2 = *(buf + i) & 0xF;
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
                     framebuffer[(200 - h * 2    ) * 320 + ( 320 - i )] = sys->palette[pix1];
                     framebuffer[(200 - h * 2 - 1) * 320 + ( 320 - i )] = sys->palette[pix2];
 #else
@@ -529,7 +521,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
     else
     {
         int next = 0;
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
         for(int x = 0; x < w / 2; ++x)
         {
             for(int y = 0; y < h; ++y)
@@ -563,7 +555,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
         struct bitmap in_bmp;
         if(sys->settings.rotation_option)
         {
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
             in_bmp.width = 320;
             in_bmp.height = 200;
 #else
@@ -573,7 +565,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
         }
         else
         {
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
             in_bmp.width = 200;
             in_bmp.height = 320;
 #else
@@ -585,7 +577,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
         struct bitmap out_bmp;
         out_bmp.width = LCD_WIDTH;
         out_bmp.height = LCD_HEIGHT;
-        out_bmp.data = (unsigned char*) lcd_fb;
+        out_bmp.data = (unsigned char*) rb->lcd_framebuffer;
 
 #ifdef HAVE_LCD_COLOR
         if(sys->settings.scaling_quality == 1)
@@ -598,7 +590,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
     }
     else
     {
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && (LCD_STRIDEFORMAT == VERTICAL_STRIDE)
         for(int x = 0; x < 320; ++x)
         {
             for(int y = 0; y < 200; ++y)
@@ -632,25 +624,25 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
             {
 #ifdef HAVE_LCD_COLOR
                 int r, g, b;
-                fb_data pix = lcd_fb[y * LCD_WIDTH + x];
+                fb_data pix = rb->lcd_framebuffer[y * LCD_WIDTH + x];
 #if (LCD_DEPTH > 24)
                 r = 0xff - pix.r;
                 g = 0xff - pix.g;
                 b = 0xff - pix.b;
-                lcd_fb[y * LCD_WIDTH + x] = (fb_data) { b, g, r, 255 };
+                rb->lcd_framebuffer[y * LCD_WIDTH + x] = (fb_data) { b, g, r, 255 };
 #elif (LCD_DEPTH == 24)
                 r = 0xff - pix.r;
                 g = 0xff - pix.g;
                 b = 0xff - pix.b;
-                lcd_fb[y * LCD_WIDTH + x] = (fb_data) { b, g, r };
+                rb->lcd_framebuffer[y * LCD_WIDTH + x] = (fb_data) { b, g, r };
 #else
                 r = RGB_UNPACK_RED  (pix);
                 g = RGB_UNPACK_GREEN(pix);
                 b = RGB_UNPACK_BLUE (pix);
-                lcd_fb[y * LCD_WIDTH + x] = LCD_RGBPACK(0xff - r, 0xff - g, 0xff - b);
+                rb->lcd_framebuffer[y * LCD_WIDTH + x] = LCD_RGBPACK(0xff - r, 0xff - g, 0xff - b);
 #endif
 #else
-                lcd_fb[y * LCD_WIDTH + x] = LCD_BRIGHTNESS(0xff - lcd_fb[y * LCD_WIDTH + x]);
+                rb->lcd_framebuffer[y * LCD_WIDTH + x] = LCD_BRIGHTNESS(0xff - rb->lcd_framebuffer[y * LCD_WIDTH + x]);
 #endif
             }
         }
@@ -672,14 +664,14 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
         if(prev_frames && orig_fb)
         {
 
-            rb->memcpy(orig_fb, lcd_fb, sizeof(fb_data) * LCD_WIDTH * LCD_HEIGHT);
+            rb->memcpy(orig_fb, rb->lcd_framebuffer, sizeof(fb_data) * LCD_WIDTH * LCD_HEIGHT);
             /* fancy useless slow motion blur */
             for(int y = 0; y < LCD_HEIGHT; ++y)
             {
                 for(int x = 0; x < LCD_WIDTH; ++x)
                 {
                     int r, g, b;
-                    fb_data pix = lcd_fb[y * LCD_WIDTH + x];
+                    fb_data pix = rb->lcd_framebuffer[y * LCD_WIDTH + x];
                     r = RGB_UNPACK_RED  (pix);
                     g = RGB_UNPACK_GREEN(pix);
                     b = RGB_UNPACK_BLUE (pix);
@@ -696,7 +688,7 @@ void sys_copyRect(struct System* sys, uint16_t x, uint16_t y, uint16_t w, uint16
                     r /= (BLUR_FRAMES + 1) / 2 * (1 + BLUR_FRAMES + 1);
                     g /= (BLUR_FRAMES + 1) / 2 * (1 + BLUR_FRAMES + 1);
                     b /= (BLUR_FRAMES + 1) / 2 * (1 + BLUR_FRAMES + 1);
-                    lcd_fb[y * LCD_WIDTH + x] = LCD_RGBPACK(r, g, b);
+                    rb->lcd_framebuffer[y * LCD_WIDTH + x] = LCD_RGBPACK(r, g, b);
                 }
             }
             prev_baseidx -= LCD_WIDTH * LCD_HEIGHT;

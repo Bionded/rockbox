@@ -14,7 +14,7 @@
 # This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
 # KIND, either express or implied.
 #
-#
+# 
 # Latvian language file, translated by Mārtiņš Šimis jeb msh
 <phrase>
   id: LANG_SET_BOOL_YES
@@ -246,20 +246,20 @@
   user: core
   <source>
     *: "PLAY = Yes"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, or top-right = Yes"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
   </source>
   <dest>
     *: "PLAY = Jā"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, vai labā augšējā = Jā"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Jā"
     iriverh100,iriverh120,iriverh300: "NAVI = Jā"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Jā"
     mrobe500: "PLAY, POWER, vai labā augšējā = Jā"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Jā"
   </dest>
   <voice>
@@ -771,15 +771,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Kreisais + Labais"
+    recording_swcodec: "Kreisais + Labais"
   </dest>
   <voice>
     *: none
-    recording: "mono kreisais plus labais"
+    recording_swcodec: "mono kreisais plus labais"
   </voice>
 </phrase>
 <phrase>
@@ -815,13 +815,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Kanālu Izlīdzināšana"
+    *: none
+    swcodec: "Kanālu Izlīdzināšana"
   </dest>
   <voice>
-    *: "kanaalu izliidzinaashana"
+    *: none
+    swcodec: "kanaalu izliidzinaashana"
   </voice>
 </phrase>
 <phrase>
@@ -829,13 +832,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Tiešais Skaļums"
+    *: none
+    swcodec: "Tiešais Skaļums"
   </dest>
   <voice>
-    *: "tieshais skaljums"
+    *: none
+    swcodec: "tieshais skaljums"
   </voice>
 </phrase>
 <phrase>
@@ -843,13 +849,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "Starpskaļums"
+    *: none
+    swcodec: "Starpskaļums"
   </dest>
   <voice>
-    *: "starpskaljums"
+    *: none
+    swcodec: "starpskaljums"
   </voice>
 </phrase>
 <phrase>
@@ -857,13 +866,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Augsto Frekvenču Vājinājums"
+    *: none
+    swcodec: "Augsto Frekvenču Vājinājums"
   </dest>
   <voice>
-    *: "augsto frekvenchu vaajinaajums"
+    *: none
+    swcodec: "augsto frekvenchu vaajinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -871,13 +883,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Augsto Frekvenču Sākums"
+    *: none
+    swcodec: "Augsto Frekvenču Sākums"
   </dest>
   <voice>
-    *: "augsto frekvenchu saakums"
+    *: none
+    swcodec: "augsto frekvenchu saakums"
   </voice>
 </phrase>
 <phrase>
@@ -885,13 +900,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Ekvalaizers"
+    *: none
+    swcodec: "Ekvalaizers"
   </dest>
   <voice>
-    *: "ekvalaizers"
+    *: none
+    swcodec: "ekvalaizers"
   </voice>
 </phrase>
 <phrase>
@@ -899,13 +917,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Ieslēgt Ekvalaizeru"
+    *: none
+    swcodec: "Ieslēgt Ekvalaizeru"
   </dest>
   <voice>
-    *: "ieslēgt ekvalaizeru"
+    *: none
+    swcodec: "ieslēgt ekvalaizeru"
   </voice>
 </phrase>
 <phrase>
@@ -913,13 +934,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Grafiskais Ekvalaizers"
+    *: none
+    swcodec: "Grafiskais Ekvalaizers"
   </dest>
   <voice>
-    *: "grafiskais ekvalaizers"
+    *: none
+    swcodec: "grafiskais ekvalaizers"
   </voice>
 </phrase>
 <phrase>
@@ -927,13 +951,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Pastiprinājums"
+    *: none
+    swcodec: "Pastiprinājums"
   </dest>
   <voice>
-    *: "kopeejais frekvenchu pastiprinaajums"
+    *: none
+    swcodec: "kopeejais frekvenchu pastiprinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -941,13 +968,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Vienkāršotais Ekvalaizers"
+    *: none
+    swcodec: "Vienkāršotais Ekvalaizers"
   </dest>
   <voice>
-    *: "vienkaarshotais ekvalaizers"
+    *: none
+    swcodec: "vienkaarshotais ekvalaizers"
   </voice>
 </phrase>
 <phrase>
@@ -955,13 +985,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Papildus Uzstādījumi"
+    *: none
+    swcodec: "Papildus Uzstādījumi"
   </dest>
   <voice>
-    *: "papildus uzstaadiijumi"
+    *: none
+    swcodec: "papildus uzstaadiijumi"
   </voice>
 </phrase>
 <phrase>
@@ -969,13 +1002,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Saglabāt Uzstādījumus"
+    *: none
+    swcodec: "Saglabāt Uzstādījumus"
   </dest>
   <voice>
-    *: "saglabaat ekvalaizera uzstaadiijumus"
+    *: none
+    swcodec: "saglabaat ekvalaizera uzstaadiijumus"
   </voice>
 </phrase>
 <phrase>
@@ -983,13 +1019,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Aplūkot Uzstādījumus"
+    *: none
+    swcodec: "Aplūkot Uzstādījumus"
   </dest>
   <voice>
-    *: "apluukot ekvalaizera uzstaadiijumus"
+    *: none
+    swcodec: "apluukot ekvalaizera uzstaadiijumus"
   </voice>
 </phrase>
 <phrase>
@@ -997,13 +1036,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Režīms: %s"
+    *: none
+    swcodec: "Režīms: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -1011,13 +1053,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz Joslas Stiprums"
+    *: none
+    swcodec: "%d Hz Joslas Stiprums"
   </dest>
   <voice>
-    *: "joslas stiprums hercos"
+    *: none
+    swcodec: "joslas stiprums hercos"
   </voice>
 </phrase>
 <phrase>
@@ -1025,13 +1070,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Basu Filtrs"
+    *: none
+    swcodec: "Basu Filtrs"
   </dest>
   <voice>
-    *: "basu filtrs"
+    *: none
+    swcodec: "basu filtrs"
   </voice>
 </phrase>
 <phrase>
@@ -1039,13 +1087,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Pīķa Filtrs %d"
+    *: none
+    swcodec: "Pīķa Filtrs %d"
   </dest>
   <voice>
-    *: "piikja filtrs"
+    *: none
+    swcodec: "piikja filtrs"
   </voice>
 </phrase>
 <phrase>
@@ -1053,13 +1104,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Augsto Frekvenču Filtrs"
+    *: none
+    swcodec: "Augsto Frekvenču Filtrs"
   </dest>
   <voice>
-    *: "augsto frekvenchu filtrs"
+    *: none
+    swcodec: "augsto frekvenchu filtrs"
   </voice>
 </phrase>
 <phrase>
@@ -1067,13 +1121,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Robežfrekvence"
+    *: none
+    swcodec: "Robežfrekvence"
   </dest>
   <voice>
-    *: "robezhfrekvence"
+    *: none
+    swcodec: "robezhfrekvence"
   </voice>
 </phrase>
 <phrase>
@@ -1081,13 +1138,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Centra Frekvence"
+    *: none
+    swcodec: "Centra Frekvence"
   </dest>
   <voice>
-    *: "centra frekvence"
+    *: none
+    swcodec: "centra frekvence"
   </voice>
 </phrase>
 <phrase>
@@ -1095,13 +1155,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Platums"
+    *: none
+    swcodec: "Platums"
   </dest>
   <voice>
-    *: "platums"
+    *: none
+    swcodec: "platums"
   </voice>
 </phrase>
 <phrase>
@@ -1109,13 +1172,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </source>
   <dest>
-    *: "Skaņas Izlīdzināšana"
+    *: none
+    swcodec: "Skaņas Izlīdzināšana"
   </dest>
   <voice>
-    *: "skanjas izliidzinaashana"
+    *: none
+    swcodec: "skanjas izliidzinaashana"
   </voice>
 </phrase>
 <phrase>
@@ -1659,13 +1725,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Novērst Pārlieku Skaļumu"
+    *: none
+    swcodec: "Novērst Pārlieku Skaļumu"
   </dest>
   <voice>
-    *: "noveerst paarlieku skaljumu"
+    *: none
+    swcodec: "noveerst paarlieku skaljumu"
   </voice>
 </phrase>
 <phrase>
@@ -1743,13 +1812,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Dz.Pārslēgšanas Pīkstiens"
+    *: none
+    swcodec: "Dz.Pārslēgšanas Pīkstiens"
   </dest>
   <voice>
-    *: "dziesmu paarsleegshanas piikstiens"
+    *: none
+    swcodec: "dziesmu paarsleegshanas piikstiens"
   </voice>
 </phrase>
 <phrase>
@@ -1757,13 +1829,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Vājš"
+    *: none
+    swcodec: "Vājš"
   </dest>
   <voice>
-    *: "vaajsh"
+    *: none
+    swcodec: "vaajsh"
   </voice>
 </phrase>
 <phrase>
@@ -1771,13 +1846,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Viduvējs"
+    *: none
+    swcodec: "Viduvējs"
   </dest>
   <voice>
-    *: "viduveejs"
+    *: none
+    swcodec: "viduveejs"
   </voice>
 </phrase>
 <phrase>
@@ -1785,13 +1863,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Spēcīgs"
+    *: none
+    swcodec: "Spēcīgs"
   </dest>
   <voice>
-    *: "speeciigs"
+    *: none
+    swcodec: "speeciigs"
   </voice>
 </phrase>
 <phrase>
@@ -1899,6 +1980,22 @@
   <voice>
     *: none
     headphone_detection: "nopauzeet un atsaakt"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: none
+    headphone_detection: "Attīšanas Ilgums"
+  </dest>
+  <voice>
+    *: none
+    headphone_detection: "attiishanas ilgums"
   </voice>
 </phrase>
 <phrase>
@@ -2134,19 +2231,21 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    archosplayer: "Building DB %d found"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Veidoju datubāzi... %d atrastas (OFF lai turpinātu)"
-    archosplayer: "Veidoju DB atrasts %d"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Veidoju datubāzi... %d atrastas (LEFT lai turpinātu)"
-    gogearsa9200: "Veidoju datubāzi... %d atrastas (REW lai turpinātu)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Veidoju datubāzi... %d atrastas (PREV lai turpinātu)"
     iriverh100,iriverh120,iriverh300: "Veidoju datubāzi... %d atrastas (STOP lai turpinātu)"
+    ipod*: "Veidoju datubāzi... %d atrastas (PREV lai turpinātu)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Veidoju datubāzi... %d atrastas (LEFT lai turpinātu)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Veidoju datubāzi... %d atrastas (PREV lai turpinātu)"
+    gogearsa9200: "Veidoju datubāzi... %d atrastas (REW lai turpinātu)"
+    archosplayer: "Veidoju DB atrasts %d"
   </dest>
   <voice>
     *: "atrasti ieraksti datubaazei"
@@ -2328,13 +2427,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Fonti"
+    *: none
+    lcd_bitmap: "Fonti"
   </dest>
   <voice>
-    *: "fonti"
+    *: none
+    lcd_bitmap: "fonti"
   </voice>
 </phrase>
 <phrase>
@@ -2596,13 +2698,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Kājām Gaisā"
+    *: none
+    lcd_bitmap: "Kājām Gaisā"
   </dest>
   <voice>
-    *: "kaajaam gaisaa"
+    *: none
+    lcd_bitmap: "kaajaam gaisaa"
   </voice>
 </phrase>
 <phrase>
@@ -2610,13 +2715,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Līnija"
+    *: none
+    lcd_bitmap: "Līnija"
   </dest>
   <voice>
-    *: "liinija"
+    *: none
+    lcd_bitmap: "liinija"
   </voice>
 </phrase>
 <phrase>
@@ -2624,13 +2732,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Kursors"
+    *: none
+    lcd_bitmap: "Kursors"
   </dest>
   <voice>
-    *: "kursors"
+    *: none
+    lcd_bitmap: "kursors"
   </voice>
 </phrase>
 <phrase>
@@ -2638,13 +2749,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Rinda (Apvērsta)"
+    *: none
+    lcd_bitmap: "Rinda (Apvērsta)"
   </dest>
   <voice>
-    *: "apveersta rinda"
+    *: none
+    lcd_bitmap: "apveersta rinda"
   </voice>
 </phrase>
 <phrase>
@@ -2934,13 +3048,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Teksts Izrullējas Ārpus Ekrāna"
+    *: none
+    lcd_bitmap: "Teksts Izrullējas Ārpus Ekrāna"
   </dest>
   <voice>
-    *: "teksts izrulleejas aarpus ekraana"
+    *: none
+    lcd_bitmap: "teksts izrulleejas aarpus ekraana"
   </voice>
 </phrase>
 <phrase>
@@ -2948,13 +3065,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Ekrāna Rullēšanas Solis"
+    *: none
+    lcd_bitmap: "Ekrāna Rullēšanas Solis"
   </dest>
   <voice>
-    *: "ekraana rulleeshanas solis"
+    *: none
+    lcd_bitmap: "ekraana rulleeshanas solis"
   </voice>
 </phrase>
 <phrase>
@@ -3010,13 +3130,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Statusa-/Rulljosla"
+    *: none
+    lcd_bitmap: "Statusa-/Rulljosla"
   </dest>
   <voice>
-    *: "statusa rulljosla"
+    *: none
+    lcd_bitmap: "statusa rulljosla"
   </voice>
 </phrase>
 <phrase>
@@ -3024,13 +3147,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Rulljosla"
+    *: none
+    lcd_bitmap: "Rulljosla"
   </dest>
   <voice>
-    *: "rulljosla"
+    *: none
+    lcd_bitmap: "rulljosla"
   </voice>
 </phrase>
 <phrase>
@@ -3038,13 +3164,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Statusa Josla"
+    *: none
+    lcd_bitmap: "Statusa Josla"
   </dest>
   <voice>
-    *: "statusa josla"
+    *: none
+    lcd_bitmap: "statusa josla"
   </voice>
 </phrase>
 <phrase>
@@ -3069,13 +3198,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Skaļuma Attēlošana"
+    *: none
+    lcd_bitmap: "Skaļuma Attēlošana"
   </dest>
   <voice>
-    *: "skaljuma atteeloshana"
+    *: none
+    lcd_bitmap: "skaljuma atteeloshana"
   </voice>
 </phrase>
 <phrase>
@@ -3083,13 +3215,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Batterijas Attēlošana"
+    *: none
+    lcd_bitmap: "Batterijas Attēlošana"
   </dest>
   <voice>
-    *: "baterijas atteeloshana"
+    *: none
+    lcd_bitmap: "baterijas atteeloshana"
   </voice>
 </phrase>
 <phrase>
@@ -3097,13 +3232,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Grafiski"
+    *: none
+    lcd_bitmap: "Grafiski"
   </dest>
   <voice>
-    *: "grafiski"
+    *: none
+    lcd_bitmap: "grafiski"
   </voice>
 </phrase>
 <phrase>
@@ -3111,13 +3249,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Numeriski"
+    *: none
+    lcd_bitmap: "Numeriski"
   </dest>
   <voice>
-    *: "numeriski"
+    *: none
+    lcd_bitmap: "numeriski"
   </voice>
 </phrase>
 <phrase>
@@ -3337,13 +3478,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Ebreju (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Ebreju (ISO-8859-8)"
   </dest>
   <voice>
-    *: "ebreju"
+    *: none
+    lcd_bitmap: "ebreju"
   </voice>
 </phrase>
 <phrase>
@@ -3365,13 +3509,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Tai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Tai (ISO-8859-11)"
   </dest>
   <voice>
-    *: "tai"
+    *: none
+    lcd_bitmap: "tai"
   </voice>
 </phrase>
 <phrase>
@@ -3379,13 +3526,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Arābu (CP1256)"
+    *: none
+    lcd_bitmap: "Arābu (CP1256)"
   </dest>
   <voice>
-    *: "araabu"
+    *: none
+    lcd_bitmap: "araabu"
   </voice>
 </phrase>
 <phrase>
@@ -3421,13 +3571,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Japāņu (SJIS)"
+    *: none
+    lcd_bitmap: "Japāņu (SJIS)"
   </dest>
   <voice>
-    *: "Japaanju"
+    *: none
+    lcd_bitmap: "Japaanju"
   </voice>
 </phrase>
 <phrase>
@@ -3435,13 +3588,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Vienk. Ķīniešu (GB2312)"
+    *: none
+    lcd_bitmap: "Vienk. Ķīniešu (GB2312)"
   </dest>
   <voice>
-    *: "vienkaarshotais kjiinieshu"
+    *: none
+    lcd_bitmap: "vienkaarshotais kjiinieshu"
   </voice>
 </phrase>
 <phrase>
@@ -3449,13 +3605,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Korejiešu (KSX1001)"
+    *: none
+    lcd_bitmap: "Korejiešu (KSX1001)"
   </dest>
   <voice>
-    *: "korejieshu"
+    *: none
+    lcd_bitmap: "korejieshu"
   </voice>
 </phrase>
 <phrase>
@@ -3463,13 +3622,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Trad. Ķīniešu (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Ķīniešu (BIG5)"
   </dest>
   <voice>
-    *: "tradicionaalais kjiinieshu"
+    *: none
+    lcd_bitmap: "tradicionaalais kjiinieshu"
   </voice>
 </phrase>
 <phrase>
@@ -3493,17 +3655,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Pogu Apgaismojums"
-    sansae200*,sansafuze*: "Ripuļa Apgaismojums"
+    sansafuze*,sansae200*: "Ripuļa Apgaismojums"
   </dest>
   <voice>
     *: none
     button_light: "pogu apgaismojums"
-    sansae200*,sansafuze*: "ripulja apgaismojums"
+    sansafuze*,sansae200*: "ripulja apgaismojums"
   </voice>
 </phrase>
 <phrase>
@@ -3611,7 +3773,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -3628,7 +3790,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
@@ -3774,27 +3936,27 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Uzstādīt"
-    gogearsa9200,samsungyh*: "PLAY = Uzstādīt"
-    iriverh100,iriverh120,iriverh300: "NAVI = Uzstādīt"
-    mpiohd300: "ENTER = Uzstādīt"
-    mrobe500: "HEART = Uzstādīt"
     rtc: "ON = Uzstādīt"
+    mrobe500: "HEART = Uzstādīt"
+    iriverh100,iriverh120,iriverh300: "NAVI = Uzstādīt"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Uzstādīt"
+    gogearsa9200,samsungyh*: "PLAY = Uzstādīt"
     vibe500: "OK = Uzstādīt"
+    mpiohd300: "ENTER = Uzstādīt"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,iriverh10,iriverh10_5gb,iaudiox5,iaudiom5,ipod*,sansae200*,sansac200*,gigabeat*,mrobe100,gogearsa9200,samsungyh*: ""
   </voice>
 </phrase>
 <phrase>
@@ -3803,35 +3965,39 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Atcelt"
-    gigabeats,sansafuzeplus: "BACK = Atcelt"
-    gogearsa9200: "LEFT = Atcelt"
-    iaudiom5,iaudiox5: "RECORD = Atcelt"
-    ipod*,mpiohd300,sansac200*: "MENU = Atcelt"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Atcelt"
-    iriverh100,iriverh120,iriverh300: "STOP = Atcelt"
-    mrobe100: "DISPLAY = Atcelt"
     rtc: "OFF = Atcelt"
-    samsungyh*: "REW = Atcelt"
+    mrobe500: "POWER = Atcelt"
+    iriverh100,iriverh120,iriverh300: "STOP = Atcelt"
+    ipod*,sansac200*,mpiohd300: "MENU = Atcelt"
+    iaudiox5,iaudiom5: "RECORD = Atcelt"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Atcelt"
+    gigabeatfx: "POWER = Atcelt"
+    sansafuzeplus: "BACK = Atcelt"
+    mrobe100: "DISPLAY = Atcelt"
+    gigabeats: "BACK = Atcelt"
+    gogearsa9200: "LEFT = Atcelt"
     vibe500: "CANCEL = Atcelt"
+    samsungyh*: "REW = Atcelt"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,ipod*,sansae200*,sansac200*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,gigabeat*,mrobe100,gogearsa9200: ""
   </voice>
 </phrase>
 <phrase>
@@ -4317,22 +4483,22 @@
   <source>
     *: none
     alarm: "PLAY=Set OFF=Cancel"
-    gigabeats: "SELECT=Set POWER=Cancel"
     ipod*: "SELECT=Set MENU=Cancel"
     iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: none
     alarm: "PLAY=Uzst OFF=Atteikties"
-    gigabeats: "SELECT=Uzst POWER=Atteikties"
     ipod*: "SELECT=Uzst MENU=Atteikties"
     iriverh10,iriverh10_5gb: "SELECT=Uzst PREV=Atteikties"
+    gigabeats: "SELECT=Uzst POWER=Atteikties"
+    vibe500: "OK=Uzst C=Atteikties"
     mpiohd300: "ENTER=Uzst MENU=Atteikties"
     sansafuzeplus: "SELECT=Uzst  BACK=Atteikties"
-    vibe500: "OK=Uzst C=Atteikties"
   </dest>
   <voice>
     *: none
@@ -5177,6 +5343,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_REGION
   desc: fm tuner region setting
   user: core
@@ -5262,17 +5445,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Formāts"
+    *: none
+    recording: "Formāts"
   </dest>
   <voice>
-    *: "formaats"
+    *: none
+    recording: "formaats"
   </voice>
 </phrase>
 <phrase>
@@ -5315,15 +5501,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -5366,15 +5552,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Bitreits"
+    recording_swcodec: "Bitreits"
   </dest>
   <voice>
     *: none
-    recording: "bitreits"
+    recording_swcodec: "bitreits"
   </voice>
 </phrase>
 <phrase>
@@ -5417,15 +5603,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Frekvence"
+    recording,play_frequency: "Frekvence"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "frekvence"
+    recording,play_frequency: "frekvence"
   </voice>
 </phrase>
 <phrase>
@@ -5468,18 +5654,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Ievūvētais Mikrofons"
     recording: "Mikrofons"
+    iriverh100,iriverh120,iriverh300: "Ievūvētais Mikrofons"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "iebuuveetais mikrofons"
     recording: "mikrofons"
+    iriverh100,iriverh120,iriverh300: "iebuuveetais mikrofons"
   </voice>
 </phrase>
 <phrase>
@@ -5505,15 +5691,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Lineārā Ieeja"
+    recording,archosplayer: "Lineārā Ieeja"
   </dest>
   <voice>
     *: none
-    recording: "lineaaraa ieeja"
+    recording,archosplayer: "lineaaraa ieeja"
   </voice>
 </phrase>
 <phrase>
@@ -6357,13 +6543,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Baterija: %d%% %ds %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Bat: %d%% %ds %dm"
-    iriverifp7xx: "%d%% %ds %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %ds %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Bat: %d%% %ds %dm"
   </dest>
   <voice>
     *: "baterijas liimenis"
@@ -6420,24 +6606,24 @@
   user: core
   <source>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "MSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "MSD:"
     xduoox3: "MSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    archosondio*: "em em cee"
     multivolume: "haa dee viens"
-    sansac200*,sansae200*,sansafuze*: "mikro es dee"
+    sansae200*,sansac200*,sansafuze*: "mikro es dee"
     xduoox3: "mikro es dee 2"
+    archosondio*: "em em cee"
   </voice>
 </phrase>
 <phrase>
@@ -7340,6 +7526,40 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ONPLAY_OPEN_WITH
   desc: Onplay open with
   user: core
@@ -7650,6 +7870,8 @@
     *: "laiks"
   </voice>
 </phrase>
+/* TODO: cleanup LANG_USB_CHARGING unless HAVE_USB_CHARGING_ENABLE defined,
+ * the selector should probably be usb_charging_enable_enable as well. */
 <phrase>
   id: LANG_USB_CHARGING
   desc: in Battery menu
@@ -7718,23 +7940,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "Atmiņa pilna. Spied POWER lai turpinātu."
-    iriverh100,iriverh120,iriverh300: "Atmiņa pilna. Spied STOP lai turpinātu."
     recording: "Atmiņa pilna. Spied OFF lai turpinātu."
+    iriverh100,iriverh120,iriverh300: "Atmiņa pilna. Spied STOP lai turpinātu."
+    iaudiom5,iaudiox5: "Atmiņa pilna. Spied POWER lai turpinātu."
+    sansae200*,sansac200*,vibe500: "Atmiņa pilna. Spied PREV lai turpinātu."
     samsungyh*: "Atmiņa pilna. Spied LEFT lai turpinātu."
-    sansac200*,sansae200*,vibe500: "Atmiņa pilna. Spied PREV lai turpinātu."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,sansac200*,sansae200*: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -7822,21 +8044,23 @@
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF lai pārtrauktu"
-    gigabeatfx: "POWER lai pārtrauktu"
-    gigabeats,sansafuzeplus: "BACK lai pārtrauktu"
-    iaudiom5,iaudiox5: "Long PLAY lai pārtrauktu"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP lai pārtrauktu"
     ipod*: "PLAY/PAUSE lai pārtrauktu"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV lai pārtrauktu"
-    iriverh100,iriverh120,iriverh300: "STOP lai pārtrauktu"
+    iaudiox5,iaudiom5: "Long PLAY lai pārtrauktu"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV lai pārtrauktu"
+    gigabeats: "BACK lai pārtrauktu"
+    gigabeatfx: "POWER lai pārtrauktu"
+    sansafuzeplus: "BACK lai pārtrauktu"
   </dest>
   <voice>
     *: ""
@@ -9388,7 +9612,7 @@
     *: ""
   </source>
   <dest>
-    *: ""
+     *: ""
   </dest>
   <voice>
     *: "cue fails"
@@ -9430,13 +9654,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Izmainit: %s %s"
+    *: none
+    swcodec: "Izmainit: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -9444,13 +9671,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Robeza"
+    *: none
+    swcodec: "Robeza"
   </dest>
   <voice>
-    *: "robezhfrekvence"
+    *: none
+    swcodec: "robezhfrekvence"
   </voice>
 </phrase>
 <phrase>
@@ -9458,13 +9688,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Pastiprinajums"
+    *: none
+    swcodec: "Pastiprinajums"
   </dest>
   <voice>
-    *: "pastiprinaajums"
+    *: none
+    swcodec: "pastiprinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -9472,13 +9705,16 @@
   desc: in wps F2 pressed
   user: core
   <source>
-    *: "Mode:"
+    *: none
+    lcd_bitmap: "Mode:"
   </source>
   <dest>
-    *: "Režīms:"
+    *: none
+    lcd_bitmap: "Režīms:"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -10107,7 +10343,7 @@
     multivolume: "nav"
   </voice>
 </phrase>
-<phrase>
+<phrase>  
   id: LANG_TALK_BATTERY_LEVEL
   desc: Setting for spontaneous battery level announcement
   user: core
@@ -10141,15 +10377,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Basu Robežfrekvence"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Basu Robežfrekvence"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "basu robezhfrekvence"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "basu robezhfrekvence"
   </voice>
 </phrase>
 <phrase>
@@ -10158,15 +10394,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "AF Robežfrekvence"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "AF Robežfrekvence"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "augsto frekvenchu robezhfrekvence"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "augsto frekvenchu robezhfrekvence"
   </voice>
 </phrase>
 <phrase>
@@ -10202,13 +10438,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Klikšķis"
+    *: none
+    swcodec: "Klikšķis"
   </dest>
   <voice>
-    *: "klikshkjis"
+    *: none
+    swcodec: "klikshkjis"
   </voice>
 </phrase>
 <phrase>
@@ -10216,13 +10455,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Klikšķu Atkārtošana"
+    *: none
+    swcodec: "Klikšķu Atkārtošana"
   </dest>
   <voice>
-    *: "klikshkju atkaartoshana"
+    *: none
+    swcodec: "klikshkju atkaartoshana"
   </voice>
 </phrase>
 <phrase>
@@ -10307,11 +10549,11 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Skārienvirsmas Jūtība"
+    gigabeatfx,sansafuzeplus: "Skārienvirsmas Jūtība"
   </dest>
   <voice>
     *: none
@@ -10343,11 +10585,11 @@
     *: none
     serial_port: "Serial Bitrate"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Seriālais Bitreits"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "seriaalais bitreits"
   </voice>
@@ -10360,11 +10602,11 @@
     *: none
     serial_port: "Auto"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Automātiski"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "automaatiski"
   </voice>
@@ -10377,11 +10619,11 @@
     *: none
     serial_port: "9600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "9600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "9600"
   </voice>
@@ -10394,11 +10636,11 @@
     *: none
     serial_port: "19200"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "19200"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "19200"
   </voice>
@@ -10411,11 +10653,11 @@
     *: none
     serial_port: "38400"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "38400"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "38400"
   </voice>
@@ -10428,11 +10670,11 @@
     *: none
     serial_port: "57600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "57600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "57600"
   </voice>
@@ -10694,15 +10936,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Mono režīms"
+    recording_swcodec: "Mono režīms"
   </dest>
   <voice>
     *: none
-    recording: "mono rezhiims"
+    recording_swcodec: "mono rezhiims"
   </voice>
 </phrase>
 <phrase>
@@ -10955,13 +11197,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Ātruma Maiņa"
+    *: none
+    swcodec: "Ātruma Maiņa"
   </dest>
   <voice>
-    *: "aatruma mainja"
+    *: none
+    swcodec: "aatruma mainja"
   </voice>
 </phrase>
 <phrase>
@@ -10969,13 +11214,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Ātrums"
+    *: none
+    swcodec: "Ātrums"
   </dest>
   <voice>
-    *: "aatrums"
+    *: none
+    swcodec: "aatrums"
   </voice>
 </phrase>
 <phrase>
@@ -11076,7 +11324,7 @@
 </phrase>
 <phrase>
   id: LANG_SEMITONE
-  desc:
+  desc: 
   user: core
   <source>
     *: none
@@ -11211,17 +11459,34 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SCROLLBAR_WIDTH
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Rulljoslas Platums"
+    *: none
+    lcd_bitmap: "Rulljoslas Platums"
   </dest>
   <voice>
-    *: "rulljoslas platums"
+    *: none
+    lcd_bitmap: "rulljoslas platums"
   </voice>
 </phrase>
 <phrase>
@@ -11229,13 +11494,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Rulljoslas Pozīcija"
+    *: none
+    lcd_bitmap: "Rulljoslas Pozīcija"
   </dest>
   <voice>
-    *: "rulljoslas poziicija"
+    *: none
+    lcd_bitmap: "rulljoslas poziicija"
   </voice>
 </phrase>
 <phrase>
@@ -11243,13 +11511,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Kompresors"
+    *: none
+    swcodec: "Kompresors"
   </dest>
   <voice>
-    *: "kompresors"
+    *: none
+    swcodec: "kompresors"
   </voice>
 </phrase>
 <phrase>
@@ -11308,13 +11579,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Slieksnis"
+    *: none
+    swcodec: "Slieksnis"
   </dest>
   <voice>
-    *: "slieksnis"
+    *: none
+    swcodec: "slieksnis"
   </voice>
 </phrase>
 <phrase>
@@ -11322,13 +11596,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Attiecība"
+    *: none
+    swcodec: "Attiecība"
   </dest>
   <voice>
-    *: "attieciiba"
+    *: none
+    swcodec: "attieciiba"
   </voice>
 </phrase>
 <phrase>
@@ -11336,13 +11613,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "divi pret vienu"
+    *: none
+    swcodec: "divi pret vienu"
   </voice>
 </phrase>
 <phrase>
@@ -11350,13 +11630,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "chetri pret vienu"
+    *: none
+    swcodec: "chetri pret vienu"
   </voice>
 </phrase>
 <phrase>
@@ -11364,13 +11647,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "seshi pret vienu"
+    *: none
+    swcodec: "seshi pret vienu"
   </voice>
 </phrase>
 <phrase>
@@ -11378,13 +11664,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "desmit pret vienu"
+    *: none
+    swcodec: "desmit pret vienu"
   </voice>
 </phrase>
 <phrase>
@@ -11392,13 +11681,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Ierobežojums"
+    *: none
+    swcodec: "Ierobežojums"
   </dest>
   <voice>
-    *: "ierobezhojums"
+    *: none
+    swcodec: "ierobezhojums"
   </voice>
 </phrase>
 <phrase>
@@ -11406,13 +11698,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Beigu Pastiprinājums"
+    *: none
+    swcodec: "Beigu Pastiprinājums"
   </dest>
   <voice>
-    *: "beigu pastiprinaajums"
+    *: none
+    swcodec: "beigu pastiprinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -11420,13 +11715,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Automātisks"
+    *: none
+    swcodec: "Automātisks"
   </dest>
   <voice>
-    *: "automaatisks"
+    *: none
+    swcodec: "automaatisks"
   </voice>
 </phrase>
 <phrase>
@@ -11434,13 +11732,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Pāreja"
+    *: none
+    swcodec: "Pāreja"
   </dest>
   <voice>
-    *: "paareja"
+    *: none
+    swcodec: "paareja"
   </voice>
 </phrase>
 <phrase>
@@ -11448,13 +11749,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Asa Pāreja"
+    *: none
+    swcodec: "Asa Pāreja"
   </dest>
   <voice>
-    *: "asa paareja"
+    *: none
+    swcodec: "asa paareja"
   </voice>
 </phrase>
 <phrase>
@@ -11462,13 +11766,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Izlīdzināta Pāreja"
+    *: none
+    swcodec: "Izlīdzināta Pāreja"
   </dest>
   <voice>
-    *: "izliidzinaata paareja"
+    *: none
+    swcodec: "izliidzinaata paareja"
   </voice>
 </phrase>
 <phrase>
@@ -11476,13 +11783,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Samazināšanas Laiks"
+    *: none
+    swcodec: "Samazināšanas Laiks"
   </dest>
   <voice>
-    *: "samazinaashanas laiks"
+    *: none
+    swcodec: "samazinaashanas laiks"
   </voice>
 </phrase>
 <phrase>
@@ -11670,13 +11980,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Pamatāda"
+    *: none
+    lcd_bitmap: "Pamatāda"
   </dest>
   <voice>
-    *: "pamataada"
+    *: none
+    lcd_bitmap: "pamataada"
   </voice>
 </phrase>
 <phrase>
@@ -11684,13 +11997,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Pults Pamatāda"
+    *: none
+    lcd_bitmap: "Pults Pamatāda"
   </dest>
   <voice>
-    *: "pults pamataada"
+    *: none
+    lcd_bitmap: "pults pamataada"
   </voice>
 </phrase>
 <phrase>
@@ -11800,13 +12116,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Attīt Pirms Atsākt"
+    *: none
+    swcodec: "Attīt Pirms Atsākt"
   </dest>
   <voice>
-    *: "attiit pirms atsaakt"
+    *: none
+    swcodec: "attiit pirms atsaakt"
   </voice>
 </phrase>
 <phrase>
@@ -11925,7 +12244,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats: "joslas pastiprinaajums"
+    gigabeats: "joslas %d pastiprinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -11942,7 +12261,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats: "joslas frekvence"
+    gigabeats: "joslas %d frekvence"
   </voice>
 </phrase>
 <phrase>
@@ -11959,7 +12278,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats: "joslas platums"
+    gigabeats: "joslas %d platums"
   </voice>
 </phrase>
 <phrase>
@@ -12002,15 +12321,15 @@
   user: core
   <source>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "3-D Enhancement"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "3-D Enhancement"
   </source>
   <dest>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "3-D Paplašinājums"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "3-D Paplašinājums"
   </dest>
   <voice>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "triis dimensiju paplashinaajums"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "triis dimensiju paplashinaajums"
   </voice>
 </phrase>
 <phrase>
@@ -12198,7 +12517,7 @@
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -12208,6 +12527,34 @@
   </dest>
   <voice>
     *: "izmeers"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -12496,13 +12843,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Vienkāršā (Meier)"
+    *: none
+    swcodec: "Vienkāršā (Meier)"
   </dest>
   <voice>
-    *: "vienkaarshaa"
+    *: none
+    swcodec: "vienkaarshaa"
   </voice>
 </phrase>
 <phrase>
@@ -12538,13 +12888,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Nestandarta"
+    *: none
+    swcodec: "Nestandarta"
   </dest>
   <voice>
-    *: "nestandarta"
+    *: none
+    swcodec: "nestandarta"
   </voice>
 </phrase>
 <phrase>

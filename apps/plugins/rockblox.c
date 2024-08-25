@@ -25,6 +25,7 @@
 #include "lib/helper.h"
 #include "lib/highscore.h"
 #include "lib/playback_control.h"
+#include "lib/playergfx.h"
 #include "lib/mylcd.h"
 
 
@@ -33,7 +34,7 @@
     (CONFIG_KEYPAD == IPOD_3G_PAD) ||           \
     (CONFIG_KEYPAD == IPOD_1G2G_PAD)
 
-#define ROCKBLOX_OFF           (BUTTON_SELECT | BUTTON_REPEAT)
+#define ROCKBLOX_OFF           (BUTTON_MENU | BUTTON_SELECT)
 #define ROCKBLOX_ROTATE_CCW    BUTTON_SCROLL_BACK
 #define ROCKBLOX_ROTATE_CCW2   (BUTTON_MENU | BUTTON_REL)
 #define ROCKBLOX_ROTATE_CW     BUTTON_SCROLL_FWD
@@ -41,7 +42,6 @@
 #define ROCKBLOX_RIGHT         BUTTON_RIGHT
 #define ROCKBLOX_DOWN          BUTTON_PLAY
 #define ROCKBLOX_RESTART       (BUTTON_SELECT | BUTTON_PLAY)
-#define ROCKBLOX_DROP_PRE      BUTTON_SELECT
 #define ROCKBLOX_DROP          (BUTTON_SELECT | BUTTON_REL)
 
 #elif (CONFIG_KEYPAD == IRIVER_H100_PAD) ||     \
@@ -57,6 +57,54 @@
 #define ROCKBLOX_RESTART       BUTTON_ON
 
 #define ROCKBLOX_RC_OFF       BUTTON_RC_STOP
+
+#elif CONFIG_KEYPAD == RECORDER_PAD
+
+#define ROCKBLOX_OFF           BUTTON_OFF
+#define ROCKBLOX_ROTATE_CCW    BUTTON_UP
+#define ROCKBLOX_ROTATE_CW     BUTTON_PLAY
+#define ROCKBLOX_DOWN          BUTTON_DOWN
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP          BUTTON_ON
+#define ROCKBLOX_RESTART       BUTTON_F1
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+
+#define ROCKBLOX_OFF           BUTTON_OFF
+#define ROCKBLOX_ROTATE_CCW    BUTTON_UP
+#define ROCKBLOX_ROTATE_CW     BUTTON_SELECT
+#define ROCKBLOX_DOWN          BUTTON_DOWN
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP          BUTTON_ON
+#define ROCKBLOX_RESTART       BUTTON_F1
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+
+#define ROCKBLOX_OFF_PRE       BUTTON_STOP
+#define ROCKBLOX_OFF           (BUTTON_STOP|BUTTON_REL)
+#define ROCKBLOX_ROTATE_CCW    BUTTON_PLAY
+#define ROCKBLOX_ROTATE_CW     (BUTTON_ON|BUTTON_PLAY)
+#define ROCKBLOX_DOWN          BUTTON_MENU
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP_PRE      BUTTON_ON
+#define ROCKBLOX_DROP          (BUTTON_ON|BUTTON_REL)
+#define ROCKBLOX_RESTART       (BUTTON_STOP|BUTTON_MENU)
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+
+#define ROCKBLOX_OFF_PRE       BUTTON_OFF
+#define ROCKBLOX_OFF           (BUTTON_OFF|BUTTON_REL)
+#define ROCKBLOX_ROTATE_CCW    BUTTON_UP
+#define ROCKBLOX_ROTATE_CW     (BUTTON_MENU|BUTTON_UP)
+#define ROCKBLOX_DOWN          BUTTON_DOWN
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP_PRE      BUTTON_MENU
+#define ROCKBLOX_DROP          (BUTTON_MENU|BUTTON_REL)
+#define ROCKBLOX_RESTART       (BUTTON_OFF|BUTTON_MENU)
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 
@@ -153,6 +201,17 @@
 #define ROCKBLOX_DROP          BUTTON_SELECT
 #define ROCKBLOX_RESTART       BUTTON_A
 
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+
+#define ROCKBLOX_OFF           BUTTON_PLAY
+#define ROCKBLOX_ROTATE_CCW    BUTTON_UP
+#define ROCKBLOX_ROTATE_CW     BUTTON_SELECT
+#define ROCKBLOX_DOWN          BUTTON_DOWN
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP          BUTTON_MODE
+#define ROCKBLOX_RESTART       BUTTON_EQ
+
 #elif CONFIG_KEYPAD == MROBE500_PAD
 #define ROCKBLOX_OFF           BUTTON_POWER
 
@@ -193,6 +252,17 @@
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 
 #define ROCKBLOX_OFF           BUTTON_POWER
+#define ROCKBLOX_RESTART       BUTTON_MENU
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define ROCKBLOX_OFF           BUTTON_POWER
+#define ROCKBLOX_ROTATE_CCW    BUTTON_VOLDOWN
+#define ROCKBLOX_ROTATE_CW     BUTTON_VOLUP
+#define ROCKBLOX_DOWN          BUTTON_STOP
+#define ROCKBLOX_LEFT          BUTTON_LEFT
+#define ROCKBLOX_RIGHT         BUTTON_RIGHT
+#define ROCKBLOX_DROP          BUTTON_PLAY
 #define ROCKBLOX_RESTART       BUTTON_MENU
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
@@ -410,7 +480,7 @@
 #define ROCKBLOX_ROTATE_CCW    BUTTON_VOLDOWN
 #define ROCKBLOX_DOWN          BUTTON_DOWN
 
-#elif (CONFIG_KEYPAD == XDUOO_X3_PAD) || (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 
 #define ROCKBLOX_OFF           BUTTON_POWER
 #define ROCKBLOX_ROTATE_CCW    BUTTON_HOME
@@ -422,19 +492,7 @@
 #define ROCKBLOX_DROP          (BUTTON_PLAY|BUTTON_REL)
 #define ROCKBLOX_RESTART       (BUTTON_PLAY|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-
-#define ROCKBLOX_OFF           BUTTON_POWER
-#define ROCKBLOX_ROTATE_CCW    BUTTON_HOME
-#define ROCKBLOX_ROTATE_CCW2   BUTTON_VOL_DOWN
-#define ROCKBLOX_ROTATE_CW     BUTTON_VOL_UP
-#define ROCKBLOX_DOWN          BUTTON_OPTION
-#define ROCKBLOX_LEFT          BUTTON_PREV
-#define ROCKBLOX_RIGHT         BUTTON_NEXT
-#define ROCKBLOX_DROP          (BUTTON_PLAY|BUTTON_REL)
-#define ROCKBLOX_RESTART       (BUTTON_PLAY|BUTTON_REPEAT)
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 
 #define ROCKBLOX_OFF           BUTTON_POWER
 #define ROCKBLOX_ROTATE_CCW    BUTTON_HOME
@@ -446,28 +504,17 @@
 #define ROCKBLOX_DROP          (BUTTON_POWER|BUTTON_PLAY)
 #define ROCKBLOX_RESTART       (BUTTON_POWER|BUTTON_REPEAT)
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+
 #define ROCKBLOX_OFF           BUTTON_POWER
-#define ROCKBLOX_ROTATE_CCW    BUTTON_SCROLL_BACK
-#define ROCKBLOX_ROTATE_CW     BUTTON_SCROLL_FWD
-#define ROCKBLOX_DOWN          BUTTON_MENU
+#define ROCKBLOX_ROTATE_CCW    BUTTON_HOME
+#define ROCKBLOX_ROTATE_CCW2   BUTTON_VOL_DOWN
+#define ROCKBLOX_ROTATE_CW     BUTTON_VOL_UP
+#define ROCKBLOX_DOWN          BUTTON_PLAY
 #define ROCKBLOX_LEFT          BUTTON_PREV
 #define ROCKBLOX_RIGHT         BUTTON_NEXT
-#define ROCKBLOX_DROP          BUTTON_PLAY
-#define ROCKBLOX_RESTART       BUTTON_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define ROCKBLOX_OFF            BUTTON_POWER
-#define ROCKBLOX_ROTATE_CCW     BUTTON_UP
-#define ROCKBLOX_ROTATE_CW      BUTTON_DOWN
-#define ROCKBLOX_DOWN           BUTTON_SELECT
-#define ROCKBLOX_LEFT           BUTTON_LEFT
-#define ROCKBLOX_RIGHT          BUTTON_RIGHT
-#define ROCKBLOX_DROP           BUTTON_PLAY
-#define ROCKBLOX_RESTART        BUTTON_BACK
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define ROCKBLOX_DROP          (BUTTON_POWER|BUTTON_PLAY)
+#define ROCKBLOX_RESTART       (BUTTON_POWER|BUTTON_REPEAT)
 
 #else
 #error No keymap defined!
@@ -510,6 +557,8 @@
 
 #define BOARD_WIDTH 10
 
+#ifdef HAVE_LCD_BITMAP
+
 #define BOARD_HEIGHT 20
 
 #if (LCD_WIDTH == 640) && (LCD_HEIGHT == 480)
@@ -537,22 +586,6 @@
 #define SCORE_Y 58
 #define LEVEL_Y 142
 #define LINES_Y 218
-
-#elif (LCD_WIDTH == 360) && (LCD_HEIGHT == 400)
-
-#define BLOCK_WIDTH 19
-#define BLOCK_HEIGHT 19
-#define BOARD_X 27
-#define BOARD_Y 0
-#define LABEL_X 258
-#define SCORE_Y 40
-#define LEVEL_Y 92
-#define LINES_Y 140
-#define HIGH_LABEL_X   258
-#define HIGH_SCORE_Y   200
-#define HIGH_LEVEL_Y   258
-#define PREVIEW_X 258
-#define PREVIEW_Y 300
 
 #elif (LCD_WIDTH == 320) && (LCD_HEIGHT == 240)
 
@@ -749,9 +782,6 @@
 #define LEVEL_X 58
 #define LINES_Y 62
 #define LINES_X 58
-
-#else
-#error "lcd screen size not defined!"
 #endif
 
 #ifndef LEVEL_X
@@ -763,6 +793,19 @@
 #endif
 
 extern const fb_data rockblox_background[];
+
+#else /* HAVE_LCD_CHARCELLS */
+
+#define BOARD_HEIGHT 14
+
+#define BLOCK_WIDTH  1
+#define BLOCK_HEIGHT 1
+#define BOARD_X      5
+#define BOARD_Y      0
+#define PREVIEW_X    15
+#define PREVIEW_Y    1
+
+#endif
 
 #ifndef HIGHSCORE_SPACE
 #define HIGHSCORE_SPACE " "
@@ -965,6 +1008,7 @@ static void init_board (void)
 /* show the score, level and lines */
 static void show_details (void)
 {
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH >= 2
     rb->lcd_set_foreground (LCD_BLACK);
     rb->lcd_set_background (LCD_WHITE);
@@ -972,6 +1016,11 @@ static void show_details (void)
     rb->lcd_putsxyf (LABEL_X, SCORE_Y, "%d", rockblox_status.score);
     rb->lcd_putsxyf (LEVEL_X, LEVEL_Y, "%d", rockblox_status.level);
     rb->lcd_putsxyf (LINES_X, LINES_Y, "%d", rockblox_status.lines);
+#else  /* HAVE_LCD_CHARCELLS */
+    rb->lcd_putsf (5, 0, "L%d/%d", rockblox_status.level,
+                   rockblox_status.lines);
+    rb->lcd_putsf (5, 1, "S%d", rockblox_status.score);
+#endif
 }
 
 #ifdef HIGH_SCORE_Y
@@ -1039,7 +1088,18 @@ static void init_rockblox (bool resume)
                  tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
                  tm->tm_hour, tm->tm_min, tm->tm_sec);
 
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_bitmap (rockblox_background, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+#else  /* HAVE_LCD_CHARCELLS */
+    pgfx_display (0, 0);
+    pgfx_display_block (3, 0, 3, 1);
+    pgfx_display_block (4, 0, 3, 0);
+    rb->lcd_puts(4, 1, " ");
+    pgfx_clear_display();
+    pgfx_fillrect (3, 0, 2, 14);
+    pgfx_fillrect (15, 7, 2, 7);
+    pgfx_update();
+#endif
     if (!resume)
     {
         rockblox_status.level = 1;
@@ -1136,6 +1196,7 @@ static void refresh_board (void)
         for (j = 0; j < BOARD_HEIGHT; j++) {
             block = rockblox_status.board[j][i];
             if (block != EMPTY_BLOCK) {
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH >= 2
                 /* middle drawing */
                 rb->lcd_set_foreground (figures[block].color[1]);
@@ -1163,6 +1224,9 @@ static void refresh_board (void)
                 rb->lcd_hline (BOARD_X + i * BLOCK_WIDTH + 1,
                                BOARD_X + (i + 1) * BLOCK_WIDTH - 1,
                                BOARD_Y + (j + 1) * BLOCK_HEIGHT - 1);
+#else  /* HAVE_LCD_CHARCELLS */
+                pgfx_drawpixel (BOARD_X + i, BOARD_Y + j);
+#endif
             }
         }
 
@@ -1179,6 +1243,7 @@ static void refresh_board (void)
             + rockblox_status.cx;
         y = getRelativeY (rockblox_status.cf, i, rockblox_status.co)
             + ghost_y;
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH >= 2
         /* middle drawing */
         rb->lcd_set_foreground (ghost_colors[rockblox_status.cf][0]);
@@ -1205,6 +1270,9 @@ static void refresh_board (void)
         rb->lcd_hline (BOARD_X + x * BLOCK_WIDTH + 1,
                        BOARD_X + (x + 1) * BLOCK_WIDTH - 1,
                        BOARD_Y + (y + 1) * BLOCK_HEIGHT - 1);
+#else /* HAVE_LCD_CHARCELLS */
+        pgfx_drawpixel (BOARD_X + x, BOARD_Y + y);
+#endif
     }
 
     /* draw current piece */
@@ -1214,6 +1282,7 @@ static void refresh_board (void)
             + rockblox_status.cx;
         y = getRelativeY (rockblox_status.cf, i, rockblox_status.co)
             + rockblox_status.cy;
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH >= 2
         /* middle drawing */
         rb->lcd_set_foreground (figures[rockblox_status.cf].color[1]);
@@ -1240,6 +1309,9 @@ static void refresh_board (void)
         rb->lcd_hline (BOARD_X + x * BLOCK_WIDTH + 1,
                        BOARD_X + (x + 1) * BLOCK_WIDTH - 1,
                        BOARD_Y + (y + 1) * BLOCK_HEIGHT - 1);
+#else /* HAVE_LCD_CHARCELLS */
+        pgfx_drawpixel (BOARD_X + x, BOARD_Y + y);
+#endif
     }
 
     mylcd_update ();
@@ -1282,6 +1354,7 @@ static void draw_next_block (void)
     for (i = 0; i < 4; i++) {
         rx = getRelativeX (rockblox_status.nf, i, 0) + 2;
         ry = getRelativeY (rockblox_status.nf, i, 0) + 2;
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH >= 2
         rb->lcd_set_foreground (figures[rockblox_status.nf].color[1]);  /* middle drawing */
 #endif
@@ -1306,6 +1379,9 @@ static void draw_next_block (void)
         rb->lcd_hline (PREVIEW_X + rx * BLOCK_WIDTH + 1,
                        PREVIEW_X + (rx + 1) * BLOCK_WIDTH - 1,
                        PREVIEW_Y + (ry + 1) * BLOCK_HEIGHT - 1);
+#else /* HAVE_LCD_CHARCELLS */
+        pgfx_drawpixel (PREVIEW_X + rx, PREVIEW_Y + ry);
+#endif
     }
 
 }
@@ -1407,23 +1483,24 @@ static bool rockblox_help(void)
         LAST_STYLE_ITEM
     };
 
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_setfont(FONT_UI);
+#endif
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_WHITE);
 #endif
     if (display_text(ARRAYLEN(help_text), help_text, formation, NULL, true))
         return true;
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_setfont(FONT_SYSFIXED);
+#endif
 
     return false;
 }
 
-static int rockblox_menu_cb(int action,
-                            const struct menu_item_ex *this_item,
-                            struct gui_synclist *this_list)
+static int rockblox_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM
        && !resume && (i==0 || i==5))
@@ -1503,9 +1580,10 @@ static int rockblox_loop (void)
             rb->splash(0, "Paused");
             while (rb->button_hold ())
                 rb->sleep(HZ/10);
+
             /* Turn off backlight timeout */
             backlight_ignore_timeout();
-            
+
             /* get rid of the splash text */
             rb->lcd_bitmap (rockblox_background, 0, 0, LCD_WIDTH, LCD_HEIGHT);
             show_details ();
@@ -1673,11 +1751,18 @@ enum plugin_status plugin_start (const void *parameter)
     rb->lcd_set_backdrop(NULL);
 #endif
 
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_setfont (FONT_SYSFIXED);
+#else
+    if (!pgfx_init(4, 2))
+    {
+        rb->splash(HZ*2, "Old LCD :(");
+        return PLUGIN_OK;
+    }
+#endif
 
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
-
     load_game();
     resume_file = resume;
 
@@ -1723,9 +1808,11 @@ enum plugin_status plugin_start (const void *parameter)
         }
     }
 
+#ifndef HAVE_LCD_BITMAP
+    pgfx_release();
+#endif
     /* Save user's HighScore */
     highscore_save(SCORE_FILE, highscores, NUM_SCORES);
-
     backlight_use_settings();
 
     return PLUGIN_OK;

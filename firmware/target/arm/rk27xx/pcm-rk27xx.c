@@ -114,6 +114,21 @@ void pcm_play_dma_start(const void *addr, size_t size)
     hdma_i2s_transfer(addr, size);
 }
 
+/* pause DMA transfer by disabling clock to DMA module */
+void pcm_play_dma_pause(bool pause)
+{
+    if(pause)
+    {
+        SCU_CLKCFG |= CLKCFG_HDMA;
+        locked = 1;
+    }
+    else
+    {
+        SCU_CLKCFG &= ~CLKCFG_HDMA;
+        locked = 0;
+    }
+}
+
 static void i2s_init(void)
 {
 #if defined(HAVE_RK27XX_CODEC)
@@ -250,6 +265,12 @@ void pcm_dma_apply_settings(void)
     audiohw_set_frequency(pcm_fsel);
 }
 
+size_t pcm_get_bytes_waiting(void)
+{
+    /* current terminate count is in transfer size units (4bytes here) */
+    return (HDMA_CCNT0 & 0xffff)<<2;
+}
+
 /* audio DMA ISR called when chunk from callers buffer has been transfered */
 void INT_HDMA(void)
 {
@@ -261,6 +282,18 @@ void INT_HDMA(void)
         hdma_i2s_transfer(start, size);
         pcm_play_dma_status_callback(PCM_DMAST_STARTED);
     }
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    uint32_t addr;
+    
+    int old = disable_irq_save();
+    addr = HDMA_CSRC0;
+    *count = ((HDMA_CCNT0 & 0xffff)<<2);
+    restore_interrupt(old);
+
+    return (void*)addr;
 }
 
 /****************************************************************************

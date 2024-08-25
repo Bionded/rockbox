@@ -32,20 +32,19 @@
 #define STORAGE_SD_NUM      2
 #define STORAGE_NAND_NUM    3
 #define STORAGE_RAMDISK_NUM 4
-#define STORAGE_USB_NUM     5
-#define STORAGE_HOSTFS_NUM  6
-#define STORAGE_NUM_TYPES   7
+#define STORAGE_HOSTFS_NUM  5
+#define STORAGE_NUM_TYPES   6
 
 #define STORAGE_ATA         (1 << STORAGE_ATA_NUM)
 #define STORAGE_MMC         (1 << STORAGE_MMC_NUM)
 #define STORAGE_SD          (1 << STORAGE_SD_NUM)
 #define STORAGE_NAND        (1 << STORAGE_NAND_NUM)
 #define STORAGE_RAMDISK     (1 << STORAGE_RAMDISK_NUM)
-#define STORAGE_USB         (1 << STORAGE_USB_NUM)
  /* meant for APPLICATION targets (implicit for SIMULATOR) */
 #define STORAGE_HOSTFS      (1 << STORAGE_HOSTFS_NUM)
 
 /* CONFIG_TUNER (note these are combineable bit-flags) */
+#define S1A0903X01 0x01 /* Samsung */
 #define TEA5767    0x02 /* Philips */
 #define LV24020LP  0x04 /* Sanyo */
 #define SI4700     0x08 /* Silicon Labs */
@@ -55,7 +54,14 @@
 #define RDA5802    0x80 /* RDA Microelectronics */
 #define STFM1000   0x100 /* Sigmatel */
 
+/* CONFIG_CODEC */
+#define MAS3587F 3587
+#define MAS3507D 3507
+#define MAS3539F 3539
+#define SWCODEC  1    /* if codec is done by SW */
+
 /* CONFIG_CPU */
+#define SH7034       7034
 #define MCF5249      5249
 #define MCF5250      5250
 #define PP5002       5002
@@ -68,6 +74,9 @@
 #define DSC25          25
 #define DM320         320
 #define IMX31L         31
+#define TCC770        770
+#define TCC771L       771
+#define TCC773L       773
 #define TCC7801      7801
 #define S5L8700      8700
 #define S5L8701      8701
@@ -79,7 +88,6 @@
 #define AS3525v2    35252
 #define IMX233        233
 #define RK27XX       2700
-#define X1000        1000
 
 /* platforms
  * bit fields to allow PLATFORM_HOSTED to be OR'ed e.g. with a
@@ -95,25 +103,34 @@
 #define PLATFORM_PANDORA (1<<6)
 
 /* CONFIG_KEYPAD */
+#define PLAYER_PAD          1
+#define RECORDER_PAD        2
+#define ONDIO_PAD           3
 #define IRIVER_H100_PAD     4
 #define IRIVER_H300_PAD     5
 #define IAUDIO_X5M5_PAD     6
 #define IPOD_4G_PAD         7
 #define IPOD_3G_PAD         8
 #define IPOD_1G2G_PAD       9
+#define IRIVER_IFP7XX_PAD  10
 #define GIGABEAT_PAD       11
 #define IRIVER_H10_PAD     12
 #define SANSA_E200_PAD     13
 #define SANSA_C200_PAD     14
+#define TATUNG_TPJ1022_PAD 15
+#define ARCHOS_AV300_PAD   16
 #define MROBE100_PAD       17
 #define MROBE500_PAD       18
 #define GIGABEAT_S_PAD     19
+#define LOGIK_DAX_PAD      20
+#define IAUDIO67_PAD       21
 #define COWON_D2_PAD        22
 #define IAUDIO_M3_PAD      23
 #define CREATIVEZVM_PAD    24
 #define SANSA_M200_PAD     25
 #define CREATIVEZV_PAD     26
 #define PHILIPS_SA9200_PAD 27
+#define SANSA_C100_PAD     28
 #define PHILIPS_HDD1630_PAD 29
 #define MEIZU_M6SL_PAD     30
 #define ONDAVX747_PAD      31
@@ -144,6 +161,7 @@
 #define MA_PAD            56
 #define SONY_NWZ_PAD       57
 #define CREATIVE_ZEN_PAD   58
+#define SAMSUNG_YPZ5_PAD   59
 #define IHIFI_PAD          60
 #define SAMSUNG_YPR1_PAD   61
 #define SAMSUNG_YH92X_PAD  62
@@ -153,12 +171,6 @@
 #define XDUOO_X3_PAD       66
 #define IHIFI_770_PAD      67
 #define IHIFI_800_PAD      68
-#define XDUOO_X3II_PAD     69
-#define XDUOO_X20_PAD      70
-#define FIIO_M3K_LINUX_PAD 71
-#define EROSQ_PAD          72
-#define FIIO_M3K_PAD       73
-#define SHANLING_Q1_PAD    74
 
 /* CONFIG_REMOTE_KEYPAD */
 #define H100_REMOTE   1
@@ -208,10 +220,9 @@
                                  Usually application ports, and only
                                  if the estimation is better that ours
                                  (which it probably is) */
-#define CURRENT_MEASURE     8 /* Target can report battery charge and/or
-                               * discharge current */
 /* CONFIG_LCD */
-#define LCD_SSD1815   1 /* as used by Sansa M200 and others */
+#define LCD_SSD1815   1 /* as used by Archos Recorders and Ondios */
+#define LCD_SSD1801   2 /* as used by Archos Player/Studio */
 #define LCD_S1D15E06  3 /* as used by iRiver H100 series */
 #define LCD_H300      4 /* as used by iRiver H300 series, exact model name is
                            unknown at the time of this writing */
@@ -222,17 +233,22 @@
 #define LCD_IPODVIDEO 8 /* as used by iPod Video */
 #define LCD_IPOD2BPP  9 /* as used by all fullsize greyscale iPods */
 #define LCD_IPODMINI 10 /* as used by iPod Mini g1/g2 */
+#define LCD_IFP7XX   11 /* as used by iRiver iFP 7xx/8xx */
 #define LCD_GIGABEAT 12
 #define LCD_H10_20GB 13 /* as used by iriver H10 20Gb */
 #define LCD_H10_5GB  14 /* as used by iriver H10 5Gb */
+#define LCD_TPJ1022  15 /* as used by Tatung Elio TPJ-1022 */
+#define LCD_DSC25    16 /* as used by Archos AV300 */
 #define LCD_C200     17 /* as used by Sandisk Sansa c200 */
 #define LCD_MROBE500 18 /* as used by Olympus M:Robe 500i */
 #define LCD_MROBE100 19 /* as used by Olympus M:Robe 100 */
+#define LCD_LOGIKDAX 20 /* as used by Logik DAX - SSD1815 */
+#define LCD_IAUDIO67 21 /* as used by iAudio 6/7 - unknown */
 #define LCD_CREATIVEZVM 22 /* as used by Creative Zen Vision:M */
 #define LCD_TL0350A  23 /* as used by the iAudio M3 remote, treated as main LCD */
 #define LCD_COWOND2  24 /* as used by Cowon D2 - LTV250QV, TCC7801 driver */
 #define LCD_SA9200   25 /* as used by the Philips SA9200 */
-#define LCD_S6B33B2  26 /* as used by the Samsumg YH820 */
+#define LCD_S6B33B2  26 /* as used by the Sansa c100 */
 #define LCD_HDD1630  27 /* as used by the Philips HDD1630 */
 #define LCD_MEIZUM6  28 /* as used by the Meizu M6SP and M6SL (various models) */
 #define LCD_ONDAVX747 29 /* as used by the Onda VX747 */
@@ -263,6 +279,7 @@
 #define LCD_CREATIVEZENMOZAIC 56 /* as used by the Creative ZEN Mozaic (FGD0801) */
 #define LCD_ILI9342C   57 /* another type of lcd used by HiFi E.T MA9/MA8 */
 #define LCD_CREATIVEZENV  58 /* as used by the Creative Zen V (Plus) */
+#define LCD_SAMSUNGYPZ5   59 /* as used by Samsung YP-Z5 */
 #define LCD_IHIFI         60 /* as used by IHIFI 760/960 */
 #define LCD_CREATIVEZENXFISTYLE 61 /* as used by Creative Zen X-Fi Style */
 #define LCD_SAMSUNGYPR1   62 /* as used by Samsung YP-R1 */
@@ -272,9 +289,6 @@
 #define LCD_IHIFI770      66 /* as used by IHIFI 770 */
 #define LCD_IHIFI770C     67 /* as used by IHIFI 770C */
 #define LCD_IHIFI800      68 /* as used by IHIFI 800 */
-#define LCD_FIIOM3K       69 /* as used by the FiiO M3K */
-#define LCD_SHANLING_Q1   70 /* as used by the Shanling Q1 */
-#define LCD_EROSQ         71 /* as used by the ErosQ (native) */
 
 /* LCD_PIXELFORMAT */
 #define HORIZONTAL_PACKING 1
@@ -298,6 +312,8 @@
 /* CONFIG_I2C */
 #define I2C_NONE     0 /* For targets that do not use I2C - as the
 Lyre prototype 1 */
+#define I2C_PLAYREC  1 /* Archos Player/Recorder style */
+#define I2C_ONDIO    2 /* Ondio style */
 #define I2C_COLDFIRE 3 /* Coldfire style */
 #define I2C_PP5002   4 /* PP5002 style */
 #define I2C_PP5020   5 /* PP5020 style */
@@ -305,6 +321,7 @@ Lyre prototype 1 */
 #define I2C_S3C2440  7
 #define I2C_PP5024   8 /* PP5024 style */
 #define I2C_IMX31L   9
+#define I2C_TCC77X  10
 #define I2C_TCC780X 11
 #define I2C_DM320   12 /* DM320 style */
 #define I2C_S5L8700 13
@@ -313,7 +330,6 @@ Lyre prototype 1 */
 #define I2C_S5L8702 16 /* Same as S5L8700, but with two channels */
 #define I2C_IMX233  17
 #define I2C_RK27XX  18
-#define I2C_X1000   19
 
 /* CONFIG_LED */
 #define LED_REAL     1 /* SW controlled LED (Archos recorders, player) */
@@ -321,6 +337,7 @@ Lyre prototype 1 */
 /* else                   HW controlled LED (iRiver H1x0) */
 
 /* CONFIG_NAND */
+#define NAND_IFP7XX  1
 #define NAND_TCC     2
 #define NAND_SAMSUNG 3
 #define NAND_CC      4 /* ChinaChip */
@@ -328,6 +345,7 @@ Lyre prototype 1 */
 #define NAND_IMX233  6
 
 /* CONFIG_RTC */
+#define RTC_M41ST84W 1 /* Archos Recorder */
 #define RTC_PCF50605 2 /* iPod 3G, 4G & Mini */
 #define RTC_PCF50606 3 /* iriver H300 */
 #define RTC_S3C2440  4
@@ -336,6 +354,7 @@ Lyre prototype 1 */
 #define RTC_DS1339_DS3231   7 /* h1x0 RTC mod */
 #define RTC_IMX31L   8
 #define RTC_RX5X348AB 9
+#define RTC_TCC77X   10
 #define RTC_TCC780X  11
 #define RTC_MR100  12
 #define RTC_MC13783  13 /* Freescale MC13783 PMIC */
@@ -348,8 +367,6 @@ Lyre prototype 1 */
 #define RTC_IMX233   20
 #define RTC_STM41T62 21 /* ST M41T62 */
 #define RTC_JZ4760   22 /* Ingenic Jz4760 */
-#define RTC_X1000    23 /* Ingenic X1000 */
-#define RTC_CONNECT  24 /* Sansa Connect AVR */
 
 /* USB On-the-go */
 #define USBOTG_M66591   6591 /* M:Robe 500 */
@@ -380,12 +397,22 @@ Lyre prototype 1 */
 #define IMX233_FREESCALE    (1 << 0) /* Freescale I.MX233 nonstandard two-level MBR */
 #define IMX233_CREATIVE     (1 << 1) /* Creative MBLK windowing */
 
-/* CONFIG_BUFLIB_BACKEND */
-#define BUFLIB_BACKEND_MEMPOOL      0 /* Default memory pool backed buflib */
-#define BUFLIB_BACKEND_MALLOC       1 /* malloc() buflib (for debugging) */
-
 /* now go and pick yours */
-#if defined(IRIVER_H100)
+#if defined(ARCHOS_PLAYER)
+#include "config/archosplayer.h"
+#elif defined(ARCHOS_RECORDER)
+#include "config/archosrecorder.h"
+#elif defined(ARCHOS_FMRECORDER)
+#include "config/archosfmrecorder.h"
+#elif defined(ARCHOS_RECORDERV2)
+#include "config/archosrecorderv2.h"
+#elif defined(ARCHOS_ONDIOSP)
+#include "config/archosondiosp.h"
+#elif defined(ARCHOS_ONDIOFM)
+#include "config/archosondiofm.h"
+#elif defined(ARCHOS_AV300)
+#include "config/archosav300.h"
+#elif defined(IRIVER_H100)
 #include "config/iriverh100.h"
 #elif defined(IRIVER_H120)
 #include "config/iriverh120.h"
@@ -413,6 +440,8 @@ Lyre prototype 1 */
 #include "config/ipodnano2g.h"
 #elif defined(IPOD_6G)
 #include "config/ipod6g.h"
+#elif defined(IRIVER_IFP7XX)
+#include "config/iriverifp7xx.h"
 #elif defined(GIGABEAT_F)
 #include "config/gigabeatfx.h"
 #elif defined(GIGABEAT_S)
@@ -429,10 +458,18 @@ Lyre prototype 1 */
 #include "config/sansae200.h"
 #elif defined(SANSA_C200)
 #include "config/sansac200.h"
+#elif defined(SANSA_M200)
+#include "config/sansam200.h"
+#elif defined(TATUNG_TPJ1022)
+#include "config/tatungtpj1022.h"
 #elif defined(MROBE_100)
 #include "config/mrobe100.h"
 #elif defined(MROBE_500)
 #include "config/mrobe500.h"
+#elif defined(LOGIK_DAX)
+#include "config/logikdax.h"
+#elif defined(IAUDIO_7)
+#include "config/iaudio7.h"
 #elif defined(COWON_D2)
 #include "config/cowond2.h"
 #elif defined(CREATIVE_ZVM)
@@ -451,6 +488,8 @@ Lyre prototype 1 */
 #include "config/gogearhdd1630.h"
 #elif defined(PHILIPS_HDD6330)
 #include "config/gogearhdd6330.h"
+#elif defined(SANSA_C100)
+#include "config/sansac100.h"
 #elif defined(MEIZU_M6SL)
 #include "config/meizum6sl.h"
 #elif defined(MEIZU_M6SP)
@@ -543,6 +582,8 @@ Lyre prototype 1 */
 #include "config/sonynwze370.h"
 #elif defined(SONY_NWZE360)
 #include "config/sonynwze360.h"
+#elif defined(SAMSUNG_YPZ5)
+#include "config/samsungypz5.h"
 #elif defined(IHIFI760)
 #include "config/ihifi760.h"
 #elif defined(IHIFI770)
@@ -583,31 +624,8 @@ Lyre prototype 1 */
 #include "config/agptekrocker.h"
 #elif defined(XDUOO_X3)
 #include "config/xduoox3.h"
-#elif defined(XDUOO_X3II)
-#include "config/xduoox3ii.h"
-#elif defined(XDUOO_X20)
-#include "config/xduoox20.h"
-#elif defined(FIIO_M3K_LINUX)
-#include "config/fiiom3klinux.h"
-#elif defined(FIIO_M3K)
-#include "config/fiiom3k.h"
-#elif defined(EROS_Q)
-#include "config/aigoerosq.h"
-#elif defined(SHANLING_Q1)
-#include "config/shanlingq1.h"
-#elif defined(EROS_QN)
-#include "config/erosqnative.h"
 #else
-//#error "unknown hwardware platform!"
-#endif
-
-#ifndef CONFIG_CPU
-#define CONFIG_CPU 0
-#endif
-
-// NOTE: should be placed before sim.h (where CONFIG_CPU is undefined)
-#if !(CONFIG_CPU >= PP5002 && CONFIG_CPU <= PP5022) && CODEC_SIZE >= 0x80000
-#define CODEC_AAC_SBR_DEC
+/* no known platform */
 #endif
 
 #ifdef __PCTOOL__
@@ -615,12 +633,7 @@ Lyre prototype 1 */
 #define CONFIG_CPU 0
 #undef HAVE_MULTIVOLUME
 #undef HAVE_MULTIDRIVE
-#undef CONFIG_STORAGE_MULTI
 #undef CONFIG_STORAGE
-#endif
-
-#ifndef CONFIG_BUFLIB_BACKEND
-# define CONFIG_BUFLIB_BACKEND BUFLIB_BACKEND_MEMPOOL
 #endif
 
 #ifdef APPLICATION
@@ -630,9 +643,6 @@ Lyre prototype 1 */
 /* keep this include after the target configs */
 #ifdef SIMULATOR
 #include "config/sim.h"
-#ifndef HAVE_POWEROFF_WHILE_CHARGING
-    #define HAVE_POWEROFF_WHILE_CHARGING
-#endif
 #endif
 
 #ifndef CONFIG_PLATFORM
@@ -645,6 +655,11 @@ Lyre prototype 1 */
 /* setup CPU-specific defines */
 
 #ifndef __PCTOOL__
+
+/* define for all cpus from SH family */
+#if (ARCH == ARCH_SH) && (CONFIG_CPU == SH7034)
+#define CPU_SH
+#endif
 
 /* define for all cpus from coldfire family */
 #if (ARCH == ARCH_M68K) && ((CONFIG_CPU == MCF5249) || (CONFIG_CPU == MCF5250))
@@ -663,6 +678,11 @@ Lyre prototype 1 */
 /* define for all cpus from S5L870X family */
 #if (CONFIG_CPU == S5L8700) || (CONFIG_CPU == S5L8701) || (CONFIG_CPU == S5L8702)
 #define CPU_S5L870X
+#endif
+
+/* define for all cpus from TCC77X family */
+#if (CONFIG_CPU == TCC771L) || (CONFIG_CPU == TCC773L) || (CONFIG_CPU == TCC770)
+#define CPU_TCC77X
 #endif
 
 /* define for all cpus from TCC780 family */
@@ -731,24 +751,15 @@ Lyre prototype 1 */
 #define BATTERY_CAPACITY_DEFAULT 0
 #endif
 
-#ifndef BATTERY_CAPACITY_MIN
-#define BATTERY_CAPACITY_MIN BATTERY_CAPACITY_DEFAULT
-#endif
-
-#ifndef BATTERY_CAPACITY_MAX
-#define BATTERY_CAPACITY_MAX BATTERY_CAPACITY_DEFAULT
-#endif
-
 #ifndef BATTERY_CAPACITY_INC
 #define BATTERY_CAPACITY_INC 0
 #endif
 
 #ifdef HAVE_RDS_CAP
 /* combinable bitflags */
-/* 0x01 can be reused, was RDS_CFG_ISR */
+#define RDS_CFG_ISR     0x1 /* uses ISR to process packets */
 #define RDS_CFG_PROCESS 0x2 /* uses raw packet processing */
 #define RDS_CFG_PUSH    0x4 /* pushes processed information */
-#define RDS_CFG_POLL    0x8 /* tuner driver provides a polling function */
 #ifndef CONFIG_RDS
 #define CONFIG_RDS  RDS_CFG_PROCESS /* thread processing+raw processing */
 #endif /* CONFIG_RDS */
@@ -787,11 +798,6 @@ Lyre prototype 1 */
 /* Used for split displays (Sansa Clip). Set to 0 otherwise */
 #ifndef LCD_SPLIT_LINES
 #define LCD_SPLIT_LINES 0
-#endif
-
-/* Most displays have a horizontal stride */
-#ifndef LCD_STRIDEFORMAT
-# define LCD_STRIDEFORMAT HORIZONTAL_STRIDE
 #endif
 
 /* Simulator LCD dimensions. Set to standard dimensions if undefined */
@@ -868,41 +874,22 @@ Lyre prototype 1 */
 #define CONFIG_STORAGE_MULTI
 #endif
 
+/* Explicit HAVE_MULTIVOLUME in the config file. Allow the maximum number */
+#ifdef HAVE_MULTIVOLUME
+#define NUM_VOLUMES_PER_DRIVE 4
+#else
+#define NUM_VOLUMES_PER_DRIVE 1
+#endif
 #if defined(CONFIG_STORAGE_MULTI) && !defined(HAVE_MULTIDRIVE)
 #define HAVE_MULTIDRIVE
 #endif
 
+#if defined(HAVE_MULTIDRIVE) && !defined(HAVE_MULTIVOLUME)
+#define HAVE_MULTIVOLUME
+#endif
+
 #if defined(HAVE_MULTIDRIVE) && !defined(NUM_DRIVES)
 #error HAVE_MULTIDRIVE needs to have an explicit NUM_DRIVES
-#endif
-
-#ifndef NUM_DRIVES
-#define NUM_DRIVES 1
-#endif
-
-#if !defined(HAVE_MULTIVOLUME)
-#if defined(HAVE_MULTIDRIVE)
-/* Multidrive strongly implies multivolume */
-#define HAVE_MULTIVOLUME
-#elif (CONFIG_STORAGE & STORAGE_SD)
-/* SD routinely have multiple partitions */
-#elif (CONFIG_STORAGE & STORAGE_ATA) && defined(HAVE_LBA48)
-/* ATA routinely haves multiple partitions, but don't bother if we can't do LBA48 */
-#define HAVE_MULTIVOLUME
-#endif
-#endif
-
-/* Bootloaders don't need multivolume awareness */
-#if defined(BOOTLOADER) && defined(HAVE_MULTIVOLUME) \
-    && !(CONFIG_PLATFORM & PLATFORM_HOSTED) && !defined(BOOT_REDIR)
-#undef HAVE_MULTIVOLUME
-#endif
-
-/* Number of volumes per drive */
-#if defined(HAVE_MULTIVOLUME) && !defined(SIMULATOR) && !(CONFIG_PLATFORM & PLATFORM_HOSTED)
-#define NUM_VOLUMES_PER_DRIVE 4
-#else
-#define NUM_VOLUMES_PER_DRIVE 1
 #endif
 
 /* note to remove multi-partition booting this could be changed to MULTIDRIVE */
@@ -910,10 +897,8 @@ Lyre prototype 1 */
 #define HAVE_MULTIBOOT
 #endif
 
-/* The lowest numbered volume to read a multiboot redirect from; default is to
- * allow any volume but some targets may wish to exclude the internal drive. */
-#if defined(HAVE_MULTIBOOT) && !defined(MULTIBOOT_MIN_VOLUME)
-# define MULTIBOOT_MIN_VOLUME 0
+#ifndef NUM_DRIVES
+#define NUM_DRIVES 1
 #endif
 
 #define NUM_VOLUMES (NUM_DRIVES * NUM_VOLUMES_PER_DRIVE)
@@ -930,7 +915,7 @@ Lyre prototype 1 */
 
 /* Enable the directory cache and tagcache in RAM if we have
  * plenty of RAM. Both features can be enabled independently. */
-#if (MEMORYSIZE >= 8) && !defined(BOOTLOADER) && (defined(CHECKWPS) || !defined(__PCTOOL__)) \
+#if (MEMORYSIZE >= 8) && !defined(BOOTLOADER) && !defined(__PCTOOL__) \
     && !defined(APPLICATION)
 #ifndef SIMULATOR
 #define HAVE_DIRCACHE
@@ -940,43 +925,38 @@ Lyre prototype 1 */
 #endif
 #endif
 
-#if defined(HAVE_TAGCACHE)
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_BITMAP)
 #define HAVE_PICTUREFLOW_INTEGRATION
 #endif
 
+/* Add one HAVE_ define for all mas35xx targets */
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3507D) || (CONFIG_CODEC == MAS3539F)
+#define HAVE_MAS35XX
+#endif
+
+#if (CONFIG_CODEC == SWCODEC)
 #ifdef BOOTLOADER
 
 #ifdef HAVE_BOOTLOADER_USB_MODE
 /* Priority in bootloader is wanted */
 #define HAVE_PRIORITY_SCHEDULING
-
 #if (CONFIG_CPU == S5L8702)
 #define USB_DRIVER_CLOSE
 #else
 #define USB_STATUS_BY_EVENT
 #define USB_DETECT_BY_REQUEST
 #endif
-
 #if defined(HAVE_USBSTACK) && CONFIG_USBOTG == USBOTG_ARC
 #define INCLUDE_TIMEOUT_API
 #define USB_DRIVER_CLOSE
 #endif
-
-#if defined(HAVE_USBSTACK) && CONFIG_USBOTG == USBOTG_TNETV105
-#define INCLUDE_TIMEOUT_API
-#define USB_DRIVER_CLOSE
 #endif
-
-#if CONFIG_CPU == X1000
-#define USB_DRIVER_CLOSE
-#endif
-
-#endif /* BOOTLOADER_USB_MODE */
 
 #else /* !BOOTLOADER */
 
 #define HAVE_EXTENDED_MESSAGING_AND_NAME
 #define HAVE_WAKEUP_EXT_CB
+
 
 #if defined(ASSEMBLER_THREADS) \
     || defined(HAVE_WIN32_FIBER_THREADS) \
@@ -1006,20 +986,18 @@ Lyre prototype 1 */
 #define USB_DETECT_BY_REQUEST
 #elif CONFIG_USBOTG == USBOTG_RK27XX
 #define USB_DETECT_BY_REQUEST
-#elif CONFIG_USBOTG == USBOTG_TNETV105
-#define USB_STATUS_BY_EVENT
-#define USB_DETECT_BY_REQUEST
 #endif /* CONFIG_USB == */
 #endif /* HAVE_USBSTACK */
 
-#endif /* !BOOTLOADER */
+#endif /* BOOTLOADER */
 
 #if defined(HAVE_USBSTACK) || (CONFIG_CPU == JZ4732) || (CONFIG_CPU == JZ4760B) \
     || (CONFIG_CPU == AS3525) || (CONFIG_CPU == AS3525v2) \
     || defined(CPU_S5L870X) || (CONFIG_CPU == S3C2440) \
     || defined(APPLICATION) || (CONFIG_CPU == PP5002) \
     || (CONFIG_CPU == RK27XX) || (CONFIG_CPU == IMX233) ||              \
-    (defined(HAVE_LCD_COLOR) && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE))
+    (defined(HAVE_LCD_COLOR) &&                                         \
+     (!defined(LCD_STRIDEFORMAT) || (LCD_STRIDEFORMAT != VERTICAL_STRIDE)))
 #define HAVE_SEMAPHORE_OBJECTS
 #endif
 
@@ -1028,35 +1006,21 @@ Lyre prototype 1 */
 #define HAVE_CROSSFADE
 #endif
 
+#endif /*  (CONFIG_CODEC == SWCODEC) */
+
 /* Determine if accesses should be strictly long aligned. */
-#if defined(CPU_ARM) || defined(CPU_MIPS)
+#if (CONFIG_CPU == SH7034) || defined(CPU_ARM) || defined(CPU_MIPS)
 #define ROCKBOX_STRICT_ALIGN 1
 #endif
 
-/*
- * These macros are for switching on unified syntax in inline assembly.
- * Older versions of GCC emit assembly in divided syntax with no option
- * to enable unified syntax.
- */
-#if (__GNUC__ < 8)
-#define BEGIN_ARM_ASM_SYNTAX_UNIFIED ".syntax unified\n"
-#define END_ARM_ASM_SYNTAX_UNIFIED   ".syntax divided\n"
-#else
-#define BEGIN_ARM_ASM_SYNTAX_UNIFIED
-#define END_ARM_ASM_SYNTAX_UNIFIED
-#endif
-
 #if defined(CPU_ARM) && defined(__ASSEMBLER__)
-#if (__GNUC__ < 8)
-.syntax unified
-#endif
 /* ARMv4T doesn't switch the T bit when popping pc directly, we must use BX */
 .macro ldmpc cond="", order="ia", regs
 #if ARM_ARCH == 4 && defined(USE_THUMB)
-    ldm\order\cond sp!, { \regs, lr }
+    ldm\cond\order sp!, { \regs, lr }
     bx\cond lr
 #else
-    ldm\order\cond sp!, { \regs, pc }
+    ldm\cond\order sp!, { \regs, pc }
 #endif
 .endm
 .macro ldrpc cond=""
@@ -1067,9 +1031,6 @@ Lyre prototype 1 */
     ldr\cond pc, [sp], #4
 #endif
 .endm
-#if (__GNUC__ < 8)
-.syntax divided
-#endif
 #endif
 
 #if defined(CPU_COLDFIRE) && defined(__ASSEMBLER__)
@@ -1097,7 +1058,8 @@ Lyre prototype 1 */
 
 /* IRAM usage */
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE) &&   /* Not for hosted environments */ \
-    (defined(CPU_COLDFIRE) || /* Coldfire: core, plugins, codecs */ \
+    (((CONFIG_CPU == SH7034) && !defined(PLUGIN)) || /* SH1 archos: core only */ \
+    defined(CPU_COLDFIRE) || /* Coldfire: core, plugins, codecs */ \
     defined(CPU_PP) ||  /* PortalPlayer: core, plugins, codecs */ \
     (CONFIG_CPU == AS3525 && MEMORYSIZE > 2 && !defined(BOOTLOADER)) || /* AS3525 +2MB: core, plugins, codecs */ \
     (CONFIG_CPU == AS3525 && MEMORYSIZE <= 2 && !defined(PLUGIN) && !defined(CODEC) && !defined(BOOTLOADER)) || /* AS3525 2MB: core only */ \
@@ -1112,7 +1074,7 @@ Lyre prototype 1 */
 #define IDATA_ATTR      __attribute__ ((section(".idata")))
 #define IBSS_ATTR       __attribute__ ((section(".ibss")))
 #define USE_IRAM
-#if (CONFIG_CPU != AS3525 || MEMORYSIZE > 2) \
+#if CONFIG_CPU != SH7034 && (CONFIG_CPU != AS3525 || MEMORYSIZE > 2) \
     && CONFIG_CPU != JZ4732 && CONFIG_CPU != JZ4760B && CONFIG_CPU != AS3525v2 && CONFIG_CPU != IMX233
 #define PLUGIN_USE_IRAM
 #endif
@@ -1125,7 +1087,7 @@ Lyre prototype 1 */
 
 #if (defined(CPU_PP) || (CONFIG_CPU == AS3525) || (CONFIG_CPU == AS3525v2) || \
     (CONFIG_CPU == IMX31L) || (CONFIG_CPU == IMX233) || \
-     (CONFIG_CPU == RK27XX) || defined(CPU_MIPS) || defined(CPU_COLDFIRE)) \
+    (CONFIG_CPU == RK27XX) || defined(CPU_COLDFIRE)) \
     && (CONFIG_PLATFORM & PLATFORM_NATIVE) && !defined(BOOTLOADER)
 /* Functions that have INIT_ATTR attached are NOT guaranteed to survive after
  * root_menu() has been called. Their code may be overwritten by other data or
@@ -1137,16 +1099,8 @@ Lyre prototype 1 */
  * only while main() runs), otherwise things may go wild,
  * from crashes to freezes to exploding daps.
  */
-
-
-#if defined(__APPLE__) && defined(__MACH__)
-    #define INIT_ATTR __attribute__((section ("__INIT,.init")))
-    #define INITDATA_ATTR __attribute__((section ("__INITDATA,.initdata")))
-#else
-    #define INIT_ATTR       __attribute__ ((section(".init")))
-    #define INITDATA_ATTR   __attribute__ ((section(".initdata")))
-#endif
-
+#define INIT_ATTR       __attribute__ ((section(".init")))
+#define INITDATA_ATTR   __attribute__ ((section(".initdata")))
 #define HAVE_INIT_ATTR
 #else
 #define INIT_ATTR
@@ -1248,11 +1202,6 @@ Lyre prototype 1 */
 #define INCLUDE_TIMEOUT_API
 #endif /* HAVE_USB_CHARGING_ENABLE && HAVE_USBSTACK */
 
-#if defined(USB_STATUS_BY_EVENT) && defined(HAVE_USBSTACK)
-/* Status by event requires timeout for debouncing */
-# define INCLUDE_TIMEOUT_API
-#endif
-
 #ifndef SIMULATOR
 #if defined(HAVE_USBSTACK) || (CONFIG_STORAGE & STORAGE_NAND) || (CONFIG_STORAGE & STORAGE_RAMDISK)
 #define STORAGE_GET_INFO
@@ -1267,26 +1216,19 @@ Lyre prototype 1 */
 /* Define the implemented USB transport classes */
 #if CONFIG_USBOTG == USBOTG_ISP1583
 #define USB_HAS_BULK
-#define USB_LEGACY_CONTROL_API
-#elif (CONFIG_USBOTG == USBOTG_DESIGNWARE)
-#define USB_HAS_BULK
-#define USB_HAS_INTERRUPT
-#elif (CONFIG_USBOTG == USBOTG_ARC) ||  \
+#elif (CONFIG_USBOTG == USBOTG_ARC) || \
     (CONFIG_USBOTG == USBOTG_JZ4740) || \
     (CONFIG_USBOTG == USBOTG_JZ4760) || \
     (CONFIG_USBOTG == USBOTG_M66591) || \
+    (CONFIG_USBOTG == USBOTG_DESIGNWARE) || \
     (CONFIG_USBOTG == USBOTG_AS3525) || \
-    (CONFIG_USBOTG == USBOTG_RK27XX) || \
-    (CONFIG_USBOTG == USBOTG_TNETV105)
+    (CONFIG_USBOTG == USBOTG_RK27XX)
 #define USB_HAS_BULK
 #define USB_HAS_INTERRUPT
-#define USB_LEGACY_CONTROL_API
-#elif defined(CPU_TCC780X)
+#elif defined(CPU_TCC780X) || defined(CPU_TCC77X)
 #define USB_HAS_BULK
-#define USB_LEGACY_CONTROL_API
 #elif CONFIG_USBOTG == USBOTG_S3C6400X
 #define USB_HAS_BULK
-#define USB_LEGACY_CONTROL_API
 //#define USB_HAS_INTERRUPT -- seems to be broken
 #endif /* CONFIG_USBOTG */
 
@@ -1300,7 +1242,7 @@ Lyre prototype 1 */
 
 /* enable usb storage for targets that do bootloader usb */
 #if defined(HAVE_BOOTLOADER_USB_MODE) || \
-     defined(CREATIVE_ZVx) || defined(CPU_TCC780X) || \
+     defined(CREATIVE_ZVx) || defined(CPU_TCC77X) || defined(CPU_TCC780X) || \
      CONFIG_USBOTG == USBOTG_JZ4740 || CONFIG_USBOTG == USBOTG_AS3525 || \
      CONFIG_USBOTG == USBOTG_S3C6400X || CONFIG_USBOTG == USBOTG_DESIGNWARE || \
      CONFIG_USBOTG == USBOTG_JZ4760
@@ -1338,16 +1280,20 @@ Lyre prototype 1 */
 #define HAVE_PCM_FULL_DUPLEX
 #endif
 
+#if (CONFIG_CODEC == SWCODEC) || (CONFIG_CODEC == MAS3587F) || \
+    (CONFIG_CODEC == MAS3539F)
 #define HAVE_PITCHCONTROL
+#endif
 
 /* enable logging messages to disk*/
-#if !defined(BOOTLOADER) && !defined(__PCTOOL__)
+#if !defined(BOOTLOADER) && !defined(__PCTOOL__) && (CONFIG_CODEC == SWCODEC)
 #define ROCKBOX_HAS_LOGDISKF
 #endif
 
 #if defined(HAVE_SDL_AUDIO) \
     && !(CONFIG_PLATFORM & PLATFORM_MAEMO5) \
-    && !defined(HAVE_SW_VOLUME_CONTROL)
+    && !defined(HAVE_SW_VOLUME_CONTROL) \
+    && CONFIG_CODEC == SWCODEC
 /* SW volume is needed for accurate control and no double buffering should be
  * required. If target uses SW volume, then its definitions are used instead
  * so things are as on target. */
@@ -1361,28 +1307,6 @@ Lyre prototype 1 */
 #define PCM_SW_VOLUME_FRACBITS  (16)
 #endif /* SIMULATOR */
 #endif /* default SDL SW volume conditions */
-
-#if !defined(BOOTLOADER) || defined(HAVE_BOOTLOADER_SCREENDUMP)
-# define HAVE_SCREENDUMP
-#endif
-
-#if !defined(BOOTLOADER) && MEMORYSIZE > 2
-# define HAVE_PERCEPTUAL_VOLUME
-#endif
-
-/*
- * Turn off legacy codepage handling in the filesystem code for bootloaders,
- * and support ISO-8859-1 (Latin-1) only. This only affects DOS 8.3 filename
- * parsing when FAT32 long names are unavailable; long names are Unicode and
- * can always be decoded properly regardless of this setting.
- *
- * In reality, bootloaders never supported codepages other than Latin-1 in
- * the first place. They did contain the code to load codepages from disk,
- * but had no way to actually change the codepage away from Latin-1.
- */
-#if !defined(BOOTLOADER)
-# define HAVE_FILESYSTEM_CODEPAGE
-#endif
 
 /* null audiohw setting macro for when codec header is included for reasons
    other than audio support */

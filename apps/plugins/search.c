@@ -111,7 +111,7 @@ static void clear_display(void){
 static bool search_init(const char* file){
     rb->memset(search_string, 0, sizeof(search_string));
 
-    if (!rb->kbd_input(search_string,sizeof(search_string), NULL)){
+    if (!rb->kbd_input(search_string,sizeof search_string)){
         clear_display();
         rb->splash(0, "Searching...");
         fd = rb->open_utf8(file, O_RDONLY);
@@ -125,7 +125,11 @@ static bool search_init(const char* file){
             fdw = rb->open(resultfile, O_WRONLY|O_CREAT|O_TRUNC, 0666);
 
         if (fdw < 0) {
+#ifdef HAVE_LCD_BITMAP
             rb->splash(HZ, "Failed to create result file!");
+#else
+            rb->splash(HZ, "File creation failed");
+#endif
             rb->close(fd);
             return false;
         }

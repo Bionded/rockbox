@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-/* Make BMP colour map entries from R, G, B triples, without and with blending. */
+/* Make BMP colour map entries from R, G, B triples, without and with blending.
+ * Not within HAVE_LCD_BITMAP because it is also used for the Player sim */
 #define RED_CMP(c)   (((c) >> 16) & 0xff)
 #define GREEN_CMP(c) (((c) >> 8) & 0xff)
 #define BLUE_CMP(c)  ((c) & 0xff)
@@ -52,23 +53,25 @@
 #define DUMP_BMP_LINESIZE ((LCD_WIDTH*3 + 3) & ~3)
 #endif
 
-#ifdef HAVE_SCREENDUMP
+#ifdef BOOTLOADER
+
+#define screen_dump()
+#define remote_screen_dump()
+
+#else /* !BOOTLOADER */
 
 /* Save a .BMP file containing the current screen contents. */
 void screen_dump(void);
 
+#ifdef HAVE_LCD_BITMAP
 void screen_dump_set_hook(void (*hook)(int fd));
+#endif
 
 #ifdef HAVE_REMOTE_LCD
 /* Save a .BMP file containing the current remote screen contents. */
 void remote_screen_dump(void);
 #endif
 
-#else /* !HAVE_SCREENDUMP */
-
-#define screen_dump() do { } while(0)
-#define remote_screen_dump() do { } while(0)
-
-#endif /* HAVE_SCREENDUMP */
+#endif /* !BOOTLOADER */
 
 #endif /* __SCREENDUMP_H__ */

@@ -873,41 +873,45 @@ static bool open_rec_file(bool create)
 static void * ICODE_ATTR
 copy_buffer_mono_lr(void *dst, const void *src, size_t src_size)
 {
-    int16_t *d = (int16_t*) dst;
-    int16_t const *s = (int16_t const*) src;
-    ssize_t copy_size = src_size;
- 
-     /* mono = (L + R) / 2 */
-    while(copy_size > 0) {
-        *d++ = ((int32_t)s[0] + (int32_t)s[1] + 1) >> 1;
-        s += 2;
-        copy_size -= PCM_SAMP_SIZE;
-    }
+    int16_t *d = dst;
+    int16_t const *s = src;
+
+    /* mono = (L + R) / 2 */
+    do
+        *d++ = ((int32_t){ *s++ } + *s++ + 1) >> 1;
+    while (src_size -= PCM_SAMP_SIZE);
 
     return dst;
 }
 
+/* Copy with mono conversion - output 1/2 size of input */
 static void * ICODE_ATTR
 copy_buffer_mono_l(void *dst, const void *src, size_t src_size)
 {
-    int16_t *d = (int16_t*) dst;
-    int16_t const *s = (int16_t const*) src;
-    ssize_t copy_size = src_size;
+    int16_t *d = dst;
+    int16_t const *s = (int16_t *)src - 2;
 
     /* mono = L */
-    while(copy_size > 0) {
-        *d++ = *s;
-        s += 2;
-        copy_size -= PCM_SAMP_SIZE;
-    }
+    do
+        *d++ = *(s += 2);
+    while (src_size -= PCM_SAMP_SIZE);
 
     return dst;
 }
 
+/* Copy with mono conversion - output 1/2 size of input */
 static void * ICODE_ATTR
 copy_buffer_mono_r(void *dst, const void *src, size_t src_size)
 {
-    return copy_buffer_mono_l(dst, src + 2, src_size);
+    int16_t *d = dst;
+    int16_t const *s = (int16_t *)src - 1;
+
+    /* mono = R */
+    do
+        *d++ = *(s += 2);
+    while (src_size -= PCM_SAMP_SIZE);
+
+    return dst;
 }
 
 
@@ -978,6 +982,10 @@ void audio_record(const char *filename)
     LOGFQUEUE("audio >| pcmrec Q_AUDIO_RECORD: %s", filename);
     audio_queue_send(Q_AUDIO_RECORD, (intptr_t)filename);
 }
+
+/* audio_record alias for API compatibility with HW codec */
+void audio_new_file(const char *filename)
+    __attribute__((alias("audio_record")));
 
 /* Stop current recording if recording */
 void audio_stop_recording(void)
@@ -1348,7 +1356,7 @@ static void mark_stream(const char *path, enum mark_stream_action action)
 
         file->hdr.type = CHUNK_T_STREAM_START;
         file->hdr.size = count;
-        strmemccpy(file->path, path, MAX_PATH);
+        strlcpy(file->path, path, MAX_PATH);
     }
 }
 
@@ -1402,9 +1410,12 @@ static int pcmrec_handle;
 static void on_init_recording(void)
 {
     send_event(RECORDING_EVENT_START, NULL);
-    /* FIXME: This buffer should play nicer and be shrinkable/movable */
+    /* dummy ops with no callbacks, needed because by
+     * default buflib buffers can be moved around which must be avoided
+     * FIXME: This buffer should play nicer and be shrinkable/movable */
+    static struct buflib_callbacks dummy_ops;
     talk_buffer_set_policy(TALK_BUFFER_LOOSE);
-    pcmrec_handle = core_alloc_maximum(&rec_buffer_size, &buflib_ops_locked);
+    pcmrec_handle = core_alloc_maximum("pcmrec", &rec_buffer_size, &dummy_ops);
     if (pcmrec_handle <= 0)
     /* someone is abusing core_alloc_maximum(). Fix this evil guy instead of
      * trying to handle OOM without hope */
@@ -1433,7 +1444,8 @@ static void on_close_recording(void)
     audio_set_output_source(AUDIO_SRC_PLAYBACK);
     pcm_apply_settings();
 
-    pcmrec_handle = core_free(pcmrec_handle);
+    if (pcmrec_handle > 0)
+        pcmrec_handle = core_free(pcmrec_handle);
     talk_buffer_set_policy(TALK_BUFFER_DEFAULT);
 
     send_event(RECORDING_EVENT_STOP, NULL);
@@ -1578,7 +1590,7 @@ static void on_record(const char *filename)
 
     /* Copy path and let caller go */
     char path[MAX_PATH];
-    strmemccpy(path, filename, MAX_PATH);
+    strlcpy(path, filename, MAX_PATH);
 
     queue_reply(&audio_queue, 0);
 

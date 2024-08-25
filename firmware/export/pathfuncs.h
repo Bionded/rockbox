@@ -30,14 +30,9 @@
 /* useful char constants that could be reconfigured if desired */
 #define PATH_SEPCH    '/'
 #define PATH_SEPSTR   "/"
-#define PATH_ROOTCHR  '/'
 #define PATH_ROOTSTR  "/"
 #define PATH_BADSEPCH '\\'
 #define PATH_DRVSEPCH ':'
-
-#ifndef ROOT_VOLUME
-#define ROOT_VOLUME   INT_MAX
-#endif
 
 /* a nicer way to check for "." and ".." than two strcmp() calls */
 static inline bool is_dotdir_name(const char *name)
@@ -79,11 +74,7 @@ static inline bool name_is_dot_dot(const char *name)
 
 #ifdef HAVE_MULTIVOLUME
 int path_strip_volume(const char *name, const char **nameptr, bool greedy);
-int path_strip_last_volume(const char *name, const char **nameptr, bool greedy);
 int get_volume_name(int volume, char *name);
-int make_volume_root(int volume, char *dst);
-void init_volume_names(void);
-int path_get_volume_id(const char *name);
 #endif
 
 int path_strip_drive(const char *name, const char **nameptr, bool greedy);
@@ -91,13 +82,10 @@ size_t path_basename(const char *name, const char **nameptr);
 size_t path_dirname(const char *name, const char **nameptr);
 size_t path_strip_trailing_separators(const char *name, const char **nameptr);
 void path_correct_separators(char *dstpath, const char *path);
-void path_remove_dot_segments(char *dstpath, const char *path);
 
 /* constants useable in basepath and component */
 #define PA_SEP_HARD NULL /* separate even if base is empty */
 #define PA_SEP_SOFT ""   /* separate only if base is nonempty */
-size_t path_append_ex(char *buf, const char *basepath, size_t basepath_max,
-                      const char *component, size_t bufsize);
 size_t path_append(char *buffer, const char *basepath, const char *component,
                    size_t bufsize);
 ssize_t parse_path_component(const char **pathp, const char **namep);

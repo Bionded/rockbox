@@ -512,9 +512,6 @@ void generate_c_source(char *id, char* header_dir, int width, int height,
     if (!id || !id[0])
         id = "bitmap";
 
-    bool initdata = create_bm && ((strcmp(id,"rockboxlogo") == 0)
-                     || (strcmp(id,"remote_rockboxlogo") == 0));
-
     f = stdout;
 
     if (have_header)
@@ -530,24 +527,19 @@ void generate_c_source(char *id, char* header_dir, int width, int height,
         fprintf(fh,
                 "#define BMPHEIGHT_%s %d\n"
                 "#define BMPWIDTH_%s %d\n",
-                 id, height, id, width);
-
+                id, height, id, width);
         if (t_depth <= 8)
-            fprintf(fh, "extern const unsigned char %s[]%s;\n", id,
-                    initdata ? " INITDATA_ATTR":"");
+            fprintf(fh, "extern const unsigned char %s[];\n", id);
         else if (t_depth <= 16)
-            fprintf(fh, "extern const unsigned short %s[]%s;\n", id,
-                    initdata ? " INITDATA_ATTR":"");
+            fprintf(fh, "extern const unsigned short %s[];\n", id);
         else
-            fprintf(fh, "extern const fb_data %s[]%s;\n", id,
-                    initdata ? " INITDATA_ATTR":"");
+            fprintf(fh, "extern const fb_data %s[];\n", id);
 
 
         if (create_bm)
         {
             fprintf(f, "#include \"lcd.h\"\n");
-            fprintf(fh, "extern const struct bitmap bm_%s%s;\n", id,
-                    initdata ? " INITDATA_ATTR":"");
+            fprintf(fh, "extern const struct bitmap bm_%s;\n", id);
         }
         fclose(fh);
     } else {

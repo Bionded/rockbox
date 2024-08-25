@@ -1,4 +1,6 @@
+#ifdef HAVE_LCD_BITMAP
 default_icons.bmp
+#endif
 
 #if (CONFIG_PLATFORM & PLATFORM_HOSTED) && defined(__APPLE__)
 osx_dummy.bmp

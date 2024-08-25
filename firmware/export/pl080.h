@@ -24,7 +24,6 @@
 /*
  * ARM PrimeCell PL080 Multiple Master DMA controller
  */
-#include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 

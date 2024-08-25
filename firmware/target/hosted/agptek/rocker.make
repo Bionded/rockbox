@@ -25,7 +25,7 @@ ifneq (,$(findstring bootloader,$(APPSDIR)))
 # bootloader build
 
 $(BUILDDIR)/bootloader.elf : $$(OBJ) $(FIRMLIB) $(CORE_LIBS)
-	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -o $@ $(OBJ) \
+	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -Os -o $@ $(OBJ) \
 		-L$(BUILDDIR)/firmware -lfirmware \
 		-L$(BUILDDIR)/lib $(call a2lnk,$(CORE_LIBS)) \
 		$(LDOPTS) $(GLOBAL_LDOPTS) -Wl,--gc-sections -Wl,-Map,$(BUILDDIR)/bootloader.map
@@ -37,13 +37,13 @@ else
 # rockbox app build
 
 $(BUILDDIR)/rockbox.elf : $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS)
-	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -o $@ $(OBJ) \
+	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -Os -o $@ $(OBJ) \
 		-L$(BUILDDIR)/firmware -lfirmware \
 		-L$(RBCODEC_BLD)/codecs $(call a2lnk, $(VOICESPEEXLIB)) \
 		-L$(BUILDDIR)/lib $(call a2lnk,$(CORE_LIBS)) \
 		$(LDOPTS) $(GLOBAL_LDOPTS) -Wl,-Map,$(BUILDDIR)/rockbox.map
 
-$(BUILDDIR)/$(BINARY): $(BUILDDIR)/rockbox.elf
+$(BUILDDIR)/rockbox.rocker : $(BUILDDIR)/rockbox.elf
 	$(call PRINTS,OC $(@F))$(call objcopy,$^,$@)
 
 endif

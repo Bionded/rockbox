@@ -115,7 +115,7 @@ struct fat_filestr
 {
     struct fat_file *fatfilep;  /* common file information */
     long          lastcluster;  /* cluster of last access */
-    sector_t lastsector;   /* sector of last access */
+    unsigned long lastsector;   /* sector of last access */
     long          clusternum;   /* cluster number of last access */
     unsigned long sectornum;    /* sector number within current cluster */
     bool          eof;          /* end-of-file reached */
@@ -140,8 +140,6 @@ enum fat_remove_op           /* what should fat_remove(), remove? */
 int fat_remove(struct fat_file *file, enum fat_remove_op what);
 int fat_rename(struct fat_file *parent, struct fat_file *file,
                const unsigned char *newname);
-int fat_modtime(struct fat_file *parent, struct fat_file *file,
-                time_t modtime);
 
 /** File stream functions **/
 int fat_closewrite(struct fat_filestr *filestr, uint32_t size,
@@ -173,9 +171,10 @@ int fat_get_bytes_per_sector(IF_MV_NONVOID(int volume));
 #endif /* MAX_LOG_SECTOR_SIZE */
 unsigned int fat_get_cluster_size(IF_MV_NONVOID(int volume));
 void fat_recalc_free(IF_MV_NONVOID(int volume));
-bool fat_size(IF_MV(int volume,) sector_t *size, sector_t *free);
+bool fat_size(IF_MV(int volume,) unsigned long *size, unsigned long *free);
 
 /** Misc. **/
+time_t fattime_mktime(uint16_t fatdate, uint16_t fattime);
 void fat_empty_fat_direntry(struct fat_direntry *entry);
 void fat_init(void);
 

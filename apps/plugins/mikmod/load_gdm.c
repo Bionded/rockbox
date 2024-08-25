@@ -20,7 +20,7 @@
 
 /*==============================================================================
 
-  $Id$
+  $Id: load_gdm.c,v 1.3 2005/04/07 19:57:38 realtech Exp $
 
   General DigiMusic (GDM) module loader
 
@@ -114,7 +114,7 @@ typedef struct GDMSAMPLE {
 static GDMHEADER *mh=NULL;	/* pointer to GDM header */
 static GDMNOTE *gdmbuf=NULL;	/* pointer to a complete GDM pattern */
 
-static CHAR GDM_Version[]="General DigiMusic 1.xx";
+CHAR GDM_Version[]="General DigiMusic 1.xx";
 
 static int GDM_Test(void)
 {
@@ -146,45 +146,36 @@ static void GDM_Cleanup(void)
 {
 	MikMod_free(mh);
 	MikMod_free(gdmbuf);
-	mh=NULL;
-	gdmbuf=NULL;
 }
 
 static int GDM_ReadPattern(void)
 {
-	int pos,flag,ch,i;
+	int pos,flag,ch,i,maxch;
 	GDMNOTE n;
-	SLONG length,x=0;
+	UWORD length,x=0;
 
 	/* get pattern length */
-	length=(SLONG)_mm_read_I_UWORD(modreader);
-	length-=2;
+	length=_mm_read_I_UWORD(modreader)-2;
 
 	/* clear pattern data */
 	memset(gdmbuf,255,32*64*sizeof(GDMNOTE));
 	pos=0;
+	maxch=0;
 
 	while (x<length) {
 		memset(&n,255,sizeof(GDMNOTE));
 		flag=_mm_read_UBYTE(modreader);
 		x++;
 
-		if (_mm_eof(modreader))
+		if (_mm_eof(modreader)) {
+			_mm_errno=MMERR_LOADING_PATTERN;
 			return 0;
+		}
 
 		ch=flag&31;
-		if (ch > of.numchn)
-			return 0;
-
+		if (ch>maxch) maxch=ch;
 		if (!flag) {
 			pos++;
-			if (x==length) {
-				if (pos > 64)
-				    return 0;
-			} else {
-				if (pos >= 64)
-				    return 0;
-			}
 			continue;
 		}
 		if (flag&0x60) {
@@ -352,7 +343,7 @@ static int GDM_Load(int curious)
 	SAMPLE *q;
 	GDMSAMPLE s;
 	ULONG position;
-	(void)curious;
+    (void)curious;
 
 	/* read header */
 	_mm_read_string(mh->id1,4,modreader);
@@ -399,7 +390,7 @@ static int GDM_Load(int curious)
 	}
 
 	/* now we fill */
-	of.modtype=MikMod_strdup(GDM_Version);
+	of.modtype=StrDup(GDM_Version);
 	of.modtype[18]=mh->majorver+'0';
 	of.modtype[20]=mh->minorver/10+'0';
 	of.modtype[21]=mh->minorver%10+'0';

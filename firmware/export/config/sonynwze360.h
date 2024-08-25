@@ -11,14 +11,14 @@
 /* Define if boot data from bootloader has been enabled for the target */
 #define HAVE_BOOTDATA
 
-// HW can do it but we don't have the IRAM for mix buffers
-//#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_192
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_96
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* Define bitmask of input sources - recordable bitmask can be defined
    explicitly if different */
 #define INPUT_SRC_CAPS SRC_CAP_FMRADIO
 
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 
@@ -82,6 +82,9 @@
 
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
+
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* LCD dimensions */
 #define LCD_WIDTH  240
@@ -155,6 +158,11 @@
 /* Type of LCD */
 #define CONFIG_LCD LCD_NWZE360
 
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
+
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC
 
@@ -181,4 +189,5 @@
 #define BOOTDIR "/.rockbox"
 
 #define INCLUDE_TIMEOUT_API
-
+ 
+ 

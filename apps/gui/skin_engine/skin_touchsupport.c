@@ -18,7 +18,7 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-
+ 
 #include "config.h"
 #include <stdio.h>
 #include "action.h"
@@ -35,9 +35,8 @@
 #include "dsp_misc.h"
 
 /** Disarms all touchregions. */
-void skin_disarm_touchregions(struct gui_wps *gwps)
+void skin_disarm_touchregions(struct wps_data *data)
 {
-    struct wps_data *data = gwps->data;
     char* skin_buffer = get_skin_buffer(data);
     struct skin_token_list *regions = SKINOFFSETTOPTR(skin_buffer, data->touchregions);
     while (regions)
@@ -53,9 +52,9 @@ void skin_disarm_touchregions(struct gui_wps *gwps)
  * egde_offset is a percentage value for the position of the touch
  * inside the bar for regions which arnt WPS_TOUCHREGION_ACTION type.
  */
-int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
+int skin_get_touchaction(struct wps_data *data, int* edge_offset,
+                         struct touchregion **retregion)
 {
-    struct wps_data *data = gwps->data;
     int returncode = ACTION_NONE;
     short x,y;
     short vx, vy;
@@ -80,7 +79,7 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
             regions = SKINOFFSETTOPTR(skin_buffer, regions->next);
             continue;
         }
-        if (data->touchscreen_locked &&
+        if (data->touchscreen_locked && 
             (r->action != ACTION_TOUCH_SOFTLOCK && !r->allow_while_locked))
         {
             regions = SKINOFFSETTOPTR(skin_buffer, regions->next);
@@ -93,18 +92,6 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
              * are relative to a preceding viewport */
             vx = x - wvp->vp.x;
             vy = y - wvp->vp.y;
-
-            /* project touches in the padding region so they clamp to the
-             * edge of the region instead */
-            if(r->x - r->wpad <= vx && vx < r->x)
-                vx = r->x;
-            else if(r->x + r->width <= vx && vx < r->x + r->width + r->wpad)
-                vx = r->x + r->width - 1;
-            if(r->y - r->hpad <= vy && vy < r->y)
-                vy = r->y;
-            else if(r->y + r->height <= vy && vy < r->y + r->height + r->hpad)
-                vy = r->y + r->height - 1;
-
             /* now see if the point is inside this region */
             if (vx >= r->x && vx < r->x+r->width &&
                 vy >= r->y && vy < r->y+r->height)
@@ -122,28 +109,19 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
                         {
                             struct progressbar *bar =
                                     SKINOFFSETTOPTR(skin_buffer, r->bar);
-                            if(r->width > r->height) {
-                                if(r->width > 1)
-                                    *edge_offset = vx*1000/(r->width - 1);
-                                else
-                                    *edge_offset = 0;
-                            } else {
-                                /* vertical bars are bottom-up by default */
-                                if(r->height > 1)
-                                    *edge_offset = 1000 - vy*1000/(r->height - 1);
-                                else
-                                    *edge_offset = 0;
-                            }
-
+                            if(r->width > r->height)
+                                *edge_offset = vx*100/r->width;
+                            else /* vertical bars are bottom-up by default */
+                                *edge_offset = 100 - vy*100/r->height;
                             if (r->reverse_bar || (bar && bar->invert_fill_direction))
-                                *edge_offset = 1000 - *edge_offset;
+                                *edge_offset = 100 - *edge_offset;
                         }
                         temp = r;
                         returncode = r->action;
                         r->last_press = current_tick;
                         break;
                     default:
-                        if (r->armed && ((repeated && needs_repeat) ||
+                        if (r->armed && ((repeated && needs_repeat) || 
                             (released && !needs_repeat)))
                         {
                             returncode = r->action;
@@ -163,10 +141,12 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
 
     /* On release, all regions are disarmed. */
     if (released)
-        skin_disarm_touchregions(gwps);
+        skin_disarm_touchregions(data);
+    if (retregion && temp)
+        *retregion = temp;
     if (temp && temp->press_length == LONG_PRESS)
         temp->armed = false;
-
+    
     if (returncode != ACTION_NONE)
     {
         if (global_settings.party_mode)
@@ -227,9 +207,9 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
             case ACTION_SETTINGS_INC:
             case ACTION_SETTINGS_DEC:
             {
-                const struct settings_list *setting =
+                const struct settings_list *setting = 
                                             temp->setting_data.setting;
-                option_select_next_val(setting,
+                option_select_next_val(setting, 
                                        returncode == ACTION_SETTINGS_DEC,
                                        true);
                 returncode = ACTION_REDRAW;
@@ -245,7 +225,7 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
                     case F_T_CUSTOM:
                         s->custom_setting
                             ->load_from_cfg(s->setting, SKINOFFSETTOPTR(skin_buffer, data->value.text));
-                        break;
+                        break;                          
                     case F_T_INT:
                     case F_T_UINT:
                         *(int*)s->setting = data->value.number;
@@ -287,7 +267,7 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
             break;
             case ACTION_TOUCH_SHUFFLE: /* toggle shuffle mode */
             {
-                global_settings.playlist_shuffle =
+                global_settings.playlist_shuffle = 
                                             !global_settings.playlist_shuffle;
                 replaygain_update();
                 if (global_settings.playlist_shuffle)
@@ -299,23 +279,23 @@ int skin_get_touchaction(struct gui_wps *gwps, int* edge_offset)
             break;
             case ACTION_TOUCH_REPMODE: /* cycle the repeat mode setting */
             {
-                const struct settings_list *rep_setting =
-                                find_setting(&global_settings.repeat_mode);
+                const struct settings_list *rep_setting = 
+                                find_setting(&global_settings.repeat_mode, NULL);
                 option_select_next_val(rep_setting, false, true);
                 audio_flush_and_reload_tracks();
                 returncode = ACTION_REDRAW;
             }
             break;
             case ACTION_TOUCH_SETTING:
-            {
+            {                
                 struct progressbar *bar =
                         SKINOFFSETTOPTR(skin_buffer, temp->bar);
                 if (bar && edge_offset)
-                {
+                {                    
                     int val, count;
-                    get_setting_info_for_bar(bar->setting, bar->setting_offset, &count, &val);
-                    val = *edge_offset * count / 1000;
-                    update_setting_value_from_touch(bar->setting, bar->setting_offset, val);
+                    get_setting_info_for_bar(bar->setting_id, &count, &val);
+                    val = *edge_offset * count / 100;
+                    update_setting_value_from_touch(bar->setting_id, val);
                 }
             }
             break;

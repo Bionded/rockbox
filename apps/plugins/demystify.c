@@ -37,42 +37,26 @@
 #define MIN_POLYGONS 1
 
 /* Key assignement */
+#define DEMYSTIFY_QUIT                      PLA_CANCEL
 
 #ifdef HAVE_SCROLLWHEEL
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define DEMYSTIFY_QUIT                      PLA_UP
-#else
-#define DEMYSTIFY_QUIT                      PLA_CANCEL
-#endif
 
 #define DEMYSTIFY_INCREASE_SPEED            PLA_SCROLL_FWD
 #define DEMYSTIFY_DECREASE_SPEED            PLA_SCROLL_BACK
 #define DEMYSTIFY_INCREASE_SPEED_REPEAT     PLA_SCROLL_FWD_REPEAT
 #define DEMYSTIFY_DECREASE_SPEED_REPEAT     PLA_SCROLL_BACK_REPEAT
-
-#define DEMYSTIFY_ADD_POLYGON               PLA_RIGHT
-#define DEMYSTIFY_REMOVE_POLYGON            PLA_LEFT
-#define DEMYSTIFY_ADD_POLYGON_REPEAT        PLA_RIGHT_REPEAT
-#define DEMYSTIFY_REMOVE_POLYGON_REPEAT     PLA_LEFT_REPEAT
-
 #else
-
-#define DEMYSTIFY_QUIT                      PLA_CANCEL
-
 #define DEMYSTIFY_INCREASE_SPEED            PLA_RIGHT
 #define DEMYSTIFY_DECREASE_SPEED            PLA_LEFT
 #define DEMYSTIFY_INCREASE_SPEED_REPEAT     PLA_RIGHT_REPEAT
 #define DEMYSTIFY_DECREASE_SPEED_REPEAT     PLA_LEFT_REPEAT
+#endif
 
 #define DEMYSTIFY_ADD_POLYGON               PLA_UP
 #define DEMYSTIFY_REMOVE_POLYGON            PLA_DOWN
 #define DEMYSTIFY_ADD_POLYGON_REPEAT        PLA_UP_REPEAT
 #define DEMYSTIFY_REMOVE_POLYGON_REPEAT     PLA_DOWN_REPEAT
 
-#endif
 const struct button_mapping *plugin_contexts[]
 = {pla_main_ctx,
 #if defined(HAVE_REMOTE_LCD)
@@ -278,10 +262,10 @@ static void polygons_draw(struct polygon_fifo * polygons, struct screen * displa
 
 static void cleanup(void)
 {
-
     backlight_use_settings();
+#ifdef HAVE_REMOTE_LCD
     remote_backlight_use_settings();
-
+#endif
 }
 
 #ifdef HAVE_LCD_COLOR
@@ -452,10 +436,10 @@ enum plugin_status plugin_start(const void* parameter)
 #if LCD_DEPTH > 1
     rb->lcd_set_backdrop(NULL);
 #endif
-
     backlight_ignore_timeout();
+#ifdef HAVE_REMOTE_LCD
     remote_backlight_ignore_timeout();
-
+#endif
     ret = plugin_main();
 
     return ret;

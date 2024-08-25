@@ -208,7 +208,7 @@ static void control_received(void) {
     /* acknowledge packet recieved (clear valid) */
     M66591_INTSTAT_MAIN &= ~(1<<3);
 
-    usb_core_legacy_control_request(&temp);
+    usb_core_control_request(&temp);
 }
 
 /* This is a helper function, it is used to notife the stack that a transfer is
@@ -659,13 +659,13 @@ int usb_drv_request_endpoint(int type, int dir) {
         }
     } else if (type == USB_ENDPOINT_XFER_INT) {
         ep=5;
-
-        pipecfg |= 1<<13;
-
-        while(M66591_eps[ep].busy && ++ep<USB_NUM_ENDPOINTS);
-
-        /* If this reached USB_NUM_ENDPOINTS the endpoints were all busy */
-        if(ep==USB_NUM_ENDPOINTS) {
+        
+        pipecfg |= 1<<13; 
+        
+        while(M66591_eps[ep].busy && ep++<7);
+        
+        /* If this reached 7 the endpoints were all busy */
+        if(ep==7) {
             logf("mxx: ep %d busy", ep);
             return -1;
         }
@@ -869,7 +869,7 @@ int usb_drv_send(int endpoint, void* ptr, int length)
 /* This function begins a receive (on an OUT endpoint), it should not block
  *  so the actual receive is done in the interrupt handler.
  */
-int usb_drv_recv_nonblocking(int endpoint, void* ptr, int length)
+int usb_drv_recv(int endpoint, void* ptr, int length)
 {
     return mxx_queue(endpoint, ptr, length, false, false);
 }

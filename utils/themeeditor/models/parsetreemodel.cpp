@@ -242,7 +242,7 @@ bool ParseTreeModel::setData(const QModelIndex &index, const QVariant &value,
                 free(param->data.text);
 
             param->type = skin_tag_parameter::STRING;
-            param->data.text = strdup(value.toString().trimmed().toLatin1());
+            param->data.text = strdup(value.toString().trimmed().toAscii());
         }
         else if(tolower(param->type_code) == 'i')
         {
@@ -265,7 +265,7 @@ bool ParseTreeModel::setData(const QModelIndex &index, const QVariant &value,
             return false;
 
         free(element->data);
-        element->data = strdup(value.toString().trimmed().toLatin1());
+        element->data = strdup(value.toString().trimmed().toAscii());
     }
 
     emit dataChanged(index, index);
@@ -330,7 +330,7 @@ RBScene* ParseTreeModel::render(ProjectModel* project,
 
             if(sbsModel)
                 sbsModel->deleteLater();
-            sbsModel = new ParseTreeModel(QString(sbs.readAll()).toLatin1());
+            sbsModel = new ParseTreeModel(QString(sbs.readAll()).toAscii());
 
             if(sbsModel->root != 0)
             {
@@ -391,7 +391,7 @@ void ParseTreeModel::setChildrenUnselectable(QGraphicsItem *root)
     root->setFlag(QGraphicsItem::ItemIsSelectable, false);
     root->setFlag(QGraphicsItem::ItemIsMovable, false);
 
-    QList<QGraphicsItem*> children = root->childItems();
+    QList<QGraphicsItem*> children = root->children();
     for(QList<QGraphicsItem*>::iterator i = children.begin()
         ; i != children.end(); i++)
         setChildrenUnselectable(*i);

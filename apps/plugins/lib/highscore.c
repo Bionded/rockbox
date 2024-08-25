@@ -119,21 +119,17 @@ bool highscore_would_update(int score, struct highscore *scores,
     return (num_scores > 0) && (score > scores[num_scores-1].score);
 }
 
+#ifdef HAVE_LCD_BITMAP
 #define MARGIN 5
 void highscore_show(int position, struct highscore *scores, int num_scores,
                     bool show_level)
 {
     int i, w, h;
-#if defined(HAVE_LCD_COLOR) || LCD_DEPTH >= 2
+#ifdef HAVE_LCD_COLOR
     unsigned bgcolor = rb->lcd_get_background();
     unsigned fgcolor = rb->lcd_get_foreground();
-#ifdef HAVE_LCD_COLOR
     rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_WHITE);
-#else
-    rb->lcd_set_background(LCD_WHITE);
-    rb->lcd_set_foreground(LCD_BLACK);
-#endif
 #endif
     rb->lcd_clear_display();
 
@@ -178,8 +174,42 @@ void highscore_show(int position, struct highscore *scores, int num_scores,
     rb->button_clear_queue();
     rb->button_get(true);
     rb->lcd_setfont(FONT_SYSFIXED);
-#if defined(HAVE_LCD_COLOR) || LCD_DEPTH >= 2
+#ifdef HAVE_LCD_COLOR
     rb->lcd_set_background(bgcolor);
     rb->lcd_set_foreground(fgcolor);
 #endif
 }
+#else
+struct scoreinfo {
+    struct highscore *scores;
+    int position;
+    bool show_level;
+};
+static const char* get_score(int selected, void * data,
+                                  char * buffer, size_t buffer_len)
+{
+    struct scoreinfo *scoreinfo = (struct scoreinfo *) data;
+    int len;
+    len = rb->snprintf(buffer, buffer_len, "%c%d) %4d",
+                        (scoreinfo->position == selected?'*':' '),
+                        selected+1, scoreinfo->scores[selected].score);
+
+    if (scoreinfo->show_level)
+        rb->snprintf(buffer + len, buffer_len - len, " %d",
+                     scoreinfo->scores[selected].level);
+    return buffer;
+}
+
+void highscore_show(int position, struct highscore *scores, int num_scores,
+                    bool show_level)
+{
+    struct simplelist_info info;
+    struct scoreinfo scoreinfo = {scores, position, show_level};
+    rb->simplelist_info_init(&info, "High Scores", num_scores, &scoreinfo);
+    if (position >= 0)
+        info.selection = position;
+    info.hide_selection = true;
+    info.get_name = get_score;
+    rb->simplelist_show_list(&info);
+}
+#endif /* HAVE_LCD_BITMAP */

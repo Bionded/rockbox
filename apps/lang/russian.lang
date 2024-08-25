@@ -29,6 +29,7 @@
 # - James Hunt
 # - Dmitriy Gamza
 # - Roman Levkin-Taymenev
+
 <phrase>
   id: LANG_SET_BOOL_YES
   desc: bool true representation
@@ -114,6 +115,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_CONFIRM_SHUTDOWN
+  desc: in shutdown screen
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Press OFF to shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Нажмите OFF для выключения"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SHUTTINGDOWN
   desc: in main menu
   user: core
@@ -125,6 +143,23 @@
   </dest>
   <voice>
     *: "Выключаюсь"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_REMOVE_MMC
+  desc: before acknowledging usb in case an MMC is inserted (Ondio)
+  user: core
+  <source>
+    *: none
+    archosondio*: "Please remove inserted MMC"
+  </source>
+  <dest>
+    *: none
+    archosondio*: "Пожалуйста, выньте карту MMC"
+  </dest>
+  <voice>
+    *: none
+    archosondio*: "Пожалуйста, выньте карту"
   </voice>
 </phrase>
 <phrase>
@@ -257,6 +292,23 @@
   </dest>
   <voice>
     *: "Плагины"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SHUTDOWN
+  desc: in main menu
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Выключить"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: "Выключить"
   </voice>
 </phrase>
 <phrase>
@@ -414,17 +466,173 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_LOUDNESS
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Loudness"
+  </source>
+  <dest>
+    *: none
+    masf: "Средние частоты"
+  </dest>
+  <voice>
+    *: none
+    masf: "Средние частоты"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTOVOL
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Auto Volume"
+  </source>
+  <dest>
+    *: none
+    masf: "Автогромкость"
+  </dest>
+  <voice>
+    *: none
+    masf: "Автогромкость"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_DECAY
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "AV Decay Time"
+  </source>
+  <dest>
+    *: none
+    masf: "Время спада автогромкости"
+  </dest>
+  <voice>
+    *: none
+    masf: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SUPERBASS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "Super Bass"
+  </source>
+  <dest>
+    *: none
+    masf: "Супербас"
+  </dest>
+  <voice>
+    *: none
+    masf: "Супербас"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_ENABLE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Enable"
+  </source>
+  <dest>
+    *: none
+    masf: "Выключить MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Выключить MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_STRENGTH
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Strength"
+  </source>
+  <dest>
+    *: none
+    masf: "Сила MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Сила MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_HARMONICS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Harmonics"
+  </source>
+  <dest>
+    *: none
+    masf: "Гармоники MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Гармоники MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_CENTER
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Centre Frequency"
+  </source>
+  <dest>
+    *: none
+    masf: "Центральная частота MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Центральная частота MDB"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_SHAPE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Shape"
+  </source>
+  <dest>
+    *: none
+    masf: "Форма сигнала MDB"
+  </dest>
+  <voice>
+    *: none
+    masf: "Форма сигнала MDB"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_CROSSFEED
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Перекрёстная подача сигнала"
+    *: none
+    swcodec: "Перекрёстная подача сигнала"
   </dest>
   <voice>
-    *: "Перекрёстная подача сигнала"
+    *: none
+    swcodec: "Перекрёстная подача сигнала"
   </voice>
 </phrase>
 <phrase>
@@ -432,13 +640,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Эквалайзер"
+    *: none
+    swcodec: "Эквалайзер"
   </dest>
   <voice>
-    *: "Эквалайзер"
+    *: none
+    swcodec: "Эквалайзер"
   </voice>
 </phrase>
 <phrase>
@@ -617,13 +828,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Включить эквалайзер"
+    *: none
+    swcodec: "Включить эквалайзер"
   </dest>
   <voice>
-    *: "Включить эквалайзер"
+    *: none
+    swcodec: "Включить эквалайзер"
   </voice>
 </phrase>
 <phrase>
@@ -631,13 +845,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Графический эквалайзер"
+    *: none
+    swcodec: "Графический эквалайзер"
   </dest>
   <voice>
-    *: "Графический эквалайзер"
+    *: none
+    swcodec: "Графический эквалайзер"
   </voice>
 </phrase>
 <phrase>
@@ -645,13 +862,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Простые настройки"
+    *: none
+    swcodec: "Простые настройки"
   </dest>
   <voice>
-    *: "Простые настройки"
+    *: none
+    swcodec: "Простые настройки"
   </voice>
 </phrase>
 <phrase>
@@ -659,13 +879,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Расширенные настройки"
+    *: none
+    swcodec: "Расширенные настройки"
   </dest>
   <voice>
-    *: "Расширенные настройки"
+    *: none
+    swcodec: "Расширенные настройки"
   </voice>
 </phrase>
 <phrase>
@@ -673,13 +896,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Сохранить настройки"
+    *: none
+    swcodec: "Сохранить настройки"
   </dest>
   <voice>
-    *: "Сохранить настройки"
+    *: none
+    swcodec: "Сохранить настройки"
   </voice>
 </phrase>
 <phrase>
@@ -687,13 +913,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Загрузить настройки"
+    *: none
+    swcodec: "Загрузить настройки"
   </dest>
   <voice>
-    *: "Загрузить настройки"
+    *: none
+    swcodec: "Загрузить настройки"
   </voice>
 </phrase>
 <phrase>
@@ -701,13 +930,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Режим редактирования: %s"
+    *: none
+    swcodec: "Режим редактирования: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -715,13 +947,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Гц"
+    *: none
+    swcodec: "%d Гц"
   </dest>
   <voice>
-    *: "Герц"
+    *: none
+    swcodec: "Герц"
   </voice>
 </phrase>
 <phrase>
@@ -729,13 +964,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Фильтр низких частот"
+    *: none
+    swcodec: "Фильтр низких частот"
   </dest>
   <voice>
-    *: "Фильтр низких частот"
+    *: none
+    swcodec: "Фильтр низких частот"
   </voice>
 </phrase>
 <phrase>
@@ -743,13 +981,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Полосовой фильтр %d"
+    *: none
+    swcodec: "Фильтр пиков %d"
   </dest>
   <voice>
-    *: "Полосовой фильтр"
+    *: none
+    swcodec: "Фильтр пиков %d"
   </voice>
 </phrase>
 <phrase>
@@ -757,13 +998,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Фильтр высоких частот"
+    *: none
+    swcodec: "Фильтр высоких частот"
   </dest>
   <voice>
-    *: "Фильтр высоких частот"
+    *: none
+    swcodec: "Фильтр высоких частот"
   </voice>
 </phrase>
 <phrase>
@@ -771,13 +1015,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Частота среза"
+    *: none
+    swcodec: "Частота среза"
   </dest>
   <voice>
-    *: "Частота среза"
+    *: none
+    swcodec: "Частота среза"
   </voice>
 </phrase>
 <phrase>
@@ -785,13 +1032,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Центральная частота"
+    *: none
+    swcodec: "Центральная частота"
   </dest>
   <voice>
-    *: "Центральная частота"
+    *: none
+    swcodec: "Центральная частота"
   </voice>
 </phrase>
 <phrase>
@@ -799,13 +1049,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Добротность"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Добротность"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -1057,13 +1310,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Сигнал при пропуске трека"
+    *: none
+    swcodec: "Сигнал при пропуске трека"
   </dest>
   <voice>
-    *: "Сигнал при пропуске трэка"
+    *: none
+    swcodec: "Сигнал при пропуске трэка"
   </voice>
 </phrase>
 <phrase>
@@ -1071,13 +1327,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Низкая"
+    *: none
+    swcodec: "Низкая"
   </dest>
   <voice>
-    *: "Низкая"
+    *: none
+    swcodec: "Низкая"
   </voice>
 </phrase>
 <phrase>
@@ -1085,13 +1344,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Средняя"
+    *: none
+    swcodec: "Средняя"
   </dest>
   <voice>
-    *: "Средняя"
+    *: none
+    swcodec: "Средняя"
   </voice>
 </phrase>
 <phrase>
@@ -1099,13 +1361,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Высокая"
+    *: none
+    swcodec: "Высокая"
   </dest>
   <voice>
-    *: "Высокая"
+    *: none
+    swcodec: "Высокая"
   </voice>
 </phrase>
 <phrase>
@@ -1326,13 +1591,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Шрифты"
+    *: none
+    lcd_bitmap: "Шрифты"
   </dest>
   <voice>
-    *: "Шрифты"
+    *: none
+    lcd_bitmap: "Шрифты"
   </voice>
 </phrase>
 <phrase>
@@ -1416,13 +1684,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Статус/Прокрутка"
+    *: none
+    lcd_bitmap: "Статус/Прокрутка"
   </dest>
   <voice>
-    *: "Статус/Прокрутка"
+    *: none
+    lcd_bitmap: "Статус/Прокрутка"
   </voice>
 </phrase>
 <phrase>
@@ -1489,13 +1760,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Иврит (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Иврит (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Иврит"
+    *: none
+    lcd_bitmap: "Иврит"
   </voice>
 </phrase>
 <phrase>
@@ -1517,13 +1791,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Тайская (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Тайская (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Тайская"
+    *: none
+    lcd_bitmap: "Тайская"
   </voice>
 </phrase>
 <phrase>
@@ -1531,13 +1808,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Арабская (CP1256)"
+    *: none
+    lcd_bitmap: "Арабская (CP1256)"
   </dest>
   <voice>
-    *: "Арабская"
+    *: none
+    lcd_bitmap: "Арабская"
   </voice>
 </phrase>
 <phrase>
@@ -1573,13 +1853,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Японская (SJIS)"
+    *: none
+    lcd_bitmap: "Японская (SJIS)"
   </dest>
   <voice>
-    *: "Японская"
+    *: none
+    lcd_bitmap: "Японская"
   </voice>
 </phrase>
 <phrase>
@@ -1587,13 +1870,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Упрощённая Китайская (GB2312)"
+    *: none
+    lcd_bitmap: "Упрощённая Китайская (GB2312)"
   </dest>
   <voice>
-    *: "Упрощённая Китайская"
+    *: none
+    lcd_bitmap: "Упрощённая Китайская"
   </voice>
 </phrase>
 <phrase>
@@ -1601,13 +1887,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Корейская (KSX1001)"
+    *: none
+    lcd_bitmap: "Корейская (KSX1001)"
   </dest>
   <voice>
-    *: "Корейская"
+    *: none
+    lcd_bitmap: "Корейская"
   </voice>
 </phrase>
 <phrase>
@@ -1615,13 +1904,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Традиционная Китайская (BIG5)"
+    *: none
+    lcd_bitmap: "Традиционная Китайская (BIG5)"
   </dest>
   <voice>
-    *: "Традиционная Китайская"
+    *: none
+    lcd_bitmap: "Традиционная Китайская"
   </voice>
 </phrase>
 <phrase>
@@ -1748,15 +2040,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Линейный вход"
+    recording,archosplayer: "Линейный вход"
   </dest>
   <voice>
     *: none
-    recording: "Линейный вход"
+    recording,archosplayer: "Линейный вход"
   </voice>
 </phrase>
 <phrase>
@@ -1847,6 +2139,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BOOKMARK_SETTINGS_UNIQUE_ONLY
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_VOICE_MENU
   desc: item of voice menu, enable/disable the voice UI
   user: core
@@ -1931,20 +2237,37 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Качество"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Качество"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FREQUENCY
   desc: in recording and playback settings
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Частота"
+    recording,play_frequency: "Частота"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Частота"
+    recording,play_frequency: "Частота"
   </voice>
 </phrase>
 <phrase>
@@ -1970,18 +2293,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Внутренний микрофон"
     recording: "Микрофон"
+    iriverh100,iriverh120,iriverh300: "Внутренний микрофон"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Внутренний микрофон"
     recording: "Микрофон"
+    iriverh100,iriverh120,iriverh300: "Внутренний микрофон"
   </voice>
 </phrase>
 <phrase>
@@ -1999,6 +2322,23 @@
   <voice>
     *: none
     recording: "Цифровой"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_RECORDING_EDITABLE
+  desc: Editable recordings setting
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Independent Frames"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Независимые отрезки"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Независимые отрезки"
   </voice>
 </phrase>
 <phrase>
@@ -2289,13 +2629,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Предотвращать перегрузки"
+    *: none
+    swcodec: "Предотвращать перегрузки"
   </dest>
   <voice>
-    *: "Предотвращать перегрузки"
+    *: none
+    swcodec: "Предотвращать перегрузки"
   </voice>
 </phrase>
 <phrase>
@@ -2517,13 +2860,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Вверх ногами"
+    *: none
+    lcd_bitmap: "Вверх ногами"
   </dest>
   <voice>
-    *: "Вверх ногами"
+    *: none
+    lcd_bitmap: "Вверх ногами"
   </voice>
 </phrase>
 <phrase>
@@ -2531,13 +2877,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Вид курсора"
+    *: none
+    lcd_bitmap: "Вид курсора"
   </dest>
   <voice>
-    *: "Вид курсора"
+    *: none
+    lcd_bitmap: "Вид курсора"
   </voice>
 </phrase>
 <phrase>
@@ -2545,13 +2894,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Стрелочка"
+    *: none
+    lcd_bitmap: "Стрелочка"
   </dest>
   <voice>
-    *: "Стрелочка"
+    *: none
+    lcd_bitmap: "Стрелочка"
   </voice>
 </phrase>
 <phrase>
@@ -2559,13 +2911,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Инверсный курсор"
+    *: none
+    lcd_bitmap: "Инверсный курсор"
   </dest>
   <voice>
-    *: "Инверсный курсор"
+    *: none
+    lcd_bitmap: "Инверсный курсор"
   </voice>
 </phrase>
 <phrase>
@@ -2691,13 +3046,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Прокручивать за границы экрана"
+    *: none
+    lcd_bitmap: "Прокручивать за границы экрана"
   </dest>
   <voice>
-    *: "Прокручивать за границы экрана"
+    *: none
+    lcd_bitmap: "Прокручивать за границы экрана"
   </voice>
 </phrase>
 <phrase>
@@ -2705,13 +3063,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Шаг прокрутки экрана"
+    *: none
+    lcd_bitmap: "Шаг прокрутки экрана"
   </dest>
   <voice>
-    *: "Шаг прокрутки экрана"
+    *: none
+    lcd_bitmap: "Шаг прокрутки экрана"
   </voice>
 </phrase>
 <phrase>
@@ -2733,13 +3094,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Панель прокрутки"
+    *: none
+    lcd_bitmap: "Панель прокрутки"
   </dest>
   <voice>
-    *: "Панель прокрутки"
+    *: none
+    lcd_bitmap: "Панель прокрутки"
   </voice>
 </phrase>
 <phrase>
@@ -2747,13 +3111,33 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Панель состояния"
+    *: none
+    lcd_bitmap: "Панель состояния"
   </dest>
   <voice>
-    *: "Панель состояния"
+    *: none
+    lcd_bitmap: "Панель состояния"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BUTTON_BAR
+  desc: in settings menu
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Button Bar"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Панель кнопок"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Панель кнопок"
   </voice>
 </phrase>
 <phrase>
@@ -2761,13 +3145,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Индикатор громкости"
+    *: none
+    lcd_bitmap: "Индикатор громкости"
   </dest>
   <voice>
-    *: "Индикатор громкости"
+    *: none
+    lcd_bitmap: "Индикатор громкости"
   </voice>
 </phrase>
 <phrase>
@@ -2775,13 +3162,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Индикатор аккумулятора"
+    *: none
+    lcd_bitmap: "Индикатор аккумулятора"
   </dest>
   <voice>
-    *: "Индикатор аккумулятора"
+    *: none
+    lcd_bitmap: "Индикатор аккумулятора"
   </voice>
 </phrase>
 <phrase>
@@ -2789,13 +3179,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Графический"
+    *: none
+    lcd_bitmap: "Графический"
   </dest>
   <voice>
-    *: "Графический"
+    *: none
+    lcd_bitmap: "Графический"
   </voice>
 </phrase>
 <phrase>
@@ -2803,13 +3196,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Цифровой"
+    *: none
+    lcd_bitmap: "Цифровой"
   </dest>
   <voice>
-    *: "Цифровой"
+    *: none
+    lcd_bitmap: "Цифровой"
   </voice>
 </phrase>
 <phrase>
@@ -2997,43 +3393,37 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "Alkaline"
-    xduoox3: "Newer (2000 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "Щелочной"
-    xduoox3: "Новый (2000 мАч)"
   </dest>
   <voice>
     *: none
     battery_types: "Щелочной"
-    xduoox3: "Новый 2000 миллиампер часов"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Older (1500 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "Никель-металгидридный"
-    xduoox3: "Старый (1500 мАч)"
   </dest>
   <voice>
     *: none
     battery_types: "Никель-металгидридный"
-    xduoox3: "Старый 1500 миллиампер часов"
   </voice>
 </phrase>
 <phrase>
@@ -3525,6 +3915,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BATTERY_TOPOFF_CHARGE
+  desc: in info display, shows that top off charge is running Only for V1 archosrecorder
+  user: core
+  <source>
+    *: none
+    archosrecorder: "Battery: Top-Off Chg"
+  </source>
+  <dest>
+    *: none
+    archosrecorder: "Аккумулятор: Выше возможного"
+  </dest>
+  <voice>
+    *: none
+    archosrecorder: "Аккумулятор: Выше возможного"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BATTERY_TRICKLE_CHARGE
   desc: in info display, shows that trickle charge is running
   user: core
@@ -3547,12 +3954,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "%d%% %dч %dм"
-    ipodmini1g,ipodmini2g,iriverh10,iriverifp7xx: "%d%% %dч %dм"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dч %dм"
+    iriverh10,ipodmini1g,ipodmini2g: "%d%% %dч %dм"
   </dest>
   <voice>
     *: "Заряд аккумулятора"
@@ -3593,17 +4001,14 @@
   <source>
     *: "Int:"
     xduoox3: "mSD1:"
-    hibylinux: "mSD:"
   </source>
   <dest>
     *: "Внутр:"
     xduoox3: "mSD1:"
-    hibylinux: "mSD:"
   </dest>
   <voice>
     *: "Внутр"
     xduoox3: "микро Эс Ди 1"
-    hibylinux: "микро Эс Ди"
   </voice>
 </phrase>
 <phrase>
@@ -3613,20 +4018,23 @@
   <source>
     *: none
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
     multivolume: "Эйч Ди 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "микро Эс Ди"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "микро Эс Ди"
     xduoox3: "микро Эс Ди 2"
+    archosondio*: "Эм Эм Си"
   </voice>
 </phrase>
 <phrase>
@@ -3756,30 +4164,34 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500,rtc: "ВЫКЛ. = Отмена"
+    rtc: "ВЫКЛ. = Отмена"
+    mrobe500: "ВЫКЛ. = Отмена"
+    iriverh100,iriverh120,iriverh300: "СТОП = Отмена"
+    ipod*,sansac200*,mpiohd300: "МЕНЮ = Отмена"
+    iaudiox5,iaudiom5: "ЗАПИСЬ = Отмена"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "ПРЕД. = Отмена"
+    gigabeatfx: "ВЫКЛ. = Отмена"
+    mrobe100: "ПОКАЗ. = Отмена"
     gigabeats: "НАЗАД = Отмена"
     gogearsa9200: "ЛЕВО = Отмена"
-    iaudiom5,iaudiox5: "ЗАПИСЬ = Отмена"
-    ipod*,mpiohd300,sansac200*: "МЕНЮ = Отмена"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "ПРЕД. = Отмена"
-    iriverh100,iriverh120,iriverh300: "СТОП = Отмена"
-    mrobe100: "ПОКАЗ. = Отмена"
-    samsungyh*: "REW = Отмена"
     vibe500: "C = Отмена"
+    samsungyh*: "REW = Отмена"
   </dest>
   <voice>
     *: none
@@ -3825,18 +4237,19 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5,recording: "Диск заполнен. Нажмите ВЫКЛ. для продолжения."
+    recording: "Диск заполнен. Нажмите ВЫКЛ. для продолжения."
     iriverh100,iriverh120,iriverh300: "Диск заполнен. Нажмите СТОП для продолжения."
+    iaudiom5,iaudiox5: "Диск заполнен. Нажмите ВЫКЛ. для продолжения."
+    sansae200*,sansac200*,vibe500: "Диск заполнен. Нажмите ПРЕД. для продолжения."
     samsungyh*: "Диск заполнен. Нажмите LEFT для продолжения."
-    sansac200*,sansae200*,vibe500: "Диск заполнен. Нажмите ПРЕД. для продолжения."
   </dest>
   <voice>
     *: none
@@ -3958,7 +4371,7 @@
   </dest>
   <voice>
     *: none
-    alarm: "Проснуться через"
+    alarm: "Проснуться через %d:%02d"
   </voice>
 </phrase>
 <phrase>
@@ -4002,26 +4415,29 @@
   <source>
     *: none
     alarm: "PLAY=Set OFF=Cancel"
-    gigabeats: "SELECT=Set POWER=Cancel"
     ipod*: "SELECT=Set MENU=Cancel"
     iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: none
     alarm: "ВОСПР.=Уст., ВЫКЛ.=Отм."
-    gigabeats: "ВЫБОР=Уст., ВЫКЛ.=Отм."
     ipod*: "ВЫБОР=Уст., МЕНЮ=Отм."
     iriverh10,iriverh10_5gb: "ВЫБОР=Уст., ПРЕД.=Отм."
+    gigabeats: "ВЫБОР=Уст., ВЫКЛ.=Отм."
+    vibe500: "OK=Уст., C=Отм."
     mpiohd300: "ENTER=Уст., MENU=Отм."
     sansafuzeplus: "SELECT=Уст.,  BACK=Отм."
-    vibe500: "OK=Уст., C=Отм."
   </dest>
   <voice>
     *: none
-    alarm,gigabeats,ipod*,iriverh10,iriverh10_5gb: ""
+    alarm: ""
+    ipod*: ""
+    iriverh10,iriverh10_5gb: ""
+    gigabeats: ""
   </voice>
 </phrase>
 <phrase>
@@ -5211,6 +5627,48 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_KILOBYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MEGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_GIGABYTE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_POINT
   desc: decimal separator for composing numbers
   user: core
@@ -6337,21 +6795,22 @@
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "ВЫКЛ. для отмены"
-    gigabeatfx: "ВЫКЛ. для отмены"
-    gigabeats: "НАЗАД для отмены"
-    iaudiom5,iaudiox5: "ВОСПР. для отмены"
+    archosplayer,iriverh100,iriverh120,iriverh300: "СТОП для отмены"
     ipod*: "ПАУЗА для отмены"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "ПРЕД. для отмены"
-    iriverh100,iriverh120,iriverh300: "СТОП для отмены"
+    iaudiox5,iaudiom5: "ВОСПР. для отмены"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "ПРЕД. для отмены"
+    gigabeats: "НАЗАД для отмены"
+    gigabeatfx: "ВЫКЛ. для отмены"
   </dest>
   <voice>
     *: ""
@@ -6369,6 +6828,40 @@
   </dest>
   <voice>
     *: "Нет файлов"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
   </voice>
 </phrase>
 <phrase>
@@ -6540,17 +7033,54 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SYSFONT_CHANNEL_STEREO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Stereo"
+  </source>
+  <dest>
+    *: none
+    recording: "Стерео"
+  </dest>
+  <voice>
+    *: none
+    recording: "Стерео"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_MONO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Mono"
+  </source>
+  <dest>
+    *: none
+    recording: "Моно"
+  </dest>
+  <voice>
+    *: none
+    recording: "Моно"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SYSFONT_EQUALIZER_EDIT_MODE
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Режим редактир.: %s %s"
+    *: none
+    swcodec: "Режим редактир.: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -6558,13 +7088,186 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Срез"
+    *: none
+    swcodec: "Срез"
   </dest>
   <voice>
-    *: "Частота среза"
+    *: none
+    swcodec: "Частота среза"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Качество"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Качество"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_FREQUENCY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Frequency"
+  </source>
+  <dest>
+    *: none
+    recording: "Частота"
+  </dest>
+  <voice>
+    *: none
+    recording: "Частота"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SOURCE
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Source"
+  </source>
+  <dest>
+    *: none
+    recording: "Источник"
+  </dest>
+  <voice>
+    *: none
+    recording: "Источник"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_MIC
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Int. Mic"
+  </source>
+  <dest>
+    *: none
+    recording: "Микрофон"
+  </dest>
+  <voice>
+    *: none
+    recording: "Микрофон"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_DIGITAL
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Digital"
+  </source>
+  <dest>
+    *: none
+    recording: "Цифровой"
+  </dest>
+  <voice>
+    *: none
+    recording: "Цифровой"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORD_TRIGGER
+  desc: in recording settings_menu
+  user: core
+  <source>
+    *: none
+    recording: "Trigger"
+  </source>
+  <dest>
+    *: none
+    recording: "Триггер"
+  </dest>
+  <voice>
+    *: none
+    recording: "Триггер"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F1
+  desc: in dir browser, F1 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Menu"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Меню"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F2
+  desc: in dir browser, F2 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Option"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Параметр"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F3
+  desc: in dir browser, F3 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "LCD"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "ЖКД"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
   </voice>
 </phrase>
 <phrase>
@@ -6649,15 +7352,32 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Отсечение баса"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Отсечение баса"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Отсечение баса"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Отсечение баса"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_NEVER
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_sleep: ""
+  </source>
+  <dest>
+    *: none
+    lcd_sleep: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_sleep: ""
   </voice>
 </phrase>
 <phrase>
@@ -6675,6 +7395,23 @@
   <voice>
     *: none
     lcd_color: "Первичный цвет"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_LINE_IN
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Line In"
+  </source>
+  <dest>
+    *: none
+    recording: "Аудиовход"
+  </dest>
+  <voice>
+    *: none
+    recording: "Аудиовход"
   </voice>
 </phrase>
 <phrase>
@@ -6697,22 +7434,24 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    archosplayer: "Building DB %d found"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Построение базы... %d найдено (ВЫКЛ. для отмены)"
-    archosplayer: "Построение БД... %d найдено"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Построение базы... %d найдено (ВЛЕВО для отмены)"
-    gogearsa9200: "Построение базы... %d найдено (РЕВЕРС. для отмены)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Построение базы... %d найдено (ПРЕД. для отмены)"
     iriverh100,iriverh120,iriverh300: "Построение базы... %d найдено (СТОП для отмены)"
+    ipod*: "Построение базы... %d найдено (ПРЕД. для отмены)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Построение базы... %d найдено (ВЛЕВО для отмены)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Построение базы... %d найдено (ПРЕД. для отмены)"
+    gogearsa9200: "Построение базы... %d найдено (РЕВЕРС. для отмены)"
+    archosplayer: "Построение БД... %d найдено"
   </dest>
   <voice>
-    *: "записей найдено в базе"
+    *: "найдено записей в базе"
   </voice>
 </phrase>
 <phrase>
@@ -6839,15 +7578,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -7061,13 +7800,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Предварительное обрезание"
+    *: none
+    swcodec: "Предварительное обрезание"
   </dest>
   <voice>
-    *: "Предварительное обрезание"
+    *: none
+    swcodec: "Предварительное обрезание"
   </voice>
 </phrase>
 <phrase>
@@ -7223,17 +7965,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Формат"
+    *: none
+    recording: "Формат"
   </dest>
   <voice>
-    *: "Формат"
+    *: none
+    recording: "Формат"
   </voice>
 </phrase>
 <phrase>
@@ -7396,23 +8141,23 @@
   user: core
   <source>
     *: "PLAY = Yes"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, or top-right = Yes"
-    creativezen*: "SELECT = Yes"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
+    creativezen*: "Select = Yes"
   </source>
   <dest>
     *: "ВОСПР. = Да"
-    archosplayer: "(ВОСПР./СТОП)"
     cowond2*: "МЕНЮ или прав. верх. = Да"
-    creativezen*: "Выбрать = Да"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "ВЫБРАТЬ = Да"
     iriverh100,iriverh120,iriverh300: "НАВИГ. = Да"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "ВЫБРАТЬ = Да"
     mrobe500: "ВОСПР., ВЫКЛ или прав. верх. = Да"
+    archosplayer: "(ВОСПР./СТОП)"
     vibe500: "OK = Да"
+    creativezen*: "Выбрать = Да"
   </dest>
   <voice>
     *: ""
@@ -7424,27 +8169,27 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansae200*,sansafuze*: "ВЫБОР = Установить"
-    gogearsa9200,samsungyh*: "ВОСПР. = Установить"
-    iriverh100,iriverh120,iriverh300: "НАВИГ. = Установить"
-    mpiohd300: "ENTER = Установить"
-    mrobe500: "СЕРДЦЕ = Установить"
     rtc: "ВКЛ. = Установить"
+    mrobe500: "СЕРДЦЕ = Установить"
+    iriverh100,iriverh120,iriverh300: "НАВИГ. = Установить"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*: "ВЫБОР = Установить"
+    gogearsa9200,samsungyh*: "ВОСПР. = Установить"
     vibe500: "OK = Установить"
+    mpiohd300: "ENTER = Установить"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,iriverh10,iriverh10_5gb,iaudiox5,iaudiom5,ipod*,sansae200*,sansac200*,gigabeat*,mrobe100,gogearsa9200: ""
   </voice>
 </phrase>
 <phrase>
@@ -7526,15 +8271,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Битрейт"
+    recording_swcodec: "Битрейт"
   </dest>
   <voice>
     *: none
-    recording: "Битрейт"
+    recording_swcodec: "Битрейт"
   </voice>
 </phrase>
 <phrase>
@@ -7783,13 +8528,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Усиление"
+    *: none
+    swcodec: "Усиление"
   </dest>
   <voice>
-    *: "Усиление"
+    *: none
+    swcodec: "Усиление"
   </voice>
 </phrase>
 <phrase>
@@ -7931,6 +8679,23 @@
   </dest>
   <voice>
     *: "Копировать"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_MODE
+  desc: in wps F2 pressed
+  user: core
+  <source>
+    *: none
+    lcd_bitmap: "Mode:"
+  </source>
+  <dest>
+    *: none
+    lcd_bitmap: "Режим:"
+  </dest>
+  <voice>
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -8251,13 +9016,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Срез высоких частот"
+    *: none
+    swcodec: "Срез высоких частот"
   </dest>
   <voice>
-    *: "Срез высоких частот"
+    *: none
+    swcodec: "Срез высоких частот"
   </voice>
 </phrase>
 <phrase>
@@ -8486,6 +9254,20 @@
   <voice>
     *: none
     radio: "Регион"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -8935,13 +9717,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "Наложение"
+    *: none
+    swcodec: "Наложение"
   </dest>
   <voice>
-    *: "Наложение"
+    *: none
+    swcodec: "Наложение"
   </voice>
 </phrase>
 <phrase>
@@ -9008,13 +9793,19 @@
   desc: in the sound settings and some other menus
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
+    lcd_bitmap: "Dithering"
   </source>
   <dest>
-    *: "Дизеринг"
+    *: none
+    swcodec: "Дизеринг"
+    lcd_bitmap: "Дизеринг"
   </dest>
   <voice>
-    *: "Дизеринг"
+    *: none
+    swcodec: "Дизеринг"
+    lcd_bitmap: "Дизеринг"
   </voice>
 </phrase>
 <phrase>
@@ -9129,13 +9920,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Подавление высоких частот"
+    *: none
+    swcodec: "Подавление высоких частот"
   </dest>
   <voice>
-    *: "Подавление высоких частот"
+    *: none
+    swcodec: "Подавление высоких частот"
   </voice>
 </phrase>
 <phrase>
@@ -9232,17 +10026,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Таймаут подсветки клавиш"
-    sansae200*,sansafuze*: "Таймаут подсветки колёсика"
+    sansafuze*,sansae200*: "Таймаут подсветки колёсика"
   </dest>
   <voice>
     *: none
     button_light: "Таймаут подсветки клавиш"
-    sansae200*,sansafuze*: "Таймаут подсветки колёсика"
+    sansafuze*,sansae200*: "Таймаут подсветки колёсика"
   </voice>
 </phrase>
 <phrase>
@@ -9253,10 +10047,10 @@
     *: "Album Artist"
   </source>
   <dest>
-    *: "Исполнитель альбома"
+    *: "Исполнитель"
   </dest>
   <voice>
-    *: "Исполнитель альбома"
+    *: "Исполнитель"
   </voice>
 </phrase>
 <phrase>
@@ -9313,15 +10107,32 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Подавление высоких частот"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Подавление высоких частот"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Подавление высоких частот"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Подавление высоких частот"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNELS
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Channels"
+  </source>
+  <dest>
+    *: none
+    recording: "Каналы"
+  </dest>
+  <voice>
+    *: none
+    recording: "Каналы"
   </voice>
 </phrase>
 <phrase>
@@ -9427,15 +10238,15 @@
   desc: in lcd settings
   user: core
   <source>
-    *: "Backlight on Lock"
+    *: none
     hold_button: "Backlight on Hold"
   </source>
   <dest>
-    *: "Подсветка в режиме блокировки"
+    *: none
     hold_button: "Подсветка при блокировке"
   </dest>
   <voice>
-    *: "Подсветка в режиме блокировки"
+    *: none
     hold_button: "Подсветка при блокировке"
   </voice>
 </phrase>
@@ -9458,13 +10269,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Прямое усиление"
+    *: none
+    swcodec: "Прямое усиление"
   </dest>
   <voice>
-    *: "Прямое усиление"
+    *: none
+    swcodec: "Прямое усиление"
   </voice>
 </phrase>
 <phrase>
@@ -9638,13 +10452,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Озвучивание нажатия кнопок"
+    *: none
+    swcodec: "Озвучивание нажатия кнопок"
   </dest>
   <voice>
-    *: "Озвучивание нажатия кнопок"
+    *: none
+    swcodec: "Озвучивание нажатия кнопок"
   </voice>
 </phrase>
 <phrase>
@@ -9652,13 +10469,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Повтор сигнала"
+    *: none
+    swcodec: "Повтор сигнала"
   </dest>
   <voice>
-    *: "Повтор сигнала"
+    *: none
+    swcodec: "Повтор сигнала"
   </voice>
 </phrase>
 <phrase>
@@ -9667,15 +10487,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Чувствительность тачпада"
+    gigabeatfx,sansafuzeplus: "Чувствительность тачпада"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Чувствительность тачпада"
+    gigabeatfx,sansafuzeplus: "Чувствительность тачпада"
   </voice>
 </phrase>
 <phrase>
@@ -10011,15 +10831,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Моно Левый + Правый"
+    recording_swcodec: "Моно Левый + Правый"
   </dest>
   <voice>
     *: none
-    recording: "Моно, Левый плюс Правый"
+    recording_swcodec: "Моно, Левый плюс Правый"
   </voice>
 </phrase>
 <phrase>
@@ -10121,15 +10941,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Режим моно"
+    recording_swcodec: "Режим моно"
   </dest>
   <voice>
     *: none
-    recording: "Режим моно"
+    recording_swcodec: "Режим моно"
   </voice>
 </phrase>
 <phrase>
@@ -10450,13 +11270,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Время освобождения"
+    *: none
+    swcodec: "Время освобождения"
   </dest>
   <voice>
-    *: "Время освобождения"
+    *: none
+    swcodec: "Время освобождения"
   </voice>
 </phrase>
 <phrase>
@@ -10498,13 +11321,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Порог"
+    *: none
+    swcodec: "Порог"
   </dest>
   <voice>
-    *: "Порог"
+    *: none
+    swcodec: "Порог"
   </voice>
 </phrase>
 <phrase>
@@ -10529,13 +11355,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Маскировать усиление"
+    *: none
+    swcodec: "Маскировать усиление"
   </dest>
   <voice>
-    *: "Маскировать усиление"
+    *: none
+    swcodec: "Маскировать усиление"
   </voice>
 </phrase>
 <phrase>
@@ -10543,13 +11372,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Основная тема"
+    *: none
+    lcd_bitmap: "Основная тема"
   </dest>
   <voice>
-    *: "Основная тема"
+    *: none
+    lcd_bitmap: "Основная тема"
   </voice>
 </phrase>
 <phrase>
@@ -10608,13 +11440,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Позиция полосы прокрутки"
+    *: none
+    lcd_bitmap: "Позиция полосы прокрутки"
   </dest>
   <voice>
-    *: "Позиция полосы прокрутки"
+    *: none
+    lcd_bitmap: "Позиция полосы прокрутки"
   </voice>
 </phrase>
 <phrase>
@@ -10656,13 +11491,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Колено"
+    *: none
+    swcodec: "Колено"
   </dest>
   <voice>
-    *: "Колено"
+    *: none
+    swcodec: "Колено"
   </voice>
 </phrase>
 <phrase>
@@ -10670,13 +11508,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Авто"
+    *: none
+    swcodec: "Авто"
   </dest>
   <voice>
-    *: "Авто"
+    *: none
+    swcodec: "Авто"
   </voice>
 </phrase>
 <phrase>
@@ -10712,13 +11553,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Мягкое колено"
+    *: none
+    swcodec: "Мягкое колено"
   </dest>
   <voice>
-    *: "Мягкое колено"
+    *: none
+    swcodec: "Мягкое колено"
   </voice>
 </phrase>
 <phrase>
@@ -10726,13 +11570,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Соотношение"
+    *: none
+    swcodec: "Соотношение"
   </dest>
   <voice>
-    *: "Соотношение"
+    *: none
+    swcodec: "Соотношение"
   </voice>
 </phrase>
 <phrase>
@@ -10774,13 +11621,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Жёсткое колено"
+    *: none
+    swcodec: "Жёсткое колено"
   </dest>
   <voice>
-    *: "Жёсткое колено"
+    *: none
+    swcodec: "Жёсткое колено"
   </voice>
 </phrase>
 <phrase>
@@ -10822,13 +11672,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Основная тема для ПДУ"
+    *: none
+    lcd_bitmap: "Основная тема для ПДУ"
   </dest>
   <voice>
-    *: "Основная тема для ПДУ"
+    *: none
+    lcd_bitmap: "Основная тема для ПДУ"
   </voice>
 </phrase>
 <phrase>
@@ -10858,7 +11711,7 @@
   </source>
   <dest>
     *: none
-    usb_hid: "Доступ к HID-устройствам"
+    usb_hid: "USB HID"
   </dest>
   <voice>
     *: none
@@ -11003,13 +11856,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Перемотать перед возобновлением"
+    *: none
+    swcodec: "Перемотать перед возобновлением"
   </dest>
   <voice>
-    *: "Перемотать перед возобновлением"
+    *: none
+    swcodec: "Перемотать перед возобновлением"
   </voice>
 </phrase>
 <phrase>
@@ -11065,13 +11921,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 к 1"
+    *: none
+    swcodec: "10 к 1"
   </voice>
 </phrase>
 <phrase>
@@ -11178,13 +12037,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 к 1"
+    *: none
+    swcodec: "2 к 1"
   </voice>
 </phrase>
 <phrase>
@@ -11243,13 +12105,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Предел"
+    *: none
+    swcodec: "Предел"
   </dest>
   <voice>
-    *: "Предел"
+    *: none
+    swcodec: "Предел"
   </voice>
 </phrase>
 <phrase>
@@ -11288,13 +12153,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Ширина полосы прокрутки"
+    *: none
+    lcd_bitmap: "Ширина полосы прокрутки"
   </dest>
   <voice>
-    *: "Ширина полосы прокрутки"
+    *: none
+    lcd_bitmap: "Ширина полосы прокрутки"
   </voice>
 </phrase>
 <phrase>
@@ -11312,6 +12180,20 @@
   <voice>
     *: none
     radio: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11381,13 +12263,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Растяжение"
+    *: none
+    swcodec: "Растяжение"
   </dest>
   <voice>
-    *: "Растяжение"
+    *: none
+    swcodec: "Растяжение"
   </voice>
 </phrase>
 <phrase>
@@ -11395,13 +12280,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 к 1"
+    *: none
+    swcodec: "6 к 1"
   </voice>
 </phrase>
 <phrase>
@@ -11454,13 +12342,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Компрессор"
+    *: none
+    swcodec: "Компрессор"
   </dest>
   <voice>
-    *: "Компрессор"
+    *: none
+    swcodec: "Компрессор"
   </voice>
 </phrase>
 <phrase>
@@ -11547,13 +12438,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Скорость"
+    *: none
+    swcodec: "Скорость"
   </dest>
   <voice>
-    *: "Скорость"
+    *: none
+    swcodec: "Скорость"
   </voice>
 </phrase>
 <phrase>
@@ -11561,13 +12455,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 к 1"
+    *: none
+    swcodec: "4 к 1"
   </voice>
 </phrase>
 <phrase>
@@ -11661,6 +12558,34 @@
   </dest>
   <voice>
     *: "Размер файла"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11988,13 +12913,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Алгоритм Мейера"
+    *: none
+    swcodec: "Алгоритм Мейера"
   </dest>
   <voice>
-    *: "Алгоритм Мейера"
+    *: none
+    swcodec: "Алгоритм Мейера"
   </voice>
 </phrase>
 <phrase>
@@ -12030,13 +12958,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Ручная настройка"
+    *: none
+    swcodec: "Ручная настройка"
   </dest>
   <voice>
-    *: "Ручная настройка"
+    *: none
+    swcodec: "Ручная настройка"
   </voice>
 </phrase>
 <phrase>
@@ -12117,13 +13048,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -12199,13 +13133,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </source>
   <dest>
-    *: "Время атаки"
+    *: none
+    swcodec: "Время атаки"
   </dest>
   <voice>
-    *: "Время атаки"
+    *: none
+    swcodec: "Время атаки"
   </voice>
 </phrase>
 <phrase>
@@ -12214,7 +13151,7 @@
   user: core
   <source>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </source>
   <dest>
     *: none
@@ -12272,13 +13209,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </source>
   <dest>
-    *: "Эффект Хааса"
+    *: none
+    swcodec: "Haas Surround"
   </dest>
   <voice>
-    *: "Эффект Хааса"
+    *: none
+    swcodec: "Haas Surround"
   </voice>
 </phrase>
 <phrase>
@@ -12314,13 +13254,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </source>
   <dest>
-    *: "Снижение слуховой утомляемости"
+    *: none
+    swcodec: "Снижение слуховой утомляемости"
   </dest>
   <voice>
-    *: "Снижение слуховой утомляемости"
+    *: none
+    swcodec: "Снижение слуховой утомляемости"
   </voice>
 </phrase>
 <phrase>
@@ -12328,13 +13271,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </source>
   <dest>
-    *: "Нижняя частота)"
+    *: none
+    swcodec: "f(x2)"
   </dest>
   <voice>
-    *: "Нижняя частота"
+    *: none
+    swcodec: "f(x2)"
   </voice>
 </phrase>
 <phrase>
@@ -12369,31 +13315,43 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE
+  id: LANG_IBASSO_USB_MODE
   desc: in Settings -> General -> System -> USB Mode
   user: core
   <source>
-    *: "USB Mode"
+    *: none
+    ibassodx50: "USB Mode"
+    ibassodx90: "USB Mode"
   </source>
   <dest>
-    *: "Режим USB"
+    *: none
+    ibassodx50: "Режим USB"
+    ibassodx90: "Режим USB"
   </dest>
   <voice>
-    *: "Режим USB"
+    *: none
+    ibassodx50: "Режим USB"
+    ibassodx90: "Режим USB"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_CHARGE
+  id: LANG_IBASSO_USB_MODE_CHARGE
   desc: in Settings -> General -> System -> USB Mode: Charge Only
   user: core
   <source>
-    *: "Charge Only"
+    *: none
+    ibassodx50: "Charge Only"
+    ibassodx90: "Charge Only"
   </source>
   <dest>
-    *: "Только зарядка"
+    *: none
+    ibassodx50: "Только зарядка"
+    ibassodx90: "Только зарядка"
   </dest>
   <voice>
-    *: "Только зарядка"
+    *: none
+    ibassodx50: "Только зарядка"
+    ibassodx90: "Только зарядка"
   </voice>
 </phrase>
 <phrase>
@@ -12411,17 +13369,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_ADB
+  id: LANG_IBASSO_USB_MODE_ADB
   desc: in Settings -> General -> System -> USB Mode: Android Debug Bridge
   user: core
   <source>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </source>
   <dest>
-    *: "Отладочный мост Android"
+    *: none
+    ibassodx50: "Отладочный мост Android"
+    ibassodx90: "Отладочный мост Android"
   </dest>
   <voice>
-    *: "Отладочный мост Android"
+    *: none
+    ibassodx50: "Отладочный мост Android"
+    ibassodx90: "Отладочный мост Android"
   </voice>
 </phrase>
 <phrase>
@@ -12444,15 +13408,18 @@
   user: core
   <source>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </source>
   <dest>
     *: none
-    ibassodx50,ibassodx90: "Регулятор масштабирования частоты"
+    ibassodx50: "Регулятор масштабирования частоты"
+    ibassodx90: "Регулятор масштабирования частоты"
   </dest>
   <voice>
     *: none
-    ibassodx50,ibassodx90: "Регулятор масштабирования частоты"
+    ibassodx50: "Регулятор масштабирования частоты"
+    ibassodx90: "Регулятор масштабирования частоты"
   </voice>
 </phrase>
 <phrase>
@@ -12460,13 +13427,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </source>
   <dest>
-    *: "Верхняя частота"
+    *: none
+    swcodec: "f(x1)"
   </dest>
   <voice>
-    *: "Верхняя частота"
+    *: none
+    swcodec: "f(x1)"
   </voice>
 </phrase>
 <phrase>
@@ -12498,17 +13468,23 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_MASS_STORAGE
+  id: LANG_IBASSO_USB_MODE_MASS_STORAGE
   desc: in Settings -> General -> System -> USB Mode: Mass Storage
   user: core
   <source>
-    *: "Mass Storage"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </source>
   <dest>
-    *: "Устройство хранения информации"
+    *: none
+    ibassodx50: "Устройство хранения информации"
+    ibassodx90: "Устройство хранения информации"
   </dest>
   <voice>
-    *: "Устройство хранения информации"
+    *: none
+    ibassodx50: "Устройство хранения информации"
+    ibassodx90: "Устройство хранения информации"
   </voice>
 </phrase>
 <phrase>
@@ -12530,13 +13506,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </source>
   <dest>
-    *: "ТОЛЬКО БОКОВОЙ"
+    *: none
+    swcodec: "ТОЛЬКО БОКОВОЙ"
   </dest>
   <voice>
-    *: "ТОЛЬКО БОКОВОЙ"
+    *: none
+    swcodec: "ТОЛЬКО БОКОВОЙ"
   </voice>
 </phrase>
 <phrase>
@@ -12614,13 +13593,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Perceptual Bass Enhancement"
+    *: none
+    swcodec: "Perceptual Bass Enhancement"
   </source>
   <dest>
-    *: "Улучшение восприятия баса"
+    *: none
+    swcodec: "Улучшение восприятия баса"
   </dest>
   <voice>
-    *: "Улучшение восприятия баса"
+    *: none
+    swcodec: "Улучшение восприятия баса"
   </voice>
 </phrase>
 <phrase>
@@ -12698,13 +13680,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </source>
   <dest>
-    *: "Смесь необработанного и обработанного сигналов"
+    *: none
+    swcodec: "Смесь необработанного и обработанного сигналов"
   </dest>
   <voice>
-    *: "Смесь необработанного и обработанного сигналов"
+    *: none
+    swcodec: "Смесь необработанного и обработанного сигналов"
   </voice>
 </phrase>
 <phrase>
@@ -12827,15 +13812,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Panning Separation"
+    *: none
+    swcodec: "Panning Separation"
     lowmem: none
   </source>
   <dest>
-    *: "Панорама"
+    *: none
+    swcodec: "Панорама"
     lowmem: none
   </dest>
   <voice>
-    *: "Панорама"
+    *: none
+    swcodec: "Панорама"
     lowmem: none
   </voice>
 </phrase>
@@ -12844,15 +13832,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Reverberation"
+    *: none
+    swcodec: "Reverberation"
     lowmem: none
   </source>
   <dest>
-    *: "Реверберация"
+    *: none
+    swcodec: "Реверберация"
     lowmem: none
   </dest>
   <voice>
-    *: "Реверберация"
+    *: none
+    swcodec: "Реверберация"
     lowmem: none
   </voice>
 </phrase>
@@ -12861,15 +13852,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Interpolation"
+    *: none
+    swcodec: "Interpolation"
     lowmem: none
   </source>
   <dest>
-    *: "Интерполяция"
+    *: none
+    swcodec: "Интерполяция"
     lowmem: none
   </dest>
   <voice>
-    *: "Интерполяция"
+    *: none
+    swcodec: "Интерполяция"
     lowmem: none
   </voice>
 </phrase>
@@ -12878,15 +13872,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "Surround"
+    *: none
+    swcodec: "Surround"
     lowmem: none
   </source>
   <dest>
-    *: "Окружение"
+    *: none
+    swcodec: "Окружение"
     lowmem: none
   </dest>
   <voice>
-    *: "Окружение"
+    *: none
+    swcodec: "Окружение"
     lowmem: none
   </voice>
 </phrase>
@@ -12895,15 +13892,18 @@
   desc: in mikmod settings menu
   user: core
   <source>
-    *: "CPU Boost"
+    *: none
+    swcodec: "CPU Boost"
     lowmem: none
   </source>
   <dest>
-    *: "Разгон процессора"
+    *: none
+    swcodec: "Разгон процессора"
     lowmem: none
   </dest>
   <voice>
-    *: "Разгон процессора"
+    *: none
+    swcodec: "Разгон процессора"
     lowmem: none
   </voice>
 </phrase>
@@ -12912,13 +13912,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Spacing"
+    *: none
+    lcd_bitmap: "Spacing"
   </source>
   <dest>
-    *: "Разбивка"
+    *: none
+    lcd_bitmap: "Разбивка"
   </dest>
   <voice>
-    *: "Разбивка"
+    *: none
+    lcd_bitmap: "Разбивка"
   </voice>
 </phrase>
 <phrase>
@@ -12926,13 +13929,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Centre margin"
+    *: none
+    lcd_bitmap: "Centre margin"
   </source>
   <dest>
-    *: "Центральное поле"
+    *: none
+    lcd_bitmap: "Центральное поле"
   </dest>
   <voice>
-    *: "Центральное поле"
+    *: none
+    lcd_bitmap: "Центральное поле"
   </voice>
 </phrase>
 <phrase>
@@ -12940,13 +13946,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Number of slides"
+    *: none
+    lcd_bitmap: "Number of slides"
   </source>
   <dest>
-    *: "Число слайдов"
+    *: none
+    lcd_bitmap: "Число слайдов"
   </dest>
   <voice>
-    *: "Число слайдов"
+    *: none
+    lcd_bitmap: "Число слайдов"
   </voice>
 </phrase>
 <phrase>
@@ -12954,13 +13963,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Zoom"
+    *: none
+    lcd_bitmap: "Zoom"
   </source>
   <dest>
-    *: "Увеличение"
+    *: none
+    lcd_bitmap: "Увеличение"
   </dest>
   <voice>
-    *: "Увеличение"
+    *: none
+    lcd_bitmap: "Увеличение"
   </voice>
 </phrase>
 <phrase>
@@ -12968,13 +13980,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Show album title"
+    *: none
+    lcd_bitmap: "Show album title"
   </source>
   <dest>
-    *: "Показывать название альбома"
+    *: none
+    lcd_bitmap: "Показывать название альбома"
   </dest>
   <voice>
-    *: "Показывать название альбома"
+    *: none
+    lcd_bitmap: "Показывать название альбома"
   </voice>
 </phrase>
 <phrase>
@@ -12982,13 +13997,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Resize Covers"
+    *: none
+    lcd_bitmap: "Resize Covers"
   </source>
   <dest>
-    *: "Изменить размер обложек"
+    *: none
+    lcd_bitmap: "Изменить размер обложек"
   </dest>
   <voice>
-    *: "Изменить размер обложек"
+    *: none
+    lcd_bitmap: "Изменить размер обложек"
   </voice>
 </phrase>
 <phrase>
@@ -12996,13 +14014,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Rebuild cache"
+    *: none
+    lcd_bitmap: "Rebuild cache"
   </source>
   <dest>
-    *: "Обновить кэш"
+    *: none
+    lcd_bitmap: "Обновить кэш"
   </dest>
   <voice>
-    *: "Обновить кэш"
+    *: none
+    lcd_bitmap: "Обновить кэш"
   </voice>
 </phrase>
 <phrase>
@@ -13010,13 +14031,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "WPS Integration"
+    *: none
+    lcd_bitmap: "WPS Integration"
   </source>
   <dest>
-    *: "Взаимодействие с экраном воспроизведения"
+    *: none
+    lcd_bitmap: "Взаимодействие с экраном воспроизведения"
   </dest>
   <voice>
-    *: "Взаимодействие с экраном воспроизведения"
+    *: none
+    lcd_bitmap: "Взаимодействие с экраном воспроизведения"
   </voice>
 </phrase>
 <phrase>
@@ -13024,13 +14048,16 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Go to WPS"
+    *: none
+    lcd_bitmap: "Go to WPS"
   </source>
   <dest>
-    *: "Перейти к экрану воспроизведения"
+    *: none
+    lcd_bitmap: "Перейти к экрану воспроизведения"
   </dest>
   <voice>
-    *: "Перейти к экрану воспроизведения"
+    *: none
+    lcd_bitmap: "Перейти к экрану воспроизведения"
   </voice>
 </phrase>
 <phrase>
@@ -13038,13 +14065,16 @@
   desc: in the pictureflow main menu
   user: core
   <source>
-    *: "Clear playlist"
+    *: none
+    lcd_bitmap: "Clear playlist"
   </source>
   <dest>
-    *: "Очистить список воспроизведения"
+    *: none
+    lcd_bitmap: "Очистить список воспроизведения"
   </dest>
   <voice>
-    *: "Очистить список воспроизведения"
+    *: none
+    lcd_bitmap: "Очистить список воспроизведения"
   </voice>
 </phrase>
 <phrase>
@@ -13052,13 +14082,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Hide album title"
+    *: none
+    lcd_bitmap: "Hide album title"
   </source>
   <dest>
-    *: "Скрыть название альбома"
+    *: none
+    lcd_bitmap: "Скрыть название альбома"
   </dest>
   <voice>
-    *: "Скрыть название альбома"
+    *: none
+    lcd_bitmap: "Скрыть название альбома"
   </voice>
 </phrase>
 <phrase>
@@ -13066,13 +14099,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the bottom"
+    *: none
+    lcd_bitmap: "Show at the bottom"
   </source>
   <dest>
-    *: "Показывать внизу"
+    *: none
+    lcd_bitmap: "Показывать внизу"
   </dest>
   <voice>
-    *: "Показывать внизу"
+    *: none
+    lcd_bitmap: "Показывать внизу"
   </voice>
 </phrase>
 <phrase>
@@ -13080,13 +14116,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Show at the top"
+    *: none
+    lcd_bitmap: "Show at the top"
   </source>
   <dest>
-    *: "Показывать вверху"
+    *: none
+    lcd_bitmap: "Показывать вверху"
   </dest>
   <voice>
-    *: "Показывать вверху"
+    *: none
+    lcd_bitmap: "Показывать вверху"
   </voice>
 </phrase>
 <phrase>
@@ -13094,13 +14133,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Direct"
+    *: none
+    lcd_bitmap: "Direct"
   </source>
   <dest>
-    *: "Непосредственно"
+    *: none
+    lcd_bitmap: "Непосредственно"
   </dest>
   <voice>
-    *: "Непосредственно"
+    *: none
+    lcd_bitmap: "Непосредственно"
   </voice>
 </phrase>
 <phrase>
@@ -13108,13 +14150,16 @@
   desc: in the pictureflow settings
   user: core
   <source>
-    *: "Via Track list"
+    *: none
+    lcd_bitmap: "Via Track list"
   </source>
   <dest>
-    *: "Через список треков"
+    *: none
+    lcd_bitmap: "Через список треков"
   </dest>
   <voice>
-    *: "Через список трэков"
+    *: none
+    lcd_bitmap: "Через список трэков"
   </voice>
 </phrase>
 <phrase>
@@ -13122,13 +14167,16 @@
   desc: in the pictureflow settings menu
   user: core
   <source>
-    *: "Always On"
+    *: none
+    lcd_bitmap: "Always On"
   </source>
   <dest>
-    *: "Всегда включено"
+    *: none
+    lcd_bitmap: "Всегда включено"
   </dest>
   <voice>
-    *: "Всегда включено"
+    *: none
+    lcd_bitmap: "Всегда включено"
   </voice>
 </phrase>
 <phrase>
@@ -13136,13 +14184,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "No album art found"
+    *: none
+    lcd_bitmap: "No album art found"
   </source>
   <dest>
-    *: "Обложек не найдено"
+    *: none
+    lcd_bitmap: "Обложек не найдено"
   </dest>
   <voice>
-    *: "Обложек не найдено"
+    *: none
+    lcd_bitmap: "Обложек не найдено"
   </voice>
 </phrase>
 <phrase>
@@ -13150,13 +14201,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Cache will be rebuilt on next restart"
+    *: none
+    lcd_bitmap: "Cache will be rebuilt on next restart"
   </source>
   <dest>
-    *: "Кэш будет обновлен при перезапуске"
+    *: none
+    lcd_bitmap: "Кэш будет обновлен при перезапуске"
   </dest>
   <voice>
-    *: "Кэш будет обновлен при перезапуске"
+    *: none
+    lcd_bitmap: "Кэш будет обновлен при перезапуске"
   </voice>
 </phrase>
 <phrase>
@@ -13164,13 +14218,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Playlist Cleared"
+    *: none
+    lcd_bitmap: "Playlist Cleared"
   </source>
   <dest>
-    *: "Список воспроизведения очищен"
+    *: none
+    lcd_bitmap: "Список воспроизведения очищен"
   </dest>
   <voice>
-    *: "Список воспроизведения очищен"
+    *: none
+    lcd_bitmap: "Список воспроизведения очищен"
   </voice>
 </phrase>
 <phrase>
@@ -13178,13 +14235,16 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Added to playlist"
+    *: none
+    lcd_bitmap: "Added to playlist"
   </source>
   <dest>
-    *: "Добавлено к списку воспроизведения"
+    *: none
+    lcd_bitmap: "Добавлено к списку воспроизведения"
   </dest>
   <voice>
-    *: "Добавлено к списку воспроизведения"
+    *: none
+    lcd_bitmap: "Добавлено к списку воспроизведения"
   </voice>
 </phrase>
 <phrase>
@@ -13192,17 +14252,20 @@
   desc: in the pictureflow splash messages
   user: core
   <source>
-    *: "Error writing config"
+    *: none
+    lcd_bitmap: "Error writing config"
   </source>
   <dest>
-    *: "Ошибка при записи конфигурации"
+    *: none
+    lcd_bitmap: "Ошибка при записи конфигурации"
   </dest>
   <voice>
-    *: "Ошибка при записи конфигурации"
+    *: none
+    lcd_bitmap: "Ошибка при записи конфигурации"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_NEVER
+  id: LANG__NEVER
   desc: in lcd settings
   user: core
   <source>
@@ -13220,13 +14283,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 8: 1 move / 15 min"
+    *: none
+    lcd_bitmap: "Level 8: 1 move / 15 min"
   </source>
   <dest>
-    *: "Уровень 8: 1 ход / 15 мин."
+    *: none
+    lcd_bitmap: "Уровень 8: 1 ход / 15 мин."
   </dest>
   <voice>
-    *: "Уровень 8: 1 ход за 15 минут"
+    *: none
+    lcd_bitmap: "Уровень 8: 1 ход за 15 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13234,13 +14300,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Ordered"
+    *: none
+    lcd_bitmap: "Ordered"
   </source>
   <dest>
-    *: "По порядку"
+    *: none
+    lcd_bitmap: "По порядку"
   </dest>
   <voice>
-    *: "По порядку"
+    *: none
+    lcd_bitmap: "По порядку"
   </voice>
 </phrase>
 <phrase>
@@ -13248,13 +14317,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Select Other Game"
+    *: none
+    lcd_bitmap: "Select Other Game"
   </source>
   <dest>
-    *: "Выбрать другую партию"
+    *: none
+    lcd_bitmap: "Выбрать другую партию"
   </dest>
   <voice>
-    *: "Выбрать другую партию"
+    *: none
+    lcd_bitmap: "Выбрать другую партию"
   </voice>
 </phrase>
 <phrase>
@@ -13290,13 +14362,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the end of the game"
+    *: none
+    lcd_bitmap: "At the end of the game"
   </source>
   <dest>
-    *: "Конец партии"
+    *: none
+    lcd_bitmap: "Конец партии"
   </dest>
   <voice>
-    *: "Конец партии"
+    *: none
+    lcd_bitmap: "Конец партии"
   </voice>
 </phrase>
 <phrase>
@@ -13304,13 +14379,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Speed"
+    *: none
+    lcd_bitmap: "Worm Speed"
   </source>
   <dest>
-    *: "Скорость Червя"
+    *: none
+    lcd_bitmap: "Скорость Червя"
   </dest>
   <voice>
-    *: "Скорость Червя"
+    *: none
+    lcd_bitmap: "Скорость Червя"
   </voice>
 </phrase>
 <phrase>
@@ -13318,13 +14396,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Ладья"
+    *: none
+    lcd_bitmap: "Ладья"
   </voice>
 </phrase>
 <phrase>
@@ -13332,13 +14413,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 3: 60 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 3: 60 moves / 30 min"
   </source>
   <dest>
-    *: "Уровень 3: 60 ходов / 30 min."
+    *: none
+    lcd_bitmap: "Уровень 3: 60 ходов / 30 min."
   </dest>
   <voice>
-    *: "Уровень 3: 60 ходов за 30 минут"
+    *: none
+    lcd_bitmap: "Уровень 3: 60 ходов за 30 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13346,13 +14430,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "в сторону короля"
+    *: none
+    lcd_bitmap: "в сторону короля"
   </voice>
 </phrase>
 <phrase>
@@ -13360,13 +14447,16 @@
   desc: cannot restart playback splash in imageviewer
   user: core
   <source>
-    *: "Cannot restart playback"
+    *: none
+    lcd_bitmap: "Cannot restart playback"
   </source>
   <dest>
-    *: "Не могу возобновить воспроизведение"
+    *: none
+    lcd_bitmap: "Не могу возобновить воспроизведение"
   </dest>
   <voice>
-    *: "Не могу возобновить воспроизведение"
+    *: none
+    lcd_bitmap: "Не могу возобновить воспроизведение"
   </voice>
 </phrase>
 <phrase>
@@ -13374,13 +14464,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 5: 40 moves / 60 min"
+    *: none
+    lcd_bitmap: "Level 5: 40 moves / 60 min"
   </source>
   <dest>
-    *: "Уровень 5: 40 ходов / 60 мин."
+    *: none
+    lcd_bitmap: "Уровень 5: 40 ходов / 60 мин."
   </dest>
   <voice>
-    *: "Уровень 5: 40 ходов за 60 минут"
+    *: none
+    lcd_bitmap: "Уровень 5: 40 ходов за 60 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13388,13 +14481,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "GNU Chess"
+    *: none
+    lcd_bitmap: "GNU Chess"
   </voice>
 </phrase>
 <phrase>
@@ -13402,13 +14498,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 9: 1 move / 60 min"
+    *: none
+    lcd_bitmap: "Level 9: 1 move / 60 min"
   </source>
   <dest>
-    *: "Уровень 9: 1 ход / 60 мин."
+    *: none
+    lcd_bitmap: "Уровень 9: 1 ход / 60 мин."
   </dest>
   <voice>
-    *: "Уровень 9: 1 ход за 60 минут"
+    *: none
+    lcd_bitmap: "Уровень 9: 1 ход за 60 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13430,13 +14529,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Illegal move!"
+    *: none
+    lcd_bitmap: "Illegal move!"
   </source>
   <dest>
-    *: "Запрещенный ход!"
+    *: none
+    lcd_bitmap: "Запрещенный ход!"
   </dest>
   <voice>
-    *: "Запрещенный ход!"
+    *: none
+    lcd_bitmap: "Запрещенный ход!"
   </voice>
 </phrase>
 <phrase>
@@ -13444,15 +14546,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Play from beginning"
+    *: none
+    swcodec: "Play from beginning"
     lowmem: none
   </source>
   <dest>
-    *: "Воспроизвести сначала"
+    *: none
+    swcodec: "Воспроизвести сначала"
     lowmem: none
   </dest>
   <voice>
-    *: "Воспроизвести сначала"
+    *: none
+    swcodec: "Воспроизвести сначала"
     lowmem: none
   </voice>
 </phrase>
@@ -13461,13 +14566,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restore Game"
+    *: none
+    lcd_bitmap: "Restore Game"
   </source>
   <dest>
-    *: "Восстановить партию"
+    *: none
+    lcd_bitmap: "Восстановить партию"
   </dest>
   <voice>
-    *: "Восстановить партию"
+    *: none
+    lcd_bitmap: "Восстановить партию"
   </voice>
 </phrase>
 <phrase>
@@ -13489,13 +14597,16 @@
   desc: spoken only, for announcing chess piece unmarking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Метка снята"
+    *: none
+    lcd_bitmap: "Метка снята"
   </voice>
 </phrase>
 <phrase>
@@ -13503,13 +14614,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Resume Game"
+    *: none
+    lcd_bitmap: "Resume Game"
   </source>
   <dest>
-    *: "Продолжить партию"
+    *: none
+    lcd_bitmap: "Продолжить партию"
   </dest>
   <voice>
-    *: "Продолжить партию"
+    *: none
+    lcd_bitmap: "Продолжить партию"
   </voice>
 </phrase>
 <phrase>
@@ -13517,13 +14631,33 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "рокировка"
+    *: none
+    lcd_bitmap: "рокировка"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_REMAINING
+  desc: for constructs such as number of tracks remaining etc
+  user: core
+  <source>
+    *: none
+    hotkey: "Remaining"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Осталось"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Осталось"
   </voice>
 </phrase>
 <phrase>
@@ -13531,13 +14665,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Play Wormlet!"
+    *: none
+    lcd_bitmap: "Play Wormlet!"
   </source>
   <dest>
-    *: "Играть в Червячка!"
+    *: none
+    lcd_bitmap: "Играть в Червячка!"
   </dest>
   <voice>
-    *: "Играть в Червячка!"
+    *: none
+    lcd_bitmap: "Играть в Червячка!"
   </voice>
 </phrase>
 <phrase>
@@ -13576,10 +14713,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Playlist remaining:"
+    *: "Playlist remaining: %s"
   </source>
   <dest>
-    *: "В списке осталось:"
+    *: "В списке осталось: %s"
   </dest>
   <voice>
     *: "В списке осталось"
@@ -13590,13 +14727,30 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Playlist elapsed:"
+    *: "Playlist elapsed: %s / %s %ld%%"
   </source>
   <dest>
-    *: "В списке проиграно:"
+    *: "В списке проиграно: %s / %s %ld%%"
   </dest>
   <voice>
     *: "В списке проиграно"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_ELAPSED
+  desc: prefix for elapsed playtime announcement
+  user: core
+  <source>
+    *: none
+    hotkey: "Elapsed"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Проиграно"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Проиграно"
   </voice>
 </phrase>
 <phrase>
@@ -13604,13 +14758,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 4: 40 moves / 30 min"
+    *: none
+    lcd_bitmap: "Level 4: 40 moves / 30 min"
   </source>
   <dest>
-    *: "Уровень 4: 40 ходов / 30 мин."
+    *: none
+    lcd_bitmap: "Уровень 4: 40 ходов / 30 мин."
   </dest>
   <voice>
-    *: "Уровень 4: 40 ходов за 30 минут"
+    *: none
+    lcd_bitmap: "Уровень 4: 40 ходов за 30 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13618,13 +14775,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Argh Size"
+    *: none
+    lcd_bitmap: "Argh Size"
   </source>
   <dest>
-    *: "Размер бяк"
+    *: none
+    lcd_bitmap: "Размер бяк"
   </dest>
   <voice>
-    *: "Размер бяк"
+    *: none
+    lcd_bitmap: "Размер бяк"
   </voice>
 </phrase>
 <phrase>
@@ -13632,13 +14792,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Save Game"
+    *: none
+    lcd_bitmap: "Save Game"
   </source>
   <dest>
-    *: "Сохранить партию"
+    *: none
+    lcd_bitmap: "Сохранить партию"
   </dest>
   <voice>
-    *: "Сохранить партию"
+    *: none
+    lcd_bitmap: "Сохранить партию"
   </voice>
 </phrase>
 <phrase>
@@ -13660,13 +14823,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Toggle Slideshow Mode"
+    *: none
+    lcd_bitmap: "Toggle Slideshow Mode"
   </source>
   <dest>
-    *: "Режим слайд-шоу"
+    *: none
+    lcd_bitmap: "Режим слайд-шоу"
   </dest>
   <voice>
-    *: "Режим слайд-шоу"
+    *: none
+    lcd_bitmap: "Режим слайд-шоу"
   </voice>
 </phrase>
 <phrase>
@@ -13674,16 +14840,33 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Use common setting"
+    *: none
+    swcodec: "Use common setting"
     lowmem: none
   </source>
   <dest>
-    *: "Использовать общие настройки"
+    *: none
+    swcodec: "Использовать общие настройки"
     lowmem: none
   </dest>
   <voice>
-    *: "Использовать общие настройки"
+    *: none
+    swcodec: "Использовать общие настройки"
     lowmem: none
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_PAUSE_BETWEEN_TRACKS
+  desc: in playback settings menu
+  user: core
+  <source>
+    *: "Pause between tracks"
+  </source>
+  <dest>
+    *: "Пауза между треками"
+  </dest>
+  <voice>
+    *: "Пауза между трэками"
   </voice>
 </phrase>
 <phrase>
@@ -13701,17 +14884,37 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_DATE
+  desc: for constructing time and date announcements
+  user: core
+  <source>
+    *: none
+    hotkey: "Date"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Дата"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Дата"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_DIFFUSION
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Diffusion"
+    *: none
+    lcd_bitmap: "Diffusion"
   </source>
   <dest>
-    *: "Диффузия"
+    *: none
+    lcd_bitmap: "Диффузия"
   </dest>
   <voice>
-    *: "Диффузия"
+    *: none
+    lcd_bitmap: "Диффузия"
   </voice>
 </phrase>
 <phrase>
@@ -13719,15 +14922,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Backlight brightness"
+    *: none
+    swcodec: "Backlight brightness"
     lowmem: none
   </source>
   <dest>
-    *: "Яркость подсветки"
+    *: none
+    swcodec: "Яркость подсветки"
     lowmem: none
   </dest>
   <voice>
-    *: "Яркость подсветки"
+    *: none
+    swcodec: "Яркость подсветки"
     lowmem: none
   </voice>
 </phrase>
@@ -13736,13 +14942,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Games"
+    *: none
+    lcd_bitmap: "Games"
   </source>
   <dest>
-    *: "Партии"
+    *: none
+    lcd_bitmap: "Партии"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -13750,13 +14959,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Saving position"
+    *: none
+    lcd_bitmap: "Saving position"
   </source>
   <dest>
-    *: "Сохранение позиции"
+    *: none
+    lcd_bitmap: "Сохранение позиции"
   </dest>
   <voice>
-    *: "Сохранение позиции"
+    *: none
+    lcd_bitmap: "Сохранение позиции"
   </voice>
 </phrase>
 <phrase>
@@ -13764,13 +14976,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Loading position"
+    *: none
+    lcd_bitmap: "Loading position"
   </source>
   <dest>
-    *: "Загрузка позиции"
+    *: none
+    lcd_bitmap: "Загрузка позиции"
   </dest>
   <voice>
-    *: "Загрузка позиции"
+    *: none
+    lcd_bitmap: "Загрузка позиции"
   </voice>
 </phrase>
 <phrase>
@@ -13778,13 +14993,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Thinking..."
+    *: none
+    lcd_bitmap: "Thinking..."
   </source>
   <dest>
-    *: "Думаю..."
+    *: none
+    lcd_bitmap: "Думаю..."
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -13820,13 +15038,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Слон"
+    *: none
+    lcd_bitmap: "Слон"
   </voice>
 </phrase>
 <phrase>
@@ -13834,13 +15055,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "в сторону ферзя"
+    *: none
+    lcd_bitmap: "в сторону ферзя"
   </voice>
 </phrase>
 <phrase>
@@ -13862,15 +15086,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Clear all resumes"
+    *: none
+    swcodec: "Clear all resumes"
     lowmem: none
   </source>
   <dest>
-    *: "Удалить закладки"
+    *: none
+    swcodec: "Удалить закладки"
     lowmem: none
   </dest>
   <voice>
-    *: "Удалить закладки"
+    *: none
+    swcodec: "Удалить закладки"
     lowmem: none
   </voice>
 </phrase>
@@ -13879,15 +15106,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu"
+    *: none
+    swcodec: "Start menu"
     lowmem: none
   </source>
   <dest>
-    *: "Стартовое меню"
+    *: none
+    swcodec: "Стартовое меню"
     lowmem: none
   </dest>
   <voice>
-    *: "Стартовое меню"
+    *: none
+    swcodec: "Стартовое меню"
     lowmem: none
   </voice>
 </phrase>
@@ -13896,13 +15126,16 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "бьёт"
+    *: none
+    lcd_bitmap: "бьёт"
   </voice>
 </phrase>
 <phrase>
@@ -13910,13 +15143,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 2: 60 moves / 15 min"
+    *: none
+    lcd_bitmap: "Level 2: 60 moves / 15 min"
   </source>
   <dest>
-    *: "Уровень 2: 60 ходов / 15 мин."
+    *: none
+    lcd_bitmap: "Уровень 2: 60 ходов / 15 мин."
   </dest>
   <voice>
-    *: "Уровень 2: 60 ходов за 15 минут"
+    *: none
+    lcd_bitmap: "Уровень 2: 60 ходов за 15 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13924,10 +15160,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Track elapsed:"
+    *: "Track elapsed: %s / %s %ld%%"
   </source>
   <dest>
-    *: "В треке проиграно:"
+    *: "В треке проиграно: %s / %s %ld%%"
   </dest>
   <voice>
     *: "В трэке проиграно"
@@ -13966,13 +15202,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 1: 60 moves / 5 min"
+    *: none
+    lcd_bitmap: "Level 1: 60 moves / 5 min"
   </source>
   <dest>
-    *: "Уровень 1: 60 ходов / 5 мин."
+    *: none
+    lcd_bitmap: "Уровень 1: 60 ходов / 5 мин."
   </dest>
   <voice>
-    *: "Уровень 1: 60 ходов за 5 минут"
+    *: none
+    lcd_bitmap: "Уровень 1: 60 ходов за 5 минут"
   </voice>
 </phrase>
 <phrase>
@@ -13994,15 +15233,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Set resume time (min)"
+    *: none
+    swcodec: "Set resume time (min)"
     lowmem: none
   </source>
   <dest>
-    *: "Установить время возобновления (мин.)"
+    *: none
+    swcodec: "Установить время возобновления (мин.)"
     lowmem: none
   </dest>
   <voice>
-    *: "Установить время возобновления"
+    *: none
+    swcodec: "Установить время возобновления"
     lowmem: none
   </voice>
 </phrase>
@@ -14011,15 +15253,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Start menu if not completed"
+    *: none
+    swcodec: "Start menu if not completed"
     lowmem: none
   </source>
   <dest>
-    *: "Стартовое меню если не закончено"
+    *: none
+    swcodec: "Стартовое меню если не закончено"
     lowmem: none
   </dest>
   <voice>
-    *: "Стартовое меню если не закончено"
+    *: none
+    swcodec: "Стартовое меню если не закончено"
     lowmem: none
   </voice>
 </phrase>
@@ -14028,13 +15273,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "New Game"
+    *: none
+    lcd_bitmap: "New Game"
   </source>
   <dest>
-    *: "Новая партия"
+    *: none
+    lcd_bitmap: "Новая партия"
   </dest>
   <voice>
-    *: "Новая партия"
+    *: none
+    lcd_bitmap: "Новая партия"
   </voice>
 </phrase>
 <phrase>
@@ -14070,13 +15318,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "View Played Games"
+    *: none
+    lcd_bitmap: "View Played Games"
   </source>
   <dest>
-    *: "Просмотр сыгранных партий"
+    *: none
+    lcd_bitmap: "Просмотр сыгранных партий"
   </dest>
   <voice>
-    *: "Просмотр сыгранных партий"
+    *: none
+    lcd_bitmap: "Просмотр сыгранных партий"
   </voice>
 </phrase>
 <phrase>
@@ -14084,15 +15335,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Play Mode"
+    *: none
+    swcodec: "Play Mode"
     lowmem: none
   </source>
   <dest>
-    *: "Режим воспроизведения"
+    *: none
+    swcodec: "Режим воспроизведения"
     lowmem: none
   </dest>
   <voice>
-    *: "Режим воспроизведения"
+    *: none
+    swcodec: "Режим воспроизведения"
     lowmem: none
   </voice>
 </phrase>
@@ -14118,10 +15372,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Track remaining:"
+    *: "Track remaining: %s"
   </source>
   <dest>
-    *: "В треке осталось:"
+    *: "В треке осталось: %s"
   </dest>
   <voice>
     *: "В трэке осталось"
@@ -14132,13 +15386,16 @@
   desc: spoken only, for announcing player's id
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Игрок"
+    *: none
+    lcd_bitmap: "Игрок"
   </voice>
 </phrase>
 <phrase>
@@ -14160,13 +15417,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "At the beginning of the game"
+    *: none
+    lcd_bitmap: "At the beginning of the game"
   </source>
   <dest>
-    *: "Начало партии"
+    *: none
+    lcd_bitmap: "Начало партии"
   </dest>
   <voice>
-    *: "Начало партии"
+    *: none
+    lcd_bitmap: "Начало партии"
   </voice>
 </phrase>
 <phrase>
@@ -14202,13 +15462,19 @@
   desc: in the mpegplayer and pictureflow settings menus
   user: core
   <source>
-    *: "Display FPS"
+    *: none
+    swcodec: "Display FPS"
+    lcd_bitmap: "Display FPS"
   </source>
   <dest>
-    *: "Кадров в секунду"
+    *: none
+    swcodec: "Кадров в секунду"
+    lcd_bitmap: "Кадров в секунду"
   </dest>
   <voice>
-    *: "Кадров в секунду"
+    *: none
+    swcodec: "Кадров в секунду"
+    lcd_bitmap: "Кадров в секунду"
   </voice>
 </phrase>
 <phrase>
@@ -14230,13 +15496,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "Error parsing game !"
+    *: none
+    lcd_bitmap: "Error parsing game !"
   </source>
   <dest>
-    *: "Сбой при загрузке партии !"
+    *: none
+    lcd_bitmap: "Сбой при загрузке партии !"
   </dest>
   <voice>
-    *: "Сбой при загрузке партии !"
+    *: none
+    lcd_bitmap: "Сбой при загрузке партии !"
   </voice>
 </phrase>
 <phrase>
@@ -14244,13 +15513,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Worm Growth Per Food"
+    *: none
+    lcd_bitmap: "Worm Growth Per Food"
   </source>
   <dest>
-    *: "Прирост Червя на порцию пищи"
+    *: none
+    lcd_bitmap: "Прирост Червя на порцию пищи"
   </dest>
   <voice>
-    *: "Прирост Червя на порцию пищи"
+    *: none
+    lcd_bitmap: "Прирост Червя на порцию пищи"
   </voice>
 </phrase>
 <phrase>
@@ -14272,10 +15544,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Average bitrate:"
+    *: "Average bitrate: %ld kbps"
   </source>
   <dest>
-    *: "Средний битрейт:"
+    *: "Средний битрейт: %ld kbps"
   </dest>
   <voice>
     *: "Средний битрейт"
@@ -14286,15 +15558,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Limit FPS"
+    *: none
+    swcodec: "Limit FPS"
     lowmem: none
   </source>
   <dest>
-    *: "Ограничение числа кадров в секунду"
+    *: none
+    swcodec: "Ограничение числа кадров в секунду"
     lowmem: none
   </dest>
   <voice>
-    *: "Ограничение числа кадров в секунду"
+    *: none
+    swcodec: "Ограничение числа кадров в секунду"
     lowmem: none
   </voice>
 </phrase>
@@ -14317,13 +15592,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Черные"
+    *: none
+    lcd_bitmap: "Черные"
   </voice>
 </phrase>
 <phrase>
@@ -14331,17 +15609,17 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Average track size:"
+    *: "Average track size: %s"
   </source>
   <dest>
-    *: "Средний размер трека:"
+    *: "Средний размер трека: %s"
   </dest>
   <voice>
     *: "Средний размер трэка"
   </voice>
 </phrase>
 <phrase>
-  id: VOICE_BAT_BENCH_KEYS
+id: VOICE_BAT_BENCH_KEYS
   desc: Battery bench start up message
   user: core
   <source>
@@ -14359,13 +15637,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 7: 40 moves / 240 min"
+    *: none
+    lcd_bitmap: "Level 7: 40 moves / 240 min"
   </source>
   <dest>
-    *: "Уровень 7: 40 ходов / 240 мин."
+    *: none
+    lcd_bitmap: "Уровень 7: 40 ходов / 240 мин."
   </dest>
   <voice>
-    *: "Уровень 7: 40 ходов за 240 минут"
+    *: none
+    lcd_bitmap: "Уровень 7: 40 ходов за 240 минут"
   </voice>
 </phrase>
 <phrase>
@@ -14373,13 +15654,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Arghs Per Food"
+    *: none
+    lcd_bitmap: "Arghs Per Food"
   </source>
   <dest>
-    *: "Количество бяк на порцию пищи"
+    *: none
+    lcd_bitmap: "Количество бяк на порцию пищи"
   </dest>
   <voice>
-    *: "Количество бяк на порцию пищи"
+    *: none
+    lcd_bitmap: "Количество бяк на порцию пищи"
   </voice>
 </phrase>
 <phrase>
@@ -14404,13 +15688,33 @@
   desc: spoken only, for announcing chess moves
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Шах!"
+    *: none
+    lcd_bitmap: "Шах!"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_WPS_ANNOUNCEMENT_FORMAT
+  desc: format for wps hotkey announcement
+  user: core
+  <source>
+    *: none
+    hotkey: "WPS Announcement"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Сообщения в режиме воспроизведения"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Сообщения в режиме воспроизведения"
   </voice>
 </phrase>
 <phrase>
@@ -14418,15 +15722,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Tone controls"
+    *: none
+    swcodec: "Tone controls"
     lowmem: none
   </source>
   <dest>
-    *: "Настройки тембра"
+    *: none
+    swcodec: "Настройки тембра"
     lowmem: none
   </dest>
   <voice>
-    *: "Настройки тембра"
+    *: none
+    swcodec: "Настройки тембра"
     lowmem: none
   </voice>
 </phrase>
@@ -14435,15 +15742,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume automatically"
+    *: none
+    swcodec: "Resume automatically"
     lowmem: none
   </source>
   <dest>
-    *: "Продолжить автоматически"
+    *: none
+    swcodec: "Продолжить автоматически"
     lowmem: none
   </dest>
   <voice>
-    *: "Продолжить автоматически"
+    *: none
+    swcodec: "Продолжить автоматически"
     lowmem: none
   </voice>
 </phrase>
@@ -14452,10 +15762,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Storage (Done / Remaining):"
+    *: "Storage: %s (done %s, remaining %s)"
   </source>
   <dest>
-    *: "Объём памяти (Проиграно / Осталось):"
+    *: "Объём памяти: %s (проиграно %s, осталось %s)"
   </dest>
   <voice>
     *: "Объём памяти"
@@ -14466,16 +15776,36 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Single"
+    *: none
+    swcodec: "Single"
     lowmem: none
   </source>
   <dest>
-    *: "Одиночный"
+    *: none
+    swcodec: "Одиночный"
     lowmem: none
   </dest>
   <voice>
-    *: "Одиночный"
+    *: none
+    swcodec: "Одиночный"
     lowmem: none
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_ALARM_TIMER
+  desc: in alarm menu setting
+  user: core
+  <source>
+    *: none
+    alarm: "Alarm Timer"
+  </source>
+  <dest>
+    *: none
+    alarm: "Таймер будильника"
+  </dest>
+  <voice>
+    *: none
+    alarm: "Таймер будильника"
   </voice>
 </phrase>
 <phrase>
@@ -14483,13 +15813,16 @@
   desc: in the chessbox menu
   user: core
   <source>
-    *: "Restart Game"
+    *: none
+    lcd_bitmap: "Restart Game"
   </source>
   <dest>
-    *: "Возобновить игру"
+    *: none
+    lcd_bitmap: "Возобновить игру"
   </dest>
   <voice>
-    *: "Возобновить игру"
+    *: none
+    lcd_bitmap: "Возобновить игру"
   </voice>
 </phrase>
 <phrase>
@@ -14497,15 +15830,18 @@
   desc: in the mpegplayer settings menu
   user: core
   <source>
-    *: "Skip frames"
+    *: none
+    swcodec: "Skip frames"
     lowmem: none
   </source>
   <dest>
-    *: "Пропускать кадры"
+    *: none
+    swcodec: "Пропускать кадры"
     lowmem: none
   </dest>
   <voice>
-    *: "Пропускать кадры"
+    *: none
+    swcodec: "Пропускать кадры"
     lowmem: none
   </voice>
 </phrase>
@@ -14514,16 +15850,36 @@
   desc: in mpegplayer settings
   user: core
   <source>
-    *: "Unavailable"
+    *: none
+    swcodec: "Unavailable"
     lowmem: none
   </source>
   <dest>
-    *: "Недоступно"
+    *: none
+    swcodec: "Недоступно"
     lowmem: none
   </dest>
   <voice>
-    *: "Недоступно"
+    *: none
+    swcodec: "Недоступно"
     lowmem: none
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_VOICEINFO
+  desc: progressively voice information on the wps hotkey
+  user: core
+  <source>
+    *: none
+    hotkey: "Announce Information"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Информационное сообщение"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Информационное сообщение"
   </voice>
 </phrase>
 <phrase>
@@ -14531,15 +15887,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Resume Options"
+    *: none
+    swcodec: "Resume Options"
     lowmem: none
   </source>
   <dest>
-    *: "Опции продолжения"
+    *: none
+    swcodec: "Опции продолжения"
     lowmem: none
   </dest>
   <voice>
-    *: "Опции продолжения"
+    *: none
+    swcodec: "Опции продолжения"
     lowmem: none
   </voice>
 </phrase>
@@ -14548,13 +15907,16 @@
   desc: in chessbox
   user: core
   <source>
-    *: "Checkmate!"
+    *: none
+    lcd_bitmap: "Checkmate!"
   </source>
   <dest>
-    *: "Шах и мат!"
+    *: none
+    lcd_bitmap: "Шах и мат!"
   </dest>
   <voice>
-    *: "Шах и мат!"
+    *: none
+    lcd_bitmap: "Шах и мат!"
   </voice>
 </phrase>
 <phrase>
@@ -14562,15 +15924,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Audio Options"
+    *: none
+    swcodec: "Audio Options"
     lowmem: none
   </source>
   <dest>
-    *: "Настройки звука"
+    *: none
+    swcodec: "Настройки звука"
     lowmem: none
   </dest>
   <voice>
-    *: "Настройки звука"
+    *: none
+    swcodec: "Настройки звука"
     lowmem: none
   </voice>
 </phrase>
@@ -14579,13 +15944,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Ферзь"
+    *: none
+    lcd_bitmap: "Ферзь"
   </voice>
 </phrase>
 <phrase>
@@ -14607,10 +15975,10 @@
   desc: playing time screen
   user: core
   <source>
-    *: "Track:"
+    *: "Track %d / %d %d%%"
   </source>
   <dest>
-    *: "Трек:"
+    *: "Трек %d / %d %d%%"
   </dest>
   <voice>
     *: "Трэк"
@@ -14635,13 +16003,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 10: 1 move / 600 min"
+    *: none
+    lcd_bitmap: "Level 10: 1 move / 600 min"
   </source>
   <dest>
-    *: "Уровень 10: 1 ход / 600 min."
+    *: none
+    lcd_bitmap: "Уровень 10: 1 ход / 600 min."
   </dest>
   <voice>
-    *: "Уровень 10: 1 ход за 600 минут"
+    *: none
+    lcd_bitmap: "Уровень 10: 1 ход за 600 минут"
   </voice>
 </phrase>
 <phrase>
@@ -14649,13 +16020,33 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Король"
+    *: none
+    lcd_bitmap: "Король"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_TRACKONLY
+  desc: used in track x of y constructs
+  user: core
+  <source>
+    *: none
+    hotkey: "Track"
+  </source>
+  <dest>
+    *: none
+    hotkey: "Трек"
+  </dest>
+  <voice>
+    *: none
+    hotkey: "Трэк"
   </voice>
 </phrase>
 <phrase>
@@ -14663,13 +16054,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Grayscale"
+    *: none
+    lcd_bitmap: "Grayscale"
   </source>
   <dest>
-    *: "В оттенках серого"
+    *: none
+    lcd_bitmap: "В оттенках серого"
   </dest>
   <voice>
-    *: "В оттенках серого"
+    *: none
+    lcd_bitmap: "В оттенках серого"
   </voice>
 </phrase>
 <phrase>
@@ -14677,13 +16071,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Конь"
+    *: none
+    lcd_bitmap: "Конь"
   </voice>
 </phrase>
 <phrase>
@@ -14705,13 +16102,16 @@
   desc: in the imageviewer settings menu
   user: core
   <source>
-    *: "Slideshow Time"
+    *: none
+    lcd_bitmap: "Slideshow Time"
   </source>
   <dest>
-    *: "Время слайд-шоу"
+    *: none
+    lcd_bitmap: "Время слайд-шоу"
   </dest>
   <voice>
-    *: "Время слайд-шоу"
+    *: none
+    lcd_bitmap: "Время слайд-шоу"
   </voice>
 </phrase>
 <phrase>
@@ -14719,13 +16119,16 @@
   desc: in the chessbox game viewer
   user: core
   <source>
-    *: "No games found !"
+    *: none
+    lcd_bitmap: "No games found !"
   </source>
   <dest>
-    *: "Партий не найдено"
+    *: none
+    lcd_bitmap: "Партий не найдено"
   </dest>
   <voice>
-    *: "Партий не найдено"
+    *: none
+    lcd_bitmap: "Партий не найдено"
   </voice>
 </phrase>
 <phrase>
@@ -14743,6 +16146,20 @@
   <voice>
     *: none
     recording: "Папка для записи"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BTN_LONG_PRESS_DURATION
+  desc: Long button press duration in ticks
+  user: core
+  <source>
+    *: "Long Button Press Duration"
+  </source>
+  <dest>
+    *: "Длительность долгого нажатия"
+  </dest>
+  <voice>
+    *: "Длительность долгого нажатия"
   </voice>
 </phrase>
 <phrase>
@@ -14764,13 +16181,16 @@
   desc: spoken only, for announcing chess piece names
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Пешка"
+    *: none
+    lcd_bitmap: "Пешка"
   </voice>
 </phrase>
 <phrase>
@@ -14778,13 +16198,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Food Size"
+    *: none
+    lcd_bitmap: "Food Size"
   </source>
   <dest>
-    *: "Размер порции пищи"
+    *: none
+    lcd_bitmap: "Размер порции пищи"
   </dest>
   <voice>
-    *: "Размер порции пищи"
+    *: none
+    lcd_bitmap: "Размер порции пищи"
   </voice>
 </phrase>
 <phrase>
@@ -14792,13 +16215,16 @@
   desc: in the chessbox game level selection
   user: core
   <source>
-    *: "Level 6: 40 moves / 120 min"
+    *: none
+    lcd_bitmap: "Level 6: 40 moves / 120 min"
   </source>
   <dest>
-    *: "Уровень 6: 40 ходов / 120 мин."
+    *: none
+    lcd_bitmap: "Уровень 6: 40 ходов / 120 мин."
   </dest>
   <voice>
-    *: "Уровень 6: 40 ходов за 120 минут"
+    *: none
+    lcd_bitmap: "Уровень 6: 40 ходов за 120 минут"
   </voice>
 </phrase>
 <phrase>
@@ -14806,13 +16232,16 @@
   desc: For wormlet menu
   user: core
   <source>
-    *: "Number of Worms"
+    *: none
+    lcd_bitmap: "Number of Worms"
   </source>
   <dest>
-    *: "Количество червей"
+    *: none
+    lcd_bitmap: "Количество червей"
   </dest>
   <voice>
-    *: "Количество червей"
+    *: none
+    lcd_bitmap: "Количество червей"
   </voice>
 </phrase>
 <phrase>
@@ -14820,13 +16249,16 @@
   desc: spoken only, for announcing chess piece color
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Белые"
+    *: none
+    lcd_bitmap: "Белые"
   </voice>
 </phrase>
 <phrase>
@@ -14848,13 +16280,16 @@
   desc: spoken only, for announcing chess piece marking
   user: core
   <source>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </source>
   <dest>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </dest>
   <voice>
-    *: "Помечено"
+    *: none
+    lcd_bitmap: "Помечено"
   </voice>
 </phrase>
 <phrase>
@@ -14862,15 +16297,18 @@
   desc: in mpegplayer menus
   user: core
   <source>
-    *: "Use sound setting"
+    *: none
+    swcodec: "Use sound setting"
     lowmem: none
   </source>
   <dest>
-    *: "Использовать настройки звука"
+    *: none
+    swcodec: "Использовать настройки звука"
     lowmem: none
   </dest>
   <voice>
-    *: "Использовать настройки звука"
+    *: none
+    swcodec: "Использовать настройки звука"
     lowmem: none
   </voice>
 </phrase>
@@ -15068,1566 +16506,5 @@
   </dest>
   <voice>
     *: "Не удалось собрать информацию"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the bottom"
-  </source>
-  <dest>
-    *: "Показывать альбом и артиста внизу"
-  </dest>
-  <voice>
-    *: "Показывать альбом и артиста внизу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the top"
-  </source>
-  <dest>
-    *: "Показывать альбом и артиста вверху"
-  </dest>
-  <voice>
-    *: "Показывать альбом и артиста вверху"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the bottom"
-  </source>
-  <dest>
-    *: "Показывать альбом внизу"
-  </dest>
-  <voice>
-    *: "Показывать альбом внизу"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide information"
-  </source>
-  <dest>
-    *: "Ничего не показывать"
-  </dest>
-  <voice>
-    *: "Ничего не показывать"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the top"
-  </source>
-  <dest>
-    *: "Показывать альбом вверху"
-  </dest>
-  <voice>
-    *: "Показывать альбом вверху"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UPDATE_CACHE
-  desc: in pictureflow
-  user: core
-  <source>
-    *: "Update cache"
-  </source>
-  <dest>
-    *: "Обновить кэш"
-  </dest>
-  <voice>
-    *: "Обновить кэш"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_STD_CANCEL
-  desc: standard press x to cancel string
-  user: core
-  <source>
-    *: "Press LEFT to cancel."
-    android,hifietma*,zenvision: "Press BACK to cancel."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Press POWER to cancel."
-    ihifi760,ihifi960: "Double tap RETURN to cancel."
-    ihifi770,ihifi770c,ihifi800: "Press HOME to cancel."
-    iriverh10,samsungyh*: "Double tap LEFT to cancel."
-    mpiohd200: "Double tap REC to cancel."
-    mpiohd300: "Double tap MENU to cancel."
-    rx27generic: "Press VOLUME to cancel."
-    sonynwza860: "Keymaps incomplete."
-    touchscreen: "Press Middle Left to cancel."
-    vibe500: "Press PREV to cancel."
-    xduoox20,xduoox3,xduoox3ii: "Double tap HOME to cancel."
-  </source>
-  <dest>
-    *: "Нажмите ВЛЕВО для отмены."
-    android,hifietma*,zenvision: "Нажмите НАЗАД для отмены."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Нажмите ВКЛ. для отмены."
-    ihifi760,ihifi960: "Дважды нажмите ВОЗВРАТ для отмены."
-    ihifi770,ihifi770c,ihifi800: "Нажмите ДОМОЙ для отмены."
-    iriverh10,samsungyh*: "Дважды нажмите ВЛЕВО для отмены."
-    mpiohd200: "Дважды нажмите ЗАПИСЬ для отмены."
-    mpiohd300: "Дважды нажмите МЕНЮ для отмены."
-    rx27generic: "Нажмите ГРОМКОСТЬ для отмены."
-    sonynwza860: "Раскладки кнопок не завершены."
-    touchscreen: "Нажмите Середину Слева для отмены."
-    vibe500: "Нажмите ПРЕД. для отмены."
-    xduoox20,xduoox3,xduoox3ii: "Дважды нажмите ДОМОЙ для отмены."
-  </dest>
-  <voice>
-    *: "Нажмите кнопку Влево для отмены."
-    android,hifietma*,zenvision: "Нажмите кнопку Назад для отмены."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Нажмите кнопку включения для отмены."
-    ihifi760,ihifi960: "Дважды нажмите кнопку Назад для отмены."
-    ihifi770,ihifi770c,ihifi800: "Нажмите кнопку Домой для отмены."
-    iriverh10,samsungyh*: "Дважды нажмите кнопку Влево для отмены."
-    mpiohd200: "Дважды нажмите кнопку Запись для отмены."
-    mpiohd300: "Дважды нажмите кнопку Меню для отмены."
-    rx27generic: "Нажмите кнопку Громкость для отмены."
-    touchscreen: "Нажмите Середину Слева для отмены."
-    vibe500: "Нажмите кнопку Предыдущий Трэк для отмены."
-    xduoox20,xduoox3,xduoox3ii: "Дважды нажмите кнопку Домой для отмены."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATE
-  desc: for constructing time and date announcements
-  user: core
-  <source>
-    *: "Date"
-  </source>
-  <dest>
-    *: "Дата"
-  </dest>
-  <voice>
-    *: "Дата"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL
-  desc:
-  user: core
-  <source>
-    *: "Clear all"
-  </source>
-  <dest>
-    *: "Очистить все"
-  </dest>
-  <voice>
-    *: "Очистить все"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANCEL_0
-  desc: CANCEL.
-  user: core
-  <source>
-    *: "Cancel"
-  </source>
-  <dest>
-    *: "Отмена"
-  </dest>
-  <voice>
-    *: "Отмена"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE
-  desc:
-  user: core
-  <source>
-    *: "Save"
-  </source>
-  <dest>
-    *: "Сохранить"
-  </dest>
-  <voice>
-    *: "Сохранить"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TIMEOUT
-  desc:
-  user: core
-  <source>
-    *: "Timeout"
-  </source>
-  <dest>
-    *: "Таймаут"
-  </dest>
-  <voice>
-    *: "Таймаут"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK
-  desc: used in track x of y constructs
-  user: core
-  <source>
-    *: "Track"
-  </source>
-  <dest>
-    *: "Трек"
-  </dest>
-  <voice>
-    *: "Трэк"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ELAPSED
-  desc: prefix for elapsed playtime announcement
-  user: core
-  <source>
-    *: "Elapsed"
-  </source>
-  <dest>
-    *: "Проиграно"
-  </dest>
-  <voice>
-    *: "Проиграно"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCEMENT_FMT
-  desc: format for wps hotkey announcement
-  user: core
-  <source>
-    *: none
-    hotkey: "Announcement format"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Формат сообщения"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Формат сообщения"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMAIN
-  desc: for constructs such as number of tracks remaining etc
-  user: core
-  <source>
-    *: none
-    hotkey: "Remain"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Осталось"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Осталось"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GROUPING
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Grouping"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Группирование"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Группирование"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCE_ON
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Announce on"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Объявление включено"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Объявление включено"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_CHANGE
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Track change"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Смена трека"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Смена трэка"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HOLD_FOR_SETTINGS
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Hold for settings"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Удерживайте для настройки"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Удерживайте для настройки"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN
-  desc: onplay open plugin
-  user: core
-  <source>
-    *: "Open Plugin"
-  </source>
-  <dest>
-    *: "Открыть Плагин"
-  </dest>
-  <voice>
-    *: "Открыть Плагин"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_NOT_A_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Not a plugin: %s"
-  </source>
-  <dest>
-    *: "Не плагин: %s"
-  </dest>
-  <voice>
-    *: "Не плагин"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_SET_WPS_CONTEXT_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Set Wps Context Plugin"
-  </source>
-  <dest>
-    *: "Назначить Плагин Режима Воспроизведения"
-  </dest>
-  <voice>
-    *: "Назначить Плагин Режима Воспроизведения"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PARAMETER
-  desc:
-  user: core
-  <source>
-    *: "Parameter"
-  </source>
-  <dest>
-    *: "Параметр"
-  </dest>
-  <voice>
-    *: "Параметр"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NAME
-  desc:
-  user: core
-  <source>
-    *: "Name"
-  </source>
-  <dest>
-    *: "Название"
-  </dest>
-  <voice>
-    *: "Название"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD
-  desc:
-  user: core
-  <source>
-    *: "Add"
-  </source>
-  <dest>
-    *: "Добавить"
-  </dest>
-  <voice>
-    *: "Добавить"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACK
-  desc:
-  user: core
-  <source>
-    *: "Back"
-  </source>
-  <dest>
-    *: "Назад"
-  </dest>
-  <voice>
-    *: "Назад"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EDIT
-  desc:
-  user: core
-  <source>
-    *: "Edit"
-  </source>
-  <dest>
-    *: "Изменить"
-  </dest>
-  <voice>
-    *: "Изменить"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RUN
-  desc:
-  user: core
-  <source>
-    *: "Run"
-  </source>
-  <dest>
-    *: "Запустить"
-  </dest>
-  <voice>
-    *: "Запустить"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EXPORT
-  desc:
-  user: core
-  <source>
-    *: "Export"
-  </source>
-  <dest>
-    *: "Экспортировать"
-  </dest>
-  <voice>
-    *: "Экспортировать"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BROWSE
-  desc:
-  user: core
-  <source>
-    *: "Browse"
-  </source>
-  <dest>
-    *: "Просмотреть"
-  </dest>
-  <voice>
-    *: "Просмотреть"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ENTER_USB_STORAGE_MODE_QUERY
-  desc: upon plugging in USB
-  user: core
-  <source>
-    *: "Enter USB mass storage mode?"
-  </source>
-  <dest>
-    *: "Разрешить доступ к данным через USB?"
-  </dest>
-  <voice>
-    *: "Разрешить доступ к данным через USB?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TALK_MIXER_LEVEL
-  desc: Relative volume of voice prompts
-  user: core
-  <source>
-    *: "Voice prompt volume"
-  </source>
-  <dest>
-    *: "Громкость голосовых подсказок"
-  </dest>
-  <voice>
-    *: "Громкость голосовых подсказок"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_MODE
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Режим питания ЦАП"
-    es9218: "Выходной уровень ЦАП"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Режим питания ЦАП"
-    es9218: "Выходной уровень ЦАП"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_HIGH
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Высокая производительность"
-    es9218: "Высокая громкость (2 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Высокая производительность"
-    es9218: "Высокая громкость"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_LOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Экономия батареи"
-    es9218: "Низкая громкость (1 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Экономия батареи"
-    es9218: "Низкая громкость"
-  </voice>
-</phrase>
- <phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_NEXT
-  desc: in onplay menu.  Replace current playlist with selected tracks
-  user: core
-  <source>
-    *: "Clear List & Play Next"
-  </source>
-  <dest>
-    *: "Очистить список и играть следующий"
-  </dest>
-  <voice>
-    *: "Очистить список и играть следующий"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUEUE_MENU
-  desc: in onplay menu
-  user: core
-  <source>
-    *: "Queue..."
-  </source>
-  <dest>
-    *: "Очередь..."
-  </dest>
-  <voice>
-    *: "Очередь..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_QUEUE_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Queue Options"
-  </source>
-  <dest>
-    *: "Показать настройки очереди"
-  </dest>
-  <voice>
-    *: "Показать настройки очереди"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUFFLED_ADDING_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Shuffled Adding Options"
-  </source>
-  <dest>
-    *: "Показать настройки случайного добавления"
-  </dest>
-  <voice>
-    *: "Показать настройки случайного добавления"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_IN_SUBMENU
-  desc: in Settings
-  user: core
-  <source>
-    *: "In Submenu"
-  </source>
-  <dest>
-    *: "В подменю"
-  </dest>
-  <voice>
-    *: "В подменю"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_SHUFFLED
-  desc: in onplay menu.  Replace current playlist with selected tracks in random order.
-  user: core
-  <source>
-    *: "Clear List & Play Shuffled"
-  </source>
-  <dest>
-    *: "Очистить список и играть в случайном порядке"
-  </dest>
-  <voice>
-    *: "Очистить список и играть в случайном порядке"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SOFTLOCK_DISABLE_ALL_NOTIFY
-  desc: disable all softlock notifications
-  user: core
-  <source>
-    *: "Disable All Lock Notifications"
-  </source>
-  <dest>
-    *: "Запретить все оповещения о блокировке"
-  </dest>
-  <voice>
-    *: "Запретить все оповещения о блокировке"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_VOLUME
-  desc: exempt volume from softlock
-  user: core
-  <source>
-    *: "Exempt Volume"
-  </source>
-  <dest>
-    *: "Регулировка громкости"
-  </dest>
-  <voice>
-    *: "Регулировка громкости"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_ALWAYSAUTOLOCK
-  desc: always prime autolock
-  user: core
-  <source>
-    *: "Always Autolock"
-  </source>
-  <dest>
-    *: "Автоблокировка всегда"
-  </dest>
-  <voice>
-    *: "Автоблокировка всегда"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_RELOAD_AFTER_SAVE
-  desc: reload playlist after saving
-  user: core
-  <source>
-    *: "Reload After Saving"
-  </source>
-  <dest>
-    *: "Перезагрузить после сохранения"
-  </dest>
-  <voice>
-    *: "Перезагрузить после сохранения"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Линейный Быстрый"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Линейный Быстрый"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Линейный Медленный"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Линейный Медленный"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Минимальный Быстрый"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Минимальный Быстрый"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Минимальный Медленный"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Минимальный Медленный"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_1
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 1"
-  </source>
-  <dest>
-    *: none
-    es9218: "Аподизационный 1-го типа"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Аподизационный первого типа"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_2
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 2"
-  </source>
-  <dest>
-    *: none
-    es9218: "Аподизационный 2-го типа"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Аподизационный второго типа"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_HYBRID_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Hybrid Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Гибридный Быстрый"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Гибридный Быстрый"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_BRICK_WALL
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Brick Wall"
-  </source>
-  <dest>
-    *: none
-    es9218: "Кирпичная Стена"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Кирпичная Стена"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SUPER_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Super Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Супермедленный"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Супермедленный"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUMARTIST
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Album Artist]"
-  </source>
-  <dest>
-    *: "[Исполнитель альбома]"
-  </dest>
-  <voice>
-    *: "Исполнитель альбома"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_GENRE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Genre]"
-  </source>
-  <dest>
-    *: "[Жанр]"
-  </dest>
-  <voice>
-    *: "Жанр"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMMENT
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Comment]"
-  </source>
-  <dest>
-    *: "[Комментарий]"
-  </dest>
-  <voice>
-    *: "Комментарий"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMPOSER
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Composer]"
-  </source>
-  <dest>
-    *: "[Композитор]"
-  </dest>
-  <voice>
-    *: "Композитор"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_YEAR
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Year]"
-  </source>
-  <dest>
-    *: "[Год]"
-  </dest>
-  <voice>
-    *: "Год"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TRACKNUM
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Tracknum]"
-  </source>
-  <dest>
-    *: "[Номер трека]"
-  </dest>
-  <voice>
-    *: "Номер трека"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DISCNUM
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Discnum]"
-  </source>
-  <dest>
-    *: "[Номер диска]"
-  </dest>
-  <voice>
-    *: "Номер диска"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FREQUENCY
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Frequency]"
-  </source>
-  <dest>
-    *: "[Частота]"
-  </dest>
-  <voice>
-    *: "Частота"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_BITRATE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Bitrate]"
-  </source>
-  <dest>
-    *: "[Битрейт]"
-  </dest>
-  <voice>
-    *: "Битрейт"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE_MODE
-  desc: single mode
-  user: core
-  <source>
-    *: "Single Mode"
-  </source>
-  <dest>
-    *: "Одиночный режим"
-  </dest>
-  <voice>
-    *: "Одиночный режим"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_WRAPAROUND
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Wraparound"
-  </source>
-  <dest>
-    *: "Зацикливание списков"
-  </dest>
-  <voice>
-    *: "Зацикливание списков"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUTDOWN_MESSAGE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show Shutdown Message"
-  </source>
-  <dest>
-    *: "Сообщать о выключении"
-  </dest>
-  <voice>
-    *: "Сообщать о выключении"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Order"
-  </source>
-  <dest>
-    *: "Порядок списков"
-  </dest>
-  <voice>
-    *: "Порядок списков"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ASCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Ascending"
-  </source>
-  <dest>
-    *: "Восходящий"
-  </dest>
-  <voice>
-    *: "Восходящий"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DESCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Descending"
-  </source>
-  <dest>
-    *: "Нисходящий"
-  </dest>
-  <voice>
-    *: "Нисходящий"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALBUM_ART
-  desc: in Settings
-  user: core
-  <source>
-    *: "Album Art"
-  </source>
-  <dest>
-    *: "Обложка"
-  </dest>
-  <voice>
-    *: "Обложка"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_EMBEDDED
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Embedded"
-  </source>
-  <dest>
-    *: "Предпочитать встроенную"
-  </dest>
-  <voice>
-    *: "Предпочитать встроенную"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_IMAGE_FILE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Image File"
-  </source>
-  <dest>
-    *: "Предпочитать файл с картинкой"
-  </dest>
-  <voice>
-    *: "Предпочитать файл с картинкой"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FM_SYNC_RDS_TIME
-  desc: in radio screen and Settings
-  user: core
-  <source>
-    *: none
-    rds: "Sync RDS Time"
-  </source>
-  <dest>
-    *: none
-    rds: "Подстройка часов по радио"
-  </dest>
-  <voice>
-    *: none
-    rds: "Подстройка часов по радио"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SORT_ALBUMS_BY
-  desc: in Settings
-  user: core
-  <source>
-    *: "Sort albums by"
-  </source>
-  <dest>
-    *: "Сортировать альбомы по"
-  </dest>
-  <voice>
-    *: "Сортировать альбомы по"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_NAME
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Name"
-  </source>
-  <dest>
-    *: "Исполнителю и названию"
-  </dest>
-  <voice>
-    *: "Исполнителю и названию"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_YEAR
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Year"
-  </source>
-  <dest>
-    *: "Исполнителю и году"
-  </dest>
-  <voice>
-    *: "Исполнителю и году"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YEAR_SORT_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Year sort order"
-  </source>
-  <dest>
-    *: "Порядок сортировки по году"
-  </dest>
-  <voice>
-    *: "Порядок сортировки по году"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_YEAR_IN_ALBUM_TITLE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show year in album title"
-  </source>
-  <dest>
-    *: "Показывать год в заголовке альбома"
-  </dest>
-  <voice>
-    *: "Показывать год в заголовке альбома"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WAIT_FOR_CACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Cache needs to finish updating first!"
-  </source>
-  <dest>
-    *: "Сначала надо закончить обновление кэша!"
-  </dest>
-  <voice>
-    *: "Сначало надо закончить обновление кэша!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_INFO
-  desc: Track Info Title
-  user: core
-  <source>
-    *: "Track Info"
-  </source>
-  <dest>
-    *: "Информация о треке"
-  </dest>
-  <voice>
-    *: "Информация о треке"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY
-  desc: play selected file/directory, in playlist context menu
-  user: core
-  <source>
-    *: "Play"
-  </source>
-  <dest>
-    *: "Проиграть"
-  </dest>
-  <voice>
-    *: "Проиграть"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_SHUFFLED
-  desc: play selected files in shuffled order, in playlist context menu
-  user: core
-  <source>
-    *: "Play Shuffled"
-  </source>
-  <dest>
-    *: "Проиграть в случайном порядке"
-  </dest>
-  <voice>
-    *: "Проиграть в случайном порядке"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_KEEP_CURRENT_TRACK_ON_REPLACE
-  desc: used in the playlist settings menu
-  user: core
-  <source>
-    *: "Keep Current Track When Replacing Playlist"
-  </source>
-  <dest>
-    *: "Сохранять текущий трек при замене списка проигрывания"
-  </dest>
-  <voice>
-    *: "Сохранять текущий трек при замене списка проигрывания"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_SETTINGS_ON_HOLD
-  desc: in the system sub menu
-  user: core
-  <source>
-    *: none
-    ipodcolor,ipodnano1g,ipodvideo,ipod4g,ipodmini1g,ipodmini2g: "Clear settings when hold switch is on during startup"
-    clear_settings_on_hold, iriverh10: "Clear settings when reset button is held during startup"
-  </source>
-  <dest>
-    *: none
-    ipodcolor,ipodnano1g,ipodvideo,ipod4g,ipodmini1g,ipodmini2g: "Сбросить настройки при включенной блокировке во время загрузки"
-    clear_settings_on_hold, iriverh10: "Сбросит настройки при нажатой кнопке сброса во время загрузки"
-  </dest>
-  <voice>
-    *: none
-    ipodcolor,ipodnano1g,ipodvideo,ipod4g,ipodmini1g,ipodmini2g: "Сбросить настройки при включенной блокировке во время загрузки"
-    clear_settings_on_hold, iriverh10: "Сбросит настройки при нажатой кнопке сброса во время загрузки"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REWIND_ACROSS_TRACKS
-  desc: in playback settings menu
-  user: core
-  <source>
-    *: "Rewind Across Tracks"
-  </source>
-  <dest>
-    *: "Перемотка через границы треков"
-  </dest>
-  <voice>
-    *: "Перемотка через границы треков"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_AS
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Set As..."
-  </source>
-  <dest>
-    *: "Установить как..."
-  </dest>
-  <voice>
-    *: "Установить как..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playlist Directory"
-  </source>
-  <dest>
-    *: "Каталог списков проигрывания"
-  </dest>
-  <voice>
-    *: "Каталог списков проигрывания"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_START_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Start Directory"
-  </source>
-  <dest>
-    *: "Начальную папку"
-  </dest>
-  <voice>
-    *: "Начальную папку"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RECORDING_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: none
-    recording: "Recording Directory"
-  </source>
-  <dest>
-    *: none
-    recording: "Папку записи"
-  </dest>
-  <voice>
-    *: none
-    recording: "Папку записи"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Playlist..."
-  </source>
-  <dest>
-    *: "Добавить к списку проигрывания..."
-  </dest>
-  <voice>
-    *: "Добавить к списку проигрывания..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_EXISTING_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Existing Playlist"
-  </source>
-  <dest>
-    *: "Добавить к существующему списку"
-  </dest>
-  <voice>
-    *: "Добавить к существующему списку"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYING_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playing Next..."
-  </source>
-  <dest>
-    *: "Дальнейшее проигрывание..."
-  </dest>
-  <voice>
-    *: "Дальнейшее проигрывание..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Next"
-  </source>
-  <dest>
-    *: "Играть следующим"
-  </dest>
-  <voice>
-    *: "Играть следующим"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add Shuffled"
-  </source>
-  <dest>
-    *: "Добавить случайный трек"
-  </dest>
-  <voice>
-    *: "Добавить случайный трэк"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last"
-  </source>
-  <dest>
-    *: "Играть последним"
-  </dest>
-  <voice>
-    *: "Играть последним"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last Shuffled"
-  </source>
-  <dest>
-    *: "Играть случайный трек последним"
-  </dest>
-  <voice>
-    *: "Играть случайный трэк последним"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_MODE
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Volume Adjustment Mode"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Режим регулировки громкости"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Режим регулировки громкости"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_NORM_STEPS
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Number of Volume Steps"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Число градаций громкости"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Число градаций громкости"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PERCEPTUAL
-  desc: in system settings -> volume adjustment mode
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Perceptual"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "По ощущениям"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "По ощущениям"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_TRACKS_WHILE_BROWSING
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Show Tracks While Browsing"
-  </source>
-  <dest>
-    *: "Показывать треки при просмотре"
-  </dest>
-  <voice>
-    *: "Показывать трэки при просмотре"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GOTO_LAST_ALBUM
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Go to Last Album"
-  </source>
-  <dest>
-    *: "Перейти к последнему альбому"
-  </dest>
-  <voice>
-    *: "Перейти к последнему альбому"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_LANG_NAME
-  desc: Spoken name of the language
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Русский"
   </voice>
 </phrase>

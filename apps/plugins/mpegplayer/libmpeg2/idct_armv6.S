@@ -19,9 +19,6 @@
  *
  ****************************************************************************/
 
-#include "config.h"
-
-    .syntax unified
 
     .global     mpeg2_idct_copy
     .type       mpeg2_idct_copy, %function
@@ -231,7 +228,7 @@ mpeg2_idct_copy:
 mpeg2_idct_add:
     cmp    r0, #129
     mov    r0, r1
-    ldrsheq r1, [r0, #0]
+    ldreqsh r1, [r0, #0]
     bne    1f
     and    r1, r1, #0x70
     cmp    r1, #0x40
@@ -263,7 +260,7 @@ mpeg2_idct_add:
     strd   r4, [r1]             @ r4, r5
     add    r1, r1, r2
     cmp    r0, r3
-    ldrdlo r8, [r1]             @ r8, r9
+    ldrlod r8, [r1]             @ r8, r9
     blo    2b
 
     ldmfd  sp!, {r4-r11, pc}
@@ -294,7 +291,7 @@ mpeg2_idct_add:
     strd   r0, [r2]             @ r0, r1
     add    r2, r2, r3
     cmp    r2, r12
-    ldrdlo r0, [r2]             @ r0, r1
+    ldrlod r0, [r2]             @ r0, r1
     blo    4b
 
     ldmfd  sp!, {r4, pc}

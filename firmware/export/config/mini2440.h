@@ -38,7 +38,8 @@
 /* define the storage type */
 #define CONFIG_STORAGE STORAGE_SD
 
-#define HAVE_MULTIVOLUME
+#define HAVE_MULTIDRIVE
+#define NUM_DRIVES 1 // no access to NAND yet
 #define HAVE_HOTSWAP
 #define HAVE_HOTSWAP_STORAGE_AS_MAIN
 #define INCLUDE_TIMEOUT_API
@@ -49,8 +50,8 @@
 /* #define HAVE_DISK_STORAGE */
 
 /* Display */
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 /* The LCD is assumed to be 3.5" TFT touch screen, others are possible */
@@ -113,8 +114,8 @@
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_S3C2440
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* The number of bytes reserved for loadable codecs */
 #define CODEC_SIZE 0x100000
@@ -145,6 +146,12 @@
 /* Hardware controlled charging with monitoring */
 #define CONFIG_CHARGING CHARGING_MONITOR
 /*#define POWER_INPUT_BATTERY 0*/
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define BOOTFILE_EXT "mini2440"
 #define BOOTFILE "rockbox." BOOTFILE_EXT

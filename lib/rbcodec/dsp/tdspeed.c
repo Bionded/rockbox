@@ -41,6 +41,7 @@
 #define MAX_INPUTCOUNT       512 /* Max input count so dst doesn't overflow */
 #define FIXED_BUFCOUNT      3072 /* 48KHz factor 3.0 */
 #define FIXED_OUTBUFCOUNT   4096
+#define NBUFFERS 4
 
 enum tdspeed_ops
 {
@@ -64,9 +65,9 @@ static struct tdspeed_state_s
     int32_t *ovl_buff[2];   /* overlap buffer (L+R) */
 } tdspeed_state;
 
-static int32_t *buffers[TDSPEED_NBUFFERS] = { NULL, NULL, NULL, NULL };
+static int32_t *buffers[NBUFFERS] = { NULL, NULL, NULL, NULL };
 
-static const int buffer_sizes[TDSPEED_NBUFFERS] =
+static const int buffer_sizes[NBUFFERS] =
 {
     FIXED_BUFCOUNT * sizeof(int32_t),
     FIXED_BUFCOUNT * sizeof(int32_t),
@@ -521,12 +522,9 @@ static intptr_t tdspeed_new_format(struct dsp_proc_entry *this,
     (void)this;
 }
 
-void dsp_timestretch_init(struct dsp_config *dsp, unsigned int dsp_id)
+static void INIT_ATTR tdspeed_dsp_init(struct tdspeed_state_s *st,
+                                       enum dsp_ids dsp_id)
 {
-    (void)dsp;
-
-    struct tdspeed_state_s *st = &tdspeed_state;
-
     /* everything is at 100% until dsp_set_timestretch is called with
        some other value and timestretch is enabled at the time */
     if (dsp_id == CODEC_IDX_AUDIO)
@@ -545,12 +543,16 @@ static intptr_t tdspeed_configure(struct dsp_proc_entry *this,
 
     switch (setting)
     {
+    case DSP_INIT:
+        tdspeed_dsp_init(st, (enum dsp_ids)value);
+        break;
+
     case DSP_FLUSH:
         tdspeed_flush();
         break;
 
     case DSP_PROC_INIT:
-        if (!tdspeed_alloc_buffers(buffers, buffer_sizes, TDSPEED_NBUFFERS))
+        if (!tdspeed_alloc_buffers(buffers, buffer_sizes, NBUFFERS))
             return -1; /* fail the init */
 
         st->this = this;
@@ -562,7 +564,7 @@ static intptr_t tdspeed_configure(struct dsp_proc_entry *this,
         st->this = NULL;
         st->factor = PITCH_SPEED_100;
         dsp_outbuf.remcount = 0;
-        tdspeed_free_buffers(buffers, TDSPEED_NBUFFERS);
+        tdspeed_free_buffers(buffers, NBUFFERS);
         break;
 
     case DSP_PROC_NEW_FORMAT:

@@ -28,14 +28,7 @@
 #define INITIAL_NB_DICES 1
 #define INITIAL_NB_SIDES 2 /* corresponds to 6 sides in the array */
 
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define DICE_QUIT PLA_UP
-#else
 #define DICE_QUIT PLA_CANCEL
-#endif
 #define DICE_ROLL PLA_SELECT
 
 
@@ -201,7 +194,7 @@ static bool dice_menu(struct dices * dice) {
                 break;
 
             case 2:
-                rb->set_option("Number of Sides", &sides_index, RB_INT,
+                rb->set_option("Number of Sides", &sides_index, INT, 
                                nb_sides_option,
                                sizeof(nb_sides_values)/sizeof(int), NULL);
                 dice->nb_sides=nb_sides_values[sides_index];

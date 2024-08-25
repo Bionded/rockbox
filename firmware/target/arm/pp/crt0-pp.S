@@ -21,10 +21,6 @@
 #include "config.h"
 #include "cpu.h"
 
-#if defined(HAVE_BOOTDATA) && !defined(BOOTLOADER)
-#include "bootdata.h"
-#endif
-
     .section .init.text,"ax",%progbits
 
     .global    start
@@ -405,11 +401,6 @@ prefetch_abort_handler:
     sub    r0, lr, #4
     mov    r1, #1
     b      UIE
-
-#if defined(HAVE_BOOTDATA) && !defined(BOOTLOADER)
-/* boot data structure */
-put_boot_data_here
-#endif
 
 /* Align stacks to cache line boundary */
     .balign 32

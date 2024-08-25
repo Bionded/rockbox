@@ -38,16 +38,6 @@ struct regs
   #include <errno.h>
   #ifdef HAVE_SIGALTSTACK_THREADS
     #include <signal.h>
-    #ifdef _DYNAMIC_STACK_SIZE_SOURCE
-    /* glibc 2.34 made MINSIGSTKSZ non-constant. This is a problem for sim
-     * builds. Hosted targets are using ancient glibc where MINSIGSTKSZ is
-     * still a compile time constant. On platforms where this is a problem
-     * (mainly x86-64 and ARM64) the signal stack size can be big, so let's
-     * give a decent amount of space and hope for the best...
-     * FIXME: this isn't a great solution. */
-    #undef MINSIGSTKSZ
-    #define MINSIGSTKSZ 16384
-    #endif
     /* MINSIGSTKSZ for the OS to deliver the signal + 0x3000 for us */
     #define DEFAULT_STACK_SIZE (MINSIGSTKSZ+0x3000) /* Bytes */
   #elif defined(HAVE_WIN32_FIBER_THREADS)
@@ -57,6 +47,8 @@ struct regs
   #include "arm/thread.h"
 #elif defined(CPU_COLDFIRE)
   #include "m68k/thread.h"
+#elif CONFIG_CPU == SH7034
+  #include "sh/thread.h"
 #elif defined(CPU_MIPS)
   #include "mips/thread.h"
 #endif

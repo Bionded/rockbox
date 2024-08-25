@@ -176,7 +176,7 @@ static void tidy_load_file(const char* file)
             str++;
         unsigned i = find_file_string(str, last_group);
 
-        tidy_types[i].remove = !rb->strcmp(remove, "yes");
+        tidy_types[i].remove = rb->strcmp(remove, "yes");
 
         if (i >= tidy_type_count)
         {
@@ -343,8 +343,10 @@ static void tidy_lcd_status(const char *name)
     rb->lcd_clear_display();
     rb->lcd_puts(0, 0, "Working ...");
     rb->lcd_puts(0, 1, name);
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_putsf(0, 2, "Cleaned up %d items",
         run_stats.files_removed + run_stats.dirs_removed);
+#endif
     rb->lcd_update();
 }
 
@@ -643,11 +645,8 @@ static bool tidy_types_selected(void)
     return false;
 }
 
-static int disktidy_menu_cb(int action,
-                            const struct menu_item_ex *this_item,
-                            struct gui_synclist *this_list)
+static int disktidy_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int item = ((intptr_t)this_item);
 
     if (action == ACTION_REQUEST_MENUITEM &&

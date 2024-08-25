@@ -106,7 +106,24 @@
     *: "Laden..."
   </dest>
   <voice>
-    *: "Laden"
+    *: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_CONFIRM_SHUTDOWN
+  desc: in shutdown screen
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Press OFF to shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Druk OFF om uit te schakelen"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: "Druk OFF om uit te schakelen"
   </voice>
 </phrase>
 <phrase>
@@ -121,6 +138,23 @@
   </dest>
   <voice>
     *: "Schakelt uit..."
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_REMOVE_MMC
+  desc: before acknowledging usb in case an MMC is inserted (Ondio)
+  user: core
+  <source>
+    *: none
+    archosondio*: "Please remove inserted MMC"
+  </source>
+  <dest>
+    *: none
+    archosondio*: "Verwijder de ingevoerde MMC-geheugenkaart"
+  </dest>
+  <voice>
+    *: none
+    archosondio*: "Verwijder de ingevoerde MMC-geheugenkaart"
   </voice>
 </phrase>
 <phrase>
@@ -253,6 +287,23 @@
   </dest>
   <voice>
     *: "Plug-ins"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SHUTDOWN
+  desc: in main menu
+  user: core
+  <source>
+    *: none
+    soft_shutdown: "Shut down"
+  </source>
+  <dest>
+    *: none
+    soft_shutdown: "Uitschakelen"
+  </dest>
+  <voice>
+    *: none
+    soft_shutdown: "Uitschakelen"
   </voice>
 </phrase>
 <phrase>
@@ -410,17 +461,173 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_LOUDNESS
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Loudness"
+  </source>
+  <dest>
+    *: none
+    masf: "Geluidsterkte"
+  </dest>
+  <voice>
+    *: none
+    masf: "Geluidsterkte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTOVOL
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "Auto Volume"
+  </source>
+  <dest>
+    *: none
+    masf: "Automatisch volume"
+  </dest>
+  <voice>
+    *: none
+    masf: "Automatisch volume"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_DECAY
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    masf: "AV Decay Time"
+  </source>
+  <dest>
+    *: none
+    masf: "AV-terugloop"
+  </dest>
+  <voice>
+    *: none
+    masf: "AV-terugloop"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SUPERBASS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "Super Bass"
+  </source>
+  <dest>
+    *: none
+    masf: "Superbas"
+  </dest>
+  <voice>
+    *: none
+    masf: "Superbas"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_ENABLE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Enable"
+  </source>
+  <dest>
+    *: none
+    masf: "MDB inschakelen"
+  </dest>
+  <voice>
+    *: none
+    masf: "MDB inschakelen"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_STRENGTH
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Strength"
+  </source>
+  <dest>
+    *: none
+    masf: "MDB-sterkte"
+  </dest>
+  <voice>
+    *: none
+    masf: "MDB-sterkte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_HARMONICS
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Harmonics"
+  </source>
+  <dest>
+    *: none
+    masf: "MDB-boventonen"
+  </dest>
+  <voice>
+    *: none
+    masf: "MDB-boventonen"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_CENTER
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Centre Frequency"
+  </source>
+  <dest>
+    *: none
+    masf: "MDB-middenfrequentie"
+  </dest>
+  <voice>
+    *: none
+    masf: "MDB-middenfrequentie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MDB_SHAPE
+  desc: in sound settings
+  user: core
+  <source>
+    *: none
+    masf: "MDB Shape"
+  </source>
+  <dest>
+    *: none
+    masf: "MDB-vorm"
+  </dest>
+  <voice>
+    *: none
+    masf: "MDB-vorm"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_CROSSFEED
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </dest>
   <voice>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </voice>
 </phrase>
 <phrase>
@@ -428,13 +635,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </dest>
   <voice>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </voice>
 </phrase>
 <phrase>
@@ -613,13 +823,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "EQ inschakelen"
+    *: none
+    swcodec: "EQ inschakelen"
   </dest>
   <voice>
-    *: "EQ inschakelen"
+    *: none
+    swcodec: "EQ inschakelen"
   </voice>
 </phrase>
 <phrase>
@@ -627,13 +840,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "Grafische EQ"
+    *: none
+    swcodec: "Grafische EQ"
   </dest>
   <voice>
-    *: "Grafische EQ"
+    *: none
+    swcodec: "Grafische EQ"
   </voice>
 </phrase>
 <phrase>
@@ -641,13 +857,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Voorsnijden"
+    *: none
+    swcodec: "Voorsnijden"
   </dest>
   <voice>
-    *: "Voorsnijden"
+    *: none
+    swcodec: "Voorsnijden"
   </voice>
 </phrase>
 <phrase>
@@ -655,13 +874,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Eenvoudige EQ-instellingen"
+    *: none
+    swcodec: "Eenvoudige EQ-instellingen"
   </dest>
   <voice>
-    *: "Eenvoudige EQ-instellingen"
+    *: none
+    swcodec: "Eenvoudige EQ-instellingen"
   </voice>
 </phrase>
 <phrase>
@@ -669,13 +891,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Geavanceerde EQ-instellingen"
+    *: none
+    swcodec: "Geavanceerde EQ-instellingen"
   </dest>
   <voice>
-    *: "Geavanceerde EQ-instellingen"
+    *: none
+    swcodec: "Geavanceerde EQ-instellingen"
   </voice>
 </phrase>
 <phrase>
@@ -683,13 +908,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "EQ-voorkeuze opslaan"
+    *: none
+    swcodec: "EQ-voorkeuze opslaan"
   </dest>
   <voice>
-    *: "EQ-voorkeuze opslaan"
+    *: none
+    swcodec: "EQ-voorkeuze opslaan"
   </voice>
 </phrase>
 <phrase>
@@ -697,13 +925,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "EQ-voorkeuzes laden"
+    *: none
+    swcodec: "EQ-voorkeuzes laden"
   </dest>
   <voice>
-    *: "EQ-voorkeuzes laden"
+    *: none
+    swcodec: "EQ-voorkeuzes laden"
   </voice>
 </phrase>
 <phrase>
@@ -711,13 +942,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Bewerkmodus: %s"
+    *: none
+    swcodec: "Bewerkmodus: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: "Bewerkmodus %s"
   </voice>
 </phrase>
 <phrase>
@@ -725,13 +959,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz-bandversterking"
+    *: none
+    swcodec: "%d Hz-bandversterking"
   </dest>
   <voice>
-    *: "Hertz bandversterking"
+    *: none
+    swcodec: "%d Hertz bandversterking"
   </voice>
 </phrase>
 <phrase>
@@ -739,13 +976,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Lagebandfilter"
+    *: none
+    swcodec: "Lagebandfilter"
   </dest>
   <voice>
-    *: "Lagebandfilter"
+    *: none
+    swcodec: "Lagebandfilter"
   </voice>
 </phrase>
 <phrase>
@@ -753,13 +993,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Piekfilter %d"
+    *: none
+    swcodec: "Piekfilter %d"
   </dest>
   <voice>
-    *: "Piekfilter"
+    *: none
+    swcodec: "Piekfilter %d"
   </voice>
 </phrase>
 <phrase>
@@ -767,13 +1010,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Hogebandfilter"
+    *: none
+    swcodec: "Hogebandfilter"
   </dest>
   <voice>
-    *: "Hogebandfilter"
+    *: none
+    swcodec: "Hogebandfilter"
   </voice>
 </phrase>
 <phrase>
@@ -781,13 +1027,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Afsnijfrequentie"
+    *: none
+    swcodec: "Afsnijfrequentie"
   </dest>
   <voice>
-    *: "Afsnijfrequentie"
+    *: none
+    swcodec: "Afsnijfrequentie"
   </voice>
 </phrase>
 <phrase>
@@ -795,13 +1044,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Middenfrequentie"
+    *: none
+    swcodec: "Middenfrequentie"
   </dest>
   <voice>
-    *: "Middenfrequentie"
+    *: none
+    swcodec: "Middenfrequentie"
   </voice>
 </phrase>
 <phrase>
@@ -809,13 +1061,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -1010,11 +1265,11 @@
   </source>
   <dest>
     *: "Buffertijd"
-    flash_storage: none
+    flash_storage*: none
   </dest>
   <voice>
     *: "Buffertijd"
-    flash_storage: none
+    flash_storage*: none
   </voice>
 </phrase>
 <phrase>
@@ -1081,13 +1336,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Biep bij nummer overslaan"
+    *: none
+    swcodec: "Biep bij nummer overslaan"
   </dest>
   <voice>
-    *: "Biep bij nummer overslaan"
+    *: none
+    swcodec: "Biep bij nummer overslaan"
   </voice>
 </phrase>
 <phrase>
@@ -1095,13 +1353,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Zwak"
+    *: none
+    swcodec: "Zwak"
   </dest>
   <voice>
-    *: "Zwak"
+    *: none
+    swcodec: "Zwak"
   </voice>
 </phrase>
 <phrase>
@@ -1109,13 +1370,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Normaal"
+    *: none
+    swcodec: "Normaal"
   </dest>
   <voice>
-    *: "Normaal"
+    *: none
+    swcodec: "Normaal"
   </voice>
 </phrase>
 <phrase>
@@ -1123,13 +1387,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Sterk"
+    *: none
+    swcodec: "Sterk"
   </dest>
   <voice>
-    *: "Sterk"
+    *: none
+    swcodec: "Sterk"
   </voice>
 </phrase>
 <phrase>
@@ -1171,10 +1438,10 @@
     *: "Database"
   </source>
   <dest>
-    *: "Databank"
+    *: "Database"
   </dest>
   <voice>
-    *: "Databank"
+    *: "Database"
   </voice>
 </phrase>
 <phrase>
@@ -1423,13 +1690,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Lettertype"
+    *: none
+    lcd_bitmap: "Lettertype"
   </dest>
   <voice>
-    *: "Lettertype"
+    *: none
+    lcd_bitmap: "Lettertype"
   </voice>
 </phrase>
 <phrase>
@@ -1513,13 +1783,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Status-/scrollbalk"
+    *: none
+    lcd_bitmap: "Status-/scrollbalk"
   </dest>
   <voice>
-    *: "Status- en scrollbalk"
+    *: none
+    lcd_bitmap: "Status- en scrollbalk"
   </voice>
 </phrase>
 <phrase>
@@ -1528,12 +1801,15 @@
   user: core
   <source>
     *: "Peak Meter"
+    masd: none
   </source>
   <dest>
-    *: "Piekmeter"
+    *: "Peak Meter"
+    masd: "Piekmeter"
   </dest>
   <voice>
-    *: "Piekmeter"
+    *: "Peak Meter"
+    masd: "Piekmeter"
   </voice>
 </phrase>
 <phrase>
@@ -1583,13 +1859,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Hebreeuws (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebreeuws (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Hebreeuws"
+    *: none
+    lcd_bitmap: "Hebreeuws"
   </voice>
 </phrase>
 <phrase>
@@ -1611,13 +1890,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Thais (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thais (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Thais"
+    *: none
+    lcd_bitmap: "Thais"
   </voice>
 </phrase>
 <phrase>
@@ -1625,13 +1907,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Arabisch (CP1256)"
+    *: none
+    lcd_bitmap: "Arabisch (CP1256)"
   </dest>
   <voice>
-    *: "Arabisch"
+    *: none
+    lcd_bitmap: "Arabisch"
   </voice>
 </phrase>
 <phrase>
@@ -1667,13 +1952,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Japans (SJIS)"
+    *: none
+    lcd_bitmap: "Japans (SJIS)"
   </dest>
   <voice>
-    *: "Japans"
+    *: none
+    lcd_bitmap: "Japans"
   </voice>
 </phrase>
 <phrase>
@@ -1681,13 +1969,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Vereenvoudigd Chinees (GB2312)"
+    *: none
+    lcd_bitmap: "Vereenvoudigd Chinees (GB2312)"
   </dest>
   <voice>
-    *: "Vereenvoudigd Chinees"
+    *: none
+    lcd_bitmap: "Vereenvoudigd Chinees"
   </voice>
 </phrase>
 <phrase>
@@ -1695,13 +1986,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Koreaans (KSX1001)"
+    *: none
+    lcd_bitmap: "Koreaans (KSX1001)"
   </dest>
   <voice>
-    *: "Koreaans"
+    *: none
+    lcd_bitmap: "Koreaans"
   </voice>
 </phrase>
 <phrase>
@@ -1709,13 +2003,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Traditioneel Chinees (BIG5)"
+    *: none
+    lcd_bitmap: "Traditioneel Chinees (BIG5)"
   </dest>
   <voice>
-    *: "Traditioneel Chinees"
+    *: none
+    lcd_bitmap: "Traditioneel Chinees"
   </voice>
 </phrase>
 <phrase>
@@ -1842,15 +2139,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Analoge invoer"
+    recording,archosplayer: "Analoge invoer"
   </dest>
   <voice>
     *: none
-    recording: "Analoge invoer"
+    recording,archosplayer: "Analoge invoer"
   </voice>
 </phrase>
 <phrase>
@@ -1941,6 +2238,26 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BOOKMARK_SETTINGS_UNIQUE_ONLY
+### The 'desc' field differs from the english!
+### the previously used desc is commented below:
+### desc: Save only on bookmark for each playlist in recent bookmarks
+  desc: deprecated
+  user: core
+  <source>
+### The <source> section differs from the english!
+### the previously used one is commented below:
+###     *: "Unique only"
+    *: ""
+  </source>
+  <dest>
+    *: "Enkel unieke"
+  </dest>
+  <voice>
+    *: "Enkel unieke"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_VOICE_MENU
   desc: item of voice menu, enable/disable the voice UI
   user: core
@@ -2025,20 +2342,37 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Kwaliteit"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Kwaliteit"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FREQUENCY
   desc: in recording and playback settings
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Frequentie"
+    recording,play_frequency: "Frequentie"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frequentie"
+    recording,play_frequency: "Frequentie"
   </voice>
 </phrase>
 <phrase>
@@ -2064,18 +2398,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Interne microfoon"
     recording: "Microfoon"
+    iriverh100,iriverh120,iriverh300: "Interne microfoon"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Interne microfoon"
     recording: "Microfoon"
+    iriverh100,iriverh120,iriverh300: "Interne microfoon"
   </voice>
 </phrase>
 <phrase>
@@ -2093,6 +2427,23 @@
   <voice>
     *: none
     recording: "Digitale invoer"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_RECORDING_EDITABLE
+  desc: Editable recordings setting
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Independent Frames"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Onafhankelijke frames"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Onafhankelijke frames"
   </voice>
 </phrase>
 <phrase>
@@ -2400,13 +2751,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Voorkom clippen"
+    *: none
+    swcodec: "Voorkom clippen"
   </dest>
   <voice>
-    *: "Voorkom clippen"
+    *: none
+    swcodec: "Voorkom clippen"
   </voice>
 </phrase>
 <phrase>
@@ -2642,13 +2996,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Ondersteboven"
+    *: none
+    lcd_bitmap: "Ondersteboven"
   </dest>
   <voice>
-    *: "Ondersteboven"
+    *: none
+    lcd_bitmap: "Ondersteboven"
   </voice>
 </phrase>
 <phrase>
@@ -2656,13 +3013,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Regelkiezertype"
+    *: none
+    lcd_bitmap: "Regelkiezertype"
   </dest>
   <voice>
-    *: "Regelkiezertype"
+    *: none
+    lcd_bitmap: "Regelkiezertype"
   </voice>
 </phrase>
 <phrase>
@@ -2670,13 +3030,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Aanwijzer"
+    *: none
+    lcd_bitmap: "Aanwijzer"
   </dest>
   <voice>
-    *: "Aanwijzer"
+    *: none
+    lcd_bitmap: "Aanwijzer"
   </voice>
 </phrase>
 <phrase>
@@ -2684,13 +3047,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Balk (geïnverteerd)"
+    *: none
+    lcd_bitmap: "Balk (geïnverteerd)"
   </dest>
   <voice>
-    *: "Balk (geïnverteerd)"
+    *: none
+    lcd_bitmap: "Balk (geïnverteerd)"
   </voice>
 </phrase>
 <phrase>
@@ -2800,10 +3166,10 @@
     *: "Scroll Speed Setting Example"
   </source>
   <dest>
-    *: "Voorbeeld Scrollsnelheid"
+    *: "Voorbeeld scrollsnelheid"
   </dest>
   <voice>
-    *: ""
+    *: "Voorbeeld scrollsnelheid"
   </voice>
 </phrase>
 <phrase>
@@ -2842,10 +3208,10 @@
     *: "Scroll Step Size Setting Example Text"
   </source>
   <dest>
-    *: "Voorbeeldtekst voor Scrollstapgrootte-instelling"
+    *: "Voorbeeldtekst voor scrollstapgrootte-instelling"
   </dest>
   <voice>
-    *: ""
+    *: "Voorbeeldtekst voor scrollstapgrootte-instelling"
   </voice>
 </phrase>
 <phrase>
@@ -2867,13 +3233,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Scherm schuift uit beeld"
+    *: none
+    lcd_bitmap: "Scherm schuift uit beeld"
   </dest>
   <voice>
-    *: "Scherm schuift uit beeld"
+    *: none
+    lcd_bitmap: "Scherm schuift uit beeld"
   </voice>
 </phrase>
 <phrase>
@@ -2881,13 +3250,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Schermscrollstapgrootte"
+    *: none
+    lcd_bitmap: "Schermscrollstapgrootte"
   </dest>
   <voice>
-    *: "Schermscrollstapgrootte"
+    *: none
+    lcd_bitmap: "Schermscrollstapgrootte"
   </voice>
 </phrase>
 <phrase>
@@ -2909,13 +3281,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Scrollbalk"
+    *: none
+    lcd_bitmap: "Scrollbalk"
   </dest>
   <voice>
-    *: "Scrollbalk"
+    *: none
+    lcd_bitmap: "Scrollbalk"
   </voice>
 </phrase>
 <phrase>
@@ -2923,13 +3298,33 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Statusbalk"
+    *: none
+    lcd_bitmap: "Statusbalk"
   </dest>
   <voice>
-    *: "Statusbalk"
+    *: none
+    lcd_bitmap: "Statusbalk"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BUTTON_BAR
+  desc: in settings menu
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Button Bar"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Knoppenbalk"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Knoppenbalk"
   </voice>
 </phrase>
 <phrase>
@@ -2937,13 +3332,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Volume tonen als"
+    *: none
+    lcd_bitmap: "Volume tonen als"
   </dest>
   <voice>
-    *: "Volume tonen als"
+    *: none
+    lcd_bitmap: "Volume tonen als"
   </voice>
 </phrase>
 <phrase>
@@ -2951,13 +3349,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Batterij tonen als"
+    *: none
+    lcd_bitmap: "Batterij tonen als"
   </dest>
   <voice>
-    *: "Batterij tonen als"
+    *: none
+    lcd_bitmap: "Batterij tonen als"
   </voice>
 </phrase>
 <phrase>
@@ -2965,13 +3366,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Grafisch"
+    *: none
+    lcd_bitmap: "Grafisch"
   </dest>
   <voice>
-    *: "Grafisch"
+    *: none
+    lcd_bitmap: "Grafisch"
   </voice>
 </phrase>
 <phrase>
@@ -2979,13 +3383,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Numeriek"
+    *: none
+    lcd_bitmap: "Numeriek"
   </dest>
   <voice>
-    *: "Numeriek"
+    *: none
+    lcd_bitmap: "Numeriek"
   </voice>
 </phrase>
 <phrase>
@@ -2994,12 +3401,15 @@
   user: core
   <source>
     *: "Peak Release"
+    masd: none
   </source>
   <dest>
     *: "Piekterugloop"
+    masd: none
   </dest>
   <voice>
     *: "Piekterugloop"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3008,12 +3418,15 @@
   user: core
   <source>
     *: "Peak Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Piekvasthoudtijd"
+    masd: none
   </dest>
   <voice>
     *: "Piekvasthoudtijd"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3022,12 +3435,15 @@
   user: core
   <source>
     *: "Clip Hold Time"
+    masd: none
   </source>
   <dest>
     *: "Clip vasthouden"
+    masd: none
   </dest>
   <voice>
     *: "Clip vasthouden"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3036,12 +3452,15 @@
   user: core
   <source>
     *: "Eternal"
+    masd: none
   </source>
   <dest>
     *: "Oneindig"
+    masd: none
   </dest>
   <voice>
     *: "Oneindig"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3050,12 +3469,15 @@
   user: core
   <source>
     *: "Scale"
+    masd: none
   </source>
   <dest>
     *: "Schaal"
+    masd: none
   </dest>
   <voice>
     *: "Schaal"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3064,12 +3486,15 @@
   user: core
   <source>
     *: "Logarithmic (dB)"
+    masd: none
   </source>
   <dest>
     *: "Logaritmisch (dB)"
+    masd: none
   </dest>
   <voice>
     *: "Logarithmisch decibel"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3078,12 +3503,15 @@
   user: core
   <source>
     *: "Linear (%)"
+    masd: none
   </source>
   <dest>
     *: "Lineair (%)"
+    masd: none
   </dest>
   <voice>
     *: "Lineair percentage"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3092,12 +3520,15 @@
   user: core
   <source>
     *: "Minimum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Minimaal bereik"
+    masd: none
   </dest>
   <voice>
     *: "Minimaal bereik"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3106,12 +3537,15 @@
   user: core
   <source>
     *: "Maximum Of Range"
+    masd: none
   </source>
   <dest>
     *: "Maximaal bereik"
+    masd: none
   </dest>
   <voice>
     *: "Maximaal bereik"
+    masd: none
   </voice>
 </phrase>
 <phrase>
@@ -3146,43 +3580,37 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "Alkaline"
-    xduoox3: "Newer (2000 mAh)"
   </source>
   <dest>
     *: none
-    battery_types: "Alkalisch"
-    xduoox3: "Nieuwer (2000 mAh)"
+    battery_types: "Alkaline"
   </dest>
   <voice>
     *: none
-    battery_types: "Alkalisch"
-    xduoox3: "Nieuwer 2000 milliampère per uur"
+    battery_types: "Alkaline"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Older (1500 mAh)"
   </source>
   <dest>
     *: none
     battery_types: "NiMH"
-    xduoox3: "Ouder (1500 mAh)"
   </dest>
   <voice>
     *: none
     battery_types: "Nikkelmetaalhydride"
-    xduoox3: "Ouder 1500 milliampère uur"
   </voice>
 </phrase>
 <phrase>
@@ -3577,58 +4005,58 @@
 </phrase>
 <phrase>
   id: LANG_INSERT
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert"
   </source>
   <dest>
-    *: ""
+    *: "Invoegen"
   </dest>
   <voice>
-    *: ""
+    *: "Invoegen"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_FIRST
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert Next"
   </source>
   <dest>
-    *: ""
+    *: "Invoegen als volgende"
   </dest>
   <voice>
-    *: ""
+    *: "Invoegen als volgende"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_LAST
-  desc: deprecated
+  desc: in onplay menu.  append a track/playlist into dynamic playlist.
   user: core
   <source>
-    *: ""
+    *: "Insert Last"
   </source>
   <dest>
-    *: ""
+    *: "Invoegen als laatste"
   </dest>
   <voice>
-    *: ""
+    *: "Invoegen als laatste"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_SHUFFLED
-  desc: deprecated
+  desc: in onplay menu.  insert a track/playlist randomly into dynamic playlist
   user: core
   <source>
-    *: ""
+    *: "Insert Shuffled"
   </source>
   <dest>
-    *: ""
+    *: "Geschud invoegen"
   </dest>
   <voice>
-    *: ""
+    *: "Geschud invoegen"
   </voice>
 </phrase>
 <phrase>
@@ -3712,7 +4140,7 @@
     *: "Zoeken... %d gevonden (%s)"
   </dest>
   <voice>
-    *: "gevonden"
+    *: "Zoeken... %d gevonden (%s)"
   </voice>
 </phrase>
 <phrase>
@@ -3775,6 +4203,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BATTERY_TOPOFF_CHARGE
+  desc: in info display, shows that top off charge is running Only for V1 archosrecorder
+  user: core
+  <source>
+    *: none
+    archosrecorder: "Battery: Top-Off Chg"
+  </source>
+  <dest>
+    *: none
+    archosrecorder: "Batterij: vol laden"
+  </dest>
+  <voice>
+    *: none
+    archosrecorder: "Batterij vol laden"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_BATTERY_TRICKLE_CHARGE
   desc: in info display, shows that trickle charge is running
   user: core
@@ -3797,11 +4242,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Batterij: %d%% %du %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </dest>
   <voice>
     *: "Batterijniveau"
@@ -3841,44 +4288,41 @@
   user: core
   <source>
     *: "Int:"
-    hibylinux: "mSD:"
     xduoox3: "mSD1:"
   </source>
   <dest>
     *: "Intern:"
-    hibylinux: "mSD:"
     xduoox3: "mSD1:"
   </dest>
   <voice>
     *: "Intern"
-    hibylinux: "micro S D"
     xduoox3: "micro S D 1"
   </voice>
 </phrase>
 <phrase>
   id: LANG_DISK_NAME_MMC
-  desc: in info menu;  name for external disk with multivolume (keep short!)
+  desc: in info menu;  name for external disk with multivolume (Ondio; keep short!)
   user: core
   <source>
     *: none
-    hibylinux: "USB:"
-    multivolume: "HD1:"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    multivolume: "HD1"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    hibylinux: "USB:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    hibylinux: "U S B"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "micro S D"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "micro S D"
     xduoox3: "micro S D 2"
+    archosondio*: "Multimediakaart"
   </voice>
 </phrase>
 <phrase>
@@ -3912,7 +4356,7 @@
   </dest>
   <voice>
     *: none
-    pitchscreen: ""
+    pitchscreen: "Versnellen"
   </voice>
 </phrase>
 <phrase>
@@ -3929,7 +4373,7 @@
   </dest>
   <voice>
     *: none
-    pitchscreen: ""
+    pitchscreen: "Vertragen"
   </voice>
 </phrase>
 <phrase>
@@ -4008,35 +4452,51 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Terugzetten"
-    gigabeats,sansafuzeplus: "BACK = Terugzetten"
-    gogearsa9200: "LINKS = Terugzetten"
-    iaudiom5,iaudiox5: "RECORD = Terugzetten"
-    ipod*,mpiohd300,sansac200*: "MENU = Terugzetten"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Terugzetten"
-    iriverh100,iriverh120,iriverh300: "STOP = Terugzetten"
-    mrobe100: "DISPLAY = Terugzetten"
-    rtc: "OFF = Terugzetten"
-    samsungyh*: "REW = Terugzetten"
-    vibe500: "C = Terugzetten"
+    rtc: "OFF = terugzetten"
+    mrobe500: "POWER = terugzetten"
+    iriverh100,iriverh120,iriverh300: "STOP = terugzetten"
+    ipod*,sansac200*,mpiohd300: "MENU = terugzetten"
+    iaudiox5,iaudiom5: "RECORD = terugzetten"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = terugzetten"
+    gigabeatfx: "POWER = terugzetten"
+    sansafuzeplus: "BACK = terugzetten"
+    mrobe100: "DISPLAY = terugzetten"
+    gigabeats: "BACK = terugzetten"
+    gogearsa9200: "LINKS = terugzetten"
+    vibe500: "C = terugzetten"
+    samsungyh*: "REW = terugzetten"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc: "OFF = terugzetten"
+    mrobe500: "POWER = terugzetten"
+    iriverh100,iriverh120,iriverh300: "STOP = terugzetten"
+    ipod*,sansac200*,mpiohd300: "MENU = terugzetten"
+    iaudiox5,iaudiom5: "RECORD = terugzetten"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = terugzetten"
+    gigabeatfx: "POWER = terugzetten"
+    sansafuzeplus: "BACK = terugzetten"
+    mrobe100: "DISPLAY = terugzetten"
+    gigabeats: "BACK = terugzetten"
+    gogearsa9200: "LINKS = terugzetten"
+    vibe500: "C = terugzetten"
+    samsungyh*: "REW = terugzetten"
   </voice>
 </phrase>
 <phrase>
@@ -4053,7 +4513,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Tijd"
   </voice>
 </phrase>
 <phrase>
@@ -4070,7 +4530,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Bufferopname"
   </voice>
 </phrase>
 <phrase>
@@ -4079,23 +4539,27 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "De schijf is vol. Druk op POWER om verder te gaan."
-    iriverh100,iriverh120,iriverh300: "De schijf is vol. Druk op STOP om verder te gaan."
     recording: "De schijf is vol. Druk op OFF om verder te gaan."
+    iriverh100,iriverh120,iriverh300: "De schijf is vol. Druk op STOP om verder te gaan."
+    iaudiom5,iaudiox5: "De schijf is vol. Druk op POWER om verder te gaan."
+    sansae200*,sansac200*,vibe500: "De schijf is vol. Druk op PREV om verder te gaan."
     samsungyh*: "De schijf is vol. Druk op LINKS om verder te gaan."
-    sansac200*,sansae200*,vibe500: "De schijf is vol. Druk op PREV om verder te gaan."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,samsungyh*,sansac200*,sansae200*,vibe500: ""
+    recording: "De schijf is vol. Druk op OFF om verder te gaan."
+    iriverh100,iriverh120,iriverh300: "De schijf is vol. Druk op STOP om verder te gaan."
+    iaudiom5,iaudiox5: "De schijf is vol. Druk op POWER om verder te gaan."
+    sansae200*,sansac200*,vibe500: "De schijf is vol. Druk op PREV om verder te gaan."
+    samsungyh*: "De schijf is vol. Druk op LINKS om verder te gaan."
   </voice>
 </phrase>
 <phrase>
@@ -4197,7 +4661,7 @@
   </dest>
   <voice>
     *: none
-    alarm: ""
+    alarm: "Alarmtijd"
   </voice>
 </phrase>
 <phrase>
@@ -4214,7 +4678,7 @@
   </dest>
   <voice>
     *: none
-    alarm: "Wekken om:"
+    alarm: "Wekken om: %d:%02d"
   </voice>
 </phrase>
 <phrase>
@@ -4253,16 +4717,37 @@
 </phrase>
 <phrase>
   id: LANG_ALARM_MOD_KEYS
-  desc: deprecated
+  desc: Shown key functions in alarm menu (for the RTC alarm mod).
   user: core
   <source>
-    *: ""
+    *: none
+    alarm: "PLAY=Set OFF=Cancel"
+    ipod*: "SELECT=Set MENU=Cancel"
+    iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
+    mpiohd300: "ENTER=Set MENU=Cancel"
+    sansafuzeplus: "SELECT=Set  BACK=Cancel"
   </source>
   <dest>
-    *: ""
+    *: none
+    alarm: "PLAY=instellen, OFF=annuleren"
+    ipod*: "SELECT=instellen, MENU=annuleren"
+    iriverh10,iriverh10_5gb: "SELECT=instellen, PREV=annuleren"
+    gigabeats: "SELECT=instellen, POWER=annuleren"
+    vibe500: "OK=instellen, C=annuleren"
+    mpiohd300: "ENTER=instellen, MENU=annuleren"
+    sansafuzeplus: "SELECT=instellen, BACK=annuleren"
   </dest>
   <voice>
-    *: ""
+    *: none
+    alarm: "PLAY=instellen, OFF=annuleren"
+    ipod*: "SELECT=instellen, MENU=annuleren"
+    iriverh10,iriverh10_5gb: "SELECT=instellen, PREV=annuleren"
+    gigabeats: "SELECT=instellen, POWER=annuleren"
+    vibe500: "OK=instellen, C=annuleren"
+    mpiohd300: "ENTER=instellen, MENU=annuleren"
+    sansafuzeplus: "SELECT=instellen, BACK=annuleren"
   </voice>
 </phrase>
 <phrase>
@@ -4296,7 +4781,7 @@
   </dest>
   <voice>
     *: none
-    lcd_color: ""
+    lcd_color: "RGB"
   </voice>
 </phrase>
 <phrase>
@@ -4312,8 +4797,8 @@
     lcd_color: "RGB: %02X%02X%02X"
   </dest>
   <voice>
-    *: none
-    lcd_color: ""
+    *: ""
+    lcd_color: "RGB: %02X%02X%02X"
   </voice>
 </phrase>
 <phrase>
@@ -4325,12 +4810,12 @@
     lcd_color: "Invalid colour"
   </source>
   <dest>
-    *: none
+   *: none
     lcd_color: "Ongeldige kleur"
   </dest>
   <voice>
-    *: none
-    lcd_color: ""
+   *: none
+    lcd_color: "Ongeldige kleur"
   </voice>
 </phrase>
 <phrase>
@@ -4453,10 +4938,10 @@
     *: "Bitrate"
   </source>
   <dest>
-    *: "Bitsnelheid"
+    *: "Bitrate"
   </dest>
   <voice>
-    *: "Bit snelheid"
+    *: "Bitrate"
   </voice>
 </phrase>
 <phrase>
@@ -4557,7 +5042,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Zondag"
   </voice>
 </phrase>
 <phrase>
@@ -4574,7 +5059,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Maandag"
   </voice>
 </phrase>
 <phrase>
@@ -4591,7 +5076,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Dinsdag"
   </voice>
 </phrase>
 <phrase>
@@ -4608,7 +5093,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Woensdag"
   </voice>
 </phrase>
 <phrase>
@@ -4625,7 +5110,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Donderdag"
   </voice>
 </phrase>
 <phrase>
@@ -4642,7 +5127,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Vrijdag"
   </voice>
 </phrase>
 <phrase>
@@ -4659,7 +5144,7 @@
   </dest>
   <voice>
     *: none
-    rtc: ""
+    rtc: "Zaterdag"
   </voice>
 </phrase>
 <phrase>
@@ -5513,7 +5998,67 @@
     *: "B"
   </dest>
   <voice>
+    *: "byte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_KILOBYTE
+### The 'desc' field differs from the english!
+### the previously used desc is commented below:
+### desc: a unit postfix, also voiced
+  desc: deprecated
+  user: core
+  <source>
+### The <source> section differs from the english!
+### the previously used one is commented below:
+###     *: "KB"
     *: ""
+  </source>
+  <dest>
+    *: "KB"
+  </dest>
+  <voice>
+    *: "kilobyte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_MEGABYTE
+### The 'desc' field differs from the english!
+### the previously used desc is commented below:
+### desc: a unit postfix, also voiced
+  desc: deprecated
+  user: core
+  <source>
+### The <source> section differs from the english!
+### the previously used one is commented below:
+###     *: "MB"
+    *: ""
+  </source>
+  <dest>
+    *: "MB"
+  </dest>
+  <voice>
+    *: "megabyte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_GIGABYTE
+### The 'desc' field differs from the english!
+### the previously used desc is commented below:
+### desc: a unit postfix, also voiced
+  desc: deprecated
+  user: core
+  <source>
+### The <source> section differs from the english!
+### the previously used one is commented below:
+###     *: "GB"
+    *: ""
+  </source>
+  <dest>
+    *: "GB"
+  </dest>
+  <voice>
+    *: "gigabyte"
   </voice>
 </phrase>
 <phrase>
@@ -6101,10 +6646,10 @@
     *: "Creating"
   </source>
   <dest>
-    *: "Creëren"
+    *: "Aanmaken..."
   </dest>
   <voice>
-    *: ""
+    *: "Aanmaken"
   </voice>
 </phrase>
 <phrase>
@@ -6118,7 +6663,7 @@
     *: "%d nummers ingevoegd (%s)"
   </dest>
   <voice>
-    *: "nummers ingevoegd"
+    *: "%d nummers ingevoegd (%s)"
   </voice>
 </phrase>
 <phrase>
@@ -6132,7 +6677,7 @@
     *: "%d nummers in wachtrij geplaatst (%s)"
   </dest>
   <voice>
-    *: "nummers in wachtrij geplaatst"
+    *: "%d nummers in wachtrij geplaatst (%s)"
   </voice>
 </phrase>
 <phrase>
@@ -6146,7 +6691,7 @@
     *: "%d nummers opgeslagen (%s)"
   </dest>
   <voice>
-    *: "nummers opgeslagen"
+    *: "%d nummers opgeslagen (%s)"
   </voice>
 </phrase>
 <phrase>
@@ -6364,6 +6909,91 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BUTTONBAR_MENU
+  desc: in button bar
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Menu"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Menu"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: "Menu"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_EXIT
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Exit"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Uitgang"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: "Uitgang"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ACTION
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Action"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Actie"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: "Actie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_ADD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Add"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Toevoegen"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: "Toevoegen"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_FM_BUTTONBAR_RECORD
+  desc: in radio screen
+  user: core
+  <source>
+    *: none
+    radio_screen_button_bar: "Record"
+  </source>
+  <dest>
+    *: none
+    radio_screen_button_bar: "Opnemen"
+  </dest>
+  <voice>
+    *: none
+    radio_screen_button_bar: "Opnemen"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_MONO_MODE
   desc: in radio screen
   user: core
@@ -6390,11 +7020,11 @@
   </source>
   <dest>
     *: none
-    radio: "Scherm bevroren!"
+    radio: "Scherm geblokkeerd!"
   </dest>
   <voice>
     *: none
-    radio: ""
+    radio: "Scherm geblokkeerd!"
   </voice>
 </phrase>
 <phrase>
@@ -6445,7 +7075,7 @@
   </dest>
   <voice>
     *: none
-    radio: ""
+    radio: "Zoeken: %d.%02d MHz"
   </voice>
 </phrase>
 <phrase>
@@ -6462,7 +7092,7 @@
   </dest>
   <voice>
     *: none
-    radio: ""
+    radio: "%d.%02d MHz"
   </voice>
 </phrase>
 <phrase>
@@ -6568,28 +7198,37 @@
 </phrase>
 <phrase>
   id: LANG_OFF_ABORT
-  desc: Used on many models
+  desc: Used on archosrecorder models
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF om af te breken"
-    gigabeatfx: "POWER om af te breken"
-    gigabeats,sansafuzeplus: "BACK om af te breken"
-    iaudiom5,iaudiox5: "Lang PLAY om af te breken"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP om af te breken"
     ipod*: "PLAY/PAUSE om af te breken"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV om af te breken"
-    iriverh100,iriverh120,iriverh300: "STOP om af te breken"
+    iaudiox5,iaudiom5: "Lang PLAY om af te breken"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV om af te breken"
+    gigabeats: "BACK om af te breken"
+    gigabeatfx: "POWER om af te breken"
+    sansafuzeplus: "BACK om af te breken"
   </dest>
   <voice>
-    *: ""
+    *: "OFF om af te breken"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP om af te breken"
+    ipod*: "PLAY/PAUSE om af te breken"
+    iaudiox5,iaudiom5: "Lang PLAY om af te breken"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV om af te breken"
+    gigabeats: "BACK om af te breken"
+    gigabeatfx: "POWER om af te breken"
+    sansafuzeplus: "BACK om af te breken"
   </voice>
 </phrase>
 <phrase>
@@ -6604,6 +7243,40 @@
   </dest>
   <voice>
     *: "Geen bestanden"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
   </voice>
 </phrase>
 <phrase>
@@ -6715,7 +7388,7 @@
     *: "Kan %s niet openen"
   </dest>
   <voice>
-    *: ""
+    *: "Kan %s niet openen"
   </voice>
 </phrase>
 <phrase>
@@ -6729,12 +7402,12 @@
     *: "Kan %s niet lezen"
   </dest>
   <voice>
-    *: ""
+    *: "Kan %s niet lezen"
   </voice>
 </phrase>
 <phrase>
   id: LANG_PLUGIN_WRONG_MODEL
-  desc: The plugin is not compatible with the player model trying to run it
+  desc: The plugin is not compatible with the archos model trying to run it
   user: core
   <source>
     *: "Incompatible model"
@@ -6874,31 +7547,54 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_CROSSFEED_DIRECT_GAIN
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Rechtstreekse versterking"
+    *: none
+    swcodec: "Rechtstreekse versterking"
   </dest>
   <voice>
-    *: "Rechtstreekse versterking"
+    *: none
+    swcodec: "Rechtstreekse versterking"
   </voice>
 </phrase>
 <phrase>
   id: LANG_CROSSFEED_CROSS_GAIN
   desc: in crossfeed settings
   user: core
-  <source>
-    *: "Cross Gain"
+  <source>  
+    *: none
+    swcodec: "Cross Gain"
   </source>
-  <dest>
-    *: "Crossversterking"
+  <dest>  
+    *: none
+    swcodec: "Crossversterking"
   </dest>
-  <voice>
-    *: "Crossversterking"
+  <voice>  
+    *: none
+    swcodec: "Crossversterking"
   </voice>
 </phrase>
 <phrase>
@@ -6906,13 +7602,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Hogefrequentievermindering"
+    *: none
+    swcodec: "Hogefrequentievermindering"
   </dest>
   <voice>
-    *: "Hogefrequentievermindering"
+    *: none
+    swcodec: "Hogefrequentievermindering"
   </voice>
 </phrase>
 <phrase>
@@ -6920,13 +7619,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Hoge afsnijfrequentie"
+    *: none
+    swcodec: "Hoge afsnijfrequentie"
   </dest>
   <voice>
-    *: "Hoge afsnijfrequentie"
+    *: none
+    swcodec: "Hoge afsnijfrequentie"
   </voice>
 </phrase>
 <phrase>
@@ -7046,16 +7748,16 @@
 </phrase>
 <phrase>
   id: LANG_CATALOG_ADD_TO
-  desc: deprecated
+  desc: in onplay playlist catalogue submenu
   user: core
   <source>
-    *: ""
+    *: "Add to Playlist"
   </source>
   <dest>
-    *: ""
+    *: "Toevoegen aan afspeellijst"
   </dest>
   <voice>
-    *: ""
+    *: "Toevoegen aan afspeellijst"
   </voice>
 </phrase>
 <phrase>
@@ -7097,7 +7799,7 @@
     *: "%s bestaat niet"
   </dest>
   <voice>
-    *: "Afspeellijstcatalogus bestaat niet"
+    *: "%s bestaat niet"
   </voice>
 </phrase>
 <phrase>
@@ -7269,16 +7971,40 @@
   desc: in lcd settings
   user: core
   <source>
-    *: "Backlight on Lock"
+    *: none
     hold_button: "Backlight on Hold"
   </source>
   <dest>
-    *: "Verlichting met vergrendeling"
+    *: none
     hold_button: "Verlichting met Hold-knop"
   </dest>
   <voice>
-    *: "Verlichting met vergrendeling"
+    *: none
     hold_button: "Verlichting met Hold-knop"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_NEVER
+### The 'desc' field differs from the english!
+### the previously used desc is commented below:
+### desc: in lcd settings
+  desc: deprecated
+  user: core
+  <source>
+### The <source> section differs from the english!
+### the previously used one is commented below:
+###     *: none
+###     lcd_sleep: "Never"
+    *: none
+    lcd_sleep: ""
+  </source>
+  <dest>
+    *: none
+    lcd_sleep: "Nooit"
+  </dest>
+  <voice>
+    *: none
+    lcd_sleep: "Nooit"
   </voice>
 </phrase>
 <phrase>
@@ -7299,17 +8025,54 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SYSFONT_CHANNEL_STEREO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Stereo"
+  </source>
+  <dest>
+    *: none
+    recording: "Stereo"
+  </dest>
+  <voice>
+    *: none
+    recording: "Stereo"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNEL_MONO
+  desc: in sound_settings
+  user: core
+  <source>
+    *: none
+    recording: "Mono"
+  </source>
+  <dest>
+    *: none
+    recording: "Mono"
+  </dest>
+  <voice>
+    *: none
+    recording: "Mono"
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SYSFONT_EQUALIZER_EDIT_MODE
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Bewerkmodus: %s %s"
+    *: none
+    swcodec: "Bewerkmodus: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: "Bewerkmodus %s %s"
   </voice>
 </phrase>
 <phrase>
@@ -7317,13 +8080,169 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Afsnijfrequentie"
+    *: none
+    swcodec: "Afsnijfrequentie"
   </dest>
   <voice>
-    *: "Afsnijfrequentie"
+    *: none
+    swcodec: "Afsnijfrequentie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_QUALITY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording_hwcodec: "Quality"
+  </source>
+  <dest>
+    *: none
+    recording_hwcodec: "Kwaliteit"
+  </dest>
+  <voice>
+    *: none
+    recording_hwcodec: "Kwaliteit"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_FREQUENCY
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Frequency"
+  </source>
+  <dest>
+    *: none
+    recording: "Frequentie"
+  </dest>
+  <voice>
+    *: none
+    recording: "Frequentie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SOURCE
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Source"
+  </source>
+  <dest>
+    *: none
+    recording: "Bron"
+  </dest>
+  <voice>
+    *: none
+    recording: "Bron"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_MIC
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Int. Mic"
+  </source>
+  <dest>
+    *: none
+    recording: "Int. microfoon"
+  </dest>
+  <voice>
+    *: none
+    recording: "Interne microfoon"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORDING_SRC_DIGITAL
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Digital"
+  </source>
+  <dest>
+    *: none
+    recording: "Digitaal"
+  </dest>
+  <voice>
+    *: none
+    recording: "Digitaal"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_RECORD_TRIGGER
+  desc: in recording settings_menu
+  user: core
+  <source>
+    *: none
+    recording: "Trigger"
+  </source>
+  <dest>
+    *: none
+    recording: "Trekker"
+  </dest>
+  <voice>
+    *: none
+    recording: "Trekker"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F1
+  desc: in dir browser, F1 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Menu"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Menu"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Menu"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F2
+  desc: in dir browser, F2 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "Option"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "Optie"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "Optie"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_DIRBROWSE_F3
+  desc: in dir browser, F3 button bar text
+  user: core
+  <source>
+    *: none
+    recorder_pad: "LCD"
+  </source>
+  <dest>
+    *: none
+    recorder_pad: "LCD"
+  </dest>
+  <voice>
+    *: none
+    recorder_pad: "LCD"
   </voice>
 </phrase>
 <phrase>
@@ -7337,7 +8256,7 @@
     *: "Laden... %d%% klaar (%s)"
   </dest>
   <voice>
-    *: "Laden"
+    *: "Laden... %d%% klaar (%s)"
   </voice>
 </phrase>
 <phrase>
@@ -7568,10 +8487,10 @@
 </phrase>
 <phrase>
   id: LANG_AUDIOSCROBBLER
-  desc: "Last.fm Logger" in Plugin/apps/scrobbler
+  desc: "Last.fm Log" in the playback menu
   user: core
   <source>
-    *: "Last.fm Logger"
+    *: "Last.fm Log"
   </source>
   <dest>
     *: "Last.fm-logboek"
@@ -7596,30 +8515,36 @@
 </phrase>
 <phrase>
   id: LANG_DITHERING
-  desc: in the sound settings and some other menus
+  desc: in the sound settings menu
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </source>
   <dest>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </dest>
   <voice>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Bestandsformaat"
+    *: none
+    recording: "Bestandsformaat"
   </dest>
   <voice>
-    *: "Bestandsformaat"
+    *: none
+    recording: "Bestandsformaat"
   </voice>
 </phrase>
 <phrase>
@@ -7632,11 +8557,11 @@
   </source>
   <dest>
     *: none
-    recording: "MPEG-laag 3"
+    recording: "MPEG Layer 3"
   </dest>
   <voice>
     *: none
-    recording: "MPEG Laag 3"
+    recording: "MPEG Layer 3"
   </voice>
 </phrase>
 <phrase>
@@ -7662,15 +8587,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -7730,15 +8655,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Bitsnelheid"
+    recording_swcodec: "Bitrate"
   </dest>
   <voice>
     *: none
-    recording: "Bitsnelheid"
+    recording_swcodec: "Bitrate"
   </voice>
 </phrase>
 <phrase>
@@ -7912,16 +8837,16 @@
 </phrase>
 <phrase>
   id: LANG_REPLACE
-  desc: deprecated
+  desc: in onplay menu.  Replace the current playlist with a new one.
   user: core
   <source>
-    *: ""
+    *: "Play Next"
   </source>
   <dest>
-    *: ""
+    *: "Volgende afspelen"
   </dest>
   <voice>
-    *: ""
+    *: "Volgende afspelen"
   </voice>
 </phrase>
 <phrase>
@@ -8135,20 +9060,30 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Aanmaken van database... %d gevonden (OFF = terug)"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Aanmaken van database... %d gevonden (LINKS = terug)"
-    gogearsa9200: "Aanmaken van database... %d gevonden (REW =  terug)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Aanmaken van database... %d gevonden (PREV = terug)"
     iriverh100,iriverh120,iriverh300: "Aanmaken van database... %d gevonden (STOP = terug)"
+    ipod*: "Aanmaken van database... %d gevonden (PREV = terug)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Aanmaken van database... %d gevonden (LINKS = terug)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Aanmaken van database... %d gevonden (PREV = terug)"
+    gogearsa9200: "Aanmaken van database... %d gevonden (REW =  terug)"
+    archosplayer: "Aanmaken DB %d gev."
   </dest>
   <voice>
-    *: "aantal bestanden gevonden in database"
+    *: "Aanmaken van database... %d gevonden (OFF = terug)"
+    iriverh100,iriverh120,iriverh300: "Aanmaken van database... %d gevonden (STOP = terug)"
+    ipod*: "Aanmaken van database... %d gevonden (PREV = terug)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Aanmaken van database... %d gevonden (LINKS = terug)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Aanmaken van database... %d gevonden (PREV = terug)"
+    gogearsa9200: "Aanmaken van database... %d gevonden (REW =  terug)"
+    archosplayer: "Aanmaken van database... %d gevonden"
   </voice>
 </phrase>
 <phrase>
@@ -8426,10 +9361,10 @@
     *: ", Shuffle"
   </source>
   <dest>
-    *: ", Shuffle"
+    *: ", shuffle"
   </dest>
   <voice>
-    *: ""
+    *: ", shuffle"
   </voice>
 </phrase>
 <phrase>
@@ -8453,17 +9388,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Knoppen Licht Vertraging"
-    sansae200*,sansafuze*: "Wiellichttime-out"
+    sansafuze*,sansae200*: "Wiellichttime-out"
   </dest>
   <voice>
     *: none
     button_light: "Knoppen Licht Vertraging"
-    sansae200*,sansafuze*: "Wiellichttime-out"
+    sansafuze*,sansae200*: "Wiellichttime-out"
   </voice>
 </phrase>
 <phrase>
@@ -8482,17 +9417,19 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_REC_DIR
-  desc: deprecated
+  desc:
   user: core
   <source>
     *: none
-    recording: ""
+    recording: "Set As Recording Directory"
   </source>
   <dest>
-    *: ""
+    *: none
+    recording: "Instellen als opnamemap"
   </dest>
   <voice>
-    *: ""
+    *: none
+    recording: "Instellen als opnamemap"
   </voice>
 </phrase>
 <phrase>
@@ -8507,6 +9444,23 @@
   </dest>
   <voice>
     *: "Schijfnummer"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_LINE_IN
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Line In"
+  </source>
+  <dest>
+    *: none
+    recording: "Analoge invoer"
+  </dest>
+  <voice>
+    *: none
+    recording: "Analoge invoer"
   </voice>
 </phrase>
 <phrase>
@@ -8591,9 +9545,11 @@
   user: core
   <source>
     *: "Buffer:"
+    archosplayer: "Buf:"
   </source>
   <dest>
     *: "Buffer:"
+    archosplayer: "Buf:"
   </dest>
   <voice>
     *: "Buffergrootte"
@@ -8637,21 +9593,32 @@
   <source>
     *: "PLAY = Yes"
     cowond2*: "MENU, or top-right = Yes"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
+    creativezen*: "Select = Yes"
   </source>
   <dest>
-    *: "PLAY = Ja"
-    cowond2*: "MENU of rechtsboven = Ja"
-    creativezen*,gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Ja"
-    iriverh100,iriverh120,iriverh300: "NAVI = Ja"
-    mrobe500: "PLAY, POWER of rechtsboven = Ja"
-    vibe500: "OK = Ja"
+    *: "PLAY = ja"
+    cowond2*: "MENU of rechtsboven = ja"
+    iriverh100,iriverh120,iriverh300: "NAVI = ja"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = ja"
+    mrobe500: "PLAY, POWER of rechtsboven = ja"
+    archosplayer: "(PLAY/STOP)"
+    vibe500: "OK = ja"
+    creativezen*: "Select = ja"
   </dest>
   <voice>
-    *: ""
+    *: "PLAY = ja"
+    cowond2*: "MENU of rechtsboven = ja"
+    iriverh100,iriverh120,iriverh300: "NAVI = ja"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = ja"
+    mrobe500: "PLAY, POWER of rechtsboven = ja"
+    archosplayer: "(PLAY/STOP)"
+    vibe500: "OK = ja"
+    creativezen*: "Select = ja"
   </voice>
 </phrase>
 <phrase>
@@ -8660,27 +9627,33 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Instellen"
-    gogearsa9200,samsungyh*: "PLAY = Instellen"
-    iriverh100,iriverh120,iriverh300: "NAVI = Instellen"
-    mpiohd300: "ENTER = Instellen"
-    mrobe500: "HEART = Instellen"
-    rtc: "ON = Instellen"
-    vibe500: "OK = Instellen"
+    rtc: "ON = instellen"
+    mrobe500: "HEART = instellen"
+    iriverh100,iriverh120,iriverh300: "NAVI = instellen"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = instellen"
+    gogearsa9200,samsungyh*: "PLAY = instellen"
+    vibe500: "OK = instellen"
+    mpiohd300: "ENTER = instellen"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc: "ON = instellen"
+    mrobe500: "HEART = instellen"
+    iriverh100,iriverh120,iriverh300: "NAVI = instellen"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = instellen"
+    gogearsa9200,samsungyh*: "PLAY = instellen"
+    vibe500: "OK = instellen"
+    mpiohd300: "ENTER = instellen"
   </voice>
 </phrase>
 <phrase>
@@ -8689,12 +9662,15 @@
   user: core
   <source>
     *: "Any Other = No"
+    archosplayer: none
   </source>
   <dest>
-    *: "Elke Andere = Nee"
+    *: "Elke andere = nee"
+    archosplayer: none
   </dest>
   <voice>
-    *: ""
+    *: "Elke andere = nee"
+    archosplayer: none
   </voice>
 </phrase>
 <phrase>
@@ -8748,9 +9724,11 @@
   user: core
   <source>
     *: "End of Song List"
+    archosplayer: "End of List"
   </source>
   <dest>
     *: "Einde van de afspeellijst"
+    archosplayer: "Einde lijst"
   </dest>
   <voice>
     *: "Einde van de afspeellijst"
@@ -8761,13 +9739,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Versterking"
+    *: none
+    swcodec: "Versterking"
   </dest>
   <voice>
-    *: "Versterking"
+    *: none
+    swcodec: "Versterking"
   </voice>
 </phrase>
 <phrase>
@@ -8778,10 +9759,27 @@
     *: "Buttons Unlocked"
   </source>
   <dest>
-    *: "Knoppen Ontgrendeld"
+    *: "Knoppen ontgrendeld"
   </dest>
   <voice>
-    *: ""
+    *: "Knoppen ontgrendeld"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_MODE
+  desc: in wps F2 pressed
+  user: core
+  <source>
+    *: none
+    lcd_bitmap: "Mode:"
+  </source>
+  <dest>
+    *: none
+    lcd_bitmap: "Modus:"
+  </dest>
+  <voice>
+    *: none
+    lcd_bitmap: "Modus"
   </voice>
 </phrase>
 <phrase>
@@ -8853,11 +9851,11 @@
   </source>
   <dest>
     *: none
-    pitchscreen: "Halve-toon Omlaag"
+    pitchscreen: "Halve toon omlaag"
   </dest>
   <voice>
     *: none
-    pitchscreen: ""
+    pitchscreen: "Halve toon omlaag"
   </voice>
 </phrase>
 <phrase>
@@ -8878,6 +9876,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_PITCH_UP_SEMITONE
   desc: in wps
   user: core
@@ -8887,11 +9899,11 @@
   </source>
   <dest>
     *: none
-    pitchscreen: "Halve-toon Omhoog"
+    pitchscreen: "Halve toon omhoog"
   </dest>
   <voice>
     *: none
-    pitchscreen: ""
+    pitchscreen: "Halve toon omhoog"
   </voice>
 </phrase>
 <phrase>
@@ -8902,10 +9914,27 @@
     *: ""
   </source>
   <dest>
-    *: ""
+     *: ""
   </dest>
   <voice>
-    *: "keublad"
+    *: "cuesheet"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_SYSFONT_CHANNELS
+  desc: in the recording settings
+  user: core
+  <source>
+    *: none
+    recording: "Channels"
+  </source>
+  <dest>
+    *: none
+    recording: "Kanalen"
+  </dest>
+  <voice>
+    *: none
+    recording: "Kanalen"
   </voice>
 </phrase>
 <phrase>
@@ -8930,10 +9959,10 @@
     *: "Buttons Locked"
   </source>
   <dest>
-    *: "Knoppen Vergrendeld"
+    *: "Knoppen vergrendeld"
   </dest>
   <voice>
-    *: ""
+    *: "Knoppen vergrendeld"
   </voice>
 </phrase>
 <phrase>
@@ -9143,7 +10172,7 @@
     *: ""
   </dest>
   <voice>
-    *: "uur"
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -9417,15 +10446,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bas-afsnijfrequentie"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bas-afsnijfrequentie"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bas-afsnijfrequentie"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bas-afsnijfrequentie"
   </voice>
 </phrase>
 <phrase>
@@ -9434,15 +10463,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble-afsnijfrequentie"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble-afsnijfrequentie"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble-afsnijfrequentie"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble-afsnijfrequentie"
   </voice>
 </phrase>
 <phrase>
@@ -9478,13 +10507,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Toetsklik"
+    *: none
+    swcodec: "Toetsklik"
   </dest>
   <voice>
-    *: "Toetsklik"
+    *: none
+    swcodec: "Toetsklik"
   </voice>
 </phrase>
 <phrase>
@@ -9492,13 +10524,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Toetsklikherhaling"
+    *: none
+    swcodec: "Toetsklikherhaling"
   </dest>
   <voice>
-    *: "Toetsklikherhaling"
+    *: none
+    swcodec: "Toetsklikherhaling"
   </voice>
 </phrase>
 <phrase>
@@ -9583,15 +10618,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpadgevoeligheid"
+    gigabeatfx,sansafuzeplus: "Touchpadgevoeligheid"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpadgevoeligheid"
+    gigabeatfx,sansafuzeplus: "Touchpadgevoeligheid"
   </voice>
 </phrase>
 <phrase>
@@ -9723,7 +10758,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Grootte:"
   </voice>
 </phrase>
 <phrase>
@@ -9757,7 +10792,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Splitstijd:"
   </voice>
 </phrase>
 <phrase>
@@ -9774,7 +10809,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "CLIP:"
   </voice>
 </phrase>
 <phrase>
@@ -9808,7 +10843,7 @@
   </dest>
   <voice>
     *: none
-    recording: ""
+    recording: "Bestandsnaam"
   </voice>
 </phrase>
 <phrase>
@@ -9868,15 +10903,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Mono links + rechts"
+    recording_swcodec: "Mono links + rechts"
   </dest>
   <voice>
     *: none
-    recording: "Mono links plus rechts"
+    recording_swcodec: "Mono links plus rechts"
   </voice>
 </phrase>
 <phrase>
@@ -9885,15 +10920,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Mono-modus"
+    recording_swcodec: "Mono-modus"
   </dest>
   <voice>
     *: none
-    recording: "Mono-modus"
+    recording_swcodec: "Mono-modus"
   </voice>
 </phrase>
 <phrase>
@@ -10011,11 +11046,11 @@
     *: none
     serial_port: "19200"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "19200"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "19200"
   </voice>
@@ -10028,11 +11063,11 @@
     *: none
     serial_port: "Serial Bitrate"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Seriële bitrate"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Seriële bitrate"
   </voice>
@@ -10045,11 +11080,11 @@
     *: none
     serial_port: "9600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "9600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "9600"
   </voice>
@@ -10062,11 +11097,11 @@
     *: none
     serial_port: "38400"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "38400"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "38400"
   </voice>
@@ -10079,11 +11114,11 @@
     *: none
     serial_port: "57600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "57600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "57600"
   </voice>
@@ -10110,11 +11145,11 @@
     *: none
     serial_port: "Auto"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Auto"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Automatisch"
   </voice>
@@ -10248,13 +11283,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Afspeelsnelheid"
+    *: none
+    swcodec: "Afspeelsnelheid"
   </dest>
   <voice>
-    *: "Afspeelsnelheid"
+    *: none
+    swcodec: "Afspeelsnelheid"
   </voice>
 </phrase>
 <phrase>
@@ -10262,13 +11300,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Snelheid"
+    *: none
+    swcodec: "Snelheid"
   </dest>
   <voice>
-    *: "Snelheid"
+    *: none
+    swcodec: "Snelheid"
   </voice>
 </phrase>
 <phrase>
@@ -10358,7 +11399,7 @@
 </phrase>
 <phrase>
   id: LANG_SEMITONE
-  desc:
+  desc: 
   user: core
   <source>
     *: none
@@ -10423,13 +11464,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Scrollbalkbreedte"
+    *: none
+    lcd_bitmap: "Scrollbalkbreedte"
   </dest>
   <voice>
-    *: "Scrollbalkbreedte"
+    *: none
+    lcd_bitmap: "Scrollbalkbreedte"
   </voice>
 </phrase>
 <phrase>
@@ -10437,13 +11481,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Scrollbalkpositie"
+    *: none
+    lcd_bitmap: "Scrollbalkpositie"
   </dest>
   <voice>
-    *: "Scrollbalkpositie"
+    *: none
+    lcd_bitmap: "Scrollbalkpositie"
   </voice>
 </phrase>
 <phrase>
@@ -10479,13 +11526,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Releasetijd"
+    *: none
+    swcodec: "Releasetijd"
   </dest>
   <voice>
-    *: "Releasetijd"
+    *: none
+    swcodec: "Releasetijd"
   </voice>
 </phrase>
 <phrase>
@@ -10493,13 +11543,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Drempel"
+    *: none
+    swcodec: "Drempel"
   </dest>
   <voice>
-    *: "Drempel"
+    *: none
+    swcodec: "Drempel"
   </voice>
 </phrase>
 <phrase>
@@ -10507,13 +11560,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Compensatieversterking"
+    *: none
+    swcodec: "Compensatieversterking"
   </dest>
   <voice>
-    *: "Compensatieversterking"
+    *: none
+    swcodec: "Compensatieversterking"
   </voice>
 </phrase>
 <phrase>
@@ -10538,13 +11594,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Knie"
+    *: none
+    swcodec: "Knie"
   </dest>
   <voice>
-    *: "Knie"
+    *: none
+    swcodec: "Knie"
   </voice>
 </phrase>
 <phrase>
@@ -10552,27 +11611,30 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Automatisch"
+    *: none
+    swcodec: "Automatisch"
   </dest>
   <voice>
-    *: "Automatisch"
+    *: none
+    swcodec: "Automatisch"
   </voice>
 </phrase>
 <phrase>
   id: LANG_INSERT_LAST_SHUFFLED
-  desc: deprecated
+  desc: in onplay menu.  insert a playlist randomly at end of dynamic playlist
   user: core
   <source>
-    *: ""
+    *: "Insert Last Shuffled"
   </source>
   <dest>
-    *: ""
+    *: "Geschud onderaan wachtrij plaatsen"
   </dest>
   <voice>
-    *: ""
+    *: "Geschud onderaan wachtrij plaatsen"
   </voice>
 </phrase>
 <phrase>
@@ -10580,13 +11642,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Zachte knie"
+    *: none
+    swcodec: "Zachte knie"
   </dest>
   <voice>
-    *: "Zachte knie"
+    *: none
+    swcodec: "Zachte knie"
   </voice>
 </phrase>
 <phrase>
@@ -10594,13 +11659,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Verhouding"
+    *: none
+    swcodec: "Verhouding"
   </dest>
   <voice>
-    *: "Verhouding"
+    *: none
+    swcodec: "Verhouding"
   </voice>
 </phrase>
 <phrase>
@@ -10625,13 +11693,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Harde knie"
+    *: none
+    swcodec: "Harde knie"
   </dest>
   <voice>
-    *: "Harde knie"
+    *: none
+    swcodec: "Harde knie"
   </voice>
 </phrase>
 <phrase>
@@ -10724,13 +11795,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 op 1"
+    *: none
+    swcodec: "10 op 1"
   </voice>
 </phrase>
 <phrase>
@@ -10738,13 +11812,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 op 1"
+    *: none
+    swcodec: "2 op 1"
   </voice>
 </phrase>
 <phrase>
@@ -10769,13 +11846,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Limiet"
+    *: none
+    swcodec: "Limiet"
   </dest>
   <voice>
-    *: "Limiet"
+    *: none
+    swcodec: "Limiet"
   </voice>
 </phrase>
 <phrase>
@@ -10810,6 +11890,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SKIP_OUTRO
   desc: skipping to the 5 seconds before the end of a track
   user: core
@@ -10828,13 +11922,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 op 1"
+    *: none
+    swcodec: "6 op 1"
   </voice>
 </phrase>
 <phrase>
@@ -10842,13 +11939,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </dest>
   <voice>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </voice>
 </phrase>
 <phrase>
@@ -10856,13 +11956,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 op 1"
+    *: none
+    swcodec: "4 op 1"
   </voice>
 </phrase>
 <phrase>
@@ -10963,13 +12066,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Basisthema"
+    *: none
+    lcd_bitmap: "Basisthema"
   </dest>
   <voice>
-    *: "Basisthema"
+    *: none
+    lcd_bitmap: "Basisthema"
   </voice>
 </phrase>
 <phrase>
@@ -10977,13 +12083,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Extern basisthema"
+    *: none
+    lcd_bitmap: "Extern basisthema"
   </dest>
   <voice>
-    *: "Extern basisthema"
+    *: none
+    lcd_bitmap: "Extern basisthema"
   </voice>
 </phrase>
 <phrase>
@@ -11068,7 +12177,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats,samsungypr1: "band versterking"
+    gigabeats,samsungypr1: "Band %d-versterking"
   </voice>
 </phrase>
 <phrase>
@@ -11178,13 +12287,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Terugspoelen alvorens te hervatten"
+    *: none
+    swcodec: "Terugspoelen alvorens te hervatten"
   </dest>
   <voice>
-    *: "Terugspoelen alvorens te hervatten"
+    *: none
+    swcodec: "Terugspoelen alvorens te hervatten"
   </voice>
 </phrase>
 <phrase>
@@ -11249,7 +12361,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats,samsungypr1: "band frequentie"
+    gigabeats,samsungypr1: "Band %d-frequentie"
   </voice>
 </phrase>
 <phrase>
@@ -11266,7 +12378,7 @@
   </dest>
   <voice>
     *: none
-    gigabeats,samsungypr1: "band breedte"
+    gigabeats,samsungypr1: "Band %d-breedte"
   </voice>
 </phrase>
 <phrase>
@@ -11283,7 +12395,7 @@
   </dest>
   <voice>
     *: none
-    radio: ""
+    radio: "Zender"
   </voice>
 </phrase>
 <phrase>
@@ -11477,21 +12589,21 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_START_DIR
-  desc: deprecated
+  desc: used in the onplay menu to set a starting browser dir
   user: core
   <source>
-    *: ""
+    *: "Start File Browser Here"
   </source>
   <dest>
-    *: ""
+    *: "Bestandsbeheer hier starten"
   </dest>
   <voice>
-    *: ""
+    *: "Bestandsbeheer hier starten"
   </voice>
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -11532,6 +12644,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_RSSI
   desc: Signal strength of a received FM station
   user: core
@@ -11546,6 +12672,20 @@
   <voice>
     *: none
     radio: "Signaalsterkte"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -11609,16 +12749,16 @@
 </phrase>
 <phrase>
   id: LANG_SET_AS_PLAYLISTCAT_DIR
-  desc: deprecated
+  desc: used in the onplay menu to set a playlist catalogue dir
   user: core
   <source>
-    *: ""
+    *: "Set As Playlist Catalogue Directory"
   </source>
   <dest>
-    *: ""
+    *: "Instellen als afspeellijstcatalogusmap"
   </dest>
   <voice>
-    *: ""
+    *: "Instellen als afspeellijstcatalogusmap"
   </voice>
 </phrase>
 <phrase>
@@ -11668,16 +12808,16 @@
 </phrase>
 <phrase>
   id: LANG_AUTOMATIC
-  desc: deprecated
+  desc: generic automatic
   user: core
   <source>
-    *: ""
+    *: "Automatic"
   </source>
   <dest>
-    *: ""
+    *: "Automatisch"
   </dest>
   <voice>
-    *: ""
+    *: "Automatisch"
   </voice>
 </phrase>
 <phrase>
@@ -11890,13 +13030,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Eenvoudig (Meier)"
+    *: none
+    swcodec: "Eenvoudig (Meier)"
   </dest>
   <voice>
-    *: "Eenvoudig (Meier)"
+    *: none
+    swcodec: "Eenvoudig (Meier)"
   </voice>
 </phrase>
 <phrase>
@@ -11918,13 +13061,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Aangepast"
+    *: none
+    swcodec: "Aangepast"
   </dest>
   <voice>
-    *: "Aangepast"
+    *: none
+    swcodec: "Aangepast"
   </voice>
 </phrase>
 <phrase>
@@ -11946,13 +13092,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -12022,13 +13171,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Attack Time"
+    *: none
+    swcodec: "Attack Time"
   </source>
   <dest>
-    *: "Stijgtijd"
+    *: none
+    swcodec: "Stijgtijd"
   </dest>
   <voice>
-    *: "Stijgtijd"
+    *: none
+    swcodec: "Stijgtijd"
   </voice>
 </phrase>
 <phrase>
@@ -12037,7 +13189,7 @@
   user: core
   <source>
     *: none
-    filter_roll_off: "DAC filter roll-off"
+    filter_roll_off: "DAC's filter roll-off"
   </source>
   <dest>
     *: none
@@ -12067,13 +13219,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "SIDE ONLY"
+    *: none
+    swcodec: "SIDE ONLY"
   </source>
   <dest>
-    *: "ENKEL ZIJKANT"
+    *: none
+    swcodec: "ENKEL ZIJKANT"
   </dest>
   <voice>
-    *: "ENKEL ZIJKANT"
+    *: none
+    swcodec: "ENKEL ZIJKANT"
   </voice>
 </phrase>
 <phrase>
@@ -12112,7 +13267,7 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Play"
+    *: "Play"
   </source>
   <dest>
     *: "Afspelen"
@@ -12140,7 +13295,7 @@
   desc: Softlock behaviour setting
   user: core
   <source>
-    *: "Disable Locked Reminders"
+    *: "Disable Notify"
   </source>
   <dest>
     *: "Melden uitschakelen"
@@ -12154,41 +13309,56 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </source>
   <dest>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </dest>
   <voice>
-    *: "f(x1)"
+    *: none
+    swcodec: "f(x1)"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_MASS_STORAGE
+  id: LANG_IBASSO_USB_MODE_MASS_STORAGE
   desc: in Settings -> General -> System -> USB Mode: Mass Storage
   user: core
   <source>
-    *: "Mass Storage"
+    *: none
+    ibassodx50: "Mass Storage"
+    ibassodx90: "Mass Storage"
   </source>
   <dest>
-    *: "massaopslag"
+    *: none
+    ibassodx50: "massaopslag"
+    ibassodx90: "massaopslag"
   </dest>
   <voice>
-    *: "massaopslag"
+    *: none
+    ibassodx50: "massaopslag"
+    ibassodx90: "massaopslag"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE
+  id: LANG_IBASSO_USB_MODE
   desc: in Settings -> General -> System -> USB Mode
   user: core
   <source>
-    *: "USB Mode"
+    *: none
+    ibassodx50: "USB Mode"
+    ibassodx90: "USB Mode"
   </source>
   <dest>
-    *: "USB-modus"
+    *: none
+    ibassodx50: "USB-modus"
+    ibassodx90: "USB-modus"
   </dest>
   <voice>
-    *: "USB-modus"
+    *: none
+    ibassodx50: "USB-modus"
+    ibassodx90: "USB-modus"
   </voice>
 </phrase>
 <phrase>
@@ -12210,13 +13380,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auditory Fatigue Reduction"
+    *: none
+    swcodec: "Auditory Fatigue Reduction"
   </source>
   <dest>
-    *: "Auditievevermoeidheidsvermindering"
+    *: none
+    swcodec: "Auditievevermoeidheidsvermindering"
   </dest>
   <voice>
-    *: "Auditievevermoeidheidsvermindering"
+    *: none
+    swcodec: "Auditievevermoeidheidsvermindering"
   </voice>
 </phrase>
 <phrase>
@@ -12252,13 +13425,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Perceptual Bass Enhancement"
+    *: none
+    swcodec: "Perceptual Bass Enhancement"
   </source>
   <dest>
-    *: "Perceptuele basversterking"
+    *: none
+    swcodec: "Perceptuele basversterking"
   </dest>
   <voice>
-    *: "Perceptuele basversterking"
+    *: none
+    swcodec: "Perceptuele basversterking"
   </voice>
 </phrase>
 <phrase>
@@ -12266,7 +13442,7 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Skip"
+    *: "Skip"
   </source>
   <dest>
     *: "Overslaan"
@@ -12276,31 +13452,43 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_CHARGE
+  id: LANG_IBASSO_USB_MODE_CHARGE
   desc: in Settings -> General -> System -> USB Mode: Charge Only
   user: core
   <source>
-    *: "Charge Only"
+    *: none
+    ibassodx50: "Charge Only"
+    ibassodx90: "Charge Only"
   </source>
   <dest>
-    *: "enkel opladen"
+    *: none
+    ibassodx50: "enkel opladen"
+    ibassodx90: "enkel opladen"
   </dest>
   <voice>
-    *: "enkel opladen"
+    *: none
+    ibassodx50: "enkel opladen"
+    ibassodx90: "enkel opladen"
   </voice>
 </phrase>
 <phrase>
-  id: LANG_USB_MODE_ADB
+  id: LANG_IBASSO_USB_MODE_ADB
   desc: in Settings -> General -> System -> USB Mode: Android Debug Bridge
   user: core
   <source>
-    *: "Android Debug Bridge"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </source>
   <dest>
-    *: "Android-foutopsporingsbrug"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </dest>
   <voice>
-    *: "Android-foutopsporingsbrug"
+    *: none
+    ibassodx50: "Android Debug Bridge"
+    ibassodx90: "Android Debug Bridge"
   </voice>
 </phrase>
 <phrase>
@@ -12309,15 +13497,18 @@
   user: core
   <source>
     *: none
-    ibassodx50,ibassodx90: "Freq Scaling Governor"
+    ibassodx50: "Freq Scaling Governor"
+    ibassodx90: "Freq Scaling Governor"
   </source>
   <dest>
     *: none
-    ibassodx50,ibassodx90: "frequentieschalingsgovernor"
+    ibassodx50: "frequentieschalingsgovernor"
+    ibassodx90: "frequentieschalingsgovernor"
   </dest>
   <voice>
     *: none
-    ibassodx50,ibassodx90: "frequentieschalingsgovernor"
+    ibassodx50: "frequentieschalingsgovernor"
+    ibassodx90: "frequentieschalingsgovernor"
   </voice>
 </phrase>
 <phrase>
@@ -12325,13 +13516,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </source>
   <dest>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </dest>
   <voice>
-    *: "f(x2)"
+    *: none
+    swcodec: "f(x2)"
   </voice>
 </phrase>
 <phrase>
@@ -12367,13 +13561,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Dry / Wet Mix"
+    *: none
+    swcodec: "Dry / Wet Mix"
   </source>
   <dest>
-    *: "Droge / natte mix"
+    *: none
+    swcodec: "Droge / natte mix"
   </dest>
   <voice>
-    *: "Droge of natte mix"
+    *: none
+    swcodec: "Droge of natte mix"
   </voice>
 </phrase>
 <phrase>
@@ -12381,13 +13578,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Haas Surround"
+    *: none
+    swcodec: "Haas Surround"
   </source>
   <dest>
-    *: "Haas-surround"
+    *: none
+    swcodec: "Haas-surround"
   </dest>
   <voice>
-    *: "Haas-surround"
+    *: none
+    swcodec: "Haas-surround"
   </voice>
 </phrase>
 <phrase>
@@ -12395,7 +13595,7 @@
   desc: Selective Actions
   user: core
   <source>
-    *: "Exempt Seek"
+    *: "Seek"
   </source>
   <dest>
     *: "Zoeken"
@@ -12404,20 +13604,24 @@
     *: "Zoeken"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: VOICE_TRACK_TO_MOVE
   desc: playlist viewer
   user: core
   <source>
-    *: ""
+    *: "Track to move"
   </source>
   <dest>
-    *: ""
+    *: "Te verplaatsen nummer"
   </dest>
   <voice>
     *: "Te verplaatsen nummer"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_BOOKMARK_SETTINGS_ONE_PER_PLAYLIST
   desc: Save only one bookmark for a playlist in recent bookmarks
@@ -12432,6 +13636,8 @@
     *: "1 per afspeellijst"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_KIBIBYTE
   desc: a unit postfix, also voiced
@@ -12446,8 +13652,10 @@
     *: "kibibyte"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
-  id: LANG_NEVER
+  id: LANG__NEVER
   desc: in lcd settings
   user: core
   <source>
@@ -12460,37 +13668,40 @@
     *: "Nooit"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_FILTER_SHORT
   desc: in sound settings
   user: core
   <source>
-    *: none
-    es9018: "Short"
+    *: "Short"
   </source>
   <dest>
-    *: none
-    es9018: "Kort"
+    *: "Kort"
   </dest>
   <voice>
-    *: none
-    es9018: "Kort"
+    *: "Kort"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: VOICE_BAD_TRACK
   desc: playlist viewer
   user: core
   <source>
-    *: ""
+    *: "Bad track"
   </source>
   <dest>
-    *: ""
+    *: "Beschadigd nummer"
   </dest>
   <voice>
-    *: "Beschadigd Nummer"
+    *: "Beschadigd nummer"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_GIBIBYTE
   desc: a unit postfix, also voiced
@@ -12505,20 +13716,24 @@
     *: "gibibyte"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: VOICE_QUEUED
   desc: playlist viewer
   user: core
   <source>
-    *: ""
+    *: "Queued"
   </source>
   <dest>
-    *: ""
+    *: "In wachtrij"
   </dest>
   <voice>
-    *: "In Wachtrij"
+    *: "In wachtrij"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_BOOKMARK_SETTINGS_ONE_PER_TRACK
   desc: Save only one bookmark for a combination (playlist,track) in recent bookmarks
@@ -12533,23 +13748,24 @@
     *: "1 per nummer"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_FILTER_BYPASS
   desc: in sound settings
   user: core
   <source>
-    *: none
-    es9018: "Bypass"
+    *: "Bypass"
   </source>
   <dest>
-    *: none
-    es9018: "Omzeilen"
+    *: "Bypass"
   </dest>
   <voice>
-    *: none
-    es9018: "Omzeilen"
+    *: "Bypass"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_MEBIBYTE
   desc: a unit postfix, also voiced
@@ -12564,6 +13780,8 @@
     *: "mebibyte"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: LANG_NO_VIEWERS
   desc: text for splash to indicate that no viewers are available
@@ -12578,4305 +13796,19 @@
     *: "Geen viewers gevonden"
   </voice>
 </phrase>
+###
+### This phrase below was not present in the translated file
 <phrase>
   id: VOICE_MOVING_TRACK
   desc: playlist viewer
   user: core
   <source>
-    *: ""
+    *: "Moving track"
   </source>
   <dest>
-    *: ""
+    *: "Nummer wordt verplaatst"
   </dest>
   <voice>
     *: "Nummer wordt verplaatst"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SHARP
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Sharp"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Kort Scherp"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Kort Scherp"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SHORT_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Short Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Kort Langzaam"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Kort Langzaam"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_ELAPSED
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Playlist elapsed: %s / %s %ld%%"
-  </source>
-  <dest>
-    *: "Afspeellijst is verstreken: %s / %s %ld%%"
-  </dest>
-  <voice>
-    *: "Afspeellijst is verstreken"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_TRK_ELAPSED
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Track elapsed: %s / %s %ld%%"
-  </source>
-  <dest>
-    *: "Nummer is verstreken: %s / %s %ld%%"
-  </dest>
-  <voice>
-    *: "Nummer is verstreken"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_REMAINING
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Playlist remaining: %s"
-  </source>
-  <dest>
-    *: "Afspeellijst resterend: %s"
-  </dest>
-  <voice>
-    *: "Afspeellijst resterend"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_TRK_REMAINING
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Track remaining: %s"
-  </source>
-  <dest>
-    *: "Nummer resterend: %s"
-  </dest>
-  <voice>
-    *: "Nummer resterend"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_TRACK
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Track %d / %d %d%%"
-  </source>
-  <dest>
-    *: "Nummer %d / %d %d%%"
-  </dest>
-  <voice>
-    *: "Nummer"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_STORAGE
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Storage: %s (done %s, remaining %s)"
-  </source>
-  <dest>
-    *: "Opslag: %s (klaar %s, resterende %s)"
-  </dest>
-  <voice>
-    *: "Opslag"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PLAYTIME_DONE
-  desc: playing time screen
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Klaar"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_AVG_TRACK_SIZE
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Average track size: %s"
-  </source>
-  <dest>
-    *: "Gemiddelde nummergrootte: %s"
-  </dest>
-  <voice>
-    *: "Gemiddelde nummer grootte"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_AVG_BITRATE
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Average bitrate: %ld kbps"
-  </source>
-  <dest>
-    *: "Gemiddelde bitsnelheid: %ld kbps"
-  </dest>
-  <voice>
-    *: "Gemiddelde bit snelheid"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYTIME_ERROR
-  desc: playing time screen
-  user: core
-  <source>
-    *: "Error while gathering info"
-  </source>
-  <dest>
-    *: "Fout bij het verzamelen van informatie"
-  </dest>
-  <voice>
-    *: "Fout bij het verzamelen van informatie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYING_TIME
-  desc: onplay menu
-  user: core
-  <source>
-    *: "Playing time"
-  </source>
-  <dest>
-    *: "Speeltijd"
-  </dest>
-  <voice>
-    *: "Speeltijd"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CAR_ADAPTER_MODE_DELAY
-  desc: Displayed for setting car adapter mode delay
-  user: core
-  <source>
-    *: none
-    charging: "Delay Before Resume"
-  </source>
-  <dest>
-    *: none
-    charging: "Vertraging Voor Hervatten"
-  </dest>
-  <voice>
-    *: none
-    charging: "Vertraging Voor Hervatten"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PITCH_ABSOLUTE_MODE
-  desc: spoken only
-  user: core
-  <source>
-    *: none
-    pitchscreen: ""
-  </source>
-  <dest>
-    *: none
-    pitchscreen: ""
-  </dest>
-  <voice>
-    *: none
-    pitchscreen: "Absoluut modus"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PITCH_SEMITONE_MODE
-  desc: spoken only
-  user: core
-  <source>
-    *: none
-    pitchscreen: ""
-  </source>
-  <dest>
-    *: none
-    pitchscreen: ""
-  </dest>
-  <voice>
-    *: none
-    pitchscreen: "Halve toon modus"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PITCH_TIMESTRETCH_MODE
-  desc: spoken only
-  user: core
-  <source>
-    *: none
-    pitchscreen: ""
-  </source>
-  <dest>
-    *: none
-    pitchscreen: ""
-  </dest>
-  <voice>
-    *: none
-    pitchscreen: "Periode"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMOTE_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "Remote Control"
-  </source>
-  <dest>
-    *: "Afstandsbediening"
-  </dest>
-  <voice>
-    *: "Afstandsbediening"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NO_REM_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "No Rem. Control"
-  </source>
-  <dest>
-    *: "Geen Af. Bediening"
-  </dest>
-  <voice>
-    *: "Geen Afstandsbediening"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OUT_OF_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "Out of Control"
-  </source>
-  <dest>
-    *: "Geen Controle"
-  </dest>
-  <voice>
-    *: "Geen Controle"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_2_KEY_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "2 Key Control"
-  </source>
-  <dest>
-    *: "2 Sleutelcontrole"
-  </dest>
-  <voice>
-    *: "2 Sleutelcontrole"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_4_KEY_CONTROL
-  desc: Item for menus
-  user: core
-  <source>
-    *: "4 Key Control"
-  </source>
-  <dest>
-    *: "4 Sleutelcontrole"
-  </dest>
-  <voice>
-    *: "4 Sleutelcontrole"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_WORMLET
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Play Wormlet!"
-  </source>
-  <dest>
-    *: "Spel Wormlet!"
-  </dest>
-  <voice>
-    *: "Spel Wormlet!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_WORMS
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Number of Worms"
-  </source>
-  <dest>
-    *: "Aantal Wormen"
-  </dest>
-  <voice>
-    *: "Aantal Wormen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WORM_GROWTH_PER_FOOD
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Worm Growth Per Food"
-  </source>
-  <dest>
-    *: "Wormgroei Per Voedsel"
-  </dest>
-  <voice>
-    *: "Wormgroei Per Voedsel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WORM_SPEED
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Worm Speed"
-  </source>
-  <dest>
-    *: "Wormsnelheid"
-  </dest>
-  <voice>
-    *: "Wormsnelheid"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARGHS_PER_FOOD
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Arghs Per Food"
-  </source>
-  <dest>
-    *: "Arghs Per Voedsel"
-  </dest>
-  <voice>
-    *: "Arghs Per Voedsel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARGH_SIZE
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Argh Size"
-  </source>
-  <dest>
-    *: "Arghsgrootte"
-  </dest>
-  <voice>
-    *: "Arghsgrootte"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FOOD_SIZE
-  desc: For wormlet menu
-  user: core
-  <source>
-    *: "Food Size"
-  </source>
-  <dest>
-    *: "Voedselgrootte"
-  </dest>
-  <voice>
-    *: "Voedselgrootte"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_PLAYERS
-  desc: For game menus
-  user: core
-  <source>
-    *: "Number of Players"
-  </source>
-  <dest>
-    *: "Aantal Spelers"
-  </dest>
-  <voice>
-    *: "Aantal Spelers"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CONTROL_STYLE
-  desc: In various menus
-  user: core
-  <source>
-    *: "Control Style"
-  </source>
-  <dest>
-    *: "Besturingsstijl"
-  </dest>
-  <voice>
-    *: "Besturingsstijl"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REVERT_TO_DEFAULT_SETTINGS
-  desc: In various menus
-  user: core
-  <source>
-    *: "Revert to Default Settings"
-  </source>
-  <dest>
-    *: "Keer Terug naar de Standaardinstellingen"
-  </dest>
-  <voice>
-    *: "Keer Terug naar de Standaardinstellingen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_QUIT
-  desc: in various menus
-  user: core
-  <source>
-    *: "Quit"
-  </source>
-  <dest>
-    *: "Afsluiten"
-  </dest>
-  <voice>
-    *: "Afsluiten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_DISPLAY_OPTIONS
-  desc: in various menus
-  user: core
-  <source>
-    *: "Display Options"
-  </source>
-  <dest>
-    *: "Weergaveopties"
-  </dest>
-  <voice>
-    *: "Weergaveopties"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREVTRACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Previous Track"
-  </source>
-  <dest>
-    *: "Vorig Nummer"
-  </dest>
-  <voice>
-    *: "Vorig Nummer"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYPAUSE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Pause / Play"
-  </source>
-  <dest>
-    *: "Pauzeren / Afspelen"
-  </dest>
-  <voice>
-    *: "Pauzeren / Afspelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_STOP_PLAYBACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Stop Playback"
-  </source>
-  <dest>
-    *: "Stop het Afspelen"
-  </dest>
-  <voice>
-    *: "Stop het Afspelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NEXTTRACK
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Next Track"
-  </source>
-  <dest>
-    *: "Volgende Nummer"
-  </dest>
-  <voice>
-    *: "Volgende Nummer"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_VOLUME
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Change Volume"
-  </source>
-  <dest>
-    *: "Volume Wijzigen"
-  </dest>
-  <voice>
-    *: "Volume Wijzigen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_SHUFFLE_MODE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Shuffle Mode"
-  </source>
-  <dest>
-    *: "Shuffle-modus"
-  </dest>
-  <voice>
-    *: "Shuffle Modus"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHANGE_REPEAT_MODE
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Change Repeat Mode"
-  </source>
-  <dest>
-    *: "Wijzig de Herhaalmodus"
-  </dest>
-  <voice>
-    *: "Wijzig de Herhaalmodus"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYBACK_CONTROL
-  desc: in playback control menu
-  user: core
-  <source>
-    *: "Playback Control"
-  </source>
-  <dest>
-    *: "Afspeelcontrole"
-  </dest>
-  <voice>
-    *: "Afspeelcontrole"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_CHECKMATE
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Checkmate!"
-  </source>
-  <dest>
-    *: "Schaakmat!"
-  </dest>
-  <voice>
-    *: "Schaakmat!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_ILLEGAL_MOVE
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Illegal move!"
-  </source>
-  <dest>
-    *: "Illegale zet!"
-  </dest>
-  <voice>
-    *: "Illegale zet!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_NEW_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "New Game"
-  </source>
-  <dest>
-    *: "Nieuw Spel"
-  </dest>
-  <voice>
-    *: "Nieuw Spel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESUME_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Resume Game"
-  </source>
-  <dest>
-    *: "Spel Hervatten"
-  </dest>
-  <voice>
-    *: "Spel Hervatten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_SAVE_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Save Game"
-  </source>
-  <dest>
-    *: "Spel Opslaan"
-  </dest>
-  <voice>
-    *: "Spel Opslaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESTORE_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Restore Game"
-  </source>
-  <dest>
-    *: "Spel Herstellen"
-  </dest>
-  <voice>
-    *: "Spel Herstellen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_RESTART_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Restart Game"
-  </source>
-  <dest>
-    *: "Spel Herstarten"
-  </dest>
-  <voice>
-    *: "Spel Herstarten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_SELECT_OTHER_GAME
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "Select Other Game"
-  </source>
-  <dest>
-    *: "Selecteer Ander Spel"
-  </dest>
-  <voice>
-    *: "Selecteer Ander Spel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_1
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 1: 60 moves / 5 min"
-  </source>
-  <dest>
-    *: "Niveau 1: 60 zetten / 5 min"
-  </dest>
-  <voice>
-    *: "Niveau 1: 60 zetten per 5 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_2
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 2: 60 moves / 15 min"
-  </source>
-  <dest>
-    *: "Niveau 2: 60 zetten / 15 min"
-  </dest>
-  <voice>
-    *: "Niveau 2: 60 zetten per 15 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_3
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 3: 60 moves / 30 min"
-  </source>
-  <dest>
-    *: "Niveau 3: 60 zetten / 30 min"
-  </dest>
-  <voice>
-    *: "Niveau 3: 60 zetten per 30 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_4
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 4: 40 moves / 30 min"
-  </source>
-  <dest>
-    *: "Niveau 4: 40 zetten / 30 min"
-  </dest>
-  <voice>
-    *: "Niveau 4: 40 zetten per 30 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_5
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 5: 40 moves / 60 min"
-  </source>
-  <dest>
-    *: "Niveau 5: 40 zetten / 60 min"
-  </dest>
-  <voice>
-    *: "Niveau 5: 40 zetten per 60 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_6
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 6: 40 moves / 120 min"
-  </source>
-  <dest>
-    *: "Niveau 6: 40 zetten / 120 min"
-  </dest>
-  <voice>
-    *: "Niveau 6: 40 zetten per 120 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_7
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 7: 40 moves / 240 min"
-  </source>
-  <dest>
-    *: "Niveau 7: 40 zetten / 240 min"
-  </dest>
-  <voice>
-    *: "Niveau 7: 40 zetten per 240 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_8
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 8: 1 move / 15 min"
-  </source>
-  <dest>
-    *: "Niveau 8: 1 zet / 15 min"
-  </dest>
-  <voice>
-    *: "Niveau 8: 1 zet per 15 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_9
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 9: 1 move / 60 min"
-  </source>
-  <dest>
-    *: "Niveau 9: 1 zet / 60 min"
-  </dest>
-  <voice>
-    *: "Niveau 9: 1 zet per 60 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LEVEL_10
-  desc: in the chessbox game level selection
-  user: core
-  <source>
-    *: "Level 10: 1 move / 600 min"
-  </source>
-  <dest>
-    *: "Niveau 10: 1 zet / 600 min"
-  </dest>
-  <voice>
-    *: "Niveau 10: 1 zet per 600 minuten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_PGN_PARSE_ERROR
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "Error parsing game !"
-  </source>
-  <dest>
-    *: "Fout bij het parseren van spel !"
-  </dest>
-  <voice>
-    *: "Fout bij het parseren van spel !"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_NO_GAMES
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "No games found !"
-  </source>
-  <dest>
-    *: "Geen spellen gevonden !"
-  </dest>
-  <voice>
-    *: "Geen spellen gevonden!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAME_BEGINNING
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "At the beginning of the game"
-  </source>
-  <dest>
-    *: "Aan het begin van het spel"
-  </dest>
-  <voice>
-    *: "Aan het begin van het spel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAME_END
-  desc: in the chessbox game viewer
-  user: core
-  <source>
-    *: "At the end of the game"
-  </source>
-  <dest>
-    *: "Aan het einde van het spel"
-  </dest>
-  <voice>
-    *: "Aan het einde van het spel"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PLAYER
-  desc: spoken only, for announcing player's id
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Speler"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_GNUCHESS
-  desc: spoken only, for announcing player's id
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "GNU Schaak"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_MARKED
-  desc: spoken only, for announcing chess piece marking
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Gemarkeerd"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_UNMARKED
-  desc: spoken only, for announcing chess piece unmarking
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Ongemarkeerd"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_WHITE
-  desc: spoken only, for announcing chess piece color
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Wit"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BLACK
-  desc: spoken only, for announcing chess piece color
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Zwart"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CHECK
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Schaak!"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CAPTURES
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "vangt"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_CASTLE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "kasteel"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_KINGSIDE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "koning kant"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_CHESSBOX_QUEENSIDE
-  desc: spoken only, for announcing chess moves
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "koningin kant"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_PAWN
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Pion"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_KNIGHT
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Paard"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BISHOP
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Bisschop"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_ROOK
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Roek"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_QUEEN
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Koningin"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_KING
-  desc: spoken only, for announcing chess piece names
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Koning"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_GAMES
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Games"
-  </source>
-  <dest>
-    *: "Spellen"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_SAVING_POSITION
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Saving position"
-  </source>
-  <dest>
-    *: "Positie opslaan"
-  </dest>
-  <voice>
-    *: "Positie opslaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_LOADING_POSITION
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Loading position"
-  </source>
-  <dest>
-    *: "Positie laden"
-  </dest>
-  <voice>
-    *: "Positie laden"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_THINKING
-  desc: in chessbox
-  user: core
-  <source>
-    *: "Thinking..."
-  </source>
-  <dest>
-    *: "Denken..."
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BATTERY_BENCH_IS_ALREADY_RUNNING
-  desc: Spoken if battery bench is already running
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "De accubank werkt al"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_BAT_BENCH_KEYS
-  desc: Battery bench start up message
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Druk op play om de accubank te laten werken of stop om te annuleren"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANNOT_RESTART_PLAYBACK
-  desc: cannot restart playback splash in imageviewer
-  user: core
-  <source>
-    *: "Cannot restart playback"
-  </source>
-  <dest>
-    *: "Het afspelen kan niet worden hervat"
-  </dest>
-  <voice>
-    *: "Het afspelen kan niet worden hervat"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ORDERED
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Ordered"
-  </source>
-  <dest>
-    *: "Op volgorde"
-  </dest>
-  <voice>
-    *: "Op volgorde"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFUSION
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Diffusion"
-  </source>
-  <dest>
-    *: "Verspreiding"
-  </dest>
-  <voice>
-    *: "Verspreiding"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GRAYSCALE
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Grayscale"
-  </source>
-  <dest>
-    *: "Grijstinten"
-  </dest>
-  <voice>
-    *: "Grijstinten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SLIDESHOW_MODE
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Toggle Slideshow Mode"
-  </source>
-  <dest>
-    *: "Schakel de Diavoorstellingsmodus in"
-  </dest>
-  <voice>
-    *: "Schakel de Dia voorstellingsmodus in"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SLIDESHOW_TIME
-  desc: in the imageviewer settings menu
-  user: core
-  <source>
-    *: "Slideshow Time"
-  </source>
-  <dest>
-    *: "Tijd diavoorstelling"
-  </dest>
-  <voice>
-    *: "Tijd dia voorstelling"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RETURN
-  desc: in various plugin menus
-  user: core
-  <source>
-    *: "Return"
-  </source>
-  <dest>
-    *: "Keer terug"
-  </dest>
-  <voice>
-    *: "Keer terug"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REC_DIR
-  desc: used in the info screen to show a recording dir
-  user: core
-  <source>
-    *: none
-    recording: "Recording Directory"
-  </source>
-  <dest>
-    *: none
-    recording: "Opnamemap"
-  </dest>
-  <voice>
-    *: none
-    recording: "Opnamemap"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CHESSBOX_MENU_VIEW_GAMES
-  desc: in the chessbox menu
-  user: core
-  <source>
-    *: "View Played Games"
-  </source>
-  <dest>
-    *: "Bekijk Gespeelde Spellen"
-  </dest>
-  <voice>
-    *: "Bekijk Gespeelde Spellen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_AUDIO_OPTIONS
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Audio Options"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Audio Opties"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Audio Opties"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_RESUME_OPTIONS
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Resume Options"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Hervat Opties"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Hervat Opties"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MENU_PLAY_MODE
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Play Mode"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Speelmodus"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Speel Modus"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Single"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Enkelspel"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Enkelspel"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_SOUND_SETTING
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Use sound setting"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Gebruik de geluidsinstelling"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Gebruik de geluidsinstelling"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RESTART_PLAYBACK
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Play from beginning"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Speel vanaf het begin"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Speel vanaf het begin"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_RESUME_TIME
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Set resume time (min)"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Hervat tijd (min) instellen"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Hervat tijd instellen"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DISPLAY_FPS
-  desc: in the mpegplayer and pictureflow settings menus
-  user: core
-  <source>
-    *: "Display FPS"
-  </source>
-  <dest>
-    *: "Geef FPS weer"
-  </dest>
-  <voice>
-    *: "Geef FPS weer"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIMIT_FPS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Limit FPS"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Beperk FPS"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Beperk FPS"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SKIP_FRAMES
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Skip frames"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Sla frames over"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Sla frames over"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACKLIGHT_BRIGHTNESS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Backlight brightness"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Helderheid van de achtergrondverlichting"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Helderheid van de achtergrondverlichting"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_COMMON_SETTING
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Use common setting"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Gebruik de algemene instelling"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Gebruik de algemene instelling"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TONE_CONTROLS
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Tone controls"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Toonregeling"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Toon Regeling"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FORCE_START_MENU
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Start menu"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Start menu"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Start menu"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CONDITIONAL_START_MENU
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Start menu if not completed"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Start de menu indien niet voltooid"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Start de menu indien niet voltooid"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_AUTO_RESUME
-  desc: in mpegplayer menus
-  user: core
-  <source>
-    *: "Resume automatically"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Hervat automatisch"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Hervat automatisch"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL_RESUMES
-  desc: in the mpegplayer settings menu
-  user: core
-  <source>
-    *: "Clear all resumes"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Wis alle hervattingen"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Wis alle hervattingen"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UNAVAILABLE
-  desc: in mpegplayer settings
-  user: core
-  <source>
-    *: "Unavailable"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Niet beschikbaar"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Niet beschikbaar"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TOGGLE_ITEM
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Toggle Item"
-  </source>
-  <dest>
-    *: "Wissel Item"
-  </dest>
-  <voice>
-    *: "Wissel Item"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MOVE_ITEM_UP
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Move Item Up"
-  </source>
-  <dest>
-    *: "Verplaats het Item Omhoog"
-  </dest>
-  <voice>
-    *: "Verplaats het Item Omhoog"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MOVE_ITEM_DOWN
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Move Item Down"
-  </source>
-  <dest>
-    *: "Verplaats het Item Omlaag"
-  </dest>
-  <voice>
-    *: "Verplaats het Item Omlaag"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LOAD_DEFAULT_CONFIGURATION
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Load Default Configuration"
-  </source>
-  <dest>
-    *: "Laad de Standaardconfiguratie"
-  </dest>
-  <voice>
-    *: "Laad de Standaardconfiguratie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE_EXIT
-  desc: in main_menu_config
-  user: core
-  <source>
-    *: "Save and Exit"
-  </source>
-  <dest>
-    *: "Opslaan en Afsluiten"
-  </dest>
-  <voice>
-    *: "Opslaan en Afsluiten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MAIN_MENU_ORDER
-  desc: main_menu_config plugin title
-  user: core
-  <source>
-    *: "Rockbox Main Menu Order"
-  </source>
-  <dest>
-    *: "Rockbox Hoofdmenu Volgorde"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_PATH
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Path]"
-  </source>
-  <dest>
-    *: "[Pad]"
-  </dest>
-  <voice>
-    *: "Pad"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILENAME
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Filename]"
-  </source>
-  <dest>
-    *: "[Bestandsnaam]"
-  </dest>
-  <voice>
-    *: "Bestandsnaam"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_SIZE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Size]"
-  </source>
-  <dest>
-    *: "[Grootte]"
-  </dest>
-  <voice>
-    *: "Grootte"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DATE
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Date]"
-  </source>
-  <dest>
-    *: "[Datum]"
-  </dest>
-  <voice>
-    *: "Datum"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TIME
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Time]"
-  </source>
-  <dest>
-    *: "[Tijd]"
-  </dest>
-  <voice>
-    *: "Tijd"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ARTIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TITLE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DURATION
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_SUBDIRS
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Subdirs]"
-  </source>
-  <dest>
-    *: "[Submappen]"
-  </dest>
-  <voice>
-    *: "Submappen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "[Files]"
-  </source>
-  <dest>
-    *: "[Bestanden]"
-  </dest>
-  <voice>
-    *: "Bestanden"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DIRECTORY_PROPERTIES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "Directory properties"
-  </source>
-  <dest>
-    *: "Directory eigenschappen"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FILE_PROPERTIES
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "File properties"
-  </source>
-  <dest>
-    *: "Bestandseigenschappen"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FAIL
-  desc: in properties plugin
-  user: core
-  <source>
-    *: "Failed to gather information"
-  </source>
-  <dest>
-    *: "Informatie verzamelen is mislukt"
-  </dest>
-  <voice>
-    *: "Informatie verzamelen is mislukt"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SWAP_CHANNELS
-  desc: in sound_settings
-  user: core
-  <source>
-    *: "Swap Channels"
-  </source>
-  <dest>
-    *: "Wissel Kanalen"
-  </dest>
-  <voice>
-    *: "Wissel Kanalen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PANNING_SEPARATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Panning Separation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Pannen Scheiding"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Pannen Scheiding"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REVERBERATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Reverberation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Weerkaatsing"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Weerkaatsing"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_INTERPOLATION
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Interpolation"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Interpolatie"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Interpolatie"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_SURROUND
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Surround"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Surround"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Surround"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_HQMIXER
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "HQ Mixer"
-    lowmem: none
-  </source>
-  <dest>
-    *: "HQ Mixer"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Hoge Kwaliteit Mixer"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_MIKMOD_SAMPLERATE
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "Sample Rate"
-    lowmem: none
-  </source>
-  <dest>
-    *: "Bemonsteringsfrequentie"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "Bemonsteringsfrequentie"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CPU_BOOST
-  desc: in mikmod settings menu
-  user: core
-  <source>
-    *: "CPU Boost"
-    lowmem: none
-  </source>
-  <dest>
-    *: "CPU-boost"
-    lowmem: none
-  </dest>
-  <voice>
-    *: "CPU-boost"
-    lowmem: none
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SPACING
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Spacing"
-  </source>
-  <dest>
-    *: "Spatiëring"
-  </dest>
-  <voice>
-    *: "Spatiëring"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CENTRE_MARGIN
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Centre margin"
-  </source>
-  <dest>
-    *: "Middenmarge"
-  </dest>
-  <voice>
-    *: "Midden marge"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NUMBER_OF_SLIDES
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Number of slides"
-  </source>
-  <dest>
-    *: "Aantal dia's"
-  </dest>
-  <voice>
-    *: "Aantal dia's"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ZOOM
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Zoom"
-  </source>
-  <dest>
-    *: "Zoom"
-  </dest>
-  <voice>
-    *: "Zoom"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALBUM_TITLE
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Show album title"
-  </source>
-  <dest>
-    *: "Toon albumtitel"
-  </dest>
-  <voice>
-    *: "Toon album titel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RESIZE_COVERS
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Resize Covers"
-  </source>
-  <dest>
-    *: "Formaat van Hoezen Wijzigen"
-  </dest>
-  <voice>
-    *: "Formaat van Hoezen Wijzigen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REBUILD_CACHE
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Rebuild cache"
-  </source>
-  <dest>
-    *: "Bouw de cache opnieuw op"
-  </dest>
-  <voice>
-    *: "Bouw de cache opnieuw op"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WPS_INTEGRATION
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "WPS Integration"
-  </source>
-  <dest>
-    *: "WPS-integratie"
-  </dest>
-  <voice>
-    *: "WPS Integratie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GOTO_WPS
-  desc: in the pictureflow main menu
-  user: core
-  <source>
-    *: "Go to WPS"
-  </source>
-  <dest>
-    *: "Ga naar WPS"
-  </dest>
-  <voice>
-    *: "Ga naar WPS"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_PLAYLIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide album title"
-  </source>
-  <dest>
-    *: "Verberg albumtitel"
-  </dest>
-  <voice>
-    *: "Verberg album titel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show at the bottom"
-  </source>
-  <dest>
-    *: "Toon onderaan"
-  </dest>
-  <voice>
-    *: "Toon onder aan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show at the top"
-  </source>
-  <dest>
-    *: "Toon bovenaan"
-  </dest>
-  <voice>
-    *: "Toon boven aan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIRECT
-  desc: in the pictureflow settings, also a volume adjustment mode
-  user: core
-  <source>
-    *: "Direct"
-  </source>
-  <dest>
-    *: "Direct"
-  </dest>
-  <voice>
-    *: "Direct"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VIA_TRACK_LIST
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Via Track list"
-  </source>
-  <dest>
-    *: "Via Tracklijst"
-  </dest>
-  <voice>
-    *: "Via Track lijst"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALWAYS_ON
-  desc: in the pictureflow settings menu
-  user: core
-  <source>
-    *: "Always On"
-  </source>
-  <dest>
-    *: "Altijd Aan"
-  </dest>
-  <voice>
-    *: "Altijd Aan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NO_ALBUMART_FOUND
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "No album art found"
-  </source>
-  <dest>
-    *: "Geen albumhoes gevonden"
-  </dest>
-  <voice>
-    *: "Geen album hoes gevonden"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CACHE_REBUILT_NEXT_RESTART
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Cache will be rebuilt on next restart"
-  </source>
-  <dest>
-    *: "De cache wordt opnieuw opgebouwd bij de volgende herstart"
-  </dest>
-  <voice>
-    *: "De cache wordt opnieuw opgebouwd bij de volgende herstart"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_CLEARED
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Playlist Cleared"
-  </source>
-  <dest>
-    *: "Afspeellijst Gewist"
-  </dest>
-  <voice>
-    *: "Afspeellijst Gewist"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADDED_TO_PLAYLIST
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Added to playlist"
-  </source>
-  <dest>
-    *: "Toegevoegd aan afspeellijst"
-  </dest>
-  <voice>
-    *: "Toegevoegd aan afspeellijst"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ERROR_WRITING_CONFIG
-  desc: in the pictureflow splash messages
-  user: core
-  <source>
-    *: "Error writing config"
-  </source>
-  <dest>
-    *: "Fout bij het schrijven van config"
-  </dest>
-  <voice>
-    *: "Fout bij het schrijven van config"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NOT_A_VBR_FILE
-  desc: in vbrfix plugin
-  user: core
-  <source>
-    *: "Not a VBR file"
-  </source>
-  <dest>
-    *: "Geen VBR-bestand"
-  </dest>
-  <voice>
-    *: "Geen VBR-bestand"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILE_ERROR
-  desc: in vbrfix plugin
-  user: core
-  <source>
-    *: "File error: %d"
-  </source>
-  <dest>
-    *: "Bestandsfout: %d"
-  </dest>
-  <voice>
-    *: "Bestandsfout"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_UPDATE_CACHE
-  desc: in pictureflow
-  user: core
-  <source>
-    *: "Update cache"
-  </source>
-  <dest>
-    *: "Cache bijwerken"
-  </dest>
-  <voice>
-    *: "Cache bijwerken"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HIDE_ALBUM_TITLE_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Hide information"
-  </source>
-  <dest>
-    *: "Verberg informatie"
-  </dest>
-  <voice>
-    *: "Verberg informatie"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_BOTTOM_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the bottom"
-  </source>
-  <dest>
-    *: "Toon album onderaan"
-  </dest>
-  <voice>
-    *: "Toon album onderaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_AT_THE_TOP_NEW
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album at the top"
-  </source>
-  <dest>
-    *: "Toon album bovenaan"
-  </dest>
-  <voice>
-    *: "Toon album bovenaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_TOP
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the top"
-  </source>
-  <dest>
-    *: "Toon album en artiest bovenaan"
-  </dest>
-  <voice>
-    *: "Toon album en artiest bovenaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_ALL_AT_THE_BOTTOM
-  desc: in the pictureflow settings
-  user: core
-  <source>
-    *: "Show album and artist at the bottom"
-  </source>
-  <dest>
-    *: "Toon album en artiest onderaan"
-  </dest>
-  <voice>
-    *: "Toon album en artiest onderaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_STD_CANCEL
-  desc: standard press x to cancel string
-  user: core
-  <source>
-    *: "Press LEFT to cancel."
-    android,hifietma*,zenvision: "Press BACK to cancel."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Press POWER to cancel."
-    ihifi760,ihifi960: "Double tap RETURN to cancel."
-    ihifi770,ihifi770c,ihifi800: "Press HOME to cancel."
-    iriverh10,samsungyh*: "Double tap LEFT to cancel."
-    mpiohd200: "Double tap REC to cancel."
-    mpiohd300: "Double tap MENU to cancel."
-    rx27generic: "Press VOLUME to cancel."
-    sonynwza860: "Keymaps incomplete."
-    touchscreen: "Press Middle Left to cancel."
-    vibe500: "Press PREV to cancel."
-    xduoox20,xduoox3,xduoox3ii: "Double tap HOME to cancel."
-  </source>
-  <dest>
-    *: "Druk op LINKS om te annuleren."
-    android: "Druk op RECHTS om te annuleren."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Druk op POWER om te annuleren."
-    hifietma*,zenvision: "Druk op BACK om te annuleren."
-    ihifi760,ihifi960: "Dubbeltik op RETURN om te annuleren."
-    ihifi770,ihifi770c,ihifi800: "Druk op HOME om te annuleren."
-    iriverh10,samsungyh*: "Dubbeltik op LINKS om te annuleren."
-    mpiohd200: "Dubbeltik op REC om te annuleren."
-    mpiohd300: "Dubbeltik op MENU om te annuleren."
-    rx27generic: "Druk op VOLUME om te annuleren."
-    sonynwza860: "Keymaps onvolledig."
-    touchscreen: "Druk op Midden-links om te annuleren."
-    vibe500: "Druk op PREV om te annuleren."
-    xduoox20,xduoox3,xduoox3ii: "Dubbeltik op HOME om te annuleren."
-  </dest>
-  <voice>
-    *: "Druk op LINKS om te annuleren."
-    android: "Druk op RECHTS om te annuleren."
-    cowond2,creativezenxfi2,ibassodx50,ibassodx90,mrobe500,ondavx747: "Druk op POWER om te annuleren."
-    hifietma*,zenvision: "Druk op BACK om te annuleren."
-    ihifi760,ihifi960: "Dubbeltik op RETURN om te annuleren."
-    ihifi770,ihifi770c,ihifi800: "Druk op HOME om te annuleren."
-    iriverh10,samsungyh*: "Dubbeltik op LINKS om te annuleren."
-    mpiohd200: "Dubbeltik op REC om te annuleren."
-    mpiohd300: "Dubbeltik op MENU om te annuleren."
-    rx27generic: "Druk op VOLUME om te annuleren."
-    touchscreen: "Druk op Midden-links om te annuleren."
-    vibe500: "Druk op PREV om te annuleren."
-    xduoox20,xduoox3,xduoox3ii: "Dubbeltik op HOME om te annuleren."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATE
-  desc: for constructing time and date announcements
-  user: core
-  <source>
-    *: "Date"
-  </source>
-  <dest>
-    *: "Datum"
-  </dest>
-  <voice>
-    *: "Datum"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_ALL
-  desc:
-  user: core
-  <source>
-    *: "Clear all"
-  </source>
-  <dest>
-    *: "Wis alles"
-  </dest>
-  <voice>
-    *: "Wis alles"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CANCEL_0
-  desc: CANCEL.
-  user: core
-  <source>
-    *: "Cancel"
-  </source>
-  <dest>
-    *: "Annuleren"
-  </dest>
-  <voice>
-    *: "Annuleren"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SAVE
-  desc:
-  user: core
-  <source>
-    *: "Save"
-  </source>
-  <dest>
-    *: "Opslaan"
-  </dest>
-  <voice>
-    *: "Opslaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TIMEOUT
-  desc:
-  user: core
-  <source>
-    *: "Timeout"
-  </source>
-  <dest>
-    *: "Time-out"
-  </dest>
-  <voice>
-    *: "Time out"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK
-  desc: used in track x of y constructs
-  user: core
-  <source>
-    *: "Track"
-  </source>
-  <dest>
-    *: "Nummer"
-  </dest>
-  <voice>
-    *: "Nummer"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ELAPSED
-  desc: prefix for elapsed playtime announcement
-  user: core
-  <source>
-    *: "Elapsed"
-  </source>
-  <dest>
-    *: "Verstreken"
-  </dest>
-  <voice>
-    *: "Verstreken"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCEMENT_FMT
-  desc: format for wps hotkey announcement
-  user: core
-  <source>
-    *: none
-    hotkey: "Announcement format"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Aankondigingsformaat"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Aankondigingsformaat"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMAIN
-  desc: for constructs such as number of tracks remaining etc
-  user: core
-  <source>
-    *: none
-    hotkey: "Remain"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Blijven"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Blijven"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GROUPING
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Grouping"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Groepering"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Groepering"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ANNOUNCE_ON
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Announce on"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Kondig aan"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Kondig aan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_CHANGE
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Track change"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Nummer verandering"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Nummer verandering"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_HOLD_FOR_SETTINGS
-  desc:
-  user: core
-  <source>
-    *: none
-    hotkey: "Hold for settings"
-  </source>
-  <dest>
-    *: none
-    hotkey: "Houd vast voor instellingen"
-  </dest>
-  <voice>
-    *: none
-    hotkey: "Houd vast voor instellingen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN
-  desc: onplay open plugin
-  user: core
-  <source>
-    *: "Open Plugin"
-  </source>
-  <dest>
-    *: "Open de plug-in"
-  </dest>
-  <voice>
-    *: "Open de plug-in"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_NOT_A_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Not a plugin: %s"
-  </source>
-  <dest>
-    *: "Geen plug-in: %s"
-  </dest>
-  <voice>
-    *: "Geen plug-in"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_OPEN_PLUGIN_SET_WPS_CONTEXT_PLUGIN
-  desc: open plugin module
-  user: core
-  <source>
-    *: "Set Wps Context Plugin"
-  </source>
-  <dest>
-    *: "Stel Wps Context Plugin in"
-  </dest>
-  <voice>
-    *: "Stel WPS Context Plugin in"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PARAMETER
-  desc:
-  user: core
-  <source>
-    *: "Parameter"
-  </source>
-  <dest>
-    *: "Parameter"
-  </dest>
-  <voice>
-    *: "Parameter"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_NAME
-  desc:
-  user: core
-  <source>
-    *: "Name"
-  </source>
-  <dest>
-    *: "Naam"
-  </dest>
-  <voice>
-    *: "Naam"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD
-  desc:
-  user: core
-  <source>
-    *: "Add"
-  </source>
-  <dest>
-    *: "Toevoegen"
-  </dest>
-  <voice>
-    *: "Toevoegen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BACK
-  desc:
-  user: core
-  <source>
-    *: "Back"
-  </source>
-  <dest>
-    *: "Terug"
-  </dest>
-  <voice>
-    *: "Terug"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EDIT
-  desc:
-  user: core
-  <source>
-    *: "Edit"
-  </source>
-  <dest>
-    *: "Bewerken"
-  </dest>
-  <voice>
-    *: "Bewerken"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RUN
-  desc:
-  user: core
-  <source>
-    *: "Run"
-  </source>
-  <dest>
-    *: "Voer Uit"
-  </dest>
-  <voice>
-    *: "Voer Uit"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_EXPORT
-  desc:
-  user: core
-  <source>
-    *: "Export"
-  </source>
-  <dest>
-    *: "Exporteren"
-  </dest>
-  <voice>
-    *: "Exporteren"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_BROWSE
-  desc:
-  user: core
-  <source>
-    *: "Browse"
-  </source>
-  <dest>
-    *: "Bladeren"
-  </dest>
-  <voice>
-    *: "Bladeren"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ENTER_USB_STORAGE_MODE_QUERY
-  desc: upon plugging in USB
-  user: core
-  <source>
-    *: "Enter USB mass storage mode?"
-  </source>
-  <dest>
-    *: "USB-massaopslagmodus openen?"
-  </dest>
-  <voice>
-    *: "USB massa opslag modus openen?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TALK_MIXER_LEVEL
-  desc: Relative volume of voice prompts
-  user: core
-  <source>
-    *: "Voice prompt volume"
-  </source>
-  <dest>
-    *: "Volume van gesproken prompt"
-  </dest>
-  <voice>
-    *: "Volume van gesproken prompt"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_SUPER_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    filter_roll_off: "Super Slow"
-  </source>
-  <dest>
-    *: none
-    filter_roll_off: "Super Traag"
-  </dest>
-  <voice>
-    *: none
-    filter_roll_off: "Super Traag"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Lineair Snel"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Lineair Snel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_LINEAR_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Linear Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Lineair Traag"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Lineair Traag"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Minimaal Snel"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Minimaal Snel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_MINIMUM_SLOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Minimum Slow"
-  </source>
-  <dest>
-    *: none
-    es9218: "Minimaal Traag"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Minimaal Traag"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_1
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 1"
-  </source>
-  <dest>
-    *: none
-    es9218: "Apodiserend type 1"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Apodiserend type 1"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_APODIZING_2
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Apodizing type 2"
-  </source>
-  <dest>
-    *: none
-    es9218: "Apodiserend type 2"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Apodiserend type 2"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_HYBRID_FAST
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Hybrid Fast"
-  </source>
-  <dest>
-    *: none
-    es9218: "Hybride Snel"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Hybride Snel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FILTER_BRICK_WALL
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    es9218: "Brick Wall"
-  </source>
-  <dest>
-    *: none
-    es9218: "Stenen Muur"
-  </dest>
-  <voice>
-    *: none
-    es9218: "Stenen Muur"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_MODE
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "DAC power mode"
-    es9218: "DAC output level"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "DAC energiemodus"
-    es9218: "DAC uitgangsniveau"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "DAC energiemodus"
-    es9218: "DAC uitgangsniveau"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_HIGH
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "High performance"
-    es9218: "High Gain (2 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Hoge uitvoering"
-    es9218: "Hoge Versterking (2 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Hoge uitvoering"
-    es9218: "Hoge Versterking (2 Vrms)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DAC_POWER_LOW
-  desc: in sound settings
-  user: core
-  <source>
-    *: none
-    dac_power_mode: "Save battery"
-    es9218: "Low Gain (1 Vrms)"
-  </source>
-  <dest>
-    *: none
-    dac_power_mode: "Energie besparen"
-    es9218: "Lage versterking (1 Vrms)"
-  </dest>
-  <voice>
-    *: none
-    dac_power_mode: "Energie besparen"
-    es9218: "Lage versterking (1 Vrms)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_NEXT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUEUE_MENU
-  desc: in onplay menu
-  user: core
-  <source>
-    *: "Queue..."
-  </source>
-  <dest>
-    *: "Rij..."
-  </dest>
-  <voice>
-    *: "Rij..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_QUEUE_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Queue Options"
-  </source>
-  <dest>
-    *: "Wachtrij-Opties Weergeven"
-  </dest>
-  <voice>
-    *: "Wachtrij Opties Weergeven"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUFFLED_ADDING_OPTIONS
-  desc: in Current Playlist settings
-  user: core
-  <source>
-    *: "Show Shuffled Adding Options"
-  </source>
-  <dest>
-    *: "Opties voor Geschud Toevoeging Weergeven"
-  </dest>
-  <voice>
-    *: "Opties voor Geschud Toevoeging Weergeven"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_IN_SUBMENU
-  desc: in Settings
-  user: core
-  <source>
-    *: "In Submenu"
-  </source>
-  <dest>
-    *: "In Submenu"
-  </dest>
-  <voice>
-    *: "In Submenu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_LIST_AND_PLAY_SHUFFLED
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SOFTLOCK_DISABLE_ALL_NOTIFY
-  desc: disable all softlock notifications
-  user: core
-  <source>
-    *: "Disable All Lock Notifications"
-  </source>
-  <dest>
-    *: "Alle Vergrendelingsmeldingen Uitschakelen"
-  </dest>
-  <voice>
-    *: "Alle Vergrendelingsmeldingen Uitschakelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_VOLUME
-  desc: exempt volume from softlock
-  user: core
-  <source>
-    *: "Exempt Volume"
-  </source>
-  <dest>
-    *: "Volume Vrijstellen"
-  </dest>
-  <voice>
-    *: "Volume Vrijstellen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ACTION_ALWAYSAUTOLOCK
-  desc: always prime autolock
-  user: core
-  <source>
-    *: "Always Autolock"
-  </source>
-  <dest>
-    *: "Altijd Auto-vergrendelen"
-  </dest>
-  <voice>
-    *: "Altijd Auto-vergrendelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_RELOAD_AFTER_SAVE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SINGLE_MODE
-  desc: single mode
-  user: core
-  <source>
-    *: "Single Mode"
-  </source>
-  <dest>
-    *: "Enkele Modus"
-  </dest>
-  <voice>
-    *: "Enkele Modus"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_ALBUMARTIST
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_GENRE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMMENT
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_COMPOSER
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_YEAR
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_TRACKNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_DISCNUM
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_FREQUENCY
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PROPERTIES_BITRATE
-  desc: deprecated
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_NUMERIC_TENS_SWAP_SEPARATOR
-  desc: voice only, for speaking numbers in languages that swap the tens and ones fields. Leave blank for languages that do not need it, such as English ("231" => "two hundred thirty one") but other languages may speak it as "two hundred one [AND] thirty"
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOICED_DATE_FORMAT
-  desc: format string for how dates will be read back. Y == 4-digit year, A == month name, m == numeric month, d == numeric day. For example, "AdY" will read "January 21 2021"
-  user: core
-  <source>
-    *: "dAY"
-  </source>
-  <dest>
-    *: "dAY"
-  </dest>
-  <voice>
-    *: ""
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_WRAPAROUND
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Wraparound"
-  </source>
-  <dest>
-    *: "Lijst Omhullend"
-  </dest>
-  <voice>
-    *: "Lijst Omhullend"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SHUTDOWN_MESSAGE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show Shutdown Message"
-  </source>
-  <dest>
-    *: "Afsluitbericht Weergeven"
-  </dest>
-  <voice>
-    *: "Afsluitbericht Weergeven"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_LIST_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "List Order"
-  </source>
-  <dest>
-    *: "Lijstvolgorde"
-  </dest>
-  <voice>
-    *: "Lijstvolgorde"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ASCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Ascending"
-  </source>
-  <dest>
-    *: "Oplopend"
-  </dest>
-  <voice>
-    *: "Oplopend"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DESCENDING
-  desc: in Settings
-  user: core
-  <source>
-    *: "Descending"
-  </source>
-  <dest>
-    *: "Aflopend"
-  </dest>
-  <voice>
-    *: "Aflopend"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ALBUM_ART
-  desc: in Settings
-  user: core
-  <source>
-    *: "Album Art"
-  </source>
-  <dest>
-    *: "Albumhoezen"
-  </dest>
-  <voice>
-    *: "Albumhoezen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_EMBEDDED
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Embedded"
-  </source>
-  <dest>
-    *: "Liever Ingesloten"
-  </dest>
-  <voice>
-    *: "Liever Ingesloten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PREFER_IMAGE_FILE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Prefer Image File"
-  </source>
-  <dest>
-    *: "Liever Afbeeldingsbestand"
-  </dest>
-  <voice>
-    *: "Liever Afbeeldingsbestand"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_FM_SYNC_RDS_TIME
-  desc: in radio screen and Settings
-  user: core
-  <source>
-    *: none
-    rds: "Sync RDS Time"
-  </source>
-  <dest>
-    *: none
-    rds: "RDS-tijd Synchroniseren"
-  </dest>
-  <voice>
-    *: none
-    rds: "RDS Tijd Synchroniseren"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SORT_ALBUMS_BY
-  desc: in Settings
-  user: core
-  <source>
-    *: "Sort albums by"
-  </source>
-  <dest>
-    *: "Sorteer albums op"
-  </dest>
-  <voice>
-    *: "Sorteer albums op"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_NAME
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Name"
-  </source>
-  <dest>
-    *: "Artiest + Naam"
-  </dest>
-  <voice>
-    *: "Artiest En Naam"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ARTIST_PLUS_YEAR
-  desc: in Settings
-  user: core
-  <source>
-    *: "Artist + Year"
-  </source>
-  <dest>
-    *: "Artiest + Jaar"
-  </dest>
-  <voice>
-    *: "Artiest En Jaar"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YEAR_SORT_ORDER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Year sort order"
-  </source>
-  <dest>
-    *: "Sorteervolgorde jaar"
-  </dest>
-  <voice>
-    *: "Sorteer volgorde jaar"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_YEAR_IN_ALBUM_TITLE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Show year in album title"
-  </source>
-  <dest>
-    *: "Jaar in albumtitel weergeven"
-  </dest>
-  <voice>
-    *: "Jaar in albumtitel weergeven"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WAIT_FOR_CACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Cache needs to finish updating first!"
-  </source>
-  <dest>
-    *: "Cache moet eerst de update voltooien!"
-  </dest>
-  <voice>
-    *: "Cache moet eerst de update voltooien!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_TRACK_INFO
-  desc: Track Info Title
-  user: core
-  <source>
-    *: "Track Info"
-  </source>
-  <dest>
-    *: "Nummer Info"
-  </dest>
-  <voice>
-    *: "Nummer Info"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY
-  desc: play selected file/directory, in playlist context menu
-  user: core
-  <source>
-    *: "Play"
-  </source>
-  <dest>
-    *: "Speel"
-  </dest>
-  <voice>
-    *: "Speel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_SHUFFLED
-  desc: play selected files in shuffled order, in playlist context menu
-  user: core
-  <source>
-    *: "Play Shuffled"
-  </source>
-  <dest>
-    *: "Geschud Afspelen"
-  </dest>
-  <voice>
-    *: "Geschud Afspelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_KEEP_CURRENT_TRACK_ON_REPLACE
-  desc: used in the playlist settings menu
-  user: core
-  <source>
-    *: "Keep Current Track When Replacing Playlist"
-  </source>
-  <dest>
-    *: "Huidige Track Behouden bij het Vervangen van een Afspeellijst"
-  </dest>
-  <voice>
-    *: "Huidige Track Behouden bij het Vervangen van een Afspeellijst"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_CLEAR_SETTINGS_ON_HOLD
-  desc: in the system sub menu
-  user: core
-  <source>
-    *: none
-    clear_settings_on_hold,iriverh10: "Clear settings when reset button is held during startup"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Clear settings when hold switch is on during startup"
-  </source>
-  <dest>
-    *: none
-    clear_settings_on_hold,iriverh10: "Instellingen wissen wanneer de resetknop wordt ingedrukt tijdens het opstarten"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Instellingen wissen wanneer de houd-schakelaar aan staat tijdens het opstarten"
-  </dest>
-  <voice>
-    *: none
-    clear_settings_on_hold,iriverh10: "Instellingen wissen wanneer de resetknop wordt ingedrukt tijdens het opstarten"
-    ipod4g,ipodcolor,ipodmini1g,ipodmini2g,ipodnano1g,ipodvideo: "Instellingen wissen wanneer de houd schakelaar aan staat tijdens het opstarten"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REWIND_ACROSS_TRACKS
-  desc: in playback settings menu
-  user: core
-  <source>
-    *: "Rewind Across Tracks"
-  </source>
-  <dest>
-    *: "Terugspoelen Over Tracks"
-  </dest>
-  <voice>
-    *: "Terugspoelen over tracks"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_AS
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Set As..."
-  </source>
-  <dest>
-    *: "Set As..."
-  </dest>
-  <voice>
-    *: "Set As..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYLIST_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playlist Directory"
-  </source>
-  <dest>
-    *: "Afspeellijstmap"
-  </dest>
-  <voice>
-    *: "Afspeellijst map"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_START_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Start Directory"
-  </source>
-  <dest>
-    *: "Startmap"
-  </dest>
-  <voice>
-    *: "Start map"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_RECORDING_DIR
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: none
-    recording: "Recording Directory"
-  </source>
-  <dest>
-    *: none
-    recording: "Opnamemap"
-  </dest>
-  <voice>
-    *: none
-    recording: "Opname map"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Playlist..."
-  </source>
-  <dest>
-    *: "Voeg toe aan Afspeellijst..."
-  </dest>
-  <voice>
-    *: "Voeg toe aan Afspeellijst..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_TO_EXISTING_PL
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add to Existing Playlist"
-  </source>
-  <dest>
-    *: "Voeg toe aan Bestaande Afspeellijst"
-  </dest>
-  <voice>
-    *: "Voeg toe aan Bestaande Afspeellijst"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAYING_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Playing Next..."
-  </source>
-  <dest>
-    *: "Hier Na..."
-  </dest>
-  <voice>
-    *: "Hier na..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_NEXT
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Next"
-  </source>
-  <dest>
-    *: "Speel volgende"
-  </dest>
-  <voice>
-    *: "Speel volgende"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_ADD_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Add Shuffled"
-  </source>
-  <dest>
-    *: "Voeg Shuffled toe"
-  </dest>
-  <voice>
-    *: "Voeg Shuffled toe"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last"
-  </source>
-  <dest>
-    *: "Laatste Afspelen"
-  </dest>
-  <voice>
-    *: "Laatste Afspelen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PLAY_LAST_SHUFFLED
-  desc: used in the onplay menu
-  user: core
-  <source>
-    *: "Play Last Shuffled"
-  </source>
-  <dest>
-    *: "Speel Laatst Geshuffled"
-  </dest>
-  <voice>
-    *: "Speel Laatst Geshuffled"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_MODE
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Volume Adjustment Mode"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Volume Aanpas Modus"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Volume Aanpas Modus"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VOLUME_ADJUST_NORM_STEPS
-  desc: in system settings
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Number of Volume Steps"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Aantal Volumestappen"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Aantal Volumestappen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_PERCEPTUAL
-  desc: in system settings -> volume adjustment mode
-  user: core
-  <source>
-    *: none
-    perceptual_volume: "Perceptual"
-  </source>
-  <dest>
-    *: none
-    perceptual_volume: "Perceptueel"
-  </dest>
-  <voice>
-    *: none
-    perceptual_volume: "Perceptueel"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_TRACKS_WHILE_BROWSING
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Show Tracks While Browsing"
-  </source>
-  <dest>
-    *: "Toon Tracks Tijdens Browsen"
-  </dest>
-  <voice>
-    *: "Toon Tracks Tijdens Browsen"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GOTO_LAST_ALBUM
-  desc: in PictureFlow Main Menu
-  user: core
-  <source>
-    *: "Go to Last Album"
-  </source>
-  <dest>
-    *: "Ga naar Laatste Album"
-  </dest>
-  <voice>
-    *: "Ga naar Laatste Album"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DATABASE_DIR
-  desc: in database settings menu
-  user: core
-  <source>
-    *: "Database Directory"
-  </source>
-  <dest>
-    *: "Databankmap"
-  </dest>
-  <voice>
-    *: "Databank map"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMOVE_QUEUED_TRACKS
-  desc: Confirmation dialog
-  user: core
-  <source>
-    *: "Remove Queued Tracks?"
-  </source>
-  <dest>
-    *: "Verwijder Queued Tracks?"
-  </dest>
-  <voice>
-    *: "Verwijder Queued Tracks?"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUICK_IGNORE_DIRACHE
-  desc: in Settings
-  user: core
-  <source>
-    *: "Quick (Ignore Directory Cache)"
-  </source>
-  <dest>
-    *: "Snel (Negeer Mapcache)"
-  </dest>
-  <voice>
-    *: "Snel (Negeer Map cache)"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_WPS
-  desc: in Settings
-  user: core
-  <source>
-    *: "What's Playing Screen"
-  </source>
-  <dest>
-    *: "Wat er nu Speelt Scherm"
-  </dest>
-  <voice>
-    *: "Wat er nu Speelt Scherm"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DEFAULT_BROWSER
-  desc: in Settings
-  user: core
-  <source>
-    *: "Default Browser"
-  </source>
-  <dest>
-    *: "Standaard Browser"
-  </dest>
-  <voice>
-    *: "Standaard Browser"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_AMAZE_MENU
-  desc: Amaze game
-  user: core
-  <source>
-    *: "Amaze Main Menu"
-  </source>
-  <dest>
-    *: "Amaze Hoofdmenu"
-  </dest>
-  <voice>
-    *: "Amaze Hoofdmenu"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SET_MAZE_SIZE
-  desc: Maze size in Amaze game
-  user: core
-  <source>
-    *: "Set Maze Size"
-  </source>
-  <dest>
-    *: "Stel Doolhofgrootte in"
-  </dest>
-  <voice>
-    *: "Stel Doolhofgrootte in"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_VIEW_MAP
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "View Map"
-  </source>
-  <dest>
-    *: "Bekijk Kaart"
-  </dest>
-  <voice>
-    *: "Bekijk Kaart"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_COMPASS
-  desc: Compass in Amaze game
-  user: core
-  <source>
-    *: "Show Compass"
-  </source>
-  <dest>
-    *: "Toon Kompas"
-  </dest>
-  <voice>
-    *: "Toon Kompas"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_MAP
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Show Map"
-  </source>
-  <dest>
-    *: "Toon Kaart"
-  </dest>
-  <voice>
-    *: "Toon Kaart"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_REMEMBER_PATH
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Remember Path"
-  </source>
-  <dest>
-    *: "Onthoud Pad"
-  </dest>
-  <voice>
-    *: "Onthoud Pad"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_USE_LARGE_TILES
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Use Large Tiles"
-  </source>
-  <dest>
-    *: "Gebruik Grote Tegels"
-  </dest>
-  <voice>
-    *: "Gebruik Grote Tegels"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_SHOW_SOLUTION
-  desc: Map in Amaze game
-  user: core
-  <source>
-    *: "Show Solution"
-  </source>
-  <dest>
-    *: "Toon Oplossing"
-  </dest>
-  <voice>
-    *: "Toon Oplossing"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_QUIT_WITHOUT_SAVING
-  desc:
-  user: core
-  <source>
-    *: "Quit without saving"
-  </source>
-  <dest>
-    *: "Stoppen zonder op te slaan"
-  </dest>
-  <voice>
-    *: "Stoppen zonder op te slaan"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_GENERATING_MAZE
-  desc: Amaze game
-  user: core
-  <source>
-    *: "Generating maze..."
-  </source>
-  <dest>
-    *: "Doolhof maken..."
-  </dest>
-  <voice>
-    *: "Doolhof maken..."
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YOU_WIN
-  desc: Success in game
-  user: core
-  <source>
-    *: "You win!"
-  </source>
-  <dest>
-    *: "Jij wint!"
-  </dest>
-  <voice>
-    *: "Jij wint!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_YOU_CHEATED
-  desc: Cheated in game
-  user: core
-  <source>
-    *: "You cheated!"
-  </source>
-  <dest>
-    *: "Je hebt valsgespeeld!"
-  </dest>
-  <voice>
-    *: "Je hebt valsgespeeld!"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_EASY
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Easy"
-  </source>
-  <dest>
-    *: "Gemakkelijk"
-  </dest>
-  <voice>
-    *: "Gemakkelijk"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_MEDIUM
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Medium"
-  </source>
-  <dest>
-    *: "Medium"
-  </dest>
-  <voice>
-    *: "Medium"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_HARD
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Hard"
-  </source>
-  <dest>
-    *: "Moeilijk"
-  </dest>
-  <voice>
-    *: "Moeilijk"
-  </voice>
-</phrase>
-<phrase>
-  id: LANG_DIFFICULTY_EXPERT
-  desc: Game difficulty
-  user: core
-  <source>
-    *: "Expert"
-  </source>
-  <dest>
-    *: "Expert"
-  </dest>
-  <voice>
-    *: "Expert"
-  </voice>
-</phrase>
-<phrase>
-  id: VOICE_LANG_NAME
-  desc: Spoken name of the language
-  user: core
-  <source>
-    *: ""
-  </source>
-  <dest>
-    *: ""
-  </dest>
-  <voice>
-    *: "Nederlands"
   </voice>
 </phrase>

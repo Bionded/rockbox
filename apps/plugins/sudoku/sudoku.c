@@ -867,7 +867,7 @@ static bool numdisplay_setting(void)
         {"Coloured",  -1},
     };
 
-    return rb->set_option("Number Display", &sudcfg.number_display, RB_INT, names,
+    return rb->set_option("Number Display", &sudcfg.number_display, INT, names,
                           sizeof(names) / sizeof(names[0]), NULL);
 }
 #endif
@@ -880,7 +880,7 @@ static bool showmarkings_setting(void)
         {"Show",  -1},
     };
 
-    return rb->set_option("Show Markings", &sudcfg.show_markings, RB_INT, names,
+    return rb->set_option("Show Markings", &sudcfg.show_markings, INT, names,
                           sizeof(names) / sizeof(names[0]), NULL);
 }
 #endif
@@ -983,7 +983,7 @@ static int sudoku_edit_menu(struct sudoku_state_t* state)
 
     switch (result) {
         case 0: /* Save new game */
-            rb->kbd_input(state->filename,MAX_PATH, NULL);
+            rb->kbd_input(state->filename,MAX_PATH);
             if (save_sudoku(state)) {
                 state->editmode=0;
             } else {

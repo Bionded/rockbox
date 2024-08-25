@@ -7,7 +7,7 @@
 # $Id$
 #
 
-ifeq ($(MODELNAME),EXAMPLE)
+ifeq ($(MODELNAME),ifp7xx)
 
 INCLUDES= -I$(FIRMDIR)/include -I$(FIRMDIR)/export -I. -I$(OBJDIR)	\
  -I$(BUILDDIR)
@@ -60,5 +60,42 @@ clean:
 	$(LINKFILE) $(DEPFILE)
 
 -include $(DEPFILE)
+
+else # not ifp7xx
+
+ifdef RECORDER
+EXTRA = -DRECORDER
+EXT = ajz
+else
+EXT = mod
+endif
+
+TARGET = stub
+OBJS = start.o sh-stub.o setjmp.o
+LIBS = -lgcc
+
+.s.o:
+	sh-elf-as -o $@ $<
+
+.c.o:
+	sh-elf-gcc -O $(EXTRA) -I../firmware/export -I../firmware/include -m1 -Wall -Wstrict-prototypes -c -o $@ $<
+
+.S.o:
+	sh-elf-gcc -O -I../firmware/export -I../firmware/include -m1 -Wall -Wstrict-prototypes -c -o $@ $<
+
+$(TARGET).$(EXT): $(TARGET).elf
+	sh-elf-objcopy -O binary $(TARGET).elf $(TARGET).out
+	../tools/scramble $(TARGET).out $(TARGET).$(EXT)
+	../tools/sh2d $(TARGET).out -o 09000000 > $(TARGET).asm
+
+$(TARGET).elf: $(OBJS)
+	sh-elf-gcc -nostartfiles $(OBJS) -nostdlib -Wl,-Map,$(TARGET).map -o $(TARGET).elf -Tlinker.cfg
+
+clean:
+	rm $(OBJS) $(TARGET).map $(TARGET).elf $(TARGET).out $(TARGET).mod $(TARGET).ajz
+
+start.o: start.s
+sh-stub.o: sh-stub.c
+setjmp.o: setjmp.S
 
 endif

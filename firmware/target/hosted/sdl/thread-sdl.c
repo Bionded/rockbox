@@ -215,7 +215,7 @@ void switch_thread(void)
         } /* STATE_SLEEPING: */
     }
 
-#ifdef BUFLIB_DEBUG_CHECK_VALID
+#ifdef DEBUG
     core_check_valid();
 #endif
     __running_self_entry() = current;

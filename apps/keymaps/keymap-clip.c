@@ -84,9 +84,10 @@ static const struct button_mapping button_context_wps[]  = {
     { ACTION_WPS_ID3SCREEN,     BUTTON_SELECT|BUTTON_DOWN,      BUTTON_SELECT },
 
 #ifdef HAVE_HOTKEY /* down|repeat doesn't work in the file browser */
-    { ACTION_WPS_HOTKEY,        BUTTON_DOWN|BUTTON_REPEAT,                    BUTTON_DOWN },
+    { ACTION_WPS_HOTKEY,        BUTTON_DOWN|BUTTON_REPEAT,      BUTTON_NONE }, 
+#else
+    { ACTION_WPS_VIEW_PLAYLIST, BUTTON_DOWN|BUTTON_REPEAT,      BUTTON_NONE }, 
 #endif
-    { ACTION_WPS_VIEW_PLAYLIST, BUTTON_DOWN|BUTTON_REL,      BUTTON_DOWN },
 
 #ifndef HAS_BUTTON_HOLD /* Clip+ */
     { ACTION_STD_KEYLOCK,       BUTTON_HOME|BUTTON_SELECT,      BUTTON_NONE },
@@ -98,6 +99,7 @@ static const struct button_mapping button_context_wps[]  = {
 static const struct button_mapping button_context_settings[] = {
     { ACTION_STD_OK,            BUTTON_HOME|BUTTON_REL,     BUTTON_HOME },
     { ACTION_STD_CANCEL,        BUTTON_POWER,               BUTTON_NONE },
+    { ACTION_SETTINGS_RESET,    BUTTON_SELECT,              BUTTON_NONE },
     
     { ACTION_SETTINGS_INC,      BUTTON_UP,                  BUTTON_NONE },
     { ACTION_SETTINGS_INCREPEAT,BUTTON_UP|BUTTON_REPEAT,    BUTTON_NONE },
@@ -135,7 +137,7 @@ static const struct button_mapping button_context_tree[]  = {
     { ACTION_TREE_WPS,    BUTTON_HOME|BUTTON_SELECT,    BUTTON_HOME },
     { ACTION_TREE_STOP,   BUTTON_POWER|BUTTON_REL,      BUTTON_POWER },
 #ifdef HAVE_HOTKEY
-    { ACTION_TREE_HOTKEY, BUTTON_HOME|BUTTON_DOWN,      BUTTON_HOME },
+//    { ACTION_TREE_HOTKEY, BUTTON_NONE,                  BUTTON_NONE },
 #endif
 
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_LIST),
@@ -179,7 +181,7 @@ static const struct button_mapping button_context_quickscreen[]  = {
     { ACTION_NONE,       BUTTON_LEFT,                   BUTTON_NONE },
     { ACTION_STD_CANCEL, BUTTON_POWER|BUTTON_REL,       BUTTON_NONE },
     { ACTION_STD_CANCEL, BUTTON_HOME,                   BUTTON_NONE },
-    { ACTION_STD_CANCEL, BUTTON_SELECT|BUTTON_REL,      BUTTON_SELECT },
+    { ACTION_STD_CANCEL, BUTTON_SELECT,                 BUTTON_NONE },
     { ACTION_QS_TOP,     BUTTON_UP|BUTTON_REL,          BUTTON_NONE },
     { ACTION_QS_TOP,     BUTTON_UP|BUTTON_REPEAT,       BUTTON_NONE },
     { ACTION_QS_DOWN,    BUTTON_DOWN|BUTTON_REL,        BUTTON_NONE },
@@ -212,11 +214,9 @@ static const struct button_mapping button_context_pitchscreen[]  = {
     { ACTION_PS_NUDGE_LEFTOFF,  BUTTON_LEFT|BUTTON_REL,         BUTTON_NONE },
     { ACTION_PS_NUDGE_RIGHT,    BUTTON_RIGHT,                   BUTTON_NONE },
     { ACTION_PS_NUDGE_RIGHTOFF, BUTTON_RIGHT|BUTTON_REL,        BUTTON_NONE },
-    { ACTION_PS_TOGGLE_MODE,    BUTTON_SELECT|BUTTON_REL,       BUTTON_SELECT },
-    { ACTION_PS_RESET,          BUTTON_HOME|BUTTON_REPEAT,      BUTTON_HOME },
-    { ACTION_PS_RESET,          BUTTON_SELECT|BUTTON_REPEAT,    BUTTON_SELECT },
+    { ACTION_PS_TOGGLE_MODE,    BUTTON_HOME|BUTTON_REL,         BUTTON_HOME },
+    { ACTION_PS_RESET,          BUTTON_SELECT,                  BUTTON_NONE },
     { ACTION_PS_EXIT,           BUTTON_POWER,                   BUTTON_NONE },
-    { ACTION_PS_EXIT,           BUTTON_HOME|BUTTON_REL,         BUTTON_HOME },
     { ACTION_PS_SLOWER,         BUTTON_LEFT|BUTTON_REPEAT,      BUTTON_NONE },
     { ACTION_PS_FASTER,         BUTTON_RIGHT|BUTTON_REPEAT,     BUTTON_NONE },
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD),
@@ -399,7 +399,7 @@ static const struct button_mapping button_context_usb_hid_mode_mouse[] = {
 /* get_context_mapping returns a pointer to one of the above defined arrays depending on the context */
 const struct button_mapping* get_context_mapping(int context)
 {
-    switch (context & ~CONTEXT_LOCKED)
+    switch (context)
     {
         case CONTEXT_STD:
             return button_context_standard;

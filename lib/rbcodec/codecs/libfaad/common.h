@@ -35,6 +35,22 @@ extern "C" {
 #include "faad_config.h"
 #include "codeclib.h"
 
+extern struct codec_api* ci;
+
+#if defined(DEBUG) || defined(SIMULATOR)
+#undef DEBUGF
+#define DEBUGF ci->debugf
+#else
+#define DEBUGF(...)
+#endif
+
+#ifdef ROCKBOX_HAS_LOGF
+#undef LOGF
+#define LOGF ci->logf
+#else
+#define LOGF(...)
+#endif
+
 #if   (CONFIG_CPU == MCF5250)
 /* Enough IRAM but performance suffers with ICODE_ATTR. */
 #define IBSS_ATTR_FAAD_LARGE_IRAM   IBSS_ATTR
@@ -66,7 +82,7 @@ extern "C" {
 #endif
 
 /* Used to allocate several SBR + PS arrays and variables statically. */
-#define FAAD_STATIC_ALLOC
+//#define FAAD_STATIC_ALLOC
 
 #define INLINE __inline
 #if 0 //defined(_WIN32) && !defined(_WIN32_WCE)
@@ -135,11 +151,9 @@ extern "C" {
   #undef ERROR_RESILIENCE
 #endif
 
-#ifdef CODEC_AAC_SBR_DEC
+#if CODEC_SIZE >= 0x80000
 #define SBR_DEC
 //#define SBR_LOW_POWER /* Does not work yet in rockbox. */
-#endif
-#if CODEC_SIZE >= 0x80000
 #define PS_DEC
 #endif
 

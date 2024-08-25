@@ -181,7 +181,6 @@ int get_hid_usb_action(void)
     {
         case ACTION_USB_HID_MODE_SWITCH_NEXT:
             step = 1;
-            /* fallthrough */
         case ACTION_USB_HID_MODE_SWITCH_PREV:
             /* Switch key mappings in a cyclic way */
             usb_keypad_mode = clamp_value_wrap(usb_keypad_mode + step,

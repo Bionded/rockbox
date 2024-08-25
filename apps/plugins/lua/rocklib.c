@@ -39,7 +39,7 @@
  * from Lua in its stack in direct order (the first argument is pushed first). To return values to Lua,
  * a C function just pushes them onto the stack, in direct order (the first result is pushed first),
  * and returns the number of results. Any other value in the stack below the results will be properly
- * discarded by Lua. Like a Lua function, a C function called by Lua can also return many results.
+ * discarded by Lua. Like a Lua function, a C function called by Lua can also return many results. 
  *
  * When porting new functions, don't forget to check rocklib_aux.pl whether it automatically creates
  * wrappers for the function and if so, add the function names to @forbidden_functions. This is to
@@ -53,8 +53,6 @@
  *
  * -----------------------------
  */
-extern size_t rock_get_allocated_bytes(void); /* tlsf_helper.c */
-extern size_t rock_get_unused_bytes(void);
 
 #define RB_WRAP(func) static int rock_##func(lua_State UNUSED_ATTR *L)
 #define SIMPLE_VOID_WRAPPER(func) RB_WRAP(func) { (void)L; func(); return 0; }
@@ -143,17 +141,10 @@ RB_WRAP(touchscreen_mode)
 
 RB_WRAP(kbd_input)
 {
-    /*kbd_input(text, layout)*
-      note: layout needs special formatting
-      see includes/create_kbd_layout.lua
-      or lib/kbd_helper.c
-   */
     luaL_Buffer b;
     luaL_buffinit(L, &b);
 
     const char *input = lua_tostring(L, 1);
-    size_t layout_len;
-    const unsigned char *layout = lua_tolstring(L, 2, &layout_len);
     char *buffer = luaL_prepbuffer(&b);
 
     if(input != NULL)
@@ -161,14 +152,7 @@ RB_WRAP(kbd_input)
     else
         buffer[0] = '\0';
 
-    if(layout_len <= 2 ||
-       layout[layout_len - 1] != 0xFE ||
-       layout[layout_len - 2] != 0xFF)
-    {
-        layout = NULL;
-    }
-
-    if(!rb->kbd_input(buffer, LUAL_BUFFERSIZE, (unsigned short *)layout))
+    if(!rb->kbd_input(buffer, LUAL_BUFFERSIZE))
     {
         luaL_addstring(&b, buffer);
         luaL_pushresult(&b);
@@ -236,12 +220,9 @@ static lua_State* store_luastate(lua_State *L, bool bStore)
     return LStored;
 }
 
-static int menu_callback(int action,
-                         const struct menu_item_ex *this_item,
-                         struct gui_synclist *this_list)
+static int menu_callback(int action, const struct menu_item_ex *this_item)
 {
     (void) this_item;
-    (void) this_list;
     static int lua_ref = LUA_NOREF;
     lua_State *L = store_luastate(NULL, false);
     if(!L)
@@ -278,7 +259,7 @@ RB_WRAP(do_menu)
     {
         /*lua callback function cb(action) return action end */
         ref_lua = luaL_ref(L, LUA_REGISTRYINDEX);
-        menu_callback(ref_lua, NULL, NULL);
+        menu_callback(ref_lua, NULL);
         store_luastate(L, true);
         menu_desc.menu_callback = &menu_callback;
     }
@@ -296,36 +277,27 @@ RB_WRAP(do_menu)
     {
             store_luastate(NULL, true);
             luaL_unref (L, LUA_REGISTRYINDEX, ref_lua);
-            menu_callback(LUA_NOREF, NULL, NULL);
+            menu_callback(LUA_NOREF, NULL);
     }
 
     lua_pushinteger(L, result);
     return 1;
 }
 
-RB_WRAP(splash_scroller)
-{
-    int timeout = luaL_checkint(L, 1);
-    const char *str = luaL_checkstring(L, 2);
-    int action = splash_scroller(timeout, str); /*rockaux.c*/
-    lua_pushinteger(L, action);
-    return 1;
-}
 
 /* DEVICE AUDIO / PLAYLIST CONTROL */
 
 RB_WRAP(playlist)
 {
     /* just passes NULL to work with the current playlist */
-    enum e_playlist {PLAYL_AMOUNT = 0, PLAYL_CREATE,
+    enum e_playlist {PLAYL_AMOUNT = 0, PLAYL_ADD, PLAYL_CREATE,
                      PLAYL_START, PLAYL_RESUMETRACK, PLAYL_RESUME,
                      PLAYL_SHUFFLE, PLAYL_SYNC, PLAYL_REMOVEALLTRACKS,
-                     PLAYL_INSERTTRACK, PLAYL_INSERTDIRECTORY, PLAYL_INSERTPLAYL,
-                     PLAYL_ECOUNT};
+                     PLAYL_INSERTTRACK, PLAYL_INSERTDIRECTORY, PLAYL_ECOUNT};
 
-    const char *playlist_option[] = {"amount", "create", "start", "resume_track",
+    const char *playlist_option[] = {"amount", "add", "create", "start", "resume_track",
                                      "resume", "shuffle", "sync", "remove_all_tracks",
-                                     "insert_track", "insert_directory", "insert_playlist", NULL};
+                                     "insert_track", "insert_directory", NULL};
 
     const char *filename, *dir;
     int result = 0;
@@ -338,6 +310,10 @@ RB_WRAP(playlist)
     {
         case PLAYL_AMOUNT:
             result = rb->playlist_amount();
+            break;
+        case PLAYL_ADD:
+            filename = luaL_checkstring(L, 2);
+            result = rb->playlist_add(filename);
             break;
         case PLAYL_CREATE:
             dir = luaL_checkstring(L, 2);
@@ -384,12 +360,6 @@ RB_WRAP(playlist)
             queue = lua_toboolean(L, 4); /* default to false */
             recurse = lua_toboolean(L, 5); /* default to false */
             result = rb->playlist_insert_directory(NULL, dir, pos, queue, recurse);
-            break;
-        case PLAYL_INSERTPLAYL:
-            filename = luaL_checkstring(L, 2); /* only required parameter */
-            pos = luaL_optint(L, 3, 0);
-            queue = lua_toboolean(L, 4); /* default to false */
-            result = rb->playlist_insert_playlist(NULL, filename, pos, queue);
             break;
     }
 
@@ -514,7 +484,8 @@ RB_WRAP(sound)
             lua_pushstring (L, rb->sound_unit(setting));
             return 1;
             break;
-#if defined (HAVE_PITCHCONTROL)
+#if ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) || \
+    (CONFIG_CODEC == SWCODEC)) && defined (HAVE_PITCHCONTROL)
         case SOUND_SET_PITCH:
             rb->sound_set_pitch(setting);
             return 1;/*nil*/
@@ -522,7 +493,7 @@ RB_WRAP(sound)
 #endif
         case SOUND_VAL2PHYS:
             value = luaL_checkint(L, 3);
-            result = rb->sound_val2phys(setting, value);
+            result = rb->sound_val2phys(setting, value);      
             break;
 
         default:
@@ -534,16 +505,19 @@ RB_WRAP(sound)
     return 1;
 }
 
+#if CONFIG_CODEC == SWCODEC
 RB_WRAP(pcm)
 {
-    enum e_pcm {PCM_APPLYSETTINGS = 0, PCM_ISPLAYING,
-                PCM_PLAYSTOP, PCM_PLAYLOCK, PCM_PLAYUNLOCK,
-                PCM_SETFREQUENCY, PCM_ECOUNT};
+    enum e_pcm {PCM_APPLYSETTINGS = 0, PCM_ISPLAYING, PCM_ISPAUSED,
+                PCM_PLAYSTOP, PCM_PLAYPAUSE, PCM_PLAYLOCK, PCM_PLAYUNLOCK,
+                PCM_CALCULATEPEAKS, PCM_SETFREQUENCY, PCM_GETBYTESWAITING, PCM_ECOUNT};
 
-    const char *pcm_option[] = {"apply_settings", "is_playing",
-                                "play_stop", "play_lock", "play_unlock",
-                                "set_frequency", NULL};
+    const char *pcm_option[] = {"apply_settings", "is_playing", "is_paused",
+                                "play_stop", "play_pause", "play_lock", "play_unlock",
+                                "calculate_peaks", "set_frequency", "get_bytes_waiting", NULL};
     bool   b_result;
+    int    left, right;
+    size_t byteswait;
 
     lua_pushnil(L); /*push nil so options w/o return have something to return */
 
@@ -557,6 +531,13 @@ RB_WRAP(pcm)
             b_result = rb->pcm_is_playing();
             lua_pushboolean(L, b_result);
             break;
+        case PCM_ISPAUSED:
+            b_result = rb->pcm_is_paused();
+            lua_pushboolean(L, b_result);
+            break;
+        case PCM_PLAYPAUSE:
+            rb->pcm_play_pause(luaL_checkboolean(L, 2));
+            break;
         case PCM_PLAYSTOP:
             rb->pcm_play_stop();
             break;
@@ -566,8 +547,17 @@ RB_WRAP(pcm)
         case PCM_PLAYUNLOCK:
             rb->pcm_play_unlock();
             break;
+        case PCM_CALCULATEPEAKS:
+            rb->pcm_calculate_peaks(&left, &right);
+            lua_pushinteger(L, left);
+            lua_pushinteger(L, right);
+            return 2;
         case PCM_SETFREQUENCY:
             rb->pcm_set_frequency((unsigned int) luaL_checkint(L, 2));
+            break;
+        case PCM_GETBYTESWAITING:
+            byteswait = rb->pcm_get_bytes_waiting();
+            lua_pushinteger(L, byteswait);
             break;
     }
 
@@ -587,8 +577,8 @@ RB_WRAP(mixer_frequency)
     lua_pushinteger(L, result);
     return 1;
 }
+#endif /*CONFIG_CODEC == SWCODEC*/
 
-#ifdef HAVE_BACKLIGHT
 /* DEVICE LIGHTING CONTROL */
 RB_WRAP(backlight_onoff)
 {
@@ -609,6 +599,11 @@ SIMPLE_VOID_WRAPPER(remote_backlight_force_on);
 SIMPLE_VOID_WRAPPER(remote_backlight_use_settings);
 #endif
 
+#ifdef HAVE_BUTTON_LIGHT
+SIMPLE_VOID_WRAPPER(buttonlight_force_on);
+SIMPLE_VOID_WRAPPER(buttonlight_use_settings);
+#endif
+
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
 RB_WRAP(backlight_brightness_set)
 {
@@ -622,12 +617,6 @@ RB_WRAP(backlight_brightness_set)
 
     return 0;
 }
-#endif
-#endif /* HAVE_BACKLIGHT */
-
-#ifdef HAVE_BUTTON_LIGHT
-SIMPLE_VOID_WRAPPER(buttonlight_force_on);
-SIMPLE_VOID_WRAPPER(buttonlight_use_settings);
 #endif
 
 #ifdef HAVE_BUTTONLIGHT_BRIGHTNESS
@@ -926,17 +915,10 @@ RB_WRAP(restart_lua)
     return -1;
 }
 
-RB_WRAP(mem_stats)
+RB_WRAP(show_logo)
 {
-    /* used, allocd, free = rb.mem_stats() */
-    /* note free is the high watermark */
-    size_t allocd = rock_get_allocated_bytes();
-    size_t free = rock_get_unused_bytes();
-
-    lua_pushinteger(L, allocd - free);
-    lua_pushinteger(L, allocd);
-    lua_pushinteger(L, free);
-    return 3;
+    rb->show_logo();
+    return 0;
 }
 
 #define RB_FUNC(func) {#func, rock_##func}
@@ -964,16 +946,16 @@ static const luaL_Reg rocklib[] =
     RB_FUNC(kbd_input),
     RB_FUNC(gui_syncyesno_run),
     RB_FUNC(do_menu),
-    RB_FUNC(splash_scroller),
 
     /* DEVICE AUDIO / SOUND / PLAYLIST CONTROL */
     RB_FUNC(audio),
     RB_FUNC(playlist),
     RB_FUNC(sound),
+#if CONFIG_CODEC == SWCODEC
     RB_FUNC(pcm),
     RB_FUNC(mixer_frequency),
+#endif
 
-#ifdef HAVE_BACKLIGHT
     /* DEVICE LIGHTING CONTROL */
     RB_FUNC(backlight_onoff),
 
@@ -986,14 +968,13 @@ static const luaL_Reg rocklib[] =
     RB_FUNC(remote_backlight_use_settings),
 #endif
 
-#ifdef HAVE_BACKLIGHT_BRIGHTNESS
-    RB_FUNC(backlight_brightness_set),
-#endif
-#endif  /* HAVE_BACKLIGHT */
-
 #ifdef HAVE_BUTTON_LIGHT
     RB_FUNC(buttonlight_force_on),
     RB_FUNC(buttonlight_use_settings),
+#endif
+
+#ifdef HAVE_BACKLIGHT_BRIGHTNESS
+    RB_FUNC(backlight_brightness_set),
 #endif
 
 #ifdef HAVE_BUTTONLIGHT_BRIGHTNESS
@@ -1022,7 +1003,7 @@ static const luaL_Reg rocklib[] =
 
     /* MISC */
     RB_FUNC(restart_lua),
-    RB_FUNC(mem_stats),
+    RB_FUNC(show_logo),
 
     {NULL, NULL}
 };
@@ -1079,7 +1060,6 @@ LUALIB_API int luaopen_rock(lua_State *L)
         RB_CONSTANT(SYS_USB_DISCONNECTED),
         RB_CONSTANT(SYS_TIMEOUT),
         RB_CONSTANT(SYS_POWEROFF),
-        RB_CONSTANT(SYS_REBOOT),
         RB_CONSTANT(SYS_CHARGER_CONNECTED),
         RB_CONSTANT(SYS_CHARGER_DISCONNECTED),
 

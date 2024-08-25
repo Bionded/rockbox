@@ -173,7 +173,7 @@ static bool save_changes(int overwrite)
 
     if (newfile || !overwrite)
     {
-        if(rb->kbd_input(filename,MAX_PATH, NULL) < 0)
+        if(rb->kbd_input(filename,MAX_PATH) < 0)
         {
             newfile = true;
             return false;
@@ -212,7 +212,9 @@ static bool save_changes(int overwrite)
 static void setup_lists(struct gui_synclist *lists, int sel)
 {
     rb->gui_synclist_init(lists,list_get_name_cb,0, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(lists,NULL);
     rb->gui_synclist_set_nb_items(lists,line_count);
+    rb->gui_synclist_limit_scroll(lists,true);
     rb->gui_synclist_select_item(lists, sel);
     rb->gui_synclist_draw(lists);
 }
@@ -245,7 +247,7 @@ static int do_item_menu(int cur_sel)
             ret = MENU_RET_NO_UPDATE;
         break;
         case 2: /* insert above */
-            if (!rb->kbd_input(copy_buffer,MAX_LINE_LEN, NULL))
+            if (!rb->kbd_input(copy_buffer,MAX_LINE_LEN))
             {
                 do_action(ACTION_INSERT,copy_buffer,cur_sel);
                 copy_buffer[0]='\0';
@@ -253,7 +255,7 @@ static int do_item_menu(int cur_sel)
             }
         break;
         case 3: /* insert below */
-            if (!rb->kbd_input(copy_buffer,MAX_LINE_LEN, NULL))
+            if (!rb->kbd_input(copy_buffer,MAX_LINE_LEN))
             {
                 do_action(ACTION_INSERT,copy_buffer,cur_sel+1);
                 copy_buffer[0]='\0';
@@ -393,7 +395,7 @@ enum plugin_status plugin_start(const void* parameter)
         rb->gui_synclist_draw(&lists);
         cur_sel = rb->gui_synclist_get_sel_pos(&lists);
         button = rb->get_action(CONTEXT_LIST,TIMEOUT_BLOCK);
-        if (rb->gui_synclist_do_button(&lists, &button))
+        if (rb->gui_synclist_do_button(&lists,&button,LIST_WRAP_UNLESS_HELD))
             continue;
         switch (button)
         {
@@ -423,7 +425,7 @@ enum plugin_status plugin_start(const void* parameter)
                     switch (rb->do_menu(&menu, NULL, NULL, false))
                     {
                         case 0:
-                            temp_changed = !rb->kbd_input(extension, sizeof(extension), NULL);
+                            temp_changed = !rb->kbd_input(extension, sizeof(extension));
                             break;
                         case 1:
                             old_color = color;
@@ -444,7 +446,7 @@ enum plugin_status plugin_start(const void* parameter)
                 }
                 else
 #endif
-                if (!rb->kbd_input(temp_line,MAX_LINE_LEN, NULL))
+                if (!rb->kbd_input(temp_line,MAX_LINE_LEN))
                 {
                     if (line_count)
                         do_action(ACTION_UPDATE,temp_line,cur_sel);

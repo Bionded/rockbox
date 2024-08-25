@@ -25,8 +25,40 @@
 #include "lib/playback_control.h"
 #include "lib/configfile.h"
 
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+
+
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define CALENDAR_QUIT       BUTTON_OFF
+#define CALENDAR_SELECT     BUTTON_PLAY
+#define CALENDAR_NEXT_WEEK  BUTTON_DOWN
+#define CALENDAR_PREV_WEEK  BUTTON_UP
+#define CALENDAR_NEXT_DAY   BUTTON_RIGHT
+#define CALENDAR_PREV_DAY   BUTTON_LEFT
+#define CALENDAR_NEXT_MONTH (BUTTON_ON|BUTTON_DOWN)
+#define CALENDAR_PREV_MONTH (BUTTON_ON|BUTTON_UP)
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define CALENDAR_QUIT       BUTTON_OFF
+#define CALENDAR_SELECT     BUTTON_SELECT
+#define CALENDAR_NEXT_WEEK  BUTTON_DOWN
+#define CALENDAR_PREV_WEEK  BUTTON_UP
+#define CALENDAR_NEXT_DAY   BUTTON_RIGHT
+#define CALENDAR_PREV_DAY   BUTTON_LEFT
+#define CALENDAR_NEXT_MONTH (BUTTON_ON|BUTTON_DOWN)
+#define CALENDAR_PREV_MONTH (BUTTON_ON|BUTTON_UP)
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define CALENDAR_QUIT       BUTTON_OFF
+#define CALENDAR_SELECT     (BUTTON_MENU|BUTTON_REL)
+#define CALENDAR_NEXT_WEEK  BUTTON_DOWN
+#define CALENDAR_PREV_WEEK  BUTTON_UP
+#define CALENDAR_NEXT_DAY   BUTTON_RIGHT
+#define CALENDAR_PREV_DAY   BUTTON_LEFT
+#define CALENDAR_NEXT_MONTH (BUTTON_MENU|BUTTON_DOWN)
+#define CALENDAR_PREV_MONTH (BUTTON_MENU|BUTTON_UP)
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define CALENDAR_QUIT       BUTTON_OFF
 #define CALENDAR_SELECT     BUTTON_SELECT
 #define CALENDAR_NEXT_WEEK  BUTTON_DOWN
@@ -39,12 +71,14 @@
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define CALENDAR_QUIT       (BUTTON_MENU|BUTTON_REL)
+#define CALENDAR_QUIT       (BUTTON_SELECT|BUTTON_MENU)
 #define CALENDAR_SELECT     (BUTTON_SELECT|BUTTON_REL)
 #define CALENDAR_NEXT_WEEK  BUTTON_SCROLL_FWD
 #define CALENDAR_PREV_WEEK  BUTTON_SCROLL_BACK
 #define CALENDAR_NEXT_DAY   BUTTON_RIGHT
 #define CALENDAR_PREV_DAY   BUTTON_LEFT
+#define CALENDAR_NEXT_MONTH BUTTON_PLAY
+#define CALENDAR_PREV_MONTH (BUTTON_MENU|BUTTON_REL)
 
 #elif (CONFIG_KEYPAD == IAUDIO_X5M5_PAD)
 #define CALENDAR_QUIT       BUTTON_POWER
@@ -65,6 +99,16 @@
 #define CALENDAR_PREV_DAY   BUTTON_LEFT
 #define CALENDAR_NEXT_MONTH BUTTON_VOL_DOWN
 #define CALENDAR_PREV_MONTH BUTTON_VOL_UP
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define CALENDAR_QUIT       BUTTON_PLAY
+#define CALENDAR_SELECT     BUTTON_SELECT
+#define CALENDAR_NEXT_WEEK  BUTTON_DOWN
+#define CALENDAR_PREV_WEEK  BUTTON_UP
+#define CALENDAR_NEXT_DAY   BUTTON_RIGHT
+#define CALENDAR_PREV_DAY   BUTTON_LEFT
+#define CALENDAR_NEXT_MONTH BUTTON_MODE
+#define CALENDAR_PREV_MONTH BUTTON_EQ
 
 #elif CONFIG_KEYPAD == SANSA_E200_PAD
 #define CALENDAR_QUIT       BUTTON_POWER
@@ -369,7 +413,7 @@
 #define CALENDAR_NEXT_MONTH  (BUTTON_VOLDOWN)
 #define CALENDAR_PREV_MONTH  (BUTTON_VOLUP)
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define CALENDAR_QUIT       BUTTON_POWER
 #define CALENDAR_SELECT     BUTTON_PLAY
 #define CALENDAR_NEXT_WEEK  BUTTON_OPTION
@@ -379,17 +423,7 @@
 #define CALENDAR_NEXT_MONTH BUTTON_VOL_UP
 #define CALENDAR_PREV_MONTH BUTTON_VOL_DOWN
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define CALENDAR_QUIT       BUTTON_POWER
-#define CALENDAR_SELECT     BUTTON_PLAY
-#define CALENDAR_NEXT_WEEK  BUTTON_OPTION
-#define CALENDAR_PREV_WEEK  BUTTON_HOME
-#define CALENDAR_NEXT_DAY   BUTTON_NEXT
-#define CALENDAR_PREV_DAY   BUTTON_PREV
-#define CALENDAR_NEXT_MONTH BUTTON_VOL_UP
-#define CALENDAR_PREV_MONTH BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define CALENDAR_QUIT       BUTTON_POWER
 #define CALENDAR_SELECT     BUTTON_PLAY
 #define CALENDAR_NEXT_WEEK  (BUTTON_POWER | BUTTON_VOL_DOWN)
@@ -399,28 +433,15 @@
 #define CALENDAR_NEXT_MONTH BUTTON_VOL_DOWN
 #define CALENDAR_PREV_MONTH BUTTON_VOL_UP
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define CALENDAR_QUIT       BUTTON_POWER
 #define CALENDAR_SELECT     BUTTON_PLAY
-#define CALENDAR_NEXT_WEEK  BUTTON_NEXT
-#define CALENDAR_PREV_WEEK  BUTTON_PREV
-#define CALENDAR_NEXT_DAY   BUTTON_SCROLL_FWD
-#define CALENDAR_PREV_DAY   BUTTON_SCROLL_BACK
-#define CALENDAR_NEXT_MONTH BUTTON_VOL_UP
-#define CALENDAR_PREV_MONTH BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define CALENDAR_QUIT       BUTTON_POWER
-#define CALENDAR_SELECT     BUTTON_SELECT
-#define CALENDAR_NEXT_WEEK  BUTTON_DOWN
-#define CALENDAR_PREV_WEEK  BUTTON_UP
-#define CALENDAR_NEXT_DAY   BUTTON_LEFT
-#define CALENDAR_PREV_DAY   BUTTON_RIGHT
-#define CALENDAR_NEXT_MONTH BUTTON_VOL_UP
-#define CALENDAR_PREV_MONTH BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#define CALENDAR_NEXT_WEEK  (BUTTON_POWER | BUTTON_VOL_DOWN)
+#define CALENDAR_PREV_WEEK  (BUTTON_POWER | BUTTON_VOL_UP)
+#define CALENDAR_NEXT_DAY   BUTTON_NEXT
+#define CALENDAR_PREV_DAY   BUTTON_PREV
+#define CALENDAR_NEXT_MONTH BUTTON_VOL_DOWN
+#define CALENDAR_PREV_MONTH BUTTON_VOL_UP
 
 #else
 #error "No keypad setting."
@@ -811,7 +832,7 @@ static void add_memo(struct shown *shown, int type)
 {
     bool saved = false;
     struct memo *memo = &memos[memos_in_memory];
-    if (rb->kbd_input(memo->message, MAX_CHAR_MEMO_LEN, NULL) == 0)
+    if (rb->kbd_input(memo->message, MAX_CHAR_MEMO_LEN) == 0)
     {
         if (memo->message[0])
         {
@@ -845,11 +866,8 @@ static void add_memo(struct shown *shown, int type)
         rb->splash(HZ/2, "Event not added");
 }
 
-static int edit_menu_cb(int action,
-                         const struct menu_item_ex *this_item,
-                         struct gui_synclist *this_list)
+static int edit_menu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int i = (intptr_t)this_item;
     if (action == ACTION_REQUEST_MENUITEM
         && memos_in_shown_memory <= 0 && (i==0 || i==1))
@@ -889,7 +907,7 @@ static bool edit_memo(int change, struct shown *shown)
 
             case 1: /* edit */
                 if(rb->kbd_input(memos[change].message,
-                                 MAX_CHAR_MEMO_LEN, NULL)  == 0)
+                                 MAX_CHAR_MEMO_LEN)  == 0)
                     save_memo(change, true, shown);
                 return false;
 
@@ -911,7 +929,7 @@ static bool edit_memo(int change, struct shown *shown)
 
             case 6: /* weekday */
                 rb->set_option("First Day of Week", &info.first_wday,
-                                RB_INT, modes, 7, NULL);
+                                INT, modes, 7, NULL);
                 break;
 
             case 7: /* playback control */
@@ -962,7 +980,7 @@ static bool view_events(int selected, struct shown *shown)
     while (!exit)
     {
         button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-        rb->gui_synclist_do_button(&gui_memos, &button);
+        rb->gui_synclist_do_button(&gui_memos, &button, LIST_WRAP_UNLESS_HELD);
 
         switch (button)
         {
@@ -1093,18 +1111,17 @@ enum plugin_status plugin_start(const void* parameter)
             case CALENDAR_QUIT:
                 exit = true;
                 break;
-#ifdef CALENDAR_NEXT_MONTH
+
             case CALENDAR_NEXT_MONTH:
             case CALENDAR_NEXT_MONTH | BUTTON_REPEAT:
                 next_month(&shown, 0);
                 break;
-#endif
-#ifdef CALENDAR_PREV_MONTH
+
             case CALENDAR_PREV_MONTH:
             case CALENDAR_PREV_MONTH | BUTTON_REPEAT:
                 prev_month(&shown, 0);
                 break;
-#endif
+
             case CALENDAR_NEXT_WEEK:
             case CALENDAR_NEXT_WEEK | BUTTON_REPEAT:
                 next_day(&shown, 7);

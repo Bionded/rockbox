@@ -566,16 +566,15 @@ static void display_helpfile(void)
         { 159, TEXT_UNDERLINE },
         LAST_STYLE_ITEM
     };
-
+            
     display_text(ARRAYLEN(helpfile_text), helpfile_text, formatting,
                  NULL, true);
     return;
 }
-
+    
 static void led_resistance_calc(void)
 {
     backlight_ignore_timeout();
-
     int voltage_menu_selection, button_press, j, k, l, foreward_current = 0;
     int fwd_current_selection = 0;
     bool quit = false;
@@ -624,7 +623,7 @@ static void led_resistance_calc(void)
 
         rb->splash(HZ*2, "(First) Input the supply voltage:");
         memset(kbd_buffer,0,sizeof(kbd_buffer));
-        rb->kbd_input(kbd_buffer, sizeof(kbd_buffer), NULL);
+        rb->kbd_input(kbd_buffer, sizeof(kbd_buffer));
         input_voltage = rb->atoi(kbd_buffer);
         if(input_voltage == 0) break;
 
@@ -661,7 +660,7 @@ static void led_resistance_calc(void)
                 rb->lcd_clear_display();
                 rb->splash(HZ*2, "Input the foreward current, in mA");
                 memset(fwd_kbd_buffer,0,sizeof(fwd_kbd_buffer));
-                rb->kbd_input(fwd_kbd_buffer, sizeof(fwd_kbd_buffer), NULL);
+                rb->kbd_input(fwd_kbd_buffer, sizeof(fwd_kbd_buffer));
                 foreward_current = ((rb->atoi(fwd_kbd_buffer))/10);
                 break;
         }
@@ -760,16 +759,14 @@ static void led_resistance_calc(void)
         rb->lcd_puts_scroll(resistance_val_x, lineno++, power_rating_out_str);
 
         rb->lcd_update();
-
+        
         while ((button_press = rb->button_get(true)) & BUTTON_REL);
         switch(button_press) {
             case PLA_SELECT:
                 break;
             default:
                 quit = true;
-
                 backlight_use_settings();
-
                 break;
         }
     }
@@ -779,11 +776,10 @@ static void led_resistance_calc(void)
     rb->lcd_clear_display();
 }
 
-
-static void resistance_to_color(void)
+        
+static void resistance_to_color(void) 
 {
     backlight_ignore_timeout();
-
     int menu_selection;
     int menu_selection_tol;
     int button_press;
@@ -821,7 +817,7 @@ static void resistance_to_color(void)
                                      NULL, false);
         if(ret<0) break;
         
-        rb->kbd_input(kbd_buffer, sizeof(kbd_buffer), NULL);
+        rb->kbd_input(kbd_buffer, sizeof(kbd_buffer));
         /* As stated above somewhere, we (I) need to make a calculator-like
            keypad, that keyboard isn't all that fun to use. */
         ret = rb->do_menu(&r_to_c_menu_tol, &menu_selection_tol,
@@ -887,29 +883,27 @@ static void resistance_to_color(void)
                         in_resistance_int,band_data[units_used].unit);
             return;
         }
-
+        
         rb->lcd_clear_display();
         lineno = INITIAL_TEXT_Y;
 #ifndef USE_TEXT_ONLY
         draw_resistor(first_band, second_band, multiplier, fourth_band);
-#endif
+#endif                     
         draw_resistor_text(first_band, second_band, multiplier, fourth_band);
-
+        
         rb->snprintf(out_str, sizeof(out_str), "Input: %d %s", in_resistance_int,
                      band_data[units_used].unit);
         display->set_viewport(&text_vp);
         rb->lcd_puts_scroll(r_to_c_out_str_x, lineno++, out_str);
         rb->lcd_update();
-
+        
         button_press = rb->button_get(true);
         switch(button_press) {
             case PLA_SELECT:
                 break;
             default:
                 quit = true;
-
                 backlight_use_settings();
-
                 break;
         }
     }
@@ -918,26 +912,25 @@ static void resistance_to_color(void)
     display->set_viewport(&screen_vp);
     rb->lcd_clear_display();
 }
-
-static void color_to_resistance(void)
+    
+static void color_to_resistance(void) 
 {
     backlight_ignore_timeout();
-
     bool quit = false;
     int button_input = 0;
-
+            
     /* The colors of the bands */
     enum color first_band = 0;
     enum color second_band = 0;
     enum color third_band = 0;
     enum color fourth_band = 0;
-
+           
     int total_resistance_centiunits = 0;
     char total_resistance_str [35];
-
+            
     rb->splash(HZ/2, "Colour to resistance");
     rb->lcd_clear_display();
-
+            
     while(!quit) {
         first_band = do_first_band_menu();
         if(first_band==RES_INVALID) break;
@@ -949,9 +942,9 @@ static void color_to_resistance(void)
         if(third_band==RES_INVALID) break;
 
         fourth_band = do_fourth_band_menu();
-        if(fourth_band==RES_INVALID) break;
-
-        total_resistance_centiunits = calculate_resistance(first_band,
+        if(third_band==RES_INVALID) break;
+                    
+        total_resistance_centiunits = calculate_resistance(first_band, 
                                                            second_band,
                                                            third_band);
 
@@ -993,7 +986,7 @@ static void color_to_resistance(void)
                 quit = true;
                 backlight_use_settings();
                 break;
-        }
+        }                   
     }
     display->set_viewport(&text_vp);
     rb->lcd_scroll_stop();

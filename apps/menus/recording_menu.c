@@ -29,12 +29,14 @@
 #include "lcd.h"
 #include "menu.h"
 #include "button.h"
+#include "mp3_playback.h"
 #include "settings.h"
-#include "rbpaths.h"
 #include "screens.h"
 #include "icons.h"
+#ifdef HAVE_LCD_BITMAP
 #include "font.h"
 #include "scrollbar.h"
+#endif
 #include "lang.h"
 #include "talk.h"
 #include "misc.h"
@@ -49,12 +51,14 @@
 #include "peakmeter.h"
 #endif
 #include "splash.h"
+#if CONFIG_CODEC == SWCODEC
 #include "metadata.h"
 #include "menus/eq_menu.h"
 #ifdef HAVE_RECORDING
 #include "enc_config.h"
 #endif
 #include "general.h"
+#endif
 #include "action.h"
 #include "recording.h"
 #include "sound_menu.h"
@@ -63,12 +67,9 @@
 #include "list.h"
 #include "viewport.h"
 #include "exported_menus.h"
-#include "pathfuncs.h"
 
 static bool no_source_in_menu = false;
-static int recmenu_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list);
+static int recmenu_callback(int action,const struct menu_item_ex *this_item);
 
 static int recsource_func(void)
 {
@@ -92,12 +93,13 @@ static int recsource_func(void)
 #endif
 
     return set_option(str(LANG_RECORDING_SOURCE),
-                      &global_settings.rec_source, RB_INT, names,
+                      &global_settings.rec_source, INT, names,
                       n_opts, NULL );
 }
-MENUITEM_FUNCTION(recsource, 0, ID2P(LANG_RECORDING_SOURCE),
-                  recsource_func, recmenu_callback, Icon_Menu_setting);
+MENUITEM_FUNCTION(recsource, 0, ID2P(LANG_RECORDING_SOURCE), 
+                    recsource_func, NULL, recmenu_callback, Icon_Menu_setting);
 
+#if CONFIG_CODEC == SWCODEC
 /* Makes an options list from a source list of options and indexes */
 static void make_options_from_indexes(const struct opt_items *src_names,
                                       const long *src_indexes,
@@ -108,8 +110,26 @@ static void make_options_from_indexes(const struct opt_items *src_names,
         dst_names[n_indexes] = src_names[src_indexes[n_indexes]];
 } /* make_options_from_indexes */
 
+
+#endif /* CONFIG_CODEC == SWCODEC */
+
 static int recfrequency_func(void)
 {
+#if CONFIG_CODEC == MAS3587F
+    static const struct opt_items names[6] = {
+        { "44.1kHz", TALK_ID(44, UNIT_KHZ) },
+        { "48kHz", TALK_ID(48, UNIT_KHZ) },
+        { "32kHz", TALK_ID(32, UNIT_KHZ) },
+        { "22.05kHz", TALK_ID(22, UNIT_KHZ) },
+        { "24kHz", TALK_ID(24, UNIT_KHZ) },
+        { "16kHz", TALK_ID(16, UNIT_KHZ) }
+    };
+    return set_option(str(LANG_FREQUENCY),
+                      &global_settings.rec_frequency, INT,
+                      names, 6, NULL );
+#endif /* CONFIG_CODEC == MAS3587F */
+
+#if CONFIG_CODEC == SWCODEC
     static const struct opt_items names[REC_NUM_FREQ] = {
         REC_HAVE_96_([REC_FREQ_96] = { "96kHz",     TALK_ID(96, UNIT_KHZ) },)
         REC_HAVE_88_([REC_FREQ_88] = { "88.2kHz",   TALK_ID(88, UNIT_KHZ) },)
@@ -172,7 +192,7 @@ static int recfrequency_func(void)
     }
 
     ret = set_option(str(LANG_FREQUENCY),
-                     &rec_frequency, RB_INT, opts, n_opts, NULL );
+                     &rec_frequency, INT, opts, n_opts, NULL );
 
     if (!ret
         HAVE_SPDIF_REC_( && global_settings.rec_source != REC_SRC_SPDIF)
@@ -187,9 +207,10 @@ static int recfrequency_func(void)
     }
 
     return ret;
+#endif /* CONFIG_CODEC == SWCODEC */
 } /* recfrequency */
 MENUITEM_FUNCTION(recfrequency, 0, ID2P(LANG_FREQUENCY),
-                  recfrequency_func, NULL, Icon_Menu_setting);
+                    recfrequency_func, NULL, NULL, Icon_Menu_setting);
 
 
 static int recchannels_func(void)
@@ -198,7 +219,13 @@ static int recchannels_func(void)
         [CHN_MODE_STEREO] = { STR(LANG_CHANNEL_STEREO) },
         [CHN_MODE_MONO]   = { STR(LANG_CHANNEL_MONO)   }
     };
+#if CONFIG_CODEC == MAS3587F
+    return set_option(str(LANG_CHANNELS),
+                      &global_settings.rec_channels, INT,
+                      names, CHN_NUM_MODES, NULL );
+#endif /* CONFIG_CODEC == MAS3587F */
 
+#if CONFIG_CODEC == SWCODEC
     struct opt_items    opts[CHN_NUM_MODES];
     long                table[CHN_NUM_MODES];
     struct encoder_caps caps;
@@ -222,15 +249,18 @@ static int recchannels_func(void)
     make_options_from_indexes(names, table, n_opts, opts);
 
     ret = set_option(str(LANG_CHANNELS), &rec_channels,
-                     RB_INT, opts, n_opts, NULL );
+                     INT, opts, n_opts, NULL );
 
     if (!ret)
         global_settings.rec_channels = table[rec_channels];
 
     return ret;
+#endif /* CONFIG_CODEC == SWCODEC */
 }
 MENUITEM_FUNCTION(recchannels, 0, ID2P(LANG_CHANNELS),
-                  recchannels_func, NULL, Icon_Menu_setting);
+                    recchannels_func, NULL, NULL, Icon_Menu_setting);
+
+#if CONFIG_CODEC == SWCODEC
 
 static int recmonomode_func(void)
 {
@@ -242,7 +272,7 @@ static int recmonomode_func(void)
 
     int rec_mono_mode = global_settings.rec_mono_mode;
     bool ret = set_option(str(LANG_RECORDING_MONO_MODE), &rec_mono_mode,
-                     RB_INT, names, 3, NULL );
+                     INT, names, 3, NULL );
 
     if (rec_mono_mode != global_settings.rec_mono_mode)
         global_settings.rec_mono_mode = rec_mono_mode;
@@ -250,7 +280,7 @@ static int recmonomode_func(void)
     return ret;
 }
 MENUITEM_FUNCTION(recmonomode, 0, ID2P(LANG_RECORDING_MONO_MODE),
-                  recmonomode_func, NULL, Icon_Menu_setting);
+                  recmonomode_func, NULL, NULL, Icon_Menu_setting);
 
 static int recformat_func(void)
 {
@@ -262,7 +292,7 @@ static int recformat_func(void)
     };
 
     int rec_format = global_settings.rec_format;
-    bool res = set_option(str(LANG_FORMAT), &rec_format, RB_INT,
+    bool res = set_option(str(LANG_RECORDING_FORMAT), &rec_format, INT,
                           names, REC_NUM_FORMATS, NULL );
 
     if (rec_format != global_settings.rec_format)
@@ -273,17 +303,18 @@ static int recformat_func(void)
 
     return res;
 } /* recformat */
-MENUITEM_FUNCTION(recformat, 0, ID2P(LANG_FORMAT),
-                  recformat_func, NULL, Icon_Menu_setting);
+MENUITEM_FUNCTION(recformat, 0, ID2P(LANG_RECORDING_FORMAT), 
+                    recformat_func, NULL, NULL, Icon_Menu_setting);
 
 MENUITEM_FUNCTION(enc_global_config_menu_item, 0, ID2P(LANG_ENCODER_SETTINGS),
-                  enc_global_config_menu, NULL, Icon_Submenu);
+                     enc_global_config_menu,
+                     NULL, NULL, Icon_Submenu);
 
-static int recmenu_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+#endif /* CONFIG_CODEC == SWCODEC */
+
+
+static int recmenu_callback(int action,const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     switch (action)
     {
         case ACTION_REQUEST_MENUITEM:
@@ -293,6 +324,10 @@ static int recmenu_callback(int action,
     }
     return action;
 }
+#if CONFIG_CODEC == MAS3587F
+MENUITEM_SETTING(rec_quality, &global_settings.rec_quality, NULL);
+MENUITEM_SETTING(rec_editable, &global_settings.rec_editable, NULL);
+#endif
 
 MENUITEM_SETTING(rec_split_type, &global_settings.rec_split_type, NULL);
 MENUITEM_SETTING(rec_split_method, &global_settings.rec_split_method, NULL);
@@ -306,14 +341,13 @@ MENUITEM_SETTING(rec_prerecord_time, &global_settings.rec_prerecord_time, NULL);
 
 static int clear_rec_directory(void)
 {
-    path_append(global_settings.rec_directory, REC_BASE_DIR,
-                PA_SEP_HARD, sizeof(global_settings.rec_directory));
+    strcpy(global_settings.rec_directory, REC_BASE_DIR);
     settings_save();
     splash(HZ, ID2P(LANG_RESET_DONE_CLEAR));
     return false;
 }
-MENUITEM_FUNCTION(clear_rec_directory_item, 0, ID2P(LANG_CLEAR_REC_DIR),
-                  clear_rec_directory, NULL, Icon_Folder);
+MENUITEM_FUNCTION(clear_rec_directory_item, 0, ID2P(LANG_CLEAR_REC_DIR), 
+                  clear_rec_directory, NULL, NULL, Icon_Folder);
 
 MENUITEM_SETTING(cliplight, &global_settings.cliplight, NULL);
 
@@ -331,11 +365,11 @@ static int agc_preset_func(void)
     if (global_settings.rec_source)
         return set_option(str(LANG_RECORDING_AGC_PRESET),
                           &global_settings.rec_agc_preset_line,
-                          RB_INT, names, 6, NULL );
+                          INT, names, 6, NULL );
     else
         return set_option(str(LANG_RECORDING_AGC_PRESET),
                           &global_settings.rec_agc_preset_mic,
-                          RB_INT, names, 6, NULL );
+                          INT, names, 6, NULL );
 }
 
 static int agc_cliptime_func(void)
@@ -349,12 +383,12 @@ static int agc_cliptime_func(void)
     };
     return set_option(str(LANG_RECORDING_AGC_CLIPTIME),
                       &global_settings.rec_agc_cliptime,
-                      RB_INT, names, 5, NULL );
+                      INT, names, 5, NULL );
 }
-MENUITEM_FUNCTION(agc_preset, 0, ID2P(LANG_RECORDING_AGC_PRESET),
-                  agc_preset_func, NULL, Icon_Menu_setting);
-MENUITEM_FUNCTION(agc_cliptime, 0, ID2P(LANG_RECORDING_AGC_CLIPTIME),
-                  agc_cliptime_func, NULL, Icon_Menu_setting);
+MENUITEM_FUNCTION(agc_preset, 0, ID2P(LANG_RECORDING_AGC_PRESET), 
+                    agc_preset_func, NULL, NULL, Icon_Menu_setting);
+MENUITEM_FUNCTION(agc_cliptime, 0, ID2P(LANG_RECORDING_AGC_CLIPTIME), 
+                    agc_cliptime_func, NULL, NULL, Icon_Menu_setting);
 #endif /* HAVE_AGC */
 
 /** Rec trigger **/
@@ -382,7 +416,7 @@ static enum themable_icons trigger_get_icon(int selected_item, void * data)
 static const char * trigger_get_name(int selected_item, void * data,
                         char * buffer, size_t buffer_len)
 {
-    const struct settings_list **settings =
+    const struct settings_list **settings = 
             (const struct settings_list **)data;
     const struct settings_list *s = settings[selected_item / 2];
     if ((selected_item % 2) == 0) /* header */
@@ -464,30 +498,30 @@ int rectrigger(void)
     /* TODO: what to do if there is < 4 lines on the screen? */
 
     settings[TRIGGER_MODE] =
-            find_setting(&global_settings.rec_trigger_mode);
+            find_setting(&global_settings.rec_trigger_mode, NULL);
     settings[TRIGGER_TYPE] =
-            find_setting(&global_settings.rec_trigger_type);
+            find_setting(&global_settings.rec_trigger_type, NULL);
     settings[PRERECORD_TIME] =
-            find_setting(&global_settings.rec_prerecord_time);
+            find_setting(&global_settings.rec_prerecord_time, NULL);
     settings[START_DURATION] =
-            find_setting(&global_settings.rec_start_duration);
+            find_setting(&global_settings.rec_start_duration, NULL);
     settings[STOP_POSTREC] =
-            find_setting(&global_settings.rec_stop_postrec);
+            find_setting(&global_settings.rec_stop_postrec, NULL);
     settings[STOP_GAP] =
-            find_setting(&global_settings.rec_stop_gap);
+            find_setting(&global_settings.rec_stop_gap, NULL);
     if (global_settings.peak_meter_dbfs) /* show the dB settings */
     {
         settings[START_THRESHOLD] =
-                find_setting(&global_settings.rec_start_thres_db);
+                find_setting(&global_settings.rec_start_thres_db, NULL);
         settings[STOP_THRESHOLD] =
-                find_setting(&global_settings.rec_stop_thres_db);
+                find_setting(&global_settings.rec_stop_thres_db, NULL);
     }
     else
     {
         settings[START_THRESHOLD] =
-                find_setting(&global_settings.rec_start_thres_linear);
+                find_setting(&global_settings.rec_start_thres_linear, NULL);
         settings[STOP_THRESHOLD] =
-                find_setting(&global_settings.rec_stop_thres_linear);
+                find_setting(&global_settings.rec_stop_thres_linear, NULL);
     }
     gui_synclist_init(&lists, trigger_get_name, settings, false, 2, vp);
     gui_synclist_set_nb_items(&lists, TRIG_OPTION_COUNT*2);
@@ -495,7 +529,7 @@ int rectrigger(void)
     /* restart trigger with new values */
     settings_apply_trigger();
     peak_meter_trigger (global_settings.rec_trigger_mode != TRIG_MODE_OFF);
-
+    
     trigger_speak_item(settings, 0, true);
 
     while (!done)
@@ -507,7 +541,7 @@ int rectrigger(void)
             settings_apply_trigger();
             changed = false;
         }
-
+        
         FOR_NB_SCREENS(i)
             screens[i].set_viewport(&triggervp[i]);
         peak_meter_draw_trig(trig_xpos, trig_ypos, trig_width, NB_SCREENS);
@@ -572,26 +606,35 @@ int rectrigger(void)
     settings_save();
     return 0;
 }
-MENUITEM_FUNCTION(rectrigger_item, 0, ID2P(LANG_RECORD_TRIGGER),
-                  rectrigger, NULL, Icon_Menu_setting);
+MENUITEM_FUNCTION(rectrigger_item, 0, ID2P(LANG_RECORD_TRIGGER), 
+                  rectrigger, NULL, NULL, Icon_Menu_setting);
 
 static struct browse_folder_info rec_config_browse = {RECPRESETS_DIR, SHOW_CFG};
-MENUITEM_FUNCTION_W_PARAM(browse_recconfigs, 0, ID2P(LANG_CUSTOM_CFG),
-                          browse_folder, (void*)&rec_config_browse,
-                          NULL, Icon_Config);
+MENUITEM_FUNCTION(browse_recconfigs, MENU_FUNC_USEPARAM, ID2P(LANG_CUSTOM_CFG), 
+                  browse_folder, (void*)&rec_config_browse, NULL, Icon_Config);
 static int write_settings_file(void)
 {
     return settings_save_config(SETTINGS_SAVE_RECPRESETS);
 }
-MENUITEM_FUNCTION(save_recpresets_item, 0, ID2P(LANG_SAVE_SETTINGS),
-                  write_settings_file, NULL, Icon_Config);
+MENUITEM_FUNCTION(save_recpresets_item, 0, ID2P(LANG_SAVE_SETTINGS), 
+                  write_settings_file, NULL, NULL, Icon_Config);
 
 MAKE_MENU(recording_settings_menu, ID2P(LANG_RECORDING_SETTINGS),
             NULL, Icon_Recording,
+#if CONFIG_CODEC == MAS3587F
+            &rec_quality,
+#endif
+#if CONFIG_CODEC == SWCODEC
             &recformat, &enc_global_config_menu_item,
+#endif
             &recfrequency, &recsource, /* recsource not shown if no_source */
             &recchannels,
+#if CONFIG_CODEC == SWCODEC
             &recmonomode,
+#endif
+#if CONFIG_CODEC == MAS3587F
+            &rec_editable,
+#endif
             &filesplitoptionsmenu,
             &rec_prerecord_time,
             &clear_rec_directory_item,
@@ -602,7 +645,9 @@ MAKE_MENU(recording_settings_menu, ID2P(LANG_RECORDING_SETTINGS),
 #ifdef HAVE_AGC
             &agc_preset, &agc_cliptime,
 #endif
+#ifdef HAVE_LCD_BITMAP
             &peak_meter_menu,
+#endif
             &browse_recconfigs, &save_recpresets_item
 );
 
@@ -616,5 +661,5 @@ int recording_menu(bool no_source)
     return retval;
 };
 
-MENUITEM_FUNCTION_W_PARAM(recording_settings, 0, ID2P(LANG_RECORDING_SETTINGS),
+MENUITEM_FUNCTION(recording_settings, MENU_FUNC_USEPARAM, ID2P(LANG_RECORDING_SETTINGS),
                           recording_menu, 0, NULL, Icon_Recording);

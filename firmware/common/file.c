@@ -28,17 +28,8 @@
 #include "file.h"
 #include "fileobj_mgr.h"
 #include "disk_cache.h"
-#include "rb_namespace.h"
+#include "dircache_redirect.h"
 #include "string-extra.h"
-
-/* Define LOGF_ENABLE to enable logf output in this file */
-//#define LOGF_ENABLE
-#ifdef LOGF_ENABLE
-#include "logf.h"
-#undef DEBUGF
-#define DEBUGF logf
-#endif
-
 
 /**
  * These functions provide a roughly POSIX-compatible file I/O API.
@@ -503,8 +494,6 @@ static int open_internal_inner1(const char *path, int oflag,
     return fildes;
 
 file_error:
-    if (fildes >= 0)
-        close(fildes);
     return rc;
 }
 
@@ -609,10 +598,8 @@ static inline ssize_t readwrite_partial(struct filestr_desc *file,
 static ssize_t readwrite(struct filestr_desc *file, void *buf, size_t nbyte,
                          bool write)
 {
-#ifndef LOGF_ENABLE /* wipes out log before you can save it */
     DEBUGF("readwrite(%p,%lx,%lu,%s)\n",
            file, (long)buf, (unsigned long)nbyte, write ? "write" : "read");
-#endif
 
     const file_size_t size = *file->sizep;
     file_size_t filerem;
@@ -777,9 +764,8 @@ file_error:;
         /* error or not, update the file offset and size if anything was
            transferred */
         file->offset += done;
-#ifndef LOGF_ENABLE /* wipes out log before you can save it */
         DEBUGF("file offset: %ld\n", file->offset);
-#endif
+
         /* adjust file size to length written */
         if (write && file->offset > size)
             *file->sizep = file->offset;
@@ -913,9 +899,8 @@ file_error:
 /* move the read/write file offset */
 off_t lseek(int fildes, off_t offset, int whence)
 {
-#ifndef LOGF_ENABLE /* wipes out log before you can save it */
     DEBUGF("lseek(fd=%d,ofs=%ld,wh=%d)\n", fildes, (long)offset, whence);
-#endif
+
     struct filestr_desc * const file = GET_FILESTR(READER, fildes);
     if (!file)
         FILE_ERROR_RETURN(ERRNO, -1);
@@ -1138,43 +1123,8 @@ file_error:
     return rc;
 }
 
+
 /** Extensions **/
-
-int modtime(const char *path, time_t modtime)
-{
-    DEBUGF("modtime(path=\"%s\",modtime=%d)\n", path, (int) modtime);
-
-    int rc, open1rc = -1;
-    struct filestr_base pathstr;
-    struct path_component_info pathinfo;
-
-    file_internal_lock_WRITER();
-
-    open1rc = open_stream_internal(path, FF_ANYTYPE | FF_PARENTINFO,
-                                   &pathstr, &pathinfo);
-    if (open1rc <= 0)
-    {
-        DEBUGF("Failed opening path: %d\n", open1rc);
-        if (open1rc == 0)
-            FILE_ERROR(ENOENT, -1);
-        else
-            FILE_ERROR(ERRNO, open1rc * 10 - 1);
-    }
-
-    rc = fat_modtime(&pathinfo.parentinfo.fatfile, pathstr.fatstr.fatfilep,
-                     modtime);
-    if (rc < 0)
-    {
-        DEBUGF("I/O error during modtime: %d\n", rc);
-        FILE_ERROR(ERRNO, rc * 10 - 2);
-    }
-
-file_error:
-    if (open1rc >= 0)
-        close_stream_internal(&pathstr);
-    file_internal_unlock_WRITER();
-    return rc;
-}
 
 /* get the binary size of a file (in bytes) */
 off_t filesize(int fildes)

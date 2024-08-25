@@ -30,7 +30,41 @@
 #include "lib/osd.h"
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define OSCILLOSCOPE_QUIT            BUTTON_OFF
+#define OSCILLOSCOPE_DRAWMODE        BUTTON_F1
+#define OSCILLOSCOPE_ADVMODE         BUTTON_F2
+#define OSCILLOSCOPE_ORIENTATION     BUTTON_F3
+#define OSCILLOSCOPE_PAUSE           BUTTON_PLAY
+#define OSCILLOSCOPE_SPEED_UP        BUTTON_RIGHT
+#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_LEFT
+#define OSCILLOSCOPE_VOL_UP          BUTTON_UP
+#define OSCILLOSCOPE_VOL_DOWN        BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define OSCILLOSCOPE_QUIT            BUTTON_OFF
+#define OSCILLOSCOPE_DRAWMODE        BUTTON_F1
+#define OSCILLOSCOPE_ADVMODE         BUTTON_F2
+#define OSCILLOSCOPE_ORIENTATION     BUTTON_F3
+#define OSCILLOSCOPE_PAUSE           BUTTON_SELECT
+#define OSCILLOSCOPE_SPEED_UP        BUTTON_RIGHT
+#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_LEFT
+#define OSCILLOSCOPE_VOL_UP          BUTTON_UP
+#define OSCILLOSCOPE_VOL_DOWN        BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define OSCILLOSCOPE_QUIT            BUTTON_OFF
+#define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_MENU
+#define OSCILLOSCOPE_DRAWMODE        (BUTTON_MENU | BUTTON_REL)
+#define OSCILLOSCOPE_ADVMODE         (BUTTON_MENU | BUTTON_RIGHT)
+#define OSCILLOSCOPE_ORIENTATION     (BUTTON_MENU | BUTTON_LEFT)
+#define OSCILLOSCOPE_PAUSE           (BUTTON_MENU | BUTTON_OFF)
+#define OSCILLOSCOPE_SPEED_UP        BUTTON_RIGHT
+#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_LEFT
+#define OSCILLOSCOPE_VOL_UP          BUTTON_UP
+#define OSCILLOSCOPE_VOL_DOWN        BUTTON_DOWN
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define OSCILLOSCOPE_QUIT            BUTTON_OFF
 #define OSCILLOSCOPE_DRAWMODE        BUTTON_SELECT
 #define OSCILLOSCOPE_ADVMODE         BUTTON_MODE
@@ -47,14 +81,12 @@
 
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define OSCILLOSCOPE_QUIT            BUTTON_MENU
-#define OSCILLOSCOPE_GRAPHMODE_PRE   BUTTON_SELECT
-#define OSCILLOSCOPE_GRAPHMODE       (BUTTON_SELECT | BUTTON_REL)
-#define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_SELECT
-#define OSCILLOSCOPE_DRAWMODE        (BUTTON_SELECT | BUTTON_REPEAT)
+#define OSCILLOSCOPE_QUIT            (BUTTON_SELECT | BUTTON_MENU)
+#define OSCILLOSCOPE_DRAWMODE        (BUTTON_SELECT | BUTTON_PLAY)
 #define OSCILLOSCOPE_ADVMODE         (BUTTON_SELECT | BUTTON_RIGHT)
 #define OSCILLOSCOPE_ORIENTATION     (BUTTON_SELECT | BUTTON_LEFT)
-#define OSCILLOSCOPE_PAUSE           BUTTON_PLAY | BUTTON_REL
+#define OSCILLOSCOPE_GRAPHMODE       BUTTON_MENU
+#define OSCILLOSCOPE_PAUSE           BUTTON_PLAY
 #define OSCILLOSCOPE_SPEED_UP        BUTTON_RIGHT
 #define OSCILLOSCOPE_SPEED_DOWN      BUTTON_LEFT
 #define OSCILLOSCOPE_VOL_UP          BUTTON_SCROLL_FWD
@@ -486,35 +518,7 @@
 #define OSCILLOSCOPE_VOL_DOWN        BUTTON_VOL_DOWN
 #define NEED_LASTBUTTON
 
-#elif (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
-#define OSCILLOSCOPE_QUIT            BUTTON_POWER
-#define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_PLAY
-#define OSCILLOSCOPE_DRAWMODE        (BUTTON_PLAY | BUTTON_REL)
-#define OSCILLOSCOPE_ORIENTATION_PRE BUTTON_PLAY
-#define OSCILLOSCOPE_ORIENTATION     (BUTTON_PLAY | BUTTON_REPEAT)
-#define OSCILLOSCOPE_ADVMODE         BUTTON_HOME
-#define OSCILLOSCOPE_PAUSE           BUTTON_OPTION
-#define OSCILLOSCOPE_SPEED_UP        BUTTON_NEXT
-#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_PREV
-#define OSCILLOSCOPE_VOL_UP          BUTTON_VOL_UP
-#define OSCILLOSCOPE_VOL_DOWN        BUTTON_VOL_DOWN
-#define NEED_LASTBUTTON
-
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
-#define OSCILLOSCOPE_QUIT            BUTTON_POWER
-#define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_PLAY
-#define OSCILLOSCOPE_DRAWMODE        (BUTTON_PLAY | BUTTON_REL)
-#define OSCILLOSCOPE_ORIENTATION_PRE BUTTON_PLAY
-#define OSCILLOSCOPE_ORIENTATION     (BUTTON_PLAY | BUTTON_REPEAT)
-#define OSCILLOSCOPE_ADVMODE         BUTTON_HOME
-#define OSCILLOSCOPE_PAUSE           BUTTON_OPTION
-#define OSCILLOSCOPE_SPEED_UP        BUTTON_NEXT
-#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_PREV
-#define OSCILLOSCOPE_VOL_UP          BUTTON_VOL_UP
-#define OSCILLOSCOPE_VOL_DOWN        BUTTON_VOL_DOWN
-#define NEED_LASTBUTTON
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define OSCILLOSCOPE_QUIT            BUTTON_POWER
 #define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_PLAY
 #define OSCILLOSCOPE_DRAWMODE        (BUTTON_PLAY | BUTTON_REL)
@@ -528,30 +532,19 @@
 #define OSCILLOSCOPE_VOL_DOWN        BUTTON_VOL_DOWN
 #define NEED_LASTBUTTON
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
-#define OSCILLOSCOPE_QUIT           BUTTON_POWER
-#define OSCILLOSCOPE_DRAWMODE       BUTTON_PREV
-#define OSCILLOSCOPE_ADVMODE        BUTTON_NEXT
-#define OSCILLOSCOPE_ORIENTATION    BUTTON_BACK
-#define OSCILLOSCOPE_PAUSE          BUTTON_PLAY
-#define OSCILLOSCOPE_SPEED_UP       BUTTON_SCROLL_FWD
-#define OSCILLOSCOPE_SPEED_DOWN     BUTTON_SCROLL_BACK
-#define OSCILLOSCOPE_VOL_UP         BUTTON_VOL_UP
-#define OSCILLOSCOPE_VOL_DOWN       BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define OSCILLOSCOPE_QUIT           BUTTON_POWER
-#define OSCILLOSCOPE_DRAWMODE       BUTTON_MENU
-#define OSCILLOSCOPE_ADVMODE        BUTTON_PLAY
-#define OSCILLOSCOPE_ORIENTATION    BUTTON_BACK
-#define OSCILLOSCOPE_PAUSE          BUTTON_SELECT
-#define OSCILLOSCOPE_SPEED_UP       BUTTON_SCROLL_BACK
-#define OSCILLOSCOPE_SPEED_DOWN     BUTTON_SCROLL_FWD
-#define OSCILLOSCOPE_VOL_UP         BUTTON_VOL_UP
-#define OSCILLOSCOPE_VOL_DOWN       BUTTON_VOL_DOWN
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
+#define OSCILLOSCOPE_QUIT            BUTTON_POWER
+#define OSCILLOSCOPE_DRAWMODE_PRE    BUTTON_PLAY
+#define OSCILLOSCOPE_DRAWMODE        (BUTTON_PLAY | BUTTON_REL)
+#define OSCILLOSCOPE_ORIENTATION_PRE BUTTON_PLAY
+#define OSCILLOSCOPE_ORIENTATION     (BUTTON_PLAY | BUTTON_REPEAT)
+#define OSCILLOSCOPE_ADVMODE         BUTTON_HOME
+#define OSCILLOSCOPE_PAUSE           (BUTTON_HOME | BUTTON_REPEAT)
+#define OSCILLOSCOPE_SPEED_UP        BUTTON_NEXT
+#define OSCILLOSCOPE_SPEED_DOWN      BUTTON_PREV
+#define OSCILLOSCOPE_VOL_UP          BUTTON_VOL_UP
+#define OSCILLOSCOPE_VOL_DOWN        BUTTON_VOL_DOWN
+#define NEED_LASTBUTTON
 
 #else
 #error No keymap defined!
@@ -854,10 +847,10 @@ static void osc_osd_show_message(int id, int val)
     int width, height;
     int maxwidth, maxheight;
 
-    struct viewport *last_vp = rb->lcd_set_viewport(osd_get_viewport());
+    rb->lcd_set_viewport(osd_get_viewport());
     osd_get_max_dims(&maxwidth, &maxheight);
     rb->lcd_getstringsize(osc_osd_message, &width, &height);
-    rb->lcd_set_viewport(last_vp); /* to regular viewport */
+    rb->lcd_set_viewport(NULL); /* to regular viewport */
 
     width += 2 + 2*OSC_OSD_MARGIN_SIZE;
     if (width > maxwidth)
@@ -880,7 +873,7 @@ static void anim_draw_cursor_h(int x)
 {
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(CURSOR_COLOR);
-    rb->lcd_vline(x, 0, LCD_HEIGHT-1);
+    rb->lcd_vline(x, 0, LCD_HEIGHT-1); 
     rb->lcd_set_foreground(GRAPH_COLOR);
 #else
     rb->lcd_set_drawmode(DRMODE_COMPLEMENT);
@@ -894,7 +887,7 @@ static void anim_draw_cursor_v(int y)
 {
 #if LCD_DEPTH > 1               /* cursor bar */
     rb->lcd_set_foreground(CURSOR_COLOR);
-    rb->lcd_hline(0, LCD_WIDTH-1, y);
+    rb->lcd_hline(0, LCD_WIDTH-1, y); 
     rb->lcd_set_foreground(GRAPH_COLOR);
 #else
     rb->lcd_set_drawmode(DRMODE_COMPLEMENT);
@@ -914,11 +907,22 @@ static int  last_right;
 
 static void get_peaks(int *left, int *right)
 {
+#if CONFIG_CODEC == SWCODEC
     static struct pcm_peaks peaks;
     rb->mixer_channel_calculate_peaks(PCM_MIXER_CHAN_PLAYBACK,
                                       &peaks);
     *left = peaks.left;
     *right = peaks.right;
+#elif defined (SIMULATOR)
+    *left = rand() % 0x8000;
+    *right = rand() % 0x8000;
+#elif (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    *left = rb->mas_codec_readreg(0xC);
+    *right = rb->mas_codec_readreg(0xD);
+#else
+    *left = 0;
+    *right = 0;
+#endif
 }
 
 static long get_next_delay(void)
@@ -1039,9 +1043,9 @@ static long anim_peaks_horizontal(void)
             }
             else
             {
-                left  = last_left
+                left  = last_left 
                       + (LCD_WIDTH - last_pos) * (last_left - cur_left) / d;
-                right = last_right
+                right = last_right 
                       + (LCD_WIDTH - last_pos) * (last_right - cur_right) / d;
 
                 rb->lcd_drawline(
@@ -1065,7 +1069,7 @@ static long anim_peaks_horizontal(void)
                 }
             }
             break;
-
+            
         case DRAW_PIXEL:
             left = last_left;
             right = last_right;
@@ -1089,14 +1093,14 @@ static long anim_peaks_horizontal(void)
 
     last_left  = cur_left;
     last_right = cur_right;
-
+    
     if (full_update)
     {
         osd_lcd_update();
     }
     else
     {
-        anim_draw_cursor_h(cur_x + 1); /* cursor bar */
+        anim_draw_cursor_h(cur_x + 1); /* cursor bar */    
 
         if (cur_x > last_pos)
         {
@@ -1163,7 +1167,7 @@ static long anim_peaks_vertical(void)
             cur_y -= shift;
             last_pos -= shift;
         }
-        else
+        else 
         {
             cur_y -= LCD_HEIGHT;
         }
@@ -1218,7 +1222,7 @@ static long anim_peaks_vertical(void)
             }
             else
             {
-                left  = last_left
+                left  = last_left 
                       + (LCD_HEIGHT - last_pos) * (last_left - cur_left) / d;
                 right = last_right
                       + (LCD_HEIGHT - last_pos) * (last_right - cur_right) / d;
@@ -1244,7 +1248,7 @@ static long anim_peaks_vertical(void)
                 }
             }
             break;
-
+            
         case DRAW_PIXEL:
             left = last_left;
             right = last_right;
@@ -1268,7 +1272,7 @@ static long anim_peaks_vertical(void)
 
     last_left  = cur_left;
     last_right = cur_right;
-
+    
     if (full_update)
     {
         osd_lcd_update();
@@ -1357,7 +1361,7 @@ static void waveform_buffer_done(void)
 
     waveform_buffer_have = have;
 }
-
+    
 /* where the samples are obtained and buffered */
 static void waveform_buffer_callback(const void *start, size_t size)
 {
@@ -1941,9 +1945,9 @@ static void osc_cleanup(void)
     rb->lcd_set_foreground(LCD_DEFAULT_FG);
     rb->lcd_set_background(LCD_DEFAULT_BG);
 #endif
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
+
 
     /* save settings if changed */
     if (rb->memcmp(&osc, &osc_disk, sizeof(osc)))
@@ -1978,7 +1982,6 @@ static void osc_setup(void)
 
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
-
     graphmode_setup();
 }
 
@@ -2050,7 +2053,7 @@ enum plugin_status plugin_start(const void* parameter)
                 osc_popupmsg(OSC_MSG_GRAPHMODE, osc.graphmode);
                 break;
 #endif /* OSCILLOSCOPE_GRAPHMODE */
-
+                
             case OSCILLOSCOPE_ORIENTATION:
 #ifdef OSCILLOSCOPE_ORIENTATION_PRE
                 if (lastbutton != OSCILLOSCOPE_ORIENTATION_PRE)
@@ -2072,7 +2075,7 @@ enum plugin_status plugin_start(const void* parameter)
                 graphmode_pause_unpause(paused);
                 osc_popupmsg(OSC_MSG_PAUSED, paused ? 1 : 0);
                 break;
-
+                
             case OSCILLOSCOPE_SPEED_UP:
             case OSCILLOSCOPE_SPEED_UP | BUTTON_REPEAT:
             {
@@ -2085,7 +2088,7 @@ enum plugin_status plugin_start(const void* parameter)
                 osc_popupmsg(OSC_MSG_SPEED, *val);
                 break;
             }
-
+                
             case OSCILLOSCOPE_SPEED_DOWN:
             case OSCILLOSCOPE_SPEED_DOWN | BUTTON_REPEAT:
             {

@@ -23,7 +23,6 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
-#include <utime.h>
 #include "config.h"
 #include "system.h"
 #include "file.h"
@@ -33,21 +32,8 @@
 #include "pathfuncs.h"
 #include "string-extra.h"
 
-int os_volume_path(IF_MV(int volume, ) char *buffer, size_t bufsize);
-
 #define SAME_FILE_INFO(sb1p, sb2p) \
     ((sb1p)->st_dev == (sb2p)->st_dev && (sb1p)->st_ino == (sb2p)->st_ino)
-
-int os_modtime(const char *path, time_t modtime)
-{
-    struct utimbuf times =
-    {
-        .actime = modtime,
-        .modtime = modtime,
-    };
-
-    return utime(path, &times);
-}
 
 off_t os_filesize(int osfd)
 {
@@ -83,7 +69,7 @@ int os_relate(const char *ospath1, const char *ospath2)
     }
 
     /* First file must stay open for duration so that its stats don't change */
-    int fd1 = os_open(ospath1, O_RDONLY | O_CLOEXEC);
+    int fd1 = os_open(ospath1, O_RDONLY);
     if (fd1 < 0)
         return -2;
 
@@ -158,7 +144,7 @@ int os_relate(const char *ospath1, const char *ospath2)
 
 bool os_file_exists(const char *ospath)
 {
-    int sim_fd = os_open(ospath, O_RDONLY | O_CLOEXEC, 0);
+    int sim_fd = os_open(ospath, O_RDONLY, 0);
     if (sim_fd < 0)
         return false;
 
@@ -171,7 +157,7 @@ bool os_file_exists(const char *ospath)
 
 int os_opendirfd(const char *osdirname)
 {
-    return os_open(osdirname, O_RDONLY | O_CLOEXEC);
+    return os_open(osdirname, O_RDONLY);
 }
 
 int os_opendir_and_fd(const char *osdirname, DIR **osdirpp, int *osfdp)
@@ -209,9 +195,9 @@ int os_opendir_and_fd(const char *osdirname, DIR **osdirpp, int *osfdp)
 }
 
 /* do we really need this in the app? (in the sim, yes) */
-void volume_size(IF_MV(int volume,) sector_t *sizep, sector_t *freep)
+void volume_size(IF_MV(int volume,) unsigned long *sizep, unsigned long *freep)
 {
-    sector_t size = 0, free = 0;
+    unsigned long size = 0, free = 0;
     char volpath[MAX_PATH];
     struct statfs fs;
 

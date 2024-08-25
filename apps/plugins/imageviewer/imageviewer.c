@@ -127,9 +127,6 @@ static int curfile = -1, direction = DIR_NEXT, entries = 0;
 /* list of the supported image files */
 static char **file_pt;
 
-/* progress update tick */
-static long next_progress_tick;
-
 static const struct image_decoder *imgdec = NULL;
 static enum image_type image_type = IMAGE_UNKNOWN;
 
@@ -195,11 +192,7 @@ static int change_filename(int direct)
         return PLUGIN_ERROR;
     }
 
-    size_t np_file_length = rb->strlen(np_file);
-    size_t np_file_name_length = rb->strlen(rb->strrchr(np_file, '/')+1);
-    size_t avail_length = sizeof(np_file) - (np_file_length - np_file_name_length);
-
-    rb->snprintf(rb->strrchr(np_file, '/')+1, avail_length, "%s", file_pt[curfile]);
+    rb->strcpy(rb->strrchr(np_file, '/')+1, file_pt[curfile]);
 
     return PLUGIN_OTHER;
 }
@@ -230,15 +223,15 @@ static bool set_option_dithering(void)
         [DITHER_DIFFUSION] = { STR(LANG_DIFFUSION) },
     };
 
-    rb->set_option(rb->str(LANG_DITHERING), &settings.jpeg_dither_mode, RB_INT,
+    rb->set_option(rb->str(LANG_DITHERING), &settings.jpeg_dither_mode, INT,
                    dithering, DITHER_NUM_MODES, NULL);
     return false;
 }
 
 MENUITEM_FUNCTION(grayscale_item, 0, ID2P(LANG_GRAYSCALE),
-                  set_option_grayscale, NULL, Icon_NOICON);
+                  set_option_grayscale, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(dithering_item, 0, ID2P(LANG_DITHERING),
-                  set_option_dithering, NULL, Icon_NOICON);
+                  set_option_dithering, NULL, NULL, Icon_NOICON);
 MAKE_MENU(display_menu, "Display Options", NULL, Icon_NOICON,
             &grayscale_item, &dithering_item);
 
@@ -290,7 +283,7 @@ static int show_menu(void) /* return 1 to quit */
         case MIID_RETURN:
             break;
         case MIID_TOGGLE_SS_MODE:
-            rb->set_option(rb->str(LANG_SLIDESHOW_MODE), &iv_api.slideshow_enabled, RB_BOOL,
+            rb->set_option(rb->str(LANG_SLIDESHOW_MODE), &iv_api.slideshow_enabled, BOOL,
                            slideshow , 2, NULL);
             break;
         case MIID_CHANGE_SS_MODE:
@@ -333,7 +326,7 @@ static int show_menu(void) /* return 1 to quit */
             /* slideshow times < 10s keep disk spinning */
             rb->storage_spindown(0);
         }
-        else if (!rb->pcm_is_playing())
+        else if (!rb->mp3_is_playing())
         {
             /* slideshow times > 10s and not playing: ata_off after load */
             iv_api.immediate_ata_off = true;
@@ -353,7 +346,7 @@ static int show_menu(void) /* return 1 to quit */
 static int ask_and_get_audio_buffer(const char *filename)
 {
     int button;
-#if defined(IMGVIEW_ZOOM_PRE) || defined(IMGVIEW_QUIT_PRE)
+#if defined(IMGVIEW_ZOOM_PRE)
     int lastbutton = BUTTON_NONE;
 #endif
     rb->lcd_setfont(FONT_SYSFIXED);
@@ -392,10 +385,6 @@ static int ask_and_get_audio_buffer(const char *filename)
 #endif
 #ifdef IMGVIEW_QUIT
             case IMGVIEW_QUIT:
-#ifdef IMGVIEW_QUIT_PRE
-            if (lastbutton != IMGVIEW_QUIT_PRE)
-                break;
-#endif
 #endif
             case IMGVIEW_MENU:
                 return PLUGIN_OK;
@@ -428,7 +417,7 @@ static int ask_and_get_audio_buffer(const char *filename)
                         == SYS_USB_CONNECTED)
                     return PLUGIN_USB_CONNECTED;
         }
-#if defined(IMGVIEW_ZOOM_PRE) || defined(IMGVIEW_QUIT_PRE)
+#if defined(IMGVIEW_ZOOM_PRE)
         if (button != BUTTON_NONE)
             lastbutton = button;
 #endif
@@ -439,14 +428,7 @@ static int ask_and_get_audio_buffer(const char *filename)
 /* callback updating a progress meter while image decoding */
 static void cb_progress(int current, int total)
 {
-    /* do not yield or update the progress bar if we did so too recently */
-    long now = *rb->current_tick;
-    if(!TIME_AFTER(now, next_progress_tick))
-        return;
-
-    /* limit to 20fps */
-    next_progress_tick = now + HZ/20;
-
+    rb->yield(); /* be nice to the other threads */
 #ifndef USEGSLIB
     /* in slideshow mode, keep gui interference to a minimum */
     const int size = (!iv_api.running_slideshow ? 8 : 4);
@@ -460,8 +442,6 @@ static void cb_progress(int current, int total)
                             total, 0, current, HORIZONTAL);
         rb->lcd_update_rect(0, LCD_HEIGHT-size, LCD_WIDTH, size);
     }
-
-    rb->yield(); /* be nice to the other threads */
 }
 
 #define VSCROLL (LCD_HEIGHT/8)
@@ -529,13 +509,6 @@ static void pan_view_up(struct image_info *info)
    the bottom */
 static void pan_view_down(struct image_info *info)
 {
-    static fb_data *lcd_fb = NULL;
-    if (!lcd_fb)
-    {
-        struct viewport *vp_main = *(rb->screens[SCREEN_MAIN]->current_viewport);
-        lcd_fb = vp_main->buffer->fb_ptr;
-    }
-
     int move;
 
     move = MIN(VSCROLL, info->height - info->y - LCD_HEIGHT);
@@ -553,7 +526,7 @@ static void pan_view_down(struct image_info *info)
              */
             move++, info->y--;
             rb->memcpy(rgb_linebuf,
-                    lcd_fb + (LCD_HEIGHT - move)*LCD_WIDTH,
+                    rb->lcd_framebuffer + (LCD_HEIGHT - move)*LCD_WIDTH,
                     LCD_WIDTH*sizeof (fb_data));
         }
 #endif
@@ -566,7 +539,7 @@ static void pan_view_down(struct image_info *info)
          && settings.jpeg_dither_mode == DITHER_DIFFUSION)
         {
             /* Cover the first row drawn with previous image data. */
-            rb->memcpy(lcd_fb + (LCD_HEIGHT - move)*LCD_WIDTH,
+            rb->memcpy(rb->lcd_framebuffer + (LCD_HEIGHT - move)*LCD_WIDTH,
                         rgb_linebuf, LCD_WIDTH*sizeof (fb_data));
             info->y++;
         }
@@ -576,19 +549,14 @@ static void pan_view_down(struct image_info *info)
 }
 
 /* interactively scroll around the image */
-static int scroll_bmp(struct image_info *info, bool initial_frame)
+static int scroll_bmp(struct image_info *info)
 {
     static long ss_timeout = 0;
 
     int button;
 #if defined(IMGVIEW_ZOOM_PRE) || defined(IMGVIEW_MENU_PRE) \
-    || defined(IMGVIEW_SLIDE_SHOW_PRE) || defined(IMGVIEW_QUIT_PRE)
-    static int lastbutton;
-    if (initial_frame)
-        lastbutton = BUTTON_NONE;
-
-#else
-    (void) initial_frame;
+    || defined(IMGVIEW_SLIDE_SHOW_PRE)
+    int lastbutton = BUTTON_NONE;
 #endif
 
     if (!ss_timeout && iv_api.slideshow_enabled)
@@ -625,7 +593,6 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
             if (entries > 1 && info->width <= LCD_WIDTH
                             && info->height <= LCD_HEIGHT)
                 return change_filename(DIR_PREV);
-            /* fallthrough */
         case IMGVIEW_LEFT | BUTTON_REPEAT:
             pan_view_left(info);
             break;
@@ -634,26 +601,17 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
             if (entries > 1 && info->width <= LCD_WIDTH
                             && info->height <= LCD_HEIGHT)
                 return change_filename(DIR_NEXT);
-            /* fallthrough */
         case IMGVIEW_RIGHT | BUTTON_REPEAT:
             pan_view_right(info);
             break;
 
         case IMGVIEW_UP:
         case IMGVIEW_UP | BUTTON_REPEAT:
-#ifdef IMGVIEW_SCROLL_UP
-        case IMGVIEW_SCROLL_UP:
-        case IMGVIEW_SCROLL_UP | BUTTON_REPEAT:
-#endif
             pan_view_up(info);
             break;
 
         case IMGVIEW_DOWN:
         case IMGVIEW_DOWN | BUTTON_REPEAT:
-#ifdef IMGVIEW_SCROLL_DOWN
-        case IMGVIEW_SCROLL_DOWN:
-        case IMGVIEW_SCROLL_DOWN | BUTTON_REPEAT:
-#endif
             pan_view_down(info);
             break;
 
@@ -754,10 +712,6 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
 
 #ifdef IMGVIEW_QUIT
             case IMGVIEW_QUIT:
-#ifdef IMGVIEW_QUIT_PRE
-            if (lastbutton != IMGVIEW_QUIT_PRE)
-                break;
-#endif
             return PLUGIN_OK;
             break;
 #endif
@@ -769,8 +723,7 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
             break;
 
         } /* switch */
-#if defined(IMGVIEW_ZOOM_PRE) || defined(IMGVIEW_MENU_PRE) ||\
-    defined(IMGVIEW_SLIDE_SHOW_PRE) || defined(IMGVIEW_QUIT_PRE)
+#if defined(IMGVIEW_ZOOM_PRE) || defined(IMGVIEW_MENU_PRE) || defined(IMGVIEW_SLIDE_SHOW_PRE)
         if (button != BUTTON_NONE)
             lastbutton = button;
 #endif
@@ -936,7 +889,6 @@ static int load_and_show(char* filename, struct image_info *info)
 
     /* used to loop through subimages in animated gifs */
     int frame = 0;
-    bool initial_frame = true;
     do  /* loop the image prepare and decoding when zoomed */
     {
         status = imgdec->get_image(info, frame, ds); /* decode or fetch from cache */
@@ -954,8 +906,7 @@ static int load_and_show(char* filename, struct image_info *info)
             rb->lcd_update();
         }
 
-        if (frame == 0)
-            mylcd_ub_clear_display();
+        mylcd_ub_clear_display();
         imgdec->draw_image_rect(info, 0, 0,
                         info->width-info->x, info->height-info->y);
         mylcd_ub_update();
@@ -969,8 +920,7 @@ static int load_and_show(char* filename, struct image_info *info)
          */
         while (1)
         {
-            status = scroll_bmp(info, initial_frame);
-            initial_frame = false;
+            status = scroll_bmp(info);
 
             if (status == ZOOM_IN)
             {
@@ -997,7 +947,6 @@ static int load_and_show(char* filename, struct image_info *info)
                     get_view(info, &cx, &cy);
                     cx /= zoom; /* prepare the position in the new image */
                     cy /= zoom;
-                    mylcd_ub_clear_display();
                 }
                 else
                     continue;
@@ -1010,10 +959,6 @@ static int load_and_show(char* filename, struct image_info *info)
             break;
         }
 
-#ifdef USEGSLIB
-        if (info->frames_count <= 1)
-            grey_show(false); /* switch off overlay */
-#endif
         rb->lcd_clear_display();
     }
     while (status > PLUGIN_OTHER);
@@ -1033,7 +978,7 @@ enum plugin_status plugin_start(const void* parameter)
     long greysize; /* helper */
 #endif
 
-    if(!parameter) {rb->splash(HZ*2, "No file"); return PLUGIN_ERROR; }
+    if(!parameter) return PLUGIN_ERROR;
 
     rb->strcpy(np_file, parameter);
     if (get_image_type(np_file, false) == IMAGE_UNKNOWN)
@@ -1050,6 +995,8 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     get_pic_list();
+
+    if(!entries) return PLUGIN_ERROR;
 
 #ifdef USEGSLIB
     if (!grey_init(buf, buf_size, GREY_ON_COP,

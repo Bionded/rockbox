@@ -29,6 +29,8 @@
 
 #include "metadata_parsers.h"
 
+#if CONFIG_CODEC == SWCODEC
+
 /* For trailing tag stripping and base audio data types */
 #include "buffering.h"
 
@@ -43,7 +45,7 @@ static bool get_shn_metadata(int fd, struct mp3entry *id3)
 }
 
 static bool get_other_asap_metadata(int fd, struct mp3entry *id3)
-{
+{    
     id3->bitrate = 706;
     id3->frequency = 44100;
     id3->vbr = false;
@@ -51,6 +53,7 @@ static bool get_other_asap_metadata(int fd, struct mp3entry *id3)
     id3->genre_string = id3_get_num_genre(36);
     return true;
 }
+#endif /* CONFIG_CODEC == SWCODEC */
 bool write_metadata_log = false;
 
 const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
@@ -63,7 +66,13 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     [AFMT_MPA_L2] =
         AFMT_ENTRY("MP2",   "mpa",  NULL,       get_mp3_metadata,   "mpa\0mp2\0"),
 
-    /* MPEG Audio layer 3 */
+#if CONFIG_CODEC != SWCODEC
+    /* MPEG Audio layer 3 on HWCODEC: .talk clips, no encoder  */
+    [AFMT_MPA_L3] =
+        AFMT_ENTRY("MP3",   "mpa",  NULL,       get_mp3_metadata,   "mp3\0talk\0"),
+
+#else /* CONFIG_CODEC == SWCODEC */
+    /* MPEG Audio layer 3 on SWCODEC */
     [AFMT_MPA_L3] =
         AFMT_ENTRY("MP3",   "mpa",  "mp3_enc",  get_mp3_metadata,   "mp3\0"),
 
@@ -85,7 +94,7 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     /* Musepack SV7 */
     [AFMT_MPC_SV7] =
         AFMT_ENTRY("MPCv7", "mpc",  NULL,       get_musepack_metadata,"mpc\0"),
-    /* A/52 (aka AC3) audio */
+    /* A/52 (aka AC3) audio */                  
     [AFMT_A52] =
         AFMT_ENTRY("AC3",   "a52",  NULL,       get_a52_metadata,   "a52\0ac3\0"),
     /* WavPack */
@@ -109,7 +118,7 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     /* NESM (NES Sound Format) */
     [AFMT_NSF] =
         AFMT_ENTRY("NSF",   "nsf",  NULL,       get_nsf_metadata,   "nsf\0nsfe\0"),
-    /* Speex File Format */
+    /* Speex File Format */                     
     [AFMT_SPEEX] =
         AFMT_ENTRY("Speex", "speex",NULL,       get_ogg_metadata,   "spx\0"),
     /* SPC700 Save State */
@@ -162,12 +171,12 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
         AFMT_ENTRY("DLT",   "asap", NULL,       get_other_asap_metadata,"dlt\0"),
     /* Atari MPT File */
     [AFMT_MPT] =
-        AFMT_ENTRY("MPT",   "asap", NULL,       get_other_asap_metadata,"mpt\0"),
+        AFMT_ENTRY("MPT",   "asap", NULL,       get_other_asap_metadata,"mpt\0"), 
     /* Atari MPD File */
     [AFMT_MPD] =
         AFMT_ENTRY("MPD",   "asap", NULL,       get_other_asap_metadata,"mpd\0"),
     /* Atari RMT File */
-    [AFMT_RMT] =
+    [AFMT_RMT] =                   
         AFMT_ENTRY("RMT",   "asap", NULL,       get_other_asap_metadata,"rmt\0"),
     /* Atari TMC File */
     [AFMT_TMC] =
@@ -177,10 +186,10 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
         AFMT_ENTRY("TM8",   "asap", NULL,       get_other_asap_metadata,"tm8\0"),
     /* Atari TM2 File */
     [AFMT_TM2] =
-        AFMT_ENTRY("TM2",   "asap", NULL,       get_other_asap_metadata,"tm2\0"),
+        AFMT_ENTRY("TM2",   "asap", NULL,       get_other_asap_metadata,"tm2\0"),        
     /* Atrac3 in Sony OMA Container */
     [AFMT_OMA_ATRAC3] =
-        AFMT_ENTRY("ATRAC3","atrac3_oma",NULL,  get_oma_metadata,   "oma\0aa3\0"),
+        AFMT_ENTRY("ATRAC3","atrac3_oma",NULL,  get_oma_metadata,   "oma\0aa3\0"), 
     /* SMAF (Synthetic music Mobile Application Format) */
     [AFMT_SMAF] =
         AFMT_ENTRY("SMAF",  "smaf", NULL,       get_smaf_metadata,  "mmf\0"),
@@ -194,7 +203,7 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     [AFMT_WAVE64] =
         AFMT_ENTRY("WAVE64","wav64",NULL,       get_wave64_metadata,"w64\0"),
     /* True Audio */
-    [AFMT_TTA] =
+    [AFMT_TTA] =                                
         AFMT_ENTRY("TTA",   "tta",  NULL,       get_tta_metadata,   "tta\0"),
     /* WMA Voice in ASF */
     [AFMT_WMAVOICE] =
@@ -206,13 +215,8 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     [AFMT_MP4_AAC_HE] =
         AFMT_ENTRY("AAC-HE","aac",  NULL,       get_mp4_metadata,   "mp4\0"),
     /* AY (ZX Spectrum, Amstrad CPC Sound Format) */
-    [AFMT_AY] =
+    [AFMT_AY] = 
         AFMT_ENTRY("AY",    "ay",  NULL, get_ay_metadata,           "ay\0"),
-    /* AY (ZX Spectrum Sound Format) */
-#ifdef HAVE_FPU
-    [AFMT_VTX] =
-        AFMT_ENTRY("VTX",   "vtx", NULL, get_vtx_metadata,          "vtx\0"),
-#endif
     /* GBS (Game Boy Sound Format) */
     [AFMT_GBS] =
         AFMT_ENTRY("GBS",   "gbs",  NULL,       get_gbs_metadata,   "gbs\0"),
@@ -234,9 +238,10 @@ const struct afmt_entry audio_formats[AFMT_NUM_CODECS] =
     /* AAC bitstream format */
     [AFMT_AAC_BSF] =
         AFMT_ENTRY("AAC", "aac_bsf", NULL, get_aac_metadata,   "aac\0"),
+#endif
 };
 
-#if defined (HAVE_RECORDING)
+#if CONFIG_CODEC == SWCODEC && defined (HAVE_RECORDING)
 /* get REC_FORMAT_* corresponding AFMT_* */
 const int rec_format_afmt[REC_NUM_FORMATS] =
 {
@@ -262,8 +267,9 @@ const int afmt_rec_format[AFMT_NUM_CODECS] =
     [AFMT_PCM_WAV] = REC_FORMAT_PCM_WAV,
 };
 #endif
-#endif /* defined (HAVE_RECORDING) */
+#endif /* CONFIG_CODEC == SWCODEC && defined (HAVE_RECORDING) */
 
+#if CONFIG_CODEC == SWCODEC
 /* Get the canonical AFMT type */
 int get_audio_base_codec_type(int type)
 {
@@ -304,14 +310,6 @@ int get_audio_base_codec_type(int type)
     return base_type;
 }
 
-const char * get_codec_string(int type)
-{
-    if (type < 0 || type >= AFMT_NUM_CODECS)
-        type = AFMT_UNKNOWN;
-
-    return audio_formats[type].label;
-}
-
 /* Get the basic audio type */
 bool rbcodec_format_is_atomic(int afmt)
 {
@@ -326,9 +324,6 @@ bool rbcodec_format_is_atomic(int afmt)
     case AFMT_MOD:
     case AFMT_SAP:
     case AFMT_AY:
-#ifdef HAVE_FPU
-    case AFMT_VTX:
-#endif
     case AFMT_GBS:
     case AFMT_HES:
     case AFMT_SGC:
@@ -362,23 +357,25 @@ bool format_buffers_with_offset(int afmt)
         return false;
     }
 }
+#endif /* CONFIG_CODEC == SWCODEC */
+
 
 /* Simple file type probing by looking at the filename extension. */
 unsigned int probe_file_format(const char *filename)
 {
     char *suffix;
     unsigned int i;
-
+    
     suffix = strrchr(filename, '.');
 
     if (suffix == NULL)
     {
         return AFMT_UNKNOWN;
     }
-
+    
     /* skip '.' */
     suffix++;
-
+    
     for (i = 1; i < AFMT_NUM_CODECS; i++)
     {
         /* search extension list for type */
@@ -395,20 +392,32 @@ unsigned int probe_file_format(const char *filename)
         }
         while (*ext != '\0');
     }
-
+    
     return AFMT_UNKNOWN;
 }
 
-/* Get metadata for track - return false if parsing showed problems with the
- * file that would prevent playback. supply a filedescriptor <0 and the file will be opened
- * and closed automatically within the get_metadata call
- * get_metadata_ex allows flags to change the way get_metadata behaves
- * METADATA_EXCLUDE_ID3_PATH  won't copy filename path to the id3 path buffer 
- * METADATA_CLOSE_FD_ON_EXIT closes the open filedescriptor on exit
- */
-bool get_metadata_ex(struct mp3entry* id3, int fd, const char* trackname, int flags)
+/* Note, that this returns false for successful, true for error! */
+bool mp3info(struct mp3entry *entry, const char *filename)
 {
-    bool success = true;
+    int fd;
+    bool result;
+
+    fd = open(filename, O_RDONLY);
+    if (fd < 0)
+        return true;
+
+    result = !get_metadata(entry, fd, filename);
+
+    close(fd);
+
+    return result;
+}
+
+/* Get metadata for track - return false if parsing showed problems with the
+ * file that would prevent playback.
+ */
+bool get_metadata(struct mp3entry* id3, int fd, const char* trackname)
+{
     const struct afmt_entry *entry;
     int logfd = 0;
     DEBUGF("Read metadata for %s\n", trackname);
@@ -422,19 +431,9 @@ bool get_metadata_ex(struct mp3entry* id3, int fd, const char* trackname, int fl
             close(logfd);
         }
     }
+    
     /* Clear the mp3entry to avoid having bogus pointers appear */
     wipe_mp3entry(id3);
-
-    if (fd < 0)
-    {
-        fd = open(trackname, O_RDONLY);
-        flags |= METADATA_CLOSE_FD_ON_EXIT;
-        if (fd < 0)
-        {
-            DEBUGF("Error opening %s\n", trackname);
-            return false; /*Failure*/
-        }
-    }
 
     /* Take our best guess at the codec type based on file extension */
     id3->codectype = probe_file_format(trackname);
@@ -449,32 +448,60 @@ bool get_metadata_ex(struct mp3entry* id3, int fd, const char* trackname, int fl
     if (!entry->parse_func)
     {
         DEBUGF("nothing to parse for %s (format %s)\n", trackname, entry->label);
-        success = false;
+        return false;
     }
-    else if (!entry->parse_func(fd, id3))
+
+    if (!entry->parse_func(fd, id3))
     {
         DEBUGF("parsing %s failed (format: %s)\n", trackname, entry->label);
-        success = false;
-        wipe_mp3entry(id3); /* ensure the mp3entry is clear */
+        return false;
     }
 
-    if ((flags & METADATA_CLOSE_FD_ON_EXIT))
-        close(fd);
-    else
-        lseek(fd, 0, SEEK_SET);
-
-    if (success && (flags & METADATA_EXCLUDE_ID3_PATH) == 0)
-    {
-        strlcpy(id3->path, trackname, sizeof(id3->path));
-    }
-    /* have we successfully read the metadata from the file? */
-    return success;
+    lseek(fd, 0, SEEK_SET);
+    strlcpy(id3->path, trackname, sizeof(id3->path));
+    /* We have successfully read the metadata from the file */
+    return true;
 }
 
-bool get_metadata(struct mp3entry* id3, int fd, const char* trackname)
+#ifndef __PCTOOL__
+#if CONFIG_CODEC == SWCODEC
+void strip_tags(int handle_id)
 {
-    return get_metadata_ex(id3, fd, trackname, 0);
+    static const unsigned char tag[] = "TAG";
+    static const unsigned char apetag[] = "APETAGEX";    
+    size_t len, version;
+    void *tail;
+
+    if (bufgettail(handle_id, 128, &tail) != 128)
+        return;
+
+    if (memcmp(tail, tag, 3) == 0)
+    {
+        /* Skip id3v1 tag */
+        logf("Cutting off ID3v1 tag");
+        bufcuttail(handle_id, 128);
+    }
+
+    /* Get a new tail, as the old one may have been cut */
+    if (bufgettail(handle_id, 32, &tail) != 32)
+        return;
+
+    /* Check for APE tag (look for the APE tag footer) */
+    if (memcmp(tail, apetag, 8) != 0)
+        return;
+
+    /* Read the version and length from the footer */
+    version = get_long_le(&((unsigned char *)tail)[8]);
+    len = get_long_le(&((unsigned char *)tail)[12]);
+    if (version == 2000)
+        len += 32; /* APEv2 has a 32 byte header */
+
+    /* Skip APE tag */
+    logf("Cutting off APE tag (%ldB)", len);
+    bufcuttail(handle_id, len);
 }
+#endif /* CONFIG_CODEC == SWCODEC */
+#endif /* ! __PCTOOL__ */
 
 #define MOVE_ENTRY(x) if (x) x += offset;
 
@@ -490,7 +517,7 @@ void adjust_mp3entry(struct mp3entry *entry, void *dest, const void *orig)
     MOVE_ENTRY(entry->artist)
     MOVE_ENTRY(entry->album)
 
-    if (entry->genre_string > (char*)orig &&
+    if (entry->genre_string > (char*)orig && 
         entry->genre_string < (char*)orig + sizeof(struct mp3entry))
         /* Don't adjust that if it points to an entry of the "genres" array */
         entry->genre_string += offset;
@@ -517,6 +544,7 @@ void wipe_mp3entry(struct mp3entry *id3)
     memset(id3, 0, sizeof (struct mp3entry));
 }
 
+#if CONFIG_CODEC == SWCODEC
 /* Glean what is possible from the filename alone - does not parse metadata */
 void fill_metadata_from_path(struct mp3entry *id3, const char *trackname)
 {
@@ -546,3 +574,4 @@ void fill_metadata_from_path(struct mp3entry *id3, const char *trackname)
     /* Copy the path info */
     strlcpy(id3->path, trackname, sizeof (id3->path));
 }
+#endif /* CONFIG_CODEC == SWCODEC */

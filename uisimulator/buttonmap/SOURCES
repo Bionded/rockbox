@@ -15,10 +15,20 @@ ipod.c
 iriver-h10.c
 #elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
 iriver-h100_h300.c
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+iriver-ifp7xx.c
+#elif CONFIG_KEYPAD == ONDIO_PAD
+archos-ondio.c
+#elif CONFIG_KEYPAD == PLAYER_PAD
+archos-player.c
+#elif CONFIG_KEYPAD == RECORDER_PAD
+archos-recorder.c
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+archos-av300.c           
 #elif CONFIG_KEYPAD == SANSA_C200_PAD
 sansa-c200.c
 #elif CONFIG_KEYPAD == SANSA_CLIP_PAD
-sansa-clip.c
+sansa-clip.c              
 #elif CONFIG_KEYPAD == SANSA_E200_PAD
 sansa-e200.c
 #elif CONFIG_KEYPAD == SANSA_FUZE_PAD
@@ -31,6 +41,8 @@ mrobe500.c
 mrobe100.c
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 cowon-d2.c
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+iaudio-6_7.c
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 creative-zvm.c
 #elif CONFIG_KEYPAD == MEIZU_M6SL_PAD
@@ -75,17 +87,7 @@ sony-nwza860.c
 agptek-rocker.c
 #elif CONFIG_KEYPAD == XDUOO_X3_PAD
 xduoo-x3.c
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD
-xduoo-x3ii.c
-#elif CONFIG_KEYPAD == XDUOO_X20_PAD
-xduoo-x20.c
 #elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
 ihifi2.c
-#elif CONFIG_KEYPAD == EROSQ_PAD
-erosq.c
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-fiio-m3k.c
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-shanling-q1.c
 #endif
 #endif /* SIMULATOR */

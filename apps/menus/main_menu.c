@@ -51,7 +51,7 @@
 #include "disk.h"
 
 static const struct browse_folder_info config = {ROCKBOX_DIR, SHOW_CFG};
-static int show_info(void);
+
 /***********************************/
 /*    MANAGE SETTINGS MENU        */
 
@@ -78,7 +78,6 @@ static int reset_settings(void)
             settings_apply(true);
             settings_apply_skins();
             break;
-        case YESNO_TMO:
         case YESNO_NO:
             break;
         case YESNO_USB:
@@ -91,19 +90,16 @@ static int write_settings_file(void* param)
     return settings_save_config((intptr_t)param);
 }
 
-MENUITEM_FUNCTION_W_PARAM(browse_configs, 0, ID2P(LANG_CUSTOM_CFG),
-                          browse_folder, (void*)&config, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(save_settings_item, 0, ID2P(LANG_SAVE_SETTINGS),
-                          write_settings_file, (void*)SETTINGS_SAVE_ALL,
-                          NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(save_theme_item, 0, ID2P(LANG_SAVE_THEME),
-                          write_settings_file, (void*)SETTINGS_SAVE_THEME,
-                          NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(save_sound_item, 0, ID2P(LANG_SAVE_SOUND),
-                          write_settings_file, (void*)SETTINGS_SAVE_SOUND,
-                          NULL, Icon_NOICON);
+MENUITEM_FUNCTION(browse_configs, MENU_FUNC_USEPARAM, ID2P(LANG_CUSTOM_CFG),
+        browse_folder, (void*)&config, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(save_settings_item, MENU_FUNC_USEPARAM, ID2P(LANG_SAVE_SETTINGS),
+        write_settings_file, (void*)SETTINGS_SAVE_ALL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(save_theme_item, MENU_FUNC_USEPARAM, ID2P(LANG_SAVE_THEME),
+        write_settings_file, (void*)SETTINGS_SAVE_THEME, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(save_sound_item, MENU_FUNC_USEPARAM, ID2P(LANG_SAVE_SOUND),
+        write_settings_file, (void*)SETTINGS_SAVE_SOUND, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(reset_settings_item, 0, ID2P(LANG_RESET),
-                  reset_settings, NULL, Icon_NOICON);
+                  reset_settings, NULL, NULL, Icon_NOICON);
 
 MAKE_MENU(manage_settings, ID2P(LANG_MANAGE_MENU), NULL, Icon_Config,
           &browse_configs, &reset_settings_item,
@@ -114,28 +110,31 @@ MAKE_MENU(manage_settings, ID2P(LANG_MANAGE_MENU), NULL, Icon_Config,
 /***********************************/
 /*      INFO MENU                  */
 
+
 static int show_credits(void)
 {
-    if (plugin_load(VIEWERS_DIR "/credits.rock", NULL) != PLUGIN_OK)
-        show_info();
+    char credits[MAX_PATH] = { '\0' };
+    snprintf(credits, MAX_PATH, "%s/credits.rock", VIEWERS_DIR);
+    if (plugin_load(credits, NULL) != PLUGIN_OK)
+    {
+        /* show the rockbox logo and version untill a button is pressed */
+        show_logo();
+        while (IS_SYSEVENT(get_action(CONTEXT_STD, TIMEOUT_BLOCK)))
+            ;
+    }
     return 0;
 }
 
-static int show_legal(void)
-{
-    if (plugin_load(VIEWERS_DIR "/text_viewer.rock", "/.rockbox/docs/COPYING.txt") != PLUGIN_OK)
-        show_info();
-    if (plugin_load(VIEWERS_DIR "/text_viewer.rock", "/.rockbox/docs/LICENSES.txt") != PLUGIN_OK)
-        show_info();
-    return 0;
-}
-
+#ifdef HAVE_LCD_CHARCELLS
+#define SIZE_FMT "%s%s"
+#else
 #define SIZE_FMT "%s %s"
+#endif
 struct info_data
 
 {
-    sector_t size[NUM_VOLUMES];
-    sector_t free[NUM_VOLUMES];
+    unsigned long size[NUM_VOLUMES];
+    unsigned long free[NUM_VOLUMES];
     unsigned long name[NUM_VOLUMES];
     bool new_data;
 };
@@ -146,7 +145,6 @@ enum infoscreenorder
 #ifdef HAVE_RECORDING
     INFO_REC_DIR,
 #endif
-    INFO_ROOT_DIR,
     INFO_VERSION,
 #if CONFIG_RTC
     INFO_DATE,
@@ -163,18 +161,15 @@ enum infoscreenorder
 static int refresh_data(struct info_data *info)
 {
     int i = 0;
-#ifdef HAVE_MULTIVOLUME
 #ifdef HAVE_MULTIDRIVE
+    int drive;
     int max = -1;
-#endif
-    int drive = 0;
+
     for (i = 0 ; CHECK_VOL(i) ; i++) {
 #endif
 	volume_size(IF_MV(i,) &info->size[i], &info->free[i]);
-#ifdef HAVE_MULTIVOLUME
 #ifdef HAVE_MULTIDRIVE
 	drive = volume_drive(i);
-#endif
 	if (drive > 0 || info->size[i] == 0)
 	    info->name[i] = LANG_DISK_NAME_MMC;
 	else
@@ -185,12 +180,9 @@ static int refresh_data(struct info_data *info)
 	    max = drive;
 	else if (drive < max)
 	    break;
-#elif defined(HAVE_MULTIVOLUME) && (defined(HAVE_HOTSWAP) || defined(HAVE_HOTSWAP) || defined(HAVE_DIRCACHE) || defined(HAVE_BOOTDATA))
-        if (volume_partition(i) == -1)
-            break;
-#endif
-#ifdef HAVE_MULTIVOLUME
     }
+#else
+    i++;
 #endif
 
     info->new_data = false;
@@ -257,9 +249,7 @@ static const char* info_getname(int selected_item, void *data,
             snprintf(buffer, buffer_len, "%s %s", str(LANG_REC_DIR), global_settings.rec_directory);
             break;
 #endif
-        case INFO_ROOT_DIR:
-            snprintf(buffer, buffer_len, "%s %s", str(LANG_DISPLAY_FULL_PATH), root_realpath());
-            break;
+
         case INFO_BUFFER: /* buffer */
         {
             long kib = audio_buffer_size() >> 10; /* to KiB */
@@ -274,10 +264,21 @@ static const char* info_getname(int selected_item, void *data,
                 return str(LANG_BATTERY_CHARGE);
             else
 #elif CONFIG_CHARGING >= CHARGING_MONITOR
+#ifdef ARCHOS_RECORDER
+            /* Report the particular algorithm state */
+            if (charge_state == CHARGING)
+                return str(LANG_BATTERY_CHARGE);
+            else if (charge_state == TOPOFF)
+                return str(LANG_BATTERY_TOPOFF_CHARGE);
+            else if (charge_state == TRICKLE)
+                return str(LANG_BATTERY_TRICKLE_CHARGE);
+            else
+#else /* !ARCHOS_RECORDER */
             /* Go by what power management reports */
             if (charging_state())
                 return str(LANG_BATTERY_CHARGE);
             else
+#endif /* ARCHOS_RECORDER */
 #endif /* CONFIG_CHARGING = */
             if (battery_level() >= 0)
                 snprintf(buffer, buffer_len, str(LANG_BATTERY_TIME),
@@ -352,16 +353,29 @@ static int info_speak_item(int selected_item, void * data)
 #ifdef HAVE_RECORDING
         case INFO_REC_DIR:
             talk_id(LANG_REC_DIR, false);
-            if (global_settings.rec_directory[0])
+            if (global_settings.rec_directory && global_settings.rec_directory[0])
             {
-                talk_fullpath(global_settings.rec_directory, true);
+                long *pathsep = NULL;
+                char rec_directory[MAX_PATHNAME+1];
+                char *s;
+                strcpy(rec_directory, global_settings.rec_directory);
+                s = rec_directory;
+                if ((strlen(s) > 1) && (s[strlen(s) - 1] == '/'))
+                    s[strlen(s) - 1] = 0;
+                while (s)
+                {
+                    s = strchr(s + 1, '/');
+                    if (s)
+                        s[0] = 0;
+                    talk_dir_or_spell(rec_directory, pathsep, true);
+                    if (s)
+                        s[0] = '/';
+                    pathsep = TALK_IDARRAY(VOICE_CHAR_SLASH);
+                }
             }
             break;
 #endif
-        case INFO_ROOT_DIR:
-            talk_id(LANG_DISPLAY_FULL_PATH, false);
-            talk_fullpath(root_realpath(), true);
-            break;
+
         case INFO_BUFFER: /* buffer */
         {
             talk_id(LANG_BUFFER_STAT, false);
@@ -380,6 +394,24 @@ static int info_speak_item(int selected_item, void * data)
             }
             else
 #elif CONFIG_CHARGING >= CHARGING_MONITOR
+#ifdef ARCHOS_RECORDER
+            /* Report the particular algorithm state */
+            if (charge_state == CHARGING)
+            {
+                talk_id(LANG_BATTERY_CHARGE, true);
+                if (battery_level() >= 0)
+                    talk_value(battery_level(), UNIT_PERCENT, true);
+            }
+            else if (charge_state == TOPOFF)
+                talk_id(LANG_BATTERY_TOPOFF_CHARGE, true);
+            else if (charge_state == TRICKLE)
+            {
+                talk_id(LANG_BATTERY_TRICKLE_CHARGE, true);
+                if (battery_level() >= 0)
+                    talk_value(battery_level(), UNIT_PERCENT, true);
+            }
+            else
+#else /* !ARCHOS_RECORDER */
             /* Go by what power management reports */
             if (charging_state())
             {
@@ -388,6 +420,7 @@ static int info_speak_item(int selected_item, void * data)
                     talk_value(battery_level(), UNIT_PERCENT, true);
             }
             else
+#endif /* ARCHOS_RECORDER */
 #endif /* CONFIG_CHARGING = */
             if (battery_level() >= 0)
             {
@@ -442,7 +475,8 @@ static int info_action_callback(int action, struct gui_synclist *lists)
     else if (action == ACTION_NONE)
     {
         static int last_redraw = 0;
-        if (TIME_AFTER(current_tick, last_redraw + HZ*5))
+        if (gui_synclist_item_is_onscreen(lists, 0, INFO_TIME)
+            && TIME_AFTER(current_tick, last_redraw + HZ*5))
         {
             last_redraw = current_tick;
             return ACTION_REDRAW;
@@ -458,6 +492,9 @@ static int show_info(void)
     struct simplelist_info info;
     int count = INFO_COUNT + refresh_data(&data) - 1;
     simplelist_info_init(&info, str(LANG_ROCKBOX_INFO), count, (void*)&data);
+    info.hide_selection = !global_settings.talk_menu;
+    if (info.hide_selection)
+        info.scroll_all = true;
     info.get_name = info_getname;
     if(global_settings.talk_menu)
          info.get_talk = info_speak_item;
@@ -467,36 +504,52 @@ static int show_info(void)
 
 
 MENUITEM_FUNCTION(show_info_item, 0, ID2P(LANG_ROCKBOX_INFO),
-                  show_info, NULL, Icon_NOICON);
+                   show_info, NULL, NULL, Icon_NOICON);
 
 #if CONFIG_RTC
 int time_screen(void* ignored);
 MENUITEM_FUNCTION(timedate_item, MENU_FUNC_CHECK_RETVAL, ID2P(LANG_TIME_MENU),
-                  time_screen,  NULL, Icon_Menu_setting );
+                    time_screen, NULL,  NULL, Icon_Menu_setting );
 #endif
 
 MENUITEM_FUNCTION(show_credits_item, 0, ID2P(LANG_CREDITS),
-                  show_credits, NULL, Icon_NOICON);
+                   show_credits, NULL, NULL, Icon_NOICON);
 
 MENUITEM_FUNCTION(show_runtime_item, 0, ID2P(LANG_RUNNING_TIME),
-                  view_runtime, NULL, Icon_NOICON);
+                   view_runtime, NULL, NULL, Icon_NOICON);
 
 MENUITEM_FUNCTION(debug_menu_item, 0, ID2P(LANG_DEBUG),
-                  debug_menu, NULL, Icon_NOICON);
-
-MENUITEM_FUNCTION(show_legal_item, 0, ID2P(LANG_LEGAL_NOTICES),
-                  show_legal, NULL, Icon_NOICON);
+                   debug_menu, NULL, NULL, Icon_NOICON);
 
 MAKE_MENU(info_menu, ID2P(LANG_SYSTEM), 0, Icon_System_menu,
           &show_info_item, &show_credits_item,
-          &show_runtime_item, &show_legal_item, &debug_menu_item);
+          &show_runtime_item, &debug_menu_item);
 /*      INFO MENU                  */
 /***********************************/
 
 /***********************************/
 /*    MAIN MENU                    */
 
-MAKE_MENU(main_menu_, ID2P(LANG_SETTINGS), NULL,
+
+#ifdef HAVE_LCD_CHARCELLS
+static int mainmenu_callback(int action,const struct menu_item_ex *this_item)
+{
+    (void)this_item;
+    switch (action)
+    {
+        case ACTION_ENTER_MENUITEM:
+            status_set_param(true);
+            break;
+        case ACTION_EXIT_MENUITEM:
+            status_set_param(false);
+            break;
+    }
+    return action;
+}
+#else
+#define mainmenu_callback NULL
+#endif
+MAKE_MENU(main_menu_, ID2P(LANG_SETTINGS), mainmenu_callback,
         Icon_Submenu_Entered,
         &sound_settings,
         &playback_settings,

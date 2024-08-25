@@ -46,7 +46,7 @@
 #endif
 
 #if ((CONFIG_PLATFORM & PLATFORM_NATIVE) || defined(SAMSUNG_YPR0) || defined(SAMSUNG_YPR1) \
-    || (defined(SONY_NWZ_LINUX) && !defined(SIMULATOR)))
+    || defined(SONY_NWZ_LINUX))
 
 #ifdef AUDIO_CPU_BOOST
 static void audio_cpu_boost(bool state)
@@ -169,19 +169,10 @@ int audio_get_spdif_sample_rate(void)
 #ifdef HAVE_SPEAKER
 void audio_enable_speaker(int mode)
 {
-#if defined(HAVE_HEADPHONE_DETECTION) || defined(HAVE_LINEOUT_DETECTION)
+#ifdef HAVE_HEADPHONE_DETECTION
     /* if needed, query jack state */
     if(mode == 2)
-    {
-#ifdef HAVE_HEADPHONE_DETECTION
-        if (headphones_inserted())
-            mode = 0;
-#endif
-#ifdef HAVE_LINEOUT_DETECTION
-        if (lineout_inserted())
-            mode = 0;
-#endif
-    }
+        mode = !headphones_inserted();
 #endif
     /* treat any nonzero value as enable */
     audiohw_enable_speaker(mode);

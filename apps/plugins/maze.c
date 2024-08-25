@@ -37,14 +37,11 @@
 
 /* key assignments */
 
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
+#if (CONFIG_KEYPAD == IPOD_3G_PAD)
 #   define MAZE_NEW             (BUTTON_SELECT | BUTTON_REPEAT)
 #   define MAZE_NEW_PRE         BUTTON_SELECT
 #   define MAZE_QUIT            BUTTON_MENU
-#   define MAZE_SOLVE           (BUTTON_SELECT | BUTTON_REL)
-#   define MAZE_SOLVE_PRE       BUTTON_SELECT
+#   define MAZE_SOLVE           (BUTTON_SELECT | BUTTON_PLAY)
 #   define MAZE_RIGHT           BUTTON_RIGHT
 #   define MAZE_RIGHT_REPEAT    BUTTON_RIGHT|BUTTON_REPEAT
 #   define MAZE_LEFT            BUTTON_LEFT
@@ -494,7 +491,7 @@ static void maze_move_player_left(struct maze* maze)
 enum plugin_status plugin_start(const void* parameter)
 {
     int button;
-#if defined(MAZE_NEW_PRE) || defined(MAZE_SOLVE_PRE)
+#ifdef MAZE_NEW_PRE
     int lastbutton = BUTTON_NONE;
 #endif
     int quit = 0;
@@ -547,10 +544,6 @@ enum plugin_status plugin_start(const void* parameter)
                 maze_draw(&maze, rb->screens[i]);
             break;
         case MAZE_SOLVE:
-#ifdef MAZE_SOLVE_PRE
-            if(lastbutton != MAZE_SOLVE_PRE)
-                break;
-#endif
             maze_solve(&maze);
             FOR_NB_SCREENS(i)
                 maze_draw(&maze, rb->screens[i]);
@@ -590,13 +583,12 @@ enum plugin_status plugin_start(const void* parameter)
             }
             break;
         }
-#if defined(MAZE_NEW_PRE) || defined(MAZE_SOLVE_PRE)
+#ifdef MAZE_NEW_PRE
         if( button != BUTTON_NONE )
             lastbutton = button;
 #endif
     }
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
     return ((quit == 1) ? PLUGIN_OK : PLUGIN_USB_CONNECTED);
 }

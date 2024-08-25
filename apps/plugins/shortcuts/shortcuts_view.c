@@ -22,7 +22,7 @@
 
 #include "shortcuts.h"
 
-#define LOOP_EXIT 1
+
 
 enum sc_list_action_type
 {
@@ -32,9 +32,10 @@ enum sc_list_action_type
     SCLA_USB,
 };
 
-static size_t root_len;
+
 static char *link_filename;
 static bool user_file;
+static bool usb_connected = false;
 
 enum sc_list_action_type draw_sc_list(struct gui_synclist *gui_sc);
 
@@ -42,10 +43,10 @@ enum sc_list_action_type draw_sc_list(struct gui_synclist *gui_sc);
 static const char* build_sc_list(int selected_item, void *data,
                                  char *buffer, size_t buffer_len);
 
-/* Returns LOOP_EXIT iff we should leave the main loop */
-int list_sc(void);
+/* Returns true iff we should leave the main loop */
+bool list_sc(void);
 
-int goto_entry(char *file_or_dir);
+bool goto_entry(char *file_or_dir);
 bool ends_with(char *str, char *suffix);
 
 
@@ -59,8 +60,13 @@ enum sc_list_action_type draw_sc_list(struct gui_synclist *gui_sc)
         /* user input */
         button = rb->get_action(CONTEXT_LIST, HZ);
         /* HZ so the status bar redraws corectly */
-        if (rb->gui_synclist_do_button(gui_sc, &button))
+        if (rb->gui_synclist_do_button(gui_sc, &button,
+                                            LIST_WRAP_UNLESS_HELD)) {
+            /* automatic handling of user input.
+            * _UNLESS_HELD can be _ON or _OFF also
+            * selection changed, so redraw */
             continue;
+        }
         switch (button) { /* process the user input */
             case ACTION_STD_OK:
                 return SCLA_SELECT;
@@ -98,7 +104,7 @@ static const char* build_sc_list(int selected_item, void *data,
 }
 
 
-int list_sc(void)
+bool list_sc(void)
 {
     int selected_item = 0;
     enum sc_list_action_type action = SCLA_NONE;
@@ -110,12 +116,14 @@ int list_sc(void)
     rb->gui_synclist_set_title(&gui_sc,
         (user_file?"Shortcuts (sealed)":"Shortcuts (editable)"), NOICON);
     rb->gui_synclist_set_nb_items(&gui_sc, sc_file.entry_cnt);
+    rb->gui_synclist_limit_scroll(&gui_sc, false);
     rb->gui_synclist_select_item(&gui_sc, 0);
 
     /* Draw the prepared widget to the LCD now */
     action = draw_sc_list(&gui_sc);
     if (action == SCLA_USB) {
-        return PLUGIN_USB_CONNECTED;
+        usb_connected = true;
+        return true;
     }
 
     /* which item do we action? */
@@ -124,7 +132,7 @@ int list_sc(void)
     if (!is_valid_index(&sc_file, selected_item)) {
         /* This should never happen */
         rb->splash(HZ*2, "Bad entry selected!");
-        return PLUGIN_ERROR;
+        return true;
     }
 
     /* perform the following actions if the user "selected"
@@ -137,13 +145,13 @@ int list_sc(void)
             rb->splashf(HZ, "Deleting %s", sc_file.entries[selected_item].disp);
             remove_entry(&sc_file, selected_item);
             dump_sc_file(&sc_file, link_filename);
-            return (sc_file.entry_cnt == 0)? LOOP_EXIT : PLUGIN_OK;
+            return (sc_file.entry_cnt == 0);
         default:
-            return LOOP_EXIT;
+            return true;
     }
 }
 
-#if 0
+
 bool goto_entry(char *file_or_dir)
 {
     DEBUGF("Trying to go to '%s'...\n", file_or_dir);
@@ -173,87 +181,7 @@ bool goto_entry(char *file_or_dir)
     rb->set_current_file(file_or_dir);
     return true;
 }
-#endif
 
-static bool callback_show_item(char *name, int attr, struct tree_context *tc)
-{
-    (void)name;
-    if(attr & ATTR_DIRECTORY)
-    {
-        if ((tc->browse->flags & BROWSE_SELECTED) == 0 &&
-            rb->strlen(tc->currdir) < root_len)
-        {
-            tc->is_browsing = false; /* exit immediately */
-        }
-    }
-
-    return true;
-}
-
-bool open_browse(char *path, char *buf, size_t bufsz)
-{
-    struct browse_context browse = {
-        .dirfilter = rb->global_settings->dirfilter,
-        .flags = BROWSE_DIRFILTER| BROWSE_SELECTONLY | BROWSE_NO_CONTEXT_MENU,
-        .title = path,
-        .icon = Icon_Plugin,
-        .root = path,
-        .buf = buf,
-        .bufsize = bufsz,
-        .callback_show_item = callback_show_item,
-    };
-    root_len = 0;
-    char *name = rb->strrchr(path, '/');
-    if (name)
-        root_len = name - path;
-    rb->rockbox_browse(&browse);
-
-    return (browse.flags & BROWSE_SELECTED);
-}
-
-int goto_entry(char *file_or_dir)
-{
-    DEBUGF("Trying to go to '%s'...\n", file_or_dir);
-
-    bool is_dir = ends_with(file_or_dir, PATH_SEPARATOR);
-    bool exists;
-    char *what;
-    if (is_dir) {
-        what = "Directory";
-        exists = rb->dir_exists(file_or_dir);
-    } else {
-        what = "File";
-        exists = rb->file_exists(file_or_dir);
-    }
-
-    if (!exists) {
-        rb->splashf(HZ*2, "%s %s no longer exists on disk", what, file_or_dir);
-        return PLUGIN_ERROR;
-    }
-
-    int len = rb->strlen(file_or_dir);
-    if(!is_dir && len > 5 && rb->strcasecmp(&(file_or_dir[len-5]), ".rock") == 0)
-    {
-        return rb->plugin_open(file_or_dir, NULL);
-    }
-    else
-    {
-        if (!is_dir)
-        {
-            rb->set_current_file(file_or_dir);
-            return LOOP_EXIT;
-        }
-        char tmp_buf[MAX_PATH];
-        if (open_browse(file_or_dir, tmp_buf, sizeof(tmp_buf)))
-        {
-            DEBUGF("Trying to load '%s'...\n", tmp_buf);
-            rb->set_dirfilter(rb->global_settings->dirfilter);
-            rb->set_current_file(tmp_buf);
-            return LOOP_EXIT;
-        }
-    }
-    return PLUGIN_OK;
-}
 
 bool ends_with(char *string, char *suffix)
 {
@@ -267,7 +195,7 @@ bool ends_with(char *string, char *suffix)
 
 enum plugin_status plugin_start(const void* void_parameter)
 {
-    int ret;
+    bool leave_loop;
 
     /* This is a viewer, so a parameter must have been specified */
     if (void_parameter == NULL) {
@@ -291,21 +219,24 @@ enum plugin_status plugin_start(const void* void_parameter)
         /* if there's only one entry in the user .link file,
          * go straight to it without displaying the menu
          * thus allowing 'quick links' */
-        return goto_entry(sc_file.entries[0].path);
+        goto_entry(sc_file.entries[0].path);
+        return PLUGIN_OK;
     }
 
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
         rb->viewportmanager_theme_enable(i, true, NULL);
+#endif
 
     do {
         /* Display a menu to choose between the entries */
-        ret = list_sc();
-    } while (ret == PLUGIN_OK);
-    if (ret == LOOP_EXIT)
-        ret = PLUGIN_OK;
+        leave_loop = list_sc();
+    } while (!leave_loop);
 
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
         rb->viewportmanager_theme_undo(i, false);
+#endif
 
-    return ret;
+    return usb_connected ? PLUGIN_USB_CONNECTED : PLUGIN_OK;
 }

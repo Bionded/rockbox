@@ -36,8 +36,6 @@
 
 
 /******************************* Globals ***********************************/
-static fb_data *lcd_fb;
-
 
 static unsigned char wave_array[256];  /* Pre calculated wave array */
 #ifdef HAVE_LCD_COLOR
@@ -140,10 +138,8 @@ static void cleanup(void)
 #ifndef HAVE_LCD_COLOR
     grey_release();
 #endif
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
-
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
     rb->lcd_set_mode(LCD_MODE_RGB565);
 #endif
@@ -203,9 +199,9 @@ int main(void)
 #ifdef HAVE_LCD_COLOR
         shades_generate(time++); /* dynamically */
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
-        ptr = (unsigned char*)lcd_fb;
+        ptr = (unsigned char*)rb->lcd_framebuffer;
 #else
-        ptr = lcd_fb;
+        ptr = rb->lcd_framebuffer;
 #endif
 
 #else
@@ -239,7 +235,7 @@ int main(void)
         p4-=sp4;
 #ifdef HAVE_LCD_COLOR
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
-        rb->lcd_blit_pal256(    (unsigned char*)lcd_fb,
+        rb->lcd_blit_pal256(    (unsigned char*)rb->lcd_framebuffer,
                                 0,0,0,0,LCD_WIDTH,LCD_HEIGHT);
 #else
         rb->lcd_update();
@@ -268,11 +264,6 @@ int main(void)
 
         switch(action)
         {
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-            case PLA_UP:
-#endif
             case PLA_EXIT:
             case PLA_CANCEL:
                 return PLUGIN_OK;
@@ -282,11 +273,7 @@ int main(void)
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
 #endif
-#if (CONFIG_KEYPAD != IPOD_1G2G_PAD) \
-    && (CONFIG_KEYPAD != IPOD_3G_PAD) \
-    && (CONFIG_KEYPAD != IPOD_4G_PAD)
             case PLA_UP:
-#endif
             case PLA_UP_REPEAT:
                 ++plasma_frequency;
                 wave_table_generate();
@@ -330,15 +317,11 @@ enum plugin_status plugin_start(const void* parameter)
 #if LCD_DEPTH > 1
     rb->lcd_set_backdrop(NULL);
 #endif
-
     /* Turn off backlight timeout */
     backlight_ignore_timeout();
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
     rb->lcd_set_mode(LCD_MODE_PAL256);
 #endif
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
-
     return main();
 }

@@ -34,48 +34,57 @@ static struct tv_preferences new_prefs;
 /* horizontal scroll settings menu */
 /*                                 */
 
+#ifdef HAVE_LCD_BITMAP
 static bool tv_horizontal_scrollbar_setting(void)
 {
    return rb->set_bool("Horizontal Scrollbar", &new_prefs.horizontal_scrollbar);
 }
+#endif
 
 static bool tv_horizontal_scroll_mode_setting(void)
 {
     static const struct opt_items names[] = {
-        {"Scroll by Screen", -1}, // XXX i18n
+        {"Scroll by Screen", -1},
         {"Scroll by Column", -1},
     };
 
-    return rb->set_option("Scroll Mode", &new_prefs.horizontal_scroll_mode, RB_INT,
+    return rb->set_option("Scroll Mode", &new_prefs.horizontal_scroll_mode, INT,
                           names, 2, NULL);
 }
 
-MENUITEM_FUNCTION(horizontal_scrollbar_item, 0, ID2P(LANG_SCROLL_BAR),
-                  tv_horizontal_scrollbar_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(horizontal_scroll_mode_item, 0, "Scroll Mode", // XXX i18n
-                  tv_horizontal_scroll_mode_setting, NULL, Icon_NOICON);
+#ifdef HAVE_LCD_BITMAP
+MENUITEM_FUNCTION(horizontal_scrollbar_item, 0, "Scrollbar",
+                  tv_horizontal_scrollbar_setting,
+                  NULL, NULL, Icon_NOICON);
+#endif
+MENUITEM_FUNCTION(horizontal_scroll_mode_item, 0, "Scroll Mode",
+                  tv_horizontal_scroll_mode_setting, NULL, NULL, Icon_NOICON);
 
-MAKE_MENU(horizontal_scroll_menu, "Horizontal", NULL, Icon_NOICON, // XXX i18n
+MAKE_MENU(horizontal_scroll_menu, "Horizontal", NULL, Icon_NOICON,
+#ifdef HAVE_LCD_BITMAP
           &horizontal_scrollbar_item,
+#endif
           &horizontal_scroll_mode_item);
 
 /*                               */
 /* vertical scroll settings menu */
 /*                               */
 
+#ifdef HAVE_LCD_BITMAP
 static bool tv_vertical_scrollbar_setting(void)
 {
     return rb->set_bool("Vertical Scrollbar", &new_prefs.vertical_scrollbar);
 }
+#endif
 
 static bool tv_vertical_scroll_mode_setting(void)
 {
     static const struct opt_items names[] = {
-        {"Scroll by Page", -1}, // XXX i18n
+        {"Scroll by Page", -1},
         {"Scroll by Line", -1},
     };
 
-    return rb->set_option("Scroll Mode", &new_prefs.vertical_scroll_mode, RB_INT,
+    return rb->set_option("Scroll Mode", &new_prefs.vertical_scroll_mode, INT,
                           names, 2, NULL);
 }
 
@@ -86,43 +95,47 @@ static bool tv_overlap_page_mode_setting(void)
 
 static bool tv_autoscroll_speed_setting(void)
 {
-    return rb->set_int("Auto-scroll Speed", "", UNIT_INT,
+    return rb->set_int("Auto-scroll Speed", "", UNIT_INT, 
                        &new_prefs.autoscroll_speed, NULL, 1, 1, 10, NULL);
 }
 
 static bool tv_narrow_mode_setting(void)
 {
     static const struct opt_items names[] = {
-        {"Previous/Next Page", -1}, // XXX i18n
+        {"Previous/Next Page", -1},
         {"Top/Bottom Page",    -1},
     };
 
-    return rb->set_option("Left/Right Key", &new_prefs.narrow_mode, RB_INT,
+    return rb->set_option("Left/Right Key", &new_prefs.narrow_mode, INT,
                           names, 2, NULL);
 }
 
-MENUITEM_FUNCTION(vertical_scrollbar_item, 0, ID2P(LANG_SCROLL_BAR),
-                  tv_vertical_scrollbar_setting, NULL, Icon_NOICON);
+#ifdef HAVE_LCD_BITMAP
+MENUITEM_FUNCTION(vertical_scrollbar_item, 0, "Scrollbar",
+                  tv_vertical_scrollbar_setting,
+                  NULL, NULL, Icon_NOICON);
+#endif
 MENUITEM_FUNCTION(vertical_scroll_mode_item, 0, "Scroll Mode",
-                  tv_vertical_scroll_mode_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(overlap_page_mode_item, 0, "Overlap Pages", tv_overlap_page_mode_setting, NULL, Icon_NOICON);
+                  tv_vertical_scroll_mode_setting, NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(overlap_page_mode_item, 0, "Overlap Pages", tv_overlap_page_mode_setting,
+                  NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(autoscroll_speed_item, 0, "Auto-Scroll Speed",
-                  tv_autoscroll_speed_setting, NULL, Icon_NOICON);
+                  tv_autoscroll_speed_setting, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(narrow_mode_item, 0, "Left/Right Key (Narrow mode)",
-                  tv_narrow_mode_setting, NULL, Icon_NOICON);
+                  tv_narrow_mode_setting, NULL, NULL, Icon_NOICON);
 
 MAKE_MENU(vertical_scroll_menu, "Vertical", NULL, Icon_NOICON,
+#ifdef HAVE_LCD_BITMAP
           &vertical_scrollbar_item,
+#endif
           &vertical_scroll_mode_item, &overlap_page_mode_item, &autoscroll_speed_item,
           &narrow_mode_item);
-
-// XXX i18n ^^^
 
 /*                      */
 /* scroll settings menu */
 /*                      */
 
-MAKE_MENU(scroll_menu, "Scroll Settings", NULL, Icon_NOICON, // XXX i18n
+MAKE_MENU(scroll_menu, "Scroll Settings", NULL, Icon_NOICON,
           &horizontal_scroll_menu, &vertical_scroll_menu);
 
 /*           */
@@ -140,51 +153,52 @@ static bool tv_encoding_setting(void)
         names[idx].voice_id = -1;
     }
 
-    return rb->set_option("Encoding", &new_prefs.encoding, RB_INT, names,
+    return rb->set_option("Encoding", &new_prefs.encoding, INT, names,
                           sizeof(names) / sizeof(names[0]), NULL);
 }
 
 static bool tv_word_wrap_setting(void)
 {
     static const struct opt_items names[] = {
-        {STR(LANG_ON)},
-        {"Off (Chop Words)", -1}, // XXX i18n
+        {"On",               -1},
+        {"Off (Chop Words)", -1},
     };
 
-    return rb->set_option("Word Wrap", &new_prefs.word_mode, RB_INT,
+    return rb->set_option("Word Wrap", &new_prefs.word_mode, INT,
                           names, 2, NULL);
 }
 
 static bool tv_line_mode_setting(void)
 {
     static const struct opt_items names[] = {
-        {STR(LANG_NORMAL)},
-        {"Join Lines",   -1}, // XXX i18n
+        {"Normal",       -1},
+        {"Join Lines",   -1},
         {"Expand Lines", -1},
         {"Reflow Lines", -1},
     };
 
-    return rb->set_option("Line Mode", &new_prefs.line_mode, RB_INT, names,
+    return rb->set_option("Line Mode", &new_prefs.line_mode, INT, names,
                           sizeof(names) / sizeof(names[0]), NULL);
 }
 
 static bool tv_windows_setting(void)
 {
-    return rb->set_int("Screens Per Page", "", UNIT_INT,
+    return rb->set_int("Screens Per Page", "", UNIT_INT, 
                        &new_prefs.windows, NULL, 1, 1, 5, NULL);
 }
 
 static bool tv_alignment_setting(void)
 {
     static const struct opt_items names[] = {
-        {STR(LANG_LEFT)},
-        {STR(LANG_RIGHT)},
+        {"Left", -1},
+        {"Right", -1},
     };
 
-    return rb->set_option("Alignment", &new_prefs.alignment, RB_INT,
-                          names , 2, NULL);
+    return rb->set_option("Alignment", &new_prefs.alignment, INT,
+                           names , 2, NULL);
 }
 
+#ifdef HAVE_LCD_BITMAP
 static bool tv_header_setting(void)
 {
     return rb->set_bool("Show Header", &new_prefs.header_mode);
@@ -202,19 +216,16 @@ static bool tv_statusbar_setting(void)
 
 static bool tv_font_setting(void)
 {
+    struct browse_context browse;
     char font[MAX_PATH], name[MAX_FILENAME+10];
-    rb->snprintf(name, sizeof(name), "%s.fnt", new_prefs.font_name);
 
-    struct browse_context browse = {
-        .dirfilter = SHOW_FONT,
-        .flags = BROWSE_SELECTONLY | BROWSE_NO_CONTEXT_MENU,
-        .title = ID2P(LANG_CUSTOM_FONT),
-        .icon = Icon_Menu_setting,
-        .root = FONT_DIR,
-        .selected = name,
-        .buf = font,
-        .bufsize = sizeof(font),
-    };
+    rb->snprintf(name, sizeof(name), "%s.fnt", new_prefs.font_name);
+    rb->browse_context_init(&browse, SHOW_FONT,
+                            BROWSE_SELECTONLY|BROWSE_NO_CONTEXT_MENU,
+                            "Font", Icon_Menu_setting, FONT_DIR, name);
+
+    browse.buf = font;
+    browse.bufsize = sizeof(font);
 
     rb->rockbox_browse(&browse);
 
@@ -228,10 +239,11 @@ static bool tv_font_setting(void)
 
     return false;
 }
+#endif
 
 static bool tv_indent_spaces_setting(void)
 {
-    return rb->set_int("Indent Spaces", "", UNIT_INT,
+    return rb->set_int("Indent Spaces", "", UNIT_INT, 
                        &new_prefs.indent_spaces, NULL, 1, 0, 5, NULL);
 }
 
@@ -242,41 +254,44 @@ static bool tv_night_mode_setting(void)
 }
 #endif
 
-MENUITEM_FUNCTION(encoding_item, 0, "Encoding",
-                  tv_encoding_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(word_wrap_item, 0, "Word Wrap",
-                  tv_word_wrap_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(line_mode_item, 0, "Line Mode",
-                  tv_line_mode_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(windows_item, 0, "Screens Per Page",
-                  tv_windows_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(alignment_item, 0, "Alignment",
-                  tv_alignment_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(header_item, 0, "Show Header",
-                  tv_header_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(footer_item, 0, "Show Footer",
-                  tv_footer_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(statusbar_item, 0, "Show Statusbar",
-                  tv_statusbar_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(font_item, 0, ID2P(LANG_CUSTOM_FONT),
-                  tv_font_setting, NULL, Icon_NOICON);
-MENUITEM_FUNCTION(indent_spaces_item, 0, "Indent Spaces",
-                  tv_indent_spaces_setting, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(encoding_item, 0, "Encoding", tv_encoding_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(word_wrap_item, 0, "Word Wrap", tv_word_wrap_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(line_mode_item, 0, "Line Mode", tv_line_mode_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(windows_item, 0, "Screens Per Page", tv_windows_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(alignment_item, 0, "Alignment", tv_alignment_setting,
+                  NULL, NULL, Icon_NOICON);
+#ifdef HAVE_LCD_BITMAP
+MENUITEM_FUNCTION(header_item, 0, "Show Header", tv_header_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(footer_item, 0, "Show Footer", tv_footer_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(statusbar_item, 0, "Show Statusbar", tv_statusbar_setting,
+                  NULL, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(font_item, 0, "Font", tv_font_setting,
+                  NULL, NULL, Icon_NOICON);
+#endif
+MENUITEM_FUNCTION(indent_spaces_item, 0, "Indent Spaces", tv_indent_spaces_setting,
+                  NULL, NULL, Icon_NOICON);
 #ifdef HAVE_LCD_COLOR
-MENUITEM_FUNCTION(night_mode_item, 0, "Night Mode",
-                  tv_night_mode_setting, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(night_mode_item, 0, "Night Mode", tv_night_mode_setting,
+                  NULL, NULL, Icon_NOICON);
 #endif
 
 MAKE_MENU(option_menu, "Viewer Options", NULL, Icon_NOICON,
             &encoding_item, &word_wrap_item, &line_mode_item, &windows_item,
             &alignment_item,
+#ifdef HAVE_LCD_BITMAP
             &header_item, &footer_item, &font_item, &statusbar_item,
+#endif
             &scroll_menu, &indent_spaces_item
 #ifdef HAVE_LCD_COLOR
             , &night_mode_item
 #endif
             );
-// XXX finish i18n ^^^
 
 static unsigned tv_options_menu(void)
 {
@@ -293,13 +308,9 @@ unsigned tv_display_menu(void)
     unsigned result = TV_MENU_RESULT_EXIT_MENU;
 
     MENUITEM_STRINGLIST(menu, "Viewer Menu", NULL,
-                        ID2P(LANG_RETURN),
-                        "Viewer Options",
-                        ID2P(LANG_PLAYBACK_CONTROL),
-                        ID2P(LANG_BOOKMARK_SELECT_BOOKMARK),
-                        "Global Settings",
-                        ID2P(LANG_MENU_QUIT));
-    // XXX finish i18n ^^^
+                        "Return", "Viewer Options",
+                        "Show Playback Menu", "Select Bookmark",
+                        "Global Settings", "Quit");
 
     switch (rb->do_menu(&menu, NULL, NULL, false))
     {

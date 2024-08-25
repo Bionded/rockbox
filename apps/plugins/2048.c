@@ -41,8 +41,10 @@
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_exit.h"
 
+#ifdef HAVE_LCD_BITMAP
 #include "pluginbitmaps/_2048_background.h"
 #include "pluginbitmaps/_2048_tiles.h"
+#endif
 
 /* some constants */
 
@@ -91,15 +93,8 @@ static const int BACKGROUND_Y = (BASE_Y-MIN_SPACE);
 #define KEY_DOWN PLA_DOWN
 #define KEY_LEFT PLA_LEFT
 #define KEY_RIGHT PLA_RIGHT
-#define KEY_UNDO PLA_SELECT
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define KEY_EXIT PLA_SELECT_REPEAT
-#else
 #define KEY_EXIT PLA_CANCEL
-#endif
+#define KEY_UNDO PLA_SELECT
 
 /* notice how "color" is spelled :P */
 #ifdef HAVE_LCD_COLOR
@@ -706,7 +701,6 @@ static void init_game(bool newgame)
 #endif
 
     backlight_ignore_timeout();
-
     draw();
 }
 
@@ -815,7 +809,8 @@ static int do_2048_pause_menu(void)
                         "Help",
                         "Quit without Saving",
                         "Quit");
-    while(1)
+    bool quit = false;
+    while(!quit)
     {
         switch(rb->do_menu(&menu, &sel, NULL, false))
         {
@@ -852,10 +847,9 @@ static int do_2048_pause_menu(void)
         }
         case 6:
             return 3;
-        default:
-            break;
         }
     }
+    return 0;
 }
 
 static void exit_handler(void)
@@ -995,11 +989,8 @@ static enum plugin_status do_game(bool newgame)
 
 /* decide if this_item should be shown in the main menu */
 /* used to hide resume option when there is no save */
-static int mainmenu_cb(int action,
-                       const struct menu_item_ex *this_item,
-                       struct gui_synclist *this_list)
+static int mainmenu_cb(int action, const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     int idx = ((intptr_t)this_item);
     if(action == ACTION_REQUEST_MENUITEM && !loaded && (idx == 0 || idx == 5))
         return ACTION_EXIT_MENUITEM;
@@ -1021,7 +1012,8 @@ static enum plugin_status do_2048_menu(void)
                         "Help",
                         "Quit without Saving",
                         "Quit");
-    while(true)
+    bool quit = false;
+    while(!quit)
     {
         switch(rb->do_menu(&menu, &sel, NULL, false))
         {
@@ -1068,7 +1060,6 @@ static enum plugin_status do_2048_menu(void)
         case 5:
             if(confirm_quit())
                 return PLUGIN_OK;
-            break;
         case 6:
             if(loaded)
                 save_game();
@@ -1077,6 +1068,7 @@ static enum plugin_status do_2048_menu(void)
             break;
         }
     }
+    return PLUGIN_OK;
 }
 
 /* plugin entry point */

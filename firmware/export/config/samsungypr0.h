@@ -7,7 +7,6 @@
 /* YP-R0 need it too of course */
 #ifndef SIMULATOR
 #define CONFIG_PLATFORM (PLATFORM_HOSTED)
-#define PIVOT_ROOT "/mnt/media0"
 #endif
 
 /* For Rolo and boot loader */
@@ -15,8 +14,8 @@
 
 #define MODEL_NAME   "Samsung YP-R0"
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -68,6 +67,10 @@
 /* TODO: ASCODEC has an auto dim feature, so disabling the supply to leds should do the trick. But for now I tested SW fading only */
 #define CONFIG_BACKLIGHT_FADING BACKLIGHT_FADING_SW_SETTING
 
+/* define this if you have RTC RAM available for settings */
+/* TODO: in theory we could use that, ascodec offers us such a ram. we have also a small device, part of the nand of 1 MB size, that Samsung uses to store region code etc and it's almost unused space */
+//#define HAVE_RTC_RAM
+
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_AS3514
 #define HAVE_RTC_ALARM
@@ -81,8 +84,8 @@
 #define AB_REPEAT_ENABLE
 #define ACTION_WPSAB_SINGLE ACTION_WPS_HOTKEY
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* R0 KeyPad configuration for plugins */
 #define CONFIG_KEYPAD SAMSUNG_YPR0_PAD
@@ -105,15 +108,10 @@
 #define CONFIG_TUNER SI4700
 #define HAVE_TUNER_PWR_CTRL
 #define HAVE_RDS_CAP
-#define CONFIG_RDS (RDS_CFG_POLL | RDS_CFG_PROCESS)
-#define CONFIG_RDS_POLL_TICKS 4
 
 /* Define this for FM radio input available */
 #define HAVE_FMRADIO_IN
 #define INPUT_SRC_CAPS SRC_CAP_FMRADIO
-
-#define REC_SAMPR_CAPS HW_SAMPR_CAPS /* Same as playback */
-#define HAVE_RECORDING
 
 /* We have a GPIO pin that detects this */
 #define HAVE_HEADPHONE_DETECTION
@@ -121,7 +119,6 @@
 /* Define current usage levels. */
 #define CURRENT_NORMAL     24 /* ~25h, on 600mAh that's about 24mA */
 #define CURRENT_BACKLIGHT  62 /* ~6,5h -> 92mA. Minus 24mA normal that gives us 68mA */
-#define CURRENT_RECORD      2 /* FIXME: placeholder value */
 
 #endif /* SIMULATOR */
 
@@ -166,9 +163,8 @@
 
 /* External SD card can be mounted */
 #define CONFIG_STORAGE (STORAGE_HOSTFS|STORAGE_SD)
-#define HAVE_MULTIDRIVE  /* But _not_ CONFIG_STORAGE_MULTI */
+#define HAVE_MULTIDRIVE
 #define NUM_DRIVES 2
 #define HAVE_HOTSWAP
 #define HAVE_STORAGE_FLUSH
 #define MULTIDRIVE_DIR "/mnt/mmc"
-#define MULTIDRIVE_DEV "/sys/block/mmcblk0"

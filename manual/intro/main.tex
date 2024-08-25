@@ -18,17 +18,17 @@
 % Contributors are listed in the file docs/CREDITS-MANUAL
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\Ifpdfoutput{
+\ifpdfoutput{
 \newcommand{\latexbuild}{pdf\LaTeX}}
 {\newcommand{\latexbuild}{\TeX4ht}}
 
-\Ifpdfoutput{\chapter*{\centering{Rockbox\\}}}%
+\ifpdfoutput{\chapter*{\centering{Rockbox\\}}}%
 {\begin{center}{\Large{Rockbox}}\end{center}}
 
 \vspace{1cm}
 \noindent
 \begin{center}
-\url{https://www.rockbox.org/}
+\url{http://www.rockbox.org/}
 
 \noindent
 Open Source Jukebox Firmware
@@ -40,7 +40,7 @@ Rockbox and this manual is the collaborative effort of the
 Rockbox team and its contributors. See the appendix for a complete list of
 contributors.
 
-\copyright~2003--2024 The Rockbox Team and its contributors,
+\copyright~2003--2017 The Rockbox Team and its contributors,
 \copyright~2004 Christi Alice Scarborough,
 \copyright~2003 Jos\'{e} Maria Garcia-Valdecasas Bernal \& Peter Schlenker.
 \end{quote}

@@ -85,11 +85,9 @@ static void setoptions (void)
 #ifdef HAVE_TOUCHSCREEN
         options.LEFT    = BUTTON_MIDLEFT;
         options.RIGHT   = BUTTON_MIDRIGHT;
-#elif defined(BUTTON_LEFT) && defined(BUTTON_RIGHT)
+#else
         options.LEFT    = BUTTON_LEFT;
         options.RIGHT   = BUTTON_RIGHT;
-#else
-#warning "LEFT/RIGHT not defined!"
 #endif
 
 #if CONFIG_KEYPAD == IRIVER_H100_PAD
@@ -112,6 +110,16 @@ static void setoptions (void)
         options.SELECT  = BUTTON_SELECT;
         options.MENU    = BUTTON_OFF;
 
+#elif CONFIG_KEYPAD == RECORDER_PAD
+        options.UP      = BUTTON_UP;
+        options.DOWN    = BUTTON_DOWN;
+
+        options.A       = BUTTON_F1;
+        options.B       = BUTTON_F2;
+        options.START   = BUTTON_F3;
+        options.SELECT  = BUTTON_PLAY;
+        options.MENU    = BUTTON_OFF;
+
 #elif CONFIG_KEYPAD == IPOD_4G_PAD
         options.UP      = BUTTON_MENU;
         options.DOWN    = BUTTON_PLAY;
@@ -120,6 +128,16 @@ static void setoptions (void)
         options.B       = BUTTON_NONE;
         options.START   = BUTTON_SELECT;
         options.SELECT  = BUTTON_NONE;
+        options.MENU    = (BUTTON_SELECT | BUTTON_REPEAT);
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+        options.UP      = BUTTON_UP;
+        options.DOWN    = BUTTON_DOWN;
+
+        options.A       = BUTTON_PLAY;
+        options.B       = BUTTON_EQ;
+        options.START   = BUTTON_MODE;
+        options.SELECT  = (BUTTON_SELECT | BUTTON_REL);
         options.MENU    = (BUTTON_SELECT | BUTTON_REPEAT);
 
 #elif CONFIG_KEYPAD == GIGABEAT_PAD
@@ -415,27 +433,7 @@ static void setoptions (void)
         options.SELECT  = BUTTON_VOL_UP;
         options.MENU    = BUTTON_POWER;
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-        options.UP      = BUTTON_PREV;
-        options.DOWN    = BUTTON_NEXT;
-
-        options.A       = BUTTON_HOME;
-        options.B       = BUTTON_OPTION;
-        options.START   = BUTTON_VOL_DOWN;
-        options.SELECT  = BUTTON_VOL_UP;
-        options.MENU    = BUTTON_POWER;
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-        options.UP      = BUTTON_PREV;
-        options.DOWN    = BUTTON_NEXT;
-
-        options.A       = BUTTON_HOME;
-        options.B       = BUTTON_OPTION;
-        options.START   = BUTTON_VOL_DOWN;
-        options.SELECT  = BUTTON_VOL_UP;
-        options.MENU    = BUTTON_POWER;
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
         options.UP      = BUTTON_PREV;
         options.DOWN    = BUTTON_NEXT;
 
@@ -445,31 +443,15 @@ static void setoptions (void)
         options.SELECT  = BUTTON_HOME;
         options.MENU    = BUTTON_POWER;
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
-        options.UP     = BUTTON_PREV;
-        options.DOWN   = BUTTON_NEXT;
-        options.LEFT   = BUTTON_SCROLL_BACK;
-        options.RIGHT  = BUTTON_SCROLL_FWD;
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+        options.UP      = BUTTON_PREV;
+        options.DOWN    = BUTTON_NEXT;
 
-        options.A       = BUTTON_MENU;
-        options.B       = BUTTON_BACK;
-        options.START   = BUTTON_VOL_DOWN;
-        options.SELECT  = BUTTON_VOL_UP;
+        options.A       = BUTTON_VOL_UP;
+        options.B       = BUTTON_VOL_DOWN;
+        options.START   = BUTTON_PLAY;
+        options.SELECT  = BUTTON_HOME;
         options.MENU    = BUTTON_POWER;
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-        options.UP      = BUTTON_UP;
-        options.DOWN    = BUTTON_DOWN;
-        options.LEFT    = BUTTON_LEFT;
-        options.RIGHT   = BUTTON_RIGHT;
-        options.A       = BUTTON_MENU;
-        options.B       = BUTTON_BACK;
-        options.START   = BUTTON_VOL_DOWN;
-        options.SELECT  = BUTTON_VOL_UP;
-        options.MENU    = BUTTON_POWER;
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-        /* use touchscreen */
 
 #else
 #error No Keymap Defined!

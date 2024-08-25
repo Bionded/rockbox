@@ -28,14 +28,12 @@
 
 void usb_pin_init(void)
 {
-#if defined(IPOD_1G2G)
+    /* TODO: add USB init for iPod 3rd gen */
+
+#if defined(IPOD_1G2G) || defined(IPOD_3G)
     /* GPIO C bit 7 is firewire detect */
     GPIOC_ENABLE    |=  0x80;
     GPIOC_OUTPUT_EN &= ~0x80;
-#elif defined(IPOD_3G)
-    /* GPIO D bit 4 is USB detect */
-    GPIOD_ENABLE    |=  0x10;
-    GPIOD_OUTPUT_EN &= ~0x10;
 #endif
 }
 
@@ -64,17 +62,13 @@ void usb_enable(bool on)
 
 int usb_detect(void)
 {
-#if defined(IPOD_1G2G)
+#if defined(IPOD_1G2G) || defined(IPOD_3G)
     /* GPIO C bit 7 is firewire detect */
     if (!(GPIOC_INPUT_VAL & 0x80))
         return USB_INSERTED;
 #endif
 
-#if defined(IPOD_3G)
-    /* GPIO D bit 4 is USB detect */
-    if (GPIOD_INPUT_VAL & 0x10)
-        return USB_INSERTED;
-#endif
+    /* TODO: add USB detection for iPod 3rd gen */
 
     return USB_EXTRACTED;
 }

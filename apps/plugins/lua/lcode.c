@@ -802,10 +802,8 @@ static unsigned char *growLineInfo(FuncState *fs) {
                   unsigned char, MAX_INT, "code size overflow");
 
   p = &f->packedlineinfo[start];
-  if (p && f->sizelineinfo > 0) {
-    memset(p, INFO_FILL_BYTE, f->sizelineinfo - start);
-    f->packedlineinfo[f->sizelineinfo - 1] = '\0';
-  }
+  memset(p, INFO_FILL_BYTE, f->sizelineinfo - start);
+  f->packedlineinfo[f->sizelineinfo - 1] = '\0';
   return p;
 }
 

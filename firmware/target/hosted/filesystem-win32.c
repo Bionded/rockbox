@@ -30,7 +30,6 @@
 #include "debug.h"
 #include "pathfuncs.h"
 #include "string-extra.h"
-#include "mv.h"
 
 #define SAME_FILE_INFO(lpInfo1, lpInfo2) \
     ((lpInfo1)->dwVolumeSerialNumber == (lpInfo2)->dwVolumeSerialNumber && \
@@ -463,16 +462,7 @@ int os_relate(const char *ospath1, const char *ospath2)
     return rc;
 }
 
-int os_modtime(const char *path, time_t modtime)
-{
-    (void)path;
-    (void)modtime;
-    return 0;
-}
-
-int os_volume_path(IF_MV(int volume, ) char *buffer, size_t bufsize);
-
-void volume_size(IF_MV(int volume,) sector_t *sizep, sector_t *freep)
+void volume_size(IF_MV(int volume,) unsigned long *sizep, unsigned long *freep)
 {
     ULARGE_INTEGER free = { .QuadPart = 0 },
                    size = { .QuadPart = 0 };

@@ -58,7 +58,7 @@ void tv_exit(void)
     {
         DEBUGF("Saving settings\n");
         if (!tv_save_settings())
-            rb->splash(HZ, "Can't save preferences and bookmarks"); // XXX i18n
+            rb->splash(HZ, "Can't save preferences and bookmarks");
     }
     else
         DEBUGF("Skip saving settings\n");
@@ -100,7 +100,9 @@ void tv_scroll_up(unsigned mode)
         (mode == TV_VERTICAL_SCROLL_PREFS && preferences->vertical_scroll_mode == VS_PAGE))
     {
         offset_page--;
+#ifdef HAVE_LCD_BITMAP
         offset_line = (preferences->overlap_page_mode)? 1:0;
+#endif
     }
     tv_move_screen(offset_page, offset_line, SEEK_CUR);
     scrolled = true;
@@ -115,7 +117,9 @@ void tv_scroll_down(unsigned mode)
         (mode == TV_VERTICAL_SCROLL_PREFS && preferences->vertical_scroll_mode == VS_PAGE))
     {
         offset_page++;
+#ifdef HAVE_LCD_BITMAP
         offset_line = (preferences->overlap_page_mode)? -1:0;
+#endif
     }
     tv_move_screen(offset_page, offset_line, SEEK_CUR);
     scrolled = true;

@@ -4,11 +4,6 @@
 #include "modes.h"
 #include "rate.h"
 
-#ifdef HAVE_ARM_NE10
-#define OVERRIDE_FFT 1
-#include "static_modes_fixed_arm_ne10.h"
-#endif
-
 #ifndef DEF_WINDOW120
 #define DEF_WINDOW120
 static const opus_val16 window120[120] ICONST_ATTR = {
@@ -431,17 +426,12 @@ static const opus_int16 fft_bitrev60[60] = {
 #define FFT_STATE48000_960_0
 static const kiss_fft_state fft_state48000_960_0 ICONST_ATTR = {
 480,    /* nfft */
-17476,    /* scale */
+17476,	/* scale */
 8,      /* scale_shift */
 -1,     /* shift */
-{5, 96, 3, 32, 4, 8, 2, 4, 4, 1, 0, 0, 0, 0, 0, 0, },    /* factors */
+{5, 96, 3, 32, 4, 8, 2, 4, 4, 1, 0, 0, 0, 0, 0, 0, },	/* factors */
 fft_bitrev480,  /* bitrev */
 fft_twiddles48000_960,  /* bitrev */
-#ifdef OVERRIDE_FFT
-(arch_fft_state *)&cfg_arch_480,
-#else
-NULL,
-#endif
 };
 #endif
 
@@ -449,17 +439,12 @@ NULL,
 #define FFT_STATE48000_960_1
 static const kiss_fft_state fft_state48000_960_1 ICONST_ATTR = {
 240,    /* nfft */
-17476,    /* scale */
+17476,	/* scale */
 7,      /* scale_shift */
 1,      /* shift */
-{5, 48, 3, 16, 4, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, },    /* factors */
+{5, 48, 3, 16, 4, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, },	/* factors */
 fft_bitrev240,  /* bitrev */
 fft_twiddles48000_960,  /* bitrev */
-#ifdef OVERRIDE_FFT
-(arch_fft_state *)&cfg_arch_240,
-#else
-NULL,
-#endif
 };
 #endif
 
@@ -467,17 +452,12 @@ NULL,
 #define FFT_STATE48000_960_2
 static const kiss_fft_state fft_state48000_960_2 ICONST_ATTR = {
 120,    /* nfft */
-17476,    /* scale */
+17476,	/* scale */
 6,      /* scale_shift */
 2,      /* shift */
-{5, 24, 3, 8, 2, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, },    /* factors */
+{5, 24, 3, 8, 2, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, },	/* factors */
 fft_bitrev120,  /* bitrev */
 fft_twiddles48000_960,  /* bitrev */
-#ifdef OVERRIDE_FFT
-(arch_fft_state *)&cfg_arch_120,
-#else
-NULL,
-#endif
 };
 #endif
 
@@ -485,17 +465,12 @@ NULL,
 #define FFT_STATE48000_960_3
 static const kiss_fft_state fft_state48000_960_3 ICONST_ATTR = {
 60,     /* nfft */
-17476,    /* scale */
+17476,	/* scale */
 5,      /* scale_shift */
 3,      /* shift */
-{5, 12, 3, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },    /* factors */
+{5, 12, 3, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },	/* factors */
 fft_bitrev60,   /* bitrev */
 fft_twiddles48000_960,  /* bitrev */
-#ifdef OVERRIDE_FFT
-(arch_fft_state *)&cfg_arch_60,
-#else
-NULL,
-#endif
 };
 #endif
 

@@ -47,21 +47,19 @@
 #define FILE_ATTR_LUA   0x1100 /* Lua rockbox plugin */
 #define FILE_ATTR_FMS   0x1200 /* FM screen skin file */
 #define FILE_ATTR_RFMS  0x1300 /* FM screen skin file */
-#define FILE_ATTR_OPX   0x1400 /* open plugins shortcut */
-#define FILE_ATTR_LOG   0x1500 /* log file */
 #define FILE_ATTR_MASK  0xFF00 /* which bits tree.c uses for file types */
 
 struct filetype {
     char* extension;
     int tree_attr;
+    enum themable_icons icon;
+    int voiceclip;
 };
-
-long tree_get_filetype_voiceclip(int attr);
+void tree_get_filetypes(const struct filetype**, int*) INIT_ATTR;
 
 /* init the filetypes structs.
    uses audio buffer for storage, so call early in init... */
 void filetype_init(void) INIT_ATTR;
-
 void read_viewer_theme_file(void);
 #ifdef HAVE_LCD_COLOR
 void read_color_theme_file(void);
@@ -74,16 +72,13 @@ int filetype_get_color(const char* name, int attr);
 #endif
 int filetype_get_icon(int attr);
 /* return the plugin filename associated with the file */
-char* filetype_get_plugin(int attr, char *buffer, size_t buffer_len);
+char* filetype_get_plugin(const struct entry* file);
 
 /* returns true if the attr is supported */
 bool  filetype_supported(int attr);
 
-/* List avialable viewers and start selected plugin with current_file as argument */
+/* List avialable viewers */
 int filetype_list_viewers(const char* current_file);
-
-/* return the plugin filename the user selected for the file Returns NULL if canceled */
-char* filetype_get_viewer(char *buffer, size_t buffer_len, const char* current_file);
 
 /* start a plugin with file as the argument (called from onplay.c) */
 int filetype_load_plugin(const char* plugin, const char* file);

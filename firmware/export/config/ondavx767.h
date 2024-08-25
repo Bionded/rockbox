@@ -43,8 +43,8 @@
 #define HAVE_MULTIDRIVE
 #define NUM_DRIVES 2
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -76,8 +76,8 @@
 
 #define CONFIG_KEYPAD ONDAVX767_PAD
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_JZ4740
@@ -147,6 +147,12 @@
 
 /* define this if you have a flash memory storage */
 #define HAVE_FLASH_STORAGE
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you have adjustable CPU frequency */
 #define HAVE_ADJUSTABLE_CPU_FREQ

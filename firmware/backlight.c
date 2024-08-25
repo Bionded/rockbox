@@ -21,10 +21,6 @@
  *
  ****************************************************************************/
 #include "config.h"
-#if !defined(BOOTLOADER)
-#include "settings.h"
-#include "action.h"
-#endif
 #include <stdlib.h>
 #include "cpu.h"
 #include "kernel.h"
@@ -121,8 +117,10 @@ static int backlight_timeout_normal = 5*HZ;
 #if CONFIG_CHARGING
 static int backlight_timeout_plugged = 5*HZ;
 #endif
+#ifdef HAS_BUTTON_HOLD
 static int backlight_on_button_hold = 0;
-static void backlight_handle_timeout(void);
+#endif
+static void backlight_timeout_handler(void);
 
 #ifdef HAVE_BUTTON_LIGHT
 static int buttonlight_timer;
@@ -550,17 +548,6 @@ static void remote_backlight_update_state(void)
 }
 #endif /* HAVE_REMOTE_LCD */
 
-static void backlight_queue_wait(struct queue_event *ev)
-{
-#if  (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_SETTING) \
-    || (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_HW_REG)
-    if (backlight_fading_state != NOT_FADING)
-        queue_wait_w_tmo(&backlight_queue, ev, FADE_DELAY);
-    else
-#endif
-        queue_wait_w_tmo(&backlight_queue, ev, BACKLIGHT_THREAD_TIMEOUT);
-}
-
 void backlight_thread(void)
 {
     struct queue_event ev;
@@ -568,7 +555,13 @@ void backlight_thread(void)
 
     while(1)
     {
-        backlight_queue_wait(&ev);
+#if  (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_SETTING) \
+    || (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_HW_REG)
+        if (backlight_fading_state != NOT_FADING)
+            queue_wait_w_tmo(&backlight_queue, &ev, FADE_DELAY);
+        else
+#endif
+            queue_wait_w_tmo(&backlight_queue, &ev, BACKLIGHT_THREAD_TIMEOUT);
         switch(ev.id)
         {   /* These events must always be processed */
 #ifdef _BACKLIGHT_FADE_BOOST
@@ -672,14 +665,9 @@ void backlight_thread(void)
 #endif /* HAVE_BUTTONLIGHT_BRIGHTNESS */
 #endif /* HAVE_BUTTON_LIGHT */
 
-            case SYS_REBOOT:
             case SYS_POWEROFF:  /* Lock backlight on poweroff so it doesn't */
                 locked = true;      /* go off before power is actually cut. */
-#if !defined(BOOTLOADER)
-                if (!global_settings.show_shutdown_message)
-                    break;
-#endif
-                /* else fall through */
+                /* fall through */
 #if CONFIG_CHARGING
             case SYS_CHARGER_CONNECTED:
             case SYS_CHARGER_DISCONNECTED:
@@ -690,7 +678,24 @@ void backlight_thread(void)
 #endif
                 break;
             case SYS_TIMEOUT:
-                backlight_handle_timeout();
+#if  (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_SETTING) \
+    || (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_HW_REG)
+                if (backlight_fading_state != NOT_FADING)
+                {
+                    if ((_backlight_fade_step(backlight_fading_state)))
+                    {   /* finished fading */
+#ifdef HAVE_LCD_SLEEP
+                        if (backlight_fading_state == FADING_DOWN)
+                        {   /* start sleep countdown */
+                             backlight_lcd_sleep_countdown(true);
+                        }
+#endif
+                        backlight_fading_state = NOT_FADING;
+                    }
+                }
+                else
+#endif /* CONFIG_BACKLIGHT_FADING */
+                    backlight_timeout_handler();
                 break;
         }
     } /* end while */
@@ -748,28 +753,6 @@ static void backlight_timeout_handler(void)
         if (backlight_ignored_timer <= 0)
             ignore_backlight_on = false;
     }
-}
-
-static void backlight_handle_timeout(void)
-{
-#if  (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_SETTING) \
-    || (CONFIG_BACKLIGHT_FADING == BACKLIGHT_FADING_SW_HW_REG)
-    if (backlight_fading_state != NOT_FADING)
-    {
-        if ((_backlight_fade_step(backlight_fading_state)))
-        {   /* finished fading */
-#ifdef HAVE_LCD_SLEEP
-            if (backlight_fading_state == FADING_DOWN)
-            {   /* start sleep countdown */
-                 backlight_lcd_sleep_countdown(true);
-            }
-#endif
-            backlight_fading_state = NOT_FADING;
-        }
-    }
-    else
-#endif /* CONFIG_BACKLIGHT_FADING */
-        backlight_timeout_handler();
 }
 
 void backlight_init(void)
@@ -845,18 +828,18 @@ bool is_backlight_on(bool ignore_always_off)
 /* return value in ticks; 0 means always on, <0 means always off */
 int backlight_get_current_timeout(void)
 {
+#ifdef HAS_BUTTON_HOLD
     if ((backlight_on_button_hold != 0)
-#if (defined(HAVE_REMOTE_LCD_AS_MAIN) && defined(HAS_REMOTE_BUTTON_HOLD))
+#ifdef HAVE_REMOTE_LCD_AS_MAIN
         && remote_button_hold()
-#elif defined(HAS_BUTTON_HOLD)
-        && button_hold()
 #else
-        && is_keys_locked()
+        && button_hold()
 #endif
         )
         return (backlight_on_button_hold == 2) ? 0 : -1;
         /* always on or always off */
     else
+#endif
 #if CONFIG_CHARGING
         if (power_input_present())
             return backlight_timeout_plugged;
@@ -892,7 +875,6 @@ void backlight_hold_changed(bool hold_button)
         queue_post(&backlight_queue, BACKLIGHT_ON, 0);
     }
 }
-#endif /* HAS_BUTTON_HOLD */
 
 void backlight_set_on_button_hold(int index)
 {
@@ -903,6 +885,7 @@ void backlight_set_on_button_hold(int index)
     backlight_on_button_hold = index;
     queue_post(&backlight_queue, BACKLIGHT_TMO_CHANGED, 0);
 }
+#endif /* HAS_BUTTON_HOLD */
 
 #ifdef HAVE_LCD_SLEEP_SETTING
 void lcd_set_sleep_after_backlight_off(int timeout_seconds)
@@ -1064,14 +1047,3 @@ void buttonlight_set_brightness(int val) { (void)val; }
 #endif /* HAVE_BUTTON_LIGHT */
 
 #endif /* defined(HAVE_BACKLIGHT) && defined(BACKLIGHT_FULL_INIT) */
-
-#ifndef HAVE_BUTTON_LIGHT /* Dummy Functions */
-void buttonlight_on(void) {}
-void buttonlight_on_ignore(bool value, int timeout){(void)value;(void)timeout;}
-void buttonlight_off(void) {}
-void buttonlight_set_timeout(int value) {(void)value;}
-#endif /* ndef HAVE_BUTTON_LIGHT */
-
-#ifndef HAVE_BUTTONLIGHT_BRIGHTNESS  /* Dummy Functions */
-void buttonlight_set_brightness(int val) { (void)val; }
-#endif /* ndef HAVE_BUTTONLIGHT_BRIGHTNESS */

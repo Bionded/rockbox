@@ -491,7 +491,7 @@
  <connections>
   <connection>
    <sender>actionQuit</sender>
-   <signal>triggered()</signal>
+   <signal>activated()</signal>
    <receiver>EditorWindow</receiver>
    <slot>close()</slot>
    <hints>

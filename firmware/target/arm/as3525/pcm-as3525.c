@@ -152,6 +152,26 @@ void pcm_play_dma_stop(void)
     play_callback_pending = false;
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    is_playing = !pause;
+
+    if(pause)
+    {
+        dma_pause_channel(0);
+
+        /* if producer's buffer finished, upper layer starts anew */
+        if (dma_rem_size == 0)
+            play_callback_pending = false;
+    }
+    else
+    {
+        if (play_sub_size != 0)
+            dma_resume_channel(0);
+        /* else unlock calls the callback if sub buffers remain */
+    }
+}
+
 void pcm_play_dma_init(void)
 {
     bitset32(&CGU_PERI, CGU_I2SOUT_APB_CLOCK_ENABLE);
@@ -198,6 +218,29 @@ void pcm_dma_apply_settings(void)
              (mclk_divider() << 2) | /* I2SO_MCLK_DIV_SEL */
              (AS3525_MCLK_SEL << 0), /* I2SO_MCLK_SEL */
              0x01ffffff);
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    int oldstatus = disable_irq_save();
+    size_t addr = DMAC_CH_SRC_ADDR(0);
+    size_t start_addr = (size_t)dma_start_addr;
+    size_t start_size = dma_start_size;
+    restore_interrupt(oldstatus);
+
+    return start_size - addr + start_addr;
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    int oldstatus = disable_irq_save();
+    size_t addr = DMAC_CH_SRC_ADDR(0);
+    size_t start_addr = (size_t)dma_start_addr;
+    size_t start_size = dma_start_size;
+    restore_interrupt(oldstatus);
+
+    *count = (start_size - addr + start_addr) >> 2;
+    return (void*)AS3525_UNCACHED_ADDR(addr);
 }
 
 #ifdef HAVE_PCM_DMA_ADDRESS

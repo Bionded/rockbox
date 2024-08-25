@@ -27,19 +27,15 @@
 #include "config.h"
 #include "cpu.h"
 #include "mipsregs.h"
-#include "system-mips.h"
 
 #define CACHE_SIZE       16*1024
-#define CACHEALIGN_BITS  5
+#define CACHE_LINE_SIZE  32
 #include "mmu-mips.h"
-
-#define CFG_UART_BASE    UART1_BASE      /* Base of the UART channel */
 
 /* no optimized byteswap functions implemented for mips, yet */
 #define NEED_GENERIC_BYTESWAPS
 
 #define STORAGE_WANTS_ALIGN
-#define STORAGE_NEEDS_BOUNCE_BUFFER
 
 /* This one returns the old status */
 static inline int set_interrupt_status(int status, int mask)
@@ -85,7 +81,6 @@ static inline void restore_interrupt(int status)
 #define UNCACHED_ADDRESS(addr)    ((unsigned int)(addr) | 0xA0000000)
 #define UNCACHED_ADDR(x)          UNCACHED_ADDRESS((x))
 #define PHYSADDR(x)               ((x) & 0x1fffffff)
-#define VIRTADDR(x)               ((x) | 0xA0000000)
 
 void system_enable_irq(unsigned int irq);
 void udelay(unsigned int usec);
@@ -100,15 +95,10 @@ void dma_disable(void);
 #define DMA_LCD_CHANNEL    3
 #elif CONFIG_CPU == JZ4760B
 #define DMA_AIC_TX_CHANNEL 0
-#define DMA_USB_CHANNEL    1
-// Note:  channel 5 and 11 cannot be used!
-#define DMA_SD_RX_CHANNEL0 6
-#define DMA_SD_RX_CHANNEL1 7
-#define DMA_SD_TX_CHANNEL0 8
-#define DMA_SD_TX_CHANNEL1 9
-#define DMA_NAND_CHANNEL   10
-#define DMA_SD_RX_CHANNEL(n)  6+n
-#define DMA_SD_TX_CHANNEL(n)  8+n
+#define DMA_NAND_CHANNEL   1
+#define DMA_USB_CHANNEL    2
+#define DMA_SD_RX_CHANNEL  3
+#define DMA_SD_TX_CHANNEL  4
 #endif
 
 #define XDMA_CALLBACK(n) DMA ## n
@@ -126,10 +116,7 @@ static inline void core_sleep(void)
 #if CONFIG_CPU == JZ4732 || CONFIG_CPU == JZ4760B
     __cpm_idle_mode();
 #endif
-    asm volatile(
-                 ".set   push               \n"
-                 ".set   mips32r2           \n"
-                 ".set   noreorder          \n"
+    asm volatile(".set   mips32r2           \n"
                  "mfc0   $8, $12            \n" /* mfc t0, $12 */
                  "move   $9, $8             \n" /* move t1, t0 */
                  "la     $10, 0x8000000     \n" /* la t2, 0x8000000 */
@@ -137,7 +124,7 @@ static inline void core_sleep(void)
                  "mtc0   $8, $12            \n" /* mtc t0, $12 */
                  "wait                      \n"
                  "mtc0   $9, $12            \n" /* mtc t1, $12 */
-                 ".set   pop                \n"
+                 ".set   mips0              \n"
                  ::: "t0", "t1", "t2"
                  );
     enable_irq();

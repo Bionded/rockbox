@@ -12,8 +12,8 @@
 
 #define USB_NONE
 
-#define HAVE_FPU
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -43,6 +43,9 @@
 #define HAVE_TOUCHSCREEN
 #define HAVE_BUTTON_DATA
 
+/* define this if you have RTC RAM available for settings */
+//#define HAVE_RTC_RAM
+
 /* define this if you have a real-time clock */
 #define CONFIG_RTC APPLICATION
 
@@ -54,8 +57,8 @@
 
 #define AB_REPEAT_ENABLE
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* Work around debug macro expansion of strncmp in scratchbox */
 #define _HAVE_STRING_ARCH_strncmp
@@ -78,6 +81,12 @@
 /*
 #define CPU_FREQ 48000000
 */
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 #define CONFIG_LCD LCD_COWOND2
 

@@ -141,7 +141,6 @@ void exit_on_usb(int button)
     long result = rb->default_event_handler_ex(button, cleanup_wrapper, NULL);
     if (result == SYS_USB_CONNECTED)
         _exit(PLUGIN_USB_CONNECTED);
-    else if (result == SYS_POWEROFF || result == SYS_REBOOT)
-        /* note: nobody actually pays attention to this exit code */
+    else if (result == SYS_POWEROFF)
         _exit(PLUGIN_POWEROFF);
 }

@@ -22,8 +22,8 @@
 /*define this if the ATA controller and method of USB access support LBA48 */
 #define HAVE_LBA48
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
@@ -59,8 +59,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_MC13783
@@ -121,6 +121,7 @@
 /* Define this if you have a SI4700 fm radio tuner */
 #define CONFIG_TUNER SI4700
 #define HAVE_RDS_CAP
+#define CONFIG_RDS (RDS_CFG_ISR | RDS_CFG_PROCESS)
 
 /* define this if you can flip your LCD */
 #define HAVE_LCD_FLIP
@@ -152,8 +153,6 @@
 
 #define CONFIG_CPU IMX31L
 
-#define HAVE_FPU
-
 /* Define this if you want to use imx31l's i2c interface */
 #define CONFIG_I2C I2C_IMX31L
 
@@ -163,7 +162,7 @@
 #define GPIO_EVENT_MASK (USE_GPIO1_EVENTS)
 
 /* Define this if target has an additional number of threads specific to it */
-#define TARGET_EXTRA_THREADS 2 /* one is for RDS */
+#define TARGET_EXTRA_THREADS 1
 
 /* Type of mobile power - check this out */
 #define BATTERY_CAPACITY_DEFAULT 700 /* default battery capacity */
@@ -234,6 +233,12 @@
 #define HAVE_ATA_DMA
 
 #define CONFIG_LCD LCD_GIGABEATS
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 //#define HAVE_SERIAL
 #define HAVE_VOLUME_IN_LIST

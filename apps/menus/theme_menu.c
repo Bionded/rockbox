@@ -27,7 +27,6 @@
 #include "lang.h"
 #include "action.h"
 #include "settings.h"
-#include "rbpaths.h"
 #include "menu.h"
 #include "tree.h"
 #include "list.h"
@@ -43,9 +42,6 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_engine.h"
 #include "icons.h"
-#ifdef HAVE_LCD_COLOR
-#include "filetypes.h"
-#endif
 
 #ifdef HAVE_BACKDROP_IMAGE
 /**
@@ -62,7 +58,7 @@ static int clear_main_backdrop(void)
     return 0;
 }
 MENUITEM_FUNCTION(clear_main_bd, 0, ID2P(LANG_CLEAR_BACKDROP),
-                  clear_main_backdrop, NULL, Icon_NOICON);
+                    clear_main_backdrop, NULL, NULL, Icon_NOICON);
 #endif
 #ifdef HAVE_LCD_COLOR
 
@@ -120,29 +116,26 @@ static int reset_color(void)
     global_settings.lse_color = LCD_DEFAULT_BG;
     global_settings.lst_color = LCD_DEFAULT_FG;
     global_settings.list_separator_color = LCD_DARKGRAY;
-    global_settings.colors_file[0] = '-';
-    global_settings.colors_file[1] = '\0';
-
-    read_color_theme_file();
+    
     settings_save();
     settings_apply(false);
     settings_apply_skins();
     return 0;
 }
-MENUITEM_FUNCTION_W_PARAM(set_bg_col, 0, ID2P(LANG_BACKGROUND_COLOR),
-                          set_color_func, (void*)COLOR_BG, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(set_fg_col, 0, ID2P(LANG_FOREGROUND_COLOR),
-                          set_color_func, (void*)COLOR_FG, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(set_lss_col, 0, ID2P(LANG_SELECTOR_START_COLOR),
-                          set_color_func, (void*)COLOR_LSS, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(set_lse_col, 0, ID2P(LANG_SELECTOR_END_COLOR),
-                          set_color_func, (void*)COLOR_LSE, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(set_lst_col, 0, ID2P(LANG_SELECTOR_TEXT_COLOR),
-                          set_color_func, (void*)COLOR_LST, NULL, Icon_NOICON);
-MENUITEM_FUNCTION_W_PARAM(set_sep_col, 0, ID2P(LANG_LIST_SEPARATOR_COLOR),
-                          set_color_func, (void*)COLOR_SEP, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_bg_col, MENU_FUNC_USEPARAM, ID2P(LANG_BACKGROUND_COLOR),
+                  set_color_func, (void*)COLOR_BG, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_fg_col, MENU_FUNC_USEPARAM, ID2P(LANG_FOREGROUND_COLOR),
+                  set_color_func, (void*)COLOR_FG, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_lss_col, MENU_FUNC_USEPARAM, ID2P(LANG_SELECTOR_START_COLOR),
+                  set_color_func, (void*)COLOR_LSS, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_lse_col, MENU_FUNC_USEPARAM, ID2P(LANG_SELECTOR_END_COLOR),
+                  set_color_func, (void*)COLOR_LSE, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_lst_col, MENU_FUNC_USEPARAM, ID2P(LANG_SELECTOR_TEXT_COLOR),
+                  set_color_func, (void*)COLOR_LST, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(set_sep_col, MENU_FUNC_USEPARAM, ID2P(LANG_LIST_SEPARATOR_COLOR),
+                  set_color_func, (void*)COLOR_SEP, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(reset_colors, 0, ID2P(LANG_RESET_COLORS),
-                  reset_color, NULL, Icon_NOICON);
+                    reset_color, NULL, NULL, Icon_NOICON);
 
 MAKE_MENU(lss_settings, ID2P(LANG_SELECTOR_COLOR_MENU),
             NULL, Icon_NOICON,
@@ -165,6 +158,8 @@ MAKE_MENU(colors_settings, ID2P(LANG_COLORS_MENU),
 /*    BARS MENU                     */
 /*                                  */
 
+
+#ifdef HAVE_LCD_BITMAP
 static int statusbar_callback_ex(int action,const struct menu_item_ex *this_item,
                                 enum screen_type screen)
 {
@@ -187,28 +182,39 @@ static int statusbar_callback_ex(int action,const struct menu_item_ex *this_item
 }
 
 #ifdef HAVE_REMOTE_LCD
-static int statusbar_callback_remote(int action,
-                                     const struct menu_item_ex *this_item,
-                                     struct gui_synclist *this_list)
+static int statusbar_callback_remote(int action,const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     return statusbar_callback_ex(action, this_item, SCREEN_REMOTE);
 }
 #endif
-static int statusbar_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+static int statusbar_callback(int action,const struct menu_item_ex *this_item)
 {
-    (void)this_list;
     return statusbar_callback_ex(action, this_item, SCREEN_MAIN);
 }
 
+#ifdef HAVE_BUTTONBAR
+static int buttonbar_callback(int action, const struct menu_item_ex *this_item)
+{
+    (void)this_item;
+    switch (action)
+    {
+        case ACTION_EXIT_MENUITEM:
+            viewportmanager_theme_changed(THEME_BUTTONBAR);
+        break;
+    }
+    return ACTION_REDRAW;
+}
+#endif
 MENUITEM_SETTING(scrollbar_item, &global_settings.scrollbar, NULL);
 MENUITEM_SETTING(scrollbar_width, &global_settings.scrollbar_width, NULL);
-MENUITEM_SETTING(statusbar, &global_settings.statusbar, statusbar_callback);
+MENUITEM_SETTING(statusbar, &global_settings.statusbar,
+                                                    statusbar_callback);
 #ifdef HAVE_REMOTE_LCD
 MENUITEM_SETTING(remote_statusbar, &global_settings.remote_statusbar,
                                                     statusbar_callback_remote);
+#endif
+#ifdef HAVE_BUTTONBAR
+MENUITEM_SETTING(buttonbar, &global_settings.buttonbar, buttonbar_callback);
 #endif
 MENUITEM_SETTING(volume_type, &global_settings.volume_type, NULL);
 MENUITEM_SETTING(battery_display, &global_settings.battery_display, NULL);
@@ -217,20 +223,26 @@ MAKE_MENU(bars_menu, ID2P(LANG_BARS_MENU), 0, Icon_NOICON,
 #ifdef HAVE_REMOTE_LCD
           &remote_statusbar,
 #endif  
+#if CONFIG_KEYPAD == RECORDER_PAD
+          &buttonbar,
+#endif
           &volume_type
 #if (CONFIG_BATTERY_MEASURE != 0)
           , &battery_display
 #endif
           );
+#endif /* HAVE_LCD_BITMAP */
 
 /*                                  */
 /*    BARS MENU                     */
 /************************************/
 
+#ifdef HAVE_LCD_BITMAP
 static struct browse_folder_info fonts = {FONT_DIR, SHOW_FONT};
 static struct browse_folder_info sbs   = {SBS_DIR, SHOW_SBS};
 #if CONFIG_TUNER
 static struct browse_folder_info fms   = {WPS_DIR, SHOW_FMS};
+#endif
 #endif
 static struct browse_folder_info wps = {WPS_DIR, SHOW_WPS};
 #ifdef HAVE_REMOTE_LCD
@@ -249,12 +261,9 @@ int browse_folder(void *param)
     char selected[MAX_FILENAME+10];
     const struct browse_folder_info *info =
         (const struct browse_folder_info*)param;
-
-    struct browse_context browse = {
-        .dirfilter = info->show_options,
-        .icon = Icon_NOICON,
-        .root = info->dir,
-    };
+    struct browse_context browse;
+    browse_context_init(&browse, info->show_options, 0,
+                        NULL, NOICON, info->dir, NULL);
 
     /* if we are in a special settings folder, center the current setting */
     switch(info->show_options)
@@ -272,6 +281,7 @@ int browse_folder(void *param)
             setting = global_settings.wps_file;
             lang_id = LANG_WHILE_PLAYING;
             break;
+#ifdef HAVE_LCD_BITMAP
         case SHOW_FONT:
             ext = "fnt";
             setting = global_settings.font_file;
@@ -289,6 +299,7 @@ int browse_folder(void *param)
             lang_id = LANG_RADIOSCREEN;
             break;
 #endif /* CONFIG_TUNER */
+#endif
 #ifdef HAVE_REMOTE_LCD
         case SHOW_RWPS:
             ext = "rwps";
@@ -326,34 +337,41 @@ int browse_folder(void *param)
     return rockbox_browse(&browse);
 }
 
-MENUITEM_FUNCTION_W_PARAM(browse_fonts, 0, ID2P(LANG_CUSTOM_FONT),
-                          browse_folder, (void*)&fonts, NULL, Icon_Font);
+#ifdef HAVE_LCD_BITMAP
+MENUITEM_FUNCTION(browse_fonts, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_CUSTOM_FONT), 
+        browse_folder, (void*)&fonts, NULL, Icon_Font);
 
-MENUITEM_FUNCTION_W_PARAM(browse_sbs, 0, ID2P(LANG_BASE_SKIN),
-                          browse_folder, (void*)&sbs, NULL, Icon_Wps);
+MENUITEM_FUNCTION(browse_sbs, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_BASE_SKIN), 
+        browse_folder, (void*)&sbs, NULL, Icon_Wps);
 #if CONFIG_TUNER
-MENUITEM_FUNCTION_W_PARAM(browse_fms, 0, ID2P(LANG_RADIOSCREEN),
-                          browse_folder, (void*)&fms, NULL, Icon_Wps);
+MENUITEM_FUNCTION(browse_fms, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_RADIOSCREEN), 
+        browse_folder, (void*)&fms, NULL, Icon_Wps);
 #endif
-MENUITEM_FUNCTION_W_PARAM(browse_wps, 0, ID2P(LANG_WHILE_PLAYING),
-                          browse_folder, (void*)&wps, NULL, Icon_Wps);
+#endif
+MENUITEM_FUNCTION(browse_wps, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_WHILE_PLAYING), 
+        browse_folder, (void*)&wps, NULL, Icon_Wps);
 #ifdef HAVE_REMOTE_LCD
-MENUITEM_FUNCTION_W_PARAM(browse_rwps, 0, ID2P(LANG_REMOTE_WHILE_PLAYING),
-                          browse_folder, (void*)&rwps, NULL, Icon_Wps);
-MENUITEM_FUNCTION_W_PARAM(browse_rsbs, 0, ID2P(LANG_REMOTE_BASE_SKIN),
-                          browse_folder, (void*)&rsbs, NULL, Icon_Wps);
+MENUITEM_FUNCTION(browse_rwps, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_REMOTE_WHILE_PLAYING), 
+        browse_folder, (void*)&rwps, NULL, Icon_Wps);
+MENUITEM_FUNCTION(browse_rsbs, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_REMOTE_BASE_SKIN), 
+        browse_folder, (void*)&rsbs, NULL, Icon_Wps);
 #if CONFIG_TUNER
-MENUITEM_FUNCTION_W_PARAM(browse_rfms, 0, ID2P(LANG_REMOTE_RADIOSCREEN),
-                          browse_folder, (void*)&rfms, NULL, Icon_Wps);
+MENUITEM_FUNCTION(browse_rfms, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_REMOTE_RADIOSCREEN), 
+        browse_folder, (void*)&rfms, NULL, Icon_Wps);
 #endif
 #endif
 
-static int showicons_callback(int action,
-                             const struct menu_item_ex *this_item,
-                             struct gui_synclist *this_list)
+
+static int showicons_callback(int action, const struct menu_item_ex *this_item)
 {
     (void)this_item;
-    (void)this_list;
     static bool old_icons;
     switch (action)
     {
@@ -369,9 +387,12 @@ static int showicons_callback(int action,
 }
 
 MENUITEM_SETTING(show_icons, &global_settings.show_icons, showicons_callback);
-MENUITEM_FUNCTION_W_PARAM(browse_themes, 0, ID2P(LANG_CUSTOM_THEME),
-                          browse_folder, (void*)&themes, NULL, Icon_Config);
+MENUITEM_FUNCTION(browse_themes, MENU_FUNC_USEPARAM, 
+        ID2P(LANG_CUSTOM_THEME), 
+        browse_folder, (void*)&themes, NULL, Icon_Config);
+#ifdef HAVE_LCD_BITMAP
 MENUITEM_SETTING(cursor_style, &global_settings.cursor_style, NULL);
+#endif
 #if LCD_DEPTH > 1
 MENUITEM_SETTING(sep_menu, &global_settings.list_separator_height, NULL);
 #endif
@@ -379,7 +400,9 @@ MENUITEM_SETTING(sep_menu, &global_settings.list_separator_height, NULL);
 MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             NULL, Icon_Wps,
             &browse_themes,
+#ifdef HAVE_LCD_BITMAP
             &browse_fonts,
+#endif
             &browse_wps,
 #ifdef HAVE_REMOTE_LCD
             &browse_rwps,
@@ -390,7 +413,9 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             &browse_rfms,
 #endif
 #endif
+#ifdef HAVE_LCD_BITMAP
             &browse_sbs,
+#endif
 #ifdef HAVE_REMOTE_LCD
             &browse_rsbs,
 #endif
@@ -398,6 +423,7 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
 #ifdef HAVE_BACKDROP_IMAGE
             &clear_main_bd,
 #endif
+#ifdef HAVE_LCD_BITMAP
             &bars_menu,
             &cursor_style,
 #if LCD_DEPTH > 1
@@ -406,4 +432,5 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
 #ifdef HAVE_LCD_COLOR
             &colors_settings,
 #endif
+#endif /* HAVE_LCD_BITMAP */
 );

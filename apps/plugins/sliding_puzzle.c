@@ -21,7 +21,35 @@
 #include "plugin.h"
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define PUZZLE_QUIT BUTTON_OFF
+#define PUZZLE_LEFT BUTTON_LEFT
+#define PUZZLE_RIGHT BUTTON_RIGHT
+#define PUZZLE_UP BUTTON_UP
+#define PUZZLE_DOWN BUTTON_DOWN
+#define PUZZLE_SHUFFLE BUTTON_F1
+#define PUZZLE_PICTURE BUTTON_F2
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define PUZZLE_QUIT BUTTON_OFF
+#define PUZZLE_LEFT BUTTON_LEFT
+#define PUZZLE_RIGHT BUTTON_RIGHT
+#define PUZZLE_UP BUTTON_UP
+#define PUZZLE_DOWN BUTTON_DOWN
+#define PUZZLE_SHUFFLE BUTTON_F1
+#define PUZZLE_PICTURE BUTTON_F2
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define PUZZLE_QUIT BUTTON_OFF
+#define PUZZLE_LEFT BUTTON_LEFT
+#define PUZZLE_RIGHT BUTTON_RIGHT
+#define PUZZLE_UP BUTTON_UP
+#define PUZZLE_DOWN BUTTON_DOWN
+#define PUZZLE_SHUFFLE_PICTURE_PRE BUTTON_MENU
+#define PUZZLE_SHUFFLE (BUTTON_MENU | BUTTON_REPEAT)
+#define PUZZLE_PICTURE (BUTTON_MENU | BUTTON_REL)
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define PUZZLE_QUIT BUTTON_OFF
 #define PUZZLE_LEFT BUTTON_LEFT
@@ -36,7 +64,7 @@
 #elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-#define PUZZLE_QUIT    (BUTTON_SELECT | BUTTON_REPEAT)
+#define PUZZLE_QUIT    (BUTTON_SELECT | BUTTON_MENU)
 #define PUZZLE_LEFT BUTTON_LEFT
 #define PUZZLE_RIGHT BUTTON_RIGHT
 #define PUZZLE_UP      BUTTON_MENU
@@ -63,7 +91,7 @@
 #define PUZZLE_PICTURE BUTTON_A
 
 #elif (CONFIG_KEYPAD == SANSA_E200_PAD) || \
-(CONFIG_KEYPAD == SANSA_C200_PAD)
+(CONFIG_KEYPAD == SANSA_C200_PAD) 
 #define PUZZLE_QUIT BUTTON_POWER
 #define PUZZLE_LEFT BUTTON_LEFT
 #define PUZZLE_RIGHT BUTTON_RIGHT
@@ -309,28 +337,10 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define PUZZLE_RIGHT   BUTTON_NEXT
 #define PUZZLE_UP      BUTTON_HOME
 #define PUZZLE_DOWN    BUTTON_OPTION
-#define PUZZLE_SHUFFLE (BUTTON_HOME | BUTTON_PWRALT)
-#define PUZZLE_PICTURE BUTTON_PLAY
-
-#elif (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
-#define PUZZLE_QUIT    BUTTON_POWER
-#define PUZZLE_LEFT    BUTTON_PREV
-#define PUZZLE_RIGHT   BUTTON_NEXT
-#define PUZZLE_UP      BUTTON_HOME
-#define PUZZLE_DOWN    BUTTON_OPTION
 #define PUZZLE_SHUFFLE (BUTTON_HOME | BUTTON_POWER)
 #define PUZZLE_PICTURE BUTTON_PLAY
 
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
-#define PUZZLE_QUIT    BUTTON_POWER
-#define PUZZLE_LEFT    BUTTON_PREV
-#define PUZZLE_RIGHT   BUTTON_NEXT
-#define PUZZLE_UP      BUTTON_HOME
-#define PUZZLE_DOWN    BUTTON_OPTION
-#define PUZZLE_SHUFFLE (BUTTON_HOME | BUTTON_POWER)
-#define PUZZLE_PICTURE BUTTON_PLAY
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define PUZZLE_QUIT    BUTTON_POWER
 #define PUZZLE_LEFT    BUTTON_HOME
 #define PUZZLE_RIGHT   BUTTON_VOL_DOWN
@@ -339,26 +349,14 @@ CONFIG_KEYPAD == MROBE500_PAD
 #define PUZZLE_SHUFFLE (BUTTON_HOME | BUTTON_POWER)
 #define PUZZLE_PICTURE BUTTON_PLAY
 
-#elif (CONFIG_KEYPAD == EROSQ_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
 #define PUZZLE_QUIT    BUTTON_POWER
-#define PUZZLE_LEFT    BUTTON_SCROLL_BACK
-#define PUZZLE_RIGHT   BUTTON_SCROLL_FWD
+#define PUZZLE_LEFT    BUTTON_HOME
+#define PUZZLE_RIGHT   BUTTON_VOL_DOWN
 #define PUZZLE_UP      BUTTON_PREV
 #define PUZZLE_DOWN    BUTTON_NEXT
-#define PUZZLE_SHUFFLE BUTTON_BACK
+#define PUZZLE_SHUFFLE (BUTTON_HOME | BUTTON_POWER)
 #define PUZZLE_PICTURE BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define PUZZLE_QUIT     BUTTON_POWER
-#define PUZZLE_LEFT     BUTTON_LEFT
-#define PUZZLE_RIGHT    BUTTON_RIGHT
-#define PUZZLE_UP       BUTTON_UP
-#define PUZZLE_DOWN     BUTTON_DOWN
-#define PUZZLE_SHUFFLE  BUTTON_BACK
-#define PUZZLE_PICTURE  BUTTON_PLAY
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -386,13 +384,13 @@ CONFIG_KEYPAD == MROBE500_PAD
 #ifndef PUZZLE_PICTURE
 #define PUZZLE_PICTURE BUTTON_CENTER
 #endif
-#ifndef PUZZLE_QUIT_TEXT
+#ifndef PUZZLE_QUIT_TEXT 
 #define PUZZLE_QUIT_TEXT "[TOPLEFT]"
 #endif
-#ifndef PUZZLE_SHUFFLE_TEXT
+#ifndef PUZZLE_SHUFFLE_TEXT 
 #define PUZZLE_SHUFFLE_TEXT "[BOTTOMLEFT]"
 #endif
-#ifndef PUZZLE_PICTURE_TEXT
+#ifndef PUZZLE_PICTURE_TEXT 
 #define PUZZLE_PICTURE_TEXT "[CENTER]"
 #endif
 #endif
@@ -468,8 +466,8 @@ static const char * initial_bmp_path=NULL;
 static const char * get_albumart_bmp_path(void)
 {
     struct mp3entry* track = rb->audio_current_track();
-    /* Note rb->audio_current_track->path should never be null */
-    if (!track || track->path[0] == '\0')
+
+    if (!track || !track->path || track->path[0] == '\0')
         return NULL;
 
     if (!rb->search_albumart_files(track, "", albumart_path, MAX_PATH ) )
@@ -566,7 +564,7 @@ static void draw_spot(int p, int x, int y)
            an appropriate hole graphic */
         rb->lcd_bitmap_part(sliding_puzzle, ((p-1)%SPOTS_X)*SPOTS_WIDTH,
                     ((p-1)/SPOTS_X)*SPOTS_HEIGHT,
-                    STRIDE( SCREEN_MAIN,
+                    STRIDE( SCREEN_MAIN, 
                             BMPWIDTH_sliding_puzzle, BMPHEIGHT_sliding_puzzle),
                     x, y, SPOTS_WIDTH, SPOTS_HEIGHT);
 #else
@@ -583,8 +581,8 @@ static void draw_spot(int p, int x, int y)
     {
         rb->lcd_bitmap_part( puzzle_bmp_ptr, ((p-1)%SPOTS_X)*SPOTS_WIDTH,
                      ((p-1)/SPOTS_X)*SPOTS_HEIGHT,
-                     STRIDE( SCREEN_MAIN,
-                             BMPWIDTH_sliding_puzzle, BMPHEIGHT_sliding_puzzle),
+                     STRIDE( SCREEN_MAIN, 
+                             BMPWIDTH_sliding_puzzle, BMPHEIGHT_sliding_puzzle), 
                      x, y, SPOTS_WIDTH, SPOTS_HEIGHT);
     } else {
         rb->lcd_drawrect(x, y, SPOTS_WIDTH, SPOTS_HEIGHT);
@@ -845,10 +843,18 @@ enum plugin_status plugin_start(
         /* print instructions */
         rb->lcd_clear_display();
         rb->lcd_setfont(FONT_SYSFIXED);
-#if (CONFIG_KEYPAD == IPOD_4G_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD || CONFIG_KEYPAD == ARCHOS_AV300_PAD
+        rb->lcd_putsxy(3, 18, "[OFF] to stop");
+        rb->lcd_putsxy(3, 28, "[F1] shuffle");
+        rb->lcd_putsxy(3, 38, "[F2] change pic");
+#elif CONFIG_KEYPAD == ONDIO_PAD
+        rb->lcd_putsxy(0, 18, "[OFF] to stop");
+        rb->lcd_putsxy(0, 28, "[MODE..] shuffle");
+        rb->lcd_putsxy(0, 38, "[MODE] change pic");
+#elif (CONFIG_KEYPAD == IPOD_4G_PAD) || \
       (CONFIG_KEYPAD == IPOD_3G_PAD) || \
       (CONFIG_KEYPAD == IPOD_1G2G_PAD)
-        rb->lcd_putsxy(0, 18, "Long [SELECT] to stop");
+        rb->lcd_putsxy(0, 18, "[S-MENU] to stop");
         rb->lcd_putsxy(0, 28, "[S-LEFT] shuffle");
         rb->lcd_putsxy(0, 38, "[S-RIGHT] change pic");
 #elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \

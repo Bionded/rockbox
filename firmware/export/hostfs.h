@@ -37,8 +37,8 @@ extern int  hostfs_init(void);
 extern int  hostfs_flush(void);
 
 #ifdef HAVE_HOTSWAP
-extern bool hostfs_removable(IF_MD_NONVOID(int drive));
-extern bool hostfs_present(IF_MD_NONVOID(int drive));
+extern bool hostfs_removable(int drive);
+extern bool hostfs_present(int drive);
 #endif
 
 /* This has to be repeated here for now for sim's sake since HAVE_HOSTFS
@@ -54,8 +54,6 @@ extern int hostfs_driver_type(int drive);
 #   define hostfs_driver_type(drive) (STORAGE_ATA_NUM)
 #  elif (CONFIG_STORAGE & STORAGE_SD)
 #   define hostfs_driver_type(drive) (STORAGE_SD_NUM)
-#  elif (CONFIG_STORAGE & STORAGE_USB)
-#   define hostfs_driver_type(drive) (STORAGE_USB_NUM)
 #  elif (CONFIG_STORAGE & STORAGE_MMC)
 #   define hostfs_driver_type(drive) (STORAGE_MMC_NUM)
 #  elif (CONFIG_STORAGE & STORAGE_NAND)

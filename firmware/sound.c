@@ -54,7 +54,7 @@ static const struct sound_setting_entry * get_setting_entry(int setting)
         { "", 0, 0, 0, 0, 0 };
 
     static const struct sound_setting_entry default_entry =
-        { &default_info, NULL };
+        { &default_info, NULL }; 
 
     if ((unsigned)setting >= ARRAYLEN(sound_setting_entries))
         return &default_entry;
@@ -115,7 +115,7 @@ int sound_current(int setting)
 {
     switch(setting)
     {
-#ifndef BOOTLOADER
+#ifndef BOOTLOADER 
 #ifndef PLATFORM_HAS_VOLUME_CHANGE
         SOUND_CUR_SET(VOLUME,             global_settings.volume)
 #endif
@@ -128,6 +128,16 @@ int sound_current(int setting)
         SOUND_CUR_SET(BALANCE,            global_settings.balance)
         SOUND_CUR_SET(CHANNELS,           global_settings.channel_config)
         SOUND_CUR_SET(STEREO_WIDTH,       global_settings.stereo_width)
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+        SOUND_CUR_SET(LOUDNESS,           global_settings.loudness)
+        SOUND_CUR_SET(AVC,                global_settings.avc)
+        SOUND_CUR_SET(MDB_STRENGTH,       global_settings.mdb_strength)
+        SOUND_CUR_SET(MDB_HARMONICS,      global_settings.mdb_harmonics)
+        SOUND_CUR_SET(MDB_CENTER,         global_settings.mdb_center)
+        SOUND_CUR_SET(MDB_SHAPE,          global_settings.mdb_shape)
+        SOUND_CUR_SET(MDB_ENABLE,         global_settings.mdb_enable)
+        SOUND_CUR_SET(SUPERBASS,          global_settings.superbass)
+#endif /* (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) */
 #if defined(AUDIOHW_HAVE_BASS_CUTOFF)
         SOUND_CUR_SET(BASS_CUTOFF,        global_settings.bass_cutoff)
 #endif
@@ -139,9 +149,6 @@ int sound_current(int setting)
 #endif
 #if defined(AUDIOHW_HAVE_FILTER_ROLL_OFF)
         SOUND_CUR_SET(FILTER_ROLL_OFF,    global_settings.roll_off)
-#endif
-#if defined(AUDIOHW_HAVE_POWER_MODE)
-        SOUND_CUR_SET(POWER_MODE,         global_settings.power_mode)
 #endif
 
 #if 0 /*WRONG -- these need to index the hw_eq_bands[AUDIOHW_EQ_BAND_NUM] struct*/
@@ -423,16 +430,6 @@ void sound_set_filter_roll_off(int value)
 }
 #endif
 
-#if defined(AUDIOHW_HAVE_POWER_MODE)
-void sound_set_power_mode(int value)
-{
-    if (!audio_is_initialized)
-        return;
-
-    audiohw_set_power_mode(value);
-}
-#endif
-
 #if defined(AUDIOHW_HAVE_EQ)
 int sound_enum_hw_eq_band_setting(unsigned int band,
                                   unsigned int band_setting)
@@ -628,6 +625,72 @@ void sound_set_hw_eq_band4_width(int value)
 }
 #endif
 #endif /* AUDIOHW_HAVE_EQ */
+
+#if CONFIG_CODEC == MAS3587F || CONFIG_CODEC == MAS3539F
+void sound_set_loudness(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_loudness(value);
+}
+
+void sound_set_avc(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_avc(value);
+}
+
+void sound_set_mdb_strength(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_mdb_strength(value);
+}
+
+void sound_set_mdb_harmonics(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_mdb_harmonics(value);
+}
+
+void sound_set_mdb_center(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_mdb_center(value);
+}
+
+void sound_set_mdb_shape(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_mdb_shape(value);
+}
+
+void sound_set_mdb_enable(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_mdb_enable(value);
+}
+
+void sound_set_superbass(int value)
+{
+    if (!audio_is_initialized)
+        return;
+
+    audiohw_set_superbass(value);
+}
+#endif /* CONFIG_CODEC == MAS3587F || CONFIG_CODEC == MAS3539F */
 
 #if defined(HAVE_PITCHCONTROL)
 void sound_set_pitch(int32_t pitch)

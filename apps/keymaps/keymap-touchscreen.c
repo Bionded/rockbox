@@ -146,6 +146,7 @@ static const struct button_mapping button_context_settings[]  = {
     { ACTION_SETTINGS_INCREPEAT,    BUTTON_TOPMIDDLE|BUTTON_REPEAT,     BUTTON_NONE },
     { ACTION_SETTINGS_DEC,          BUTTON_BOTTOMMIDDLE,                BUTTON_NONE },
     { ACTION_SETTINGS_DECREPEAT,    BUTTON_BOTTOMMIDDLE|BUTTON_REPEAT,  BUTTON_NONE },
+    { ACTION_SETTINGS_RESET,        BUTTON_CENTER,                      BUTTON_NONE },
 
     { ACTION_STD_PREV,          BUTTON_MIDLEFT,                         BUTTON_NONE },
     { ACTION_STD_PREVREPEAT,    BUTTON_MIDLEFT|BUTTON_REPEAT,           BUTTON_NONE },
@@ -163,6 +164,7 @@ static const struct button_mapping button_context_settings_right_is_inc[]  = {
     { ACTION_SETTINGS_INCREPEAT,    BUTTON_MIDRIGHT|BUTTON_REPEAT,  BUTTON_NONE },
     { ACTION_SETTINGS_DEC,          BUTTON_MIDLEFT,                 BUTTON_NONE },
     { ACTION_SETTINGS_DECREPEAT,    BUTTON_MIDLEFT|BUTTON_REPEAT,   BUTTON_NONE },
+    { ACTION_SETTINGS_RESET,        BUTTON_CENTER,                  BUTTON_NONE },
 
     { ACTION_STD_CANCEL,            BUTTON_TOPLEFT,                 BUTTON_NONE },
 
@@ -177,6 +179,8 @@ static const struct button_mapping button_context_mainmenu[] =
 
 
 static const struct button_mapping button_context_yesno[]  = {
+    { ACTION_YESNO_ACCEPT,  BUTTON_TOPRIGHT,  BUTTON_NONE },
+    { ACTION_YESNO_ACCEPT,  BUTTON_BOTTOMLEFT,  BUTTON_NONE },
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_CUSTOM2|CONTEXT_YESNOSCREEN)
 }; /* button_context_settings_yesno */
 
@@ -383,7 +387,7 @@ const struct button_mapping* get_context_mapping(int context)
         return target_get_context_mapping(context & ~CONTEXT_CUSTOM2);
     }
 
-    switch (context & ~CONTEXT_LOCKED)
+    switch (context)
     {
         case CONTEXT_STD:
             return button_context_standard;

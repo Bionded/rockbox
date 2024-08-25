@@ -645,7 +645,7 @@ Ilia Sergachev
 Nial Shui
 Mihail Zenkov
 Thomas Orgis
-Semyon Zhukovsky
+Семён Жуковский
 Kostadin Kolev
 Jordi Prenafeta
 Tiago Medeiros
@@ -660,6 +660,7 @@ Sebastiano Pistore
 Stefan Schneider-Kennedy
 Johannes Rauh
 Constantine Mountantonakis
+Ivan Pesic
 Jonatan Nyberg
 Alessandro Stoppani
 Alexander Yurenin
@@ -682,50 +683,6 @@ Andy Potter
 Stefan Waigand
 Guo Zhong Kai
 Martin Buck
-Stefan Ott
-David Chionne
-Wilfried Winkler
-Johannes König
-Alexander Drammen
-Kei Miyamoto
-James D. Smith
-Howard Richardson
-Sylvain Saubier
-Adrián Tinoco
-Boris Kovačević
-Stéphane Moutard-Martin
-Rune Pade
-Michael Rey
-Yuxuan Shui
-James Buren
-Issa Beganović
-Georg Gadinger
-Wolfram Sang
-Aidan MacDonald
-Caleb Connolly
-Spencer Brennessel
-Dana Conrad
-Albert Song
-Marc Aarts
-Fabrice Bellard
-Selami Dinçer
-Matej Golian
-James Le Cuirot
-Michael Landherr
-Roman Artiukhin
-Richard Goedeken
-Mihaly 'Hermit' Horvath
-Uwe Kleine-König
-JJ Style
-Jerry Chapman
-Leander Lismond
-Eren Akpolat
-Pierluigi Vicinanza
-Matteo Italia
-Evan Kenny
-Medu Hedan
-Uwe Schächterle
-Hoseok Seo
 
 The libmad team
 The wavpack team
@@ -753,6 +710,7 @@ The libpng team
 The Pure Data team (Miller Puckette and others)
 The MikMod team
 Michael McTernan (The ARM unwinder author)
+Albert Song
 The New RAW team (Piotr Padkowski and others)
 The Fabother World team (Fabien Sanglard and others)
 The sgt-puzzles team (Simon Tatham and others)
@@ -762,10 +720,3 @@ The Wolfenstein 3D team
 The MAME team
 The Quake team
 The Pocket Quake team (Dan East and others)
-The bzip2 team
-The bsdiff team
-The libtomcrypt team
-The microtar team (rxi and others)
-The UnifontEX and GNU Unifont teams
-The xrick team
-The Terminus Font team

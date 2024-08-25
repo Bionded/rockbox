@@ -9,9 +9,8 @@ entire board is shifted down every time a certain number of shots have been
 fired. Points are awarded depending on how quickly the level was completed.
 
     \begin{btnmap}
-    \opt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginSelect}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonPlay}
-    \nopt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD,IPOD_4G_PAD,IPOD_3G_PAD}{\PluginUp}
+    \opt{ONDIO_PAD,IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginSelect}
+    \nopt{ONDIO_PAD,IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginUp}
        \opt{HAVEREMOTEKEYMAP}{& \PluginRCUp}
         & Pause game\\
 
@@ -20,13 +19,12 @@ fired. Points are awarded depending on how quickly the level was completed.
        \opt{HAVEREMOTEKEYMAP}{& \PluginRCLeft{} / \PluginRCRight}
         & Aim the bubble\\
 
-    \opt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginUp}
-    \nopt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginSelect}
+    \opt{ONDIO_PAD,IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginUp}
+    \nopt{ONDIO_PAD,IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\PluginSelect}
        \opt{HAVEREMOTEKEYMAP}{& \PluginRCSelect}
         & Fire bubble\\
 
-    \nopt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD,IPOD_4G_PAD,IPOD_3G_PAD}{\PluginCancel{} or \PluginExit}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonMenu}
+    \PluginCancel{} or \PluginExit
        \opt{HAVEREMOTEKEYMAP}{& \PluginRCCancel}
         & Exit to menu\\
     \end{btnmap}

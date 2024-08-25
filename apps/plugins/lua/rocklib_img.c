@@ -23,9 +23,6 @@
 
 #define lrockimg_c
 #define LUA_LIB
-#define ICON_PADDING_S "1"
-
-
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -80,57 +77,6 @@ struct rli_iter_d
     fb_data *elem;
     struct rocklua_image *img;
 };
-
-/* viewport for rliimages to use rb functions */
-static struct viewport img_vp =
-{
-    .x        = 0,
-    .y        = 0,
-    .width    = 0,
-    .height   = 0,
-    .font     = FONT_UI,
-    .drawmode = DRMODE_SOLID,
-#if LCD_DEPTH > 1
-    .fg_pattern = LCD_WHITE,
-    .bg_pattern = LCD_BLACK,
-#endif
-};
-
-static void *img_address_fn(int x, int y)
-{
-/* Address lookup function
- * core will use this to get an address from x/y coord
- * depending on the lcd function core sometimes uses this for
- * only the first and last address
- * and handles subsequent address based on stride */
-
-    struct frame_buffer_t *fb = img_vp.buffer;
-/* LCD_STRIDEFORMAT & LCD_NATIVE_STRIDE macros allow Horiz screens to work with RB */
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
-    size_t element = (x * LCD_NATIVE_STRIDE(fb->stride)) + y;
-#else
-    size_t element = (y * LCD_NATIVE_STRIDE(fb->stride)) + x;
-#endif
-    /* use mod fb->elems to protect from buffer ovfl */
-    return fb->fb_ptr + (element % fb->elems);
-}
-/* sets an image into a vp to be used by rockbox image functions */
-static void img_set_as_vp(struct rocklua_image *img, struct viewport *vp)
-{
-    int w = img->width;
-    int h = img->height;
-    vp->x = 0;
-    vp->y = 0;
-    vp->width  = w;
-    vp->height = h;
-
-    static struct frame_buffer_t fb;/* warning passed to external fns */
-    fb.elems = LCD_NBELEMS(w, h); /* recalculate these rb expects num pixels */
-    fb.stride = STRIDE_MAIN(w, h); /* recalculate these */
-    fb.data = img->data;
-    fb.get_address_fn = &img_address_fn;
-    rb->viewport_set_buffer(vp, &fb, SCREEN_MAIN); /* not multiscreen aware yet */
-}
 
 /* __tostring information enums */
 enum rli_info {RLI_INFO_ALL = 0, RLI_INFO_TYPE, RLI_INFO_WIDTH,
@@ -312,7 +258,7 @@ static void bounds_check_xy(lua_State *L, struct rocklua_image *img,
     luaL_argerror(L, narg, ERR_IDX_RANGE);
 } /* bounds_check_xy */
 
-static struct rocklua_image* rli_checktype_opt(lua_State *L, int arg)
+static struct rocklua_image* rli_checktype(lua_State *L, int arg)
 {
 #if 0
     return (struct rocklua_image*) luaL_checkudata(L, arg, ROCKLUA_IMAGE);
@@ -335,17 +281,10 @@ static struct rocklua_image* rli_checktype_opt(lua_State *L, int arg)
             }
         }
     }
-    /* Not a ROCKLUA IMAGE */
-    return NULL;
-#endif
-} /* rli_checktype_opt*/
 
-static struct rocklua_image* rli_checktype(lua_State *L, int arg)
-{
-    struct rocklua_image *img = rli_checktype_opt(L, arg);
-    if (img == NULL)
-        luaL_typerror(L, arg, ROCKLUA_IMAGE);
-    return img;
+    luaL_typerror(L, arg, ROCKLUA_IMAGE);  /* else error */
+    return NULL;  /* to avoid warnings */
+#endif
 } /* rli_checktype */
 
 static struct rocklua_image * alloc_rlimage(lua_State *L, bool alloc_data,
@@ -438,7 +377,7 @@ static inline fb_data* rli_get_element(struct rocklua_image* img, int x, int y)
 
     pixel_to_native(x, y, &x, &y);
 
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
     /* column major address */
     size_t data_address = (stride * (x - 1)) + (y - 1);
 
@@ -577,7 +516,6 @@ static bool next_rli_iter(struct rli_iter_d *d)
     return true;
 } /* next_rli_iter */
 
-#if 0
 static void d_line(struct rocklua_image *img,
                    int x1, int y1,
                    int x2, int y2,
@@ -632,38 +570,6 @@ static void d_line(struct rocklua_image *img,
 
         *a1 += s_a; /* whichever axis is in 'a' stepped(-1 or +1) */
     }
-
-} /* d_line */
-#endif
-
-
-static void d_line(struct rocklua_image *img,
-                   int x1, int y1,
-                   int x2, int y2,
-                   fb_data *clr)
-{
-    /* NOTE! clr passed as pointer */
-#if LCD_DEPTH == 2
-    img_vp.fg_pattern = 0x55 * (~(*clr) & 3);
-    img_vp.drawmode = DRMODE_FG;
-#elif LCD_DEPTH > 1
-    img_vp.fg_pattern = FB_UNPACK_SCALAR_LCD(*clr);
-    img_vp.drawmode = DRMODE_FG;
-#else /* bit of a hack to make sure lines show properly from lua */
-      /* use rb.lcd_drawline if you want full control */
-
-    img_vp.drawmode = *clr & (DRMODE_SOLID|DRMODE_INVERSEVID);
-    if (img_vp.drawmode != (DRMODE_SOLID|DRMODE_INVERSEVID))
-        img_vp.drawmode = DRMODE_SOLID;
-#endif
-
-    img_set_as_vp(img, &img_vp);
-
-    struct viewport *oldvp = rb->screens[SCREEN_MAIN]->set_viewport(&img_vp);
-
-    rb->lcd_drawline(x1 - 1, y1 - 1 , x2 - 1, y2 - 1);
-
-    rb->screens[SCREEN_MAIN]->set_viewport(oldvp);
 
 } /* d_line */
 
@@ -1336,7 +1242,6 @@ static int get_screen(lua_State *L, int narg)
     return screen;
 }
 #else /* only SCREEN_MAIN exists */
-#define get_screen(a,b) (SCREEN_MAIN)
 #define RB_SCREEN_STRUCT(luastate, narg) \
         rb->screens[SCREEN_MAIN]
 #define RB_SCREENS(luastate, narg, func, ...) \
@@ -1357,21 +1262,9 @@ RB_WRAP(lcd_clear_display)
 
 RB_WRAP(lcd_set_drawmode)
 {
-    int previous;
     int mode = (int) luaL_checkint(L, 1);
-    if (rli_checktype_opt(L, 2) != NULL) /* is rliimage? */
-    {
-        previous = img_vp.drawmode;
-        img_vp.drawmode = mode;
-    }
-    else
-    {
-        struct viewport *vp = *(RB_SCREEN_STRUCT(L, 2)->current_viewport);
-        previous = vp->drawmode;
-        RB_SCREENS(L, 2, set_drawmode, mode);
-    }
-    lua_pushinteger(L, previous);
-    return 1;
+    RB_SCREENS(L, 2, set_drawmode, mode);
+    return 0;
 }
 
 /* helper function for lcd_puts functions */
@@ -1398,137 +1291,6 @@ RB_WRAP(lcd_puts)
     return 0;
 }
 
-/* Helper function for opt_viewport lcd_put_line */
-static int check_tablevalue_def(lua_State *L, const char* key, int tablepos, int def)
-{
-    lua_getfield(L, tablepos, key); /* Find table[key] */
-
-    int val;
-
-    if (lua_isboolean(L, -1))
-        val = lua_toboolean (L, -1);  /*True = 1 and False = 0*/
-    else
-        val = luaL_optinteger(L, -1, def);
-
-    lua_pop(L, 1); /* Pop the value off the stack */
-    return val;
-}
-
-/* Helper function for opt_viewport lcd_put_line */
-static int check_tablevalue(lua_State *L, const char* key, int tablepos)
-{
-    /* returns 0 if key doesn't exist */
-    return check_tablevalue_def(L, key, tablepos, 0);
-}
-
-RB_WRAP(lcd_put_line)
-{
-    /*x, y, text, t_linedesc, [screen = MAIN]*/
-
-#if 0
-    /* height of the line (in pixels). -1 to inherit the height
-     * from the font. The text will be centered if the height is larger,
-     * but the decorations will span the entire height */
-    int height;
-    /* multiline support: For some decorations (e.g. gradient) to work
-     * across multiple lines (e.g. to draw a line selector across 2 lines)
-     * the line index and line count must be known. For normal, single
-     * lines specify nlines=1 and line=0 */
-    /* line count of a group */
-    int16_t nlines;
-    /* index of the line in the group */
-    int16_t line;
-    /* line text color if STYLE_COLORED is specified, in native
-     * lcd format (convert with LCD_RGBPACK() if necessary) */
-    unsigned text_color;
-    /* line color if STYLE_COLORBAR or STYLE_GRADIENT is specified, in native
-     * lcd format (convert with LCD_RGBPACK() if necessary) */
-    unsigned line_color, line_end_color;
-    /* line decorations, see STYLE_DEFAULT etc. */
-    enum line_styles style;
-    /* whether the line can scroll */
-    bool scroll;
-    /* height of the line separator (in pixels). 0 to disable drawing
-     * of the separator */
-    int8_t separator_height;
-#endif
-
-/*LINE_DESC_DEFINIT { .style = STYLE_DEFAULT, .height = -1, .separator_height = 0, .line = 0, .nlines = 1, .scroll = false }*/
-
-    struct line_desc linedes = LINE_DESC_DEFINIT;
-
-    bool is_selected = false;
-    bool show_icons  = false;
-    bool show_cursor = false;
-
-    int line_indent = 0;
-    int item_offset = 0;
-
-    int x = (int) luaL_checkint(L, 1);
-    int y = (int) luaL_checkint(L, 2);
-
-    const unsigned char * string = luaL_checkstring(L, 3);
-    int icon = Icon_NOICON;
-    const int narg = 4;
-
-    if(lua_type(L, narg) == LUA_TTABLE)
-    {
-        /* check_tablevalue only returns INTS */
-        linedes.line = check_tablevalue(L, "line", narg);
-        linedes.height = check_tablevalue_def(L, "height", narg, -1);
-        linedes.nlines = check_tablevalue_def(L, "nlines", narg, 1);
-        linedes.style = check_tablevalue_def(L, "style", narg, STYLE_DEFAULT);
-        linedes.separator_height = check_tablevalue(L, "separator_height", narg);
-        linedes.scroll = check_tablevalue(L, "scroll", narg) > 0;
-
-        linedes.text_color = check_tablevalue(L, "text_color", narg);
-        linedes.line_color = check_tablevalue(L, "line_color", narg);
-        linedes.line_end_color = check_tablevalue(L, "line_end_color", narg);
-
-        icon = check_tablevalue_def(L, "icon", narg, Icon_NOICON);
-        show_icons  = check_tablevalue(L, "show_icons", narg) > 0 && icon > Icon_NOICON;
-        show_cursor = check_tablevalue(L, "show_cursor", narg) > 0;
-        is_selected = check_tablevalue(L, "selected", narg) > 0;
-
-        line_indent = check_tablevalue(L, "indent", narg);
-        item_offset = check_tablevalue(L, "offset", narg);
-
-    }
-
-    while (*string == '\t')
-    {
-        line_indent++;
-        string++;
-    }
-
-    /* mask out gradient and colorbar styles for non-color displays */
-    if (RB_SCREEN_STRUCT(L, 5)->depth < 16)
-    {
-        if (linedes.style & (STYLE_COLORBAR|STYLE_GRADIENT))
-        {
-            linedes.style &= ~(STYLE_COLORBAR|STYLE_GRADIENT);
-            linedes.style |= STYLE_INVERT;
-        }
-        linedes.style &= ~STYLE_COLORED;
-    }
-
-    if (show_cursor && (show_icons && icon > Icon_NOICON))
-        RB_SCREENS(L, 5, put_line, x, y, &linedes,
-                "$*s$"ICON_PADDING_S"I$i$"ICON_PADDING_S"s$*t",
-                line_indent, is_selected ? Icon_Cursor : Icon_NOICON,
-                icon, item_offset, string);
-    else if (show_cursor || (show_icons && icon > Icon_NOICON))
-        RB_SCREENS(L, 5, put_line, x, y, &linedes,
-                "$*s$"ICON_PADDING_S"I$*t", line_indent,
-                show_cursor ? (is_selected ? Icon_Cursor:Icon_NOICON):icon,
-                item_offset, string);
-    else
-        RB_SCREENS(L, 5, put_line, x, y, &linedes, "$*s$*t", line_indent, item_offset, string);
-
-
-    return 0;
-}
-
 RB_WRAP(lcd_puts_scroll)
 {
     int x, y;
@@ -1544,9 +1306,19 @@ RB_WRAP(lcd_scroll_stop)
     return 0;
 }
 
+/* Helper function for opt_viewport */
+static int check_tablevalue(lua_State *L, const char* key, int tablepos)
+{
+    lua_getfield(L, tablepos, key); /* Find table[key] */
+
+    int val = lua_tointeger(L, -1);
+
+    lua_pop(L, 1); /* Pop the value off the stack */
+    return val;
+}
+
 static inline struct viewport* opt_viewport(lua_State *L,
                                      int narg,
-                                     bool set_coords,
                                      struct viewport* vp,
                                      struct viewport* alt)
 {
@@ -1554,23 +1326,16 @@ static inline struct viewport* opt_viewport(lua_State *L,
         return alt;
 
     luaL_checktype(L, narg, LUA_TTABLE);
-    if (set_coords)
-    {
-        vp->x = check_tablevalue(L, "x", narg);
-        vp->y = check_tablevalue(L, "y", narg);
-        vp->width = check_tablevalue(L, "width", narg);
-        vp->height = check_tablevalue(L, "height", narg);
-    }
-    vp->font = check_tablevalue_def(L, "font", narg, FONT_UI);
-    vp->drawmode = check_tablevalue_def(L, "drawmode", narg, DRMODE_SOLID);
 
-#if LCD_DEPTH == 2
-    unsigned int fg = check_tablevalue(L, "fg_pattern", narg);
-    unsigned int bg = check_tablevalue(L, "bg_pattern", narg);
-    /*invert fg and bg patterns (3-)*/
-    vp->fg_pattern = 0x55 * (3 - (~(fg) & 3));
-    vp->bg_pattern = 0x55 * (3 - (~(bg) & 3));
-#elif LCD_DEPTH > 1
+    vp->x = check_tablevalue(L, "x", narg);
+    vp->y = check_tablevalue(L, "y", narg);
+    vp->width = check_tablevalue(L, "width", narg);
+    vp->height = check_tablevalue(L, "height", narg);
+#ifdef HAVE_LCD_BITMAP
+    vp->font = check_tablevalue(L, "font", narg);
+    vp->drawmode = check_tablevalue(L, "drawmode", narg);
+#endif
+#if LCD_DEPTH > 1
     vp->fg_pattern = (unsigned int) check_tablevalue(L, "fg_pattern", narg);
     vp->bg_pattern = (unsigned int) check_tablevalue(L, "bg_pattern", narg);
 #endif
@@ -1580,15 +1345,8 @@ static inline struct viewport* opt_viewport(lua_State *L,
 
 RB_WRAP(set_viewport)
 {
-    void *ud = rli_checktype_opt(L, 1);
-    if (ud != NULL)
-    {
-            img_set_as_vp((struct rocklua_image*) ud, &img_vp);
-            RB_SCREENS(L, 3, set_viewport, opt_viewport(L, 2, false, &img_vp, &img_vp));
-            return 0;
-    }
     static struct viewport vp;
-    RB_SCREENS(L, 2, set_viewport, opt_viewport(L, 1, true, &vp, NULL));
+    RB_SCREENS(L, 2, set_viewport, opt_viewport(L, 1, &vp, NULL));
     return 0;
 }
 
@@ -1609,7 +1367,7 @@ RB_WRAP(font_getstringsize)
     else
         fontnumber = FONT_SYSFIXED;
 
-    if lua_isnoneornil(L, 2)
+    if lua_isnil(L, 2)
         result = RB_SCREENS(L, 3, getstringsize, str, &w, &h);
     else
         result = rb->font_getstringsize(str, &w, &h, fontnumber);
@@ -1621,14 +1379,10 @@ RB_WRAP(font_getstringsize)
     return 3;
 }
 
+#ifdef HAVE_LCD_BITMAP
 RB_WRAP(lcd_framebuffer)
 {
-    int screen = get_screen(L, 1);
-    static struct viewport vp;
-    rb->viewport_set_fullscreen(&vp, screen);
-    rli_wrap(L, vp.buffer->data,
-                RB_SCREEN_STRUCT(L, 1)->lcdwidth,
-                RB_SCREEN_STRUCT(L, 1)->lcdheight);
+    rli_wrap(L, rb->lcd_framebuffer, LCD_WIDTH, LCD_HEIGHT);
     return 1;
 }
 
@@ -1643,7 +1397,7 @@ RB_WRAP(lcd_setfont)
 static void checkint_arr(lua_State *L, int *val, int narg, int elems)
 {
     /* fills passed array of integers with lua integers from stack */
-    for (int i = 0; i < elems; i++)
+    for (int i = 0; i < elems; i++) 
         val[i] = luaL_checkint(L, narg + i);
 }
 
@@ -1781,7 +1535,7 @@ RB_WRAP(lcd_bitmap_transparent_part)
     int v[eCNT];
     checkint_arr(L, v, 2, eCNT);
 
-    RB_SCREENS(L, 9, transparent_bitmap_part, src->data,
+    RB_SCREENS(L, 9, transparent_bitmap_part, src->data, 
               v[src_x], v[src_y], v[stride], v[x], v[y], v[w], v[h]);
     return 0;
 }
@@ -1866,6 +1620,8 @@ RB_WRAP(lcd_drawpixel)
     return 0;
 }
 
+#endif /* defined(LCD_BITMAP) */
+
 #ifdef HAVE_LCD_COLOR
 RB_WRAP(lcd_rgbpack)
 {
@@ -1929,12 +1685,12 @@ static const luaL_Reg rocklib_img[] =
     R(lcd_set_drawmode),
     R(lcd_putsxy),
     R(lcd_puts),
-    R(lcd_put_line),
     R(lcd_puts_scroll),
     R(lcd_scroll_stop),
     R(set_viewport),
     R(clear_viewport),
     R(font_getstringsize),
+#ifdef HAVE_LCD_BITMAP
     R(lcd_framebuffer),
     R(lcd_setfont),
     R(gui_scrollbar_draw),
@@ -1965,6 +1721,7 @@ static const luaL_Reg rocklib_img[] =
     R(lcd_vline),
     R(lcd_drawpixel),
 
+#endif /*HAVE_LCD_BITMAP*/
 #ifdef HAVE_LCD_COLOR
     R(lcd_rgbpack),
     R(lcd_rgbunpack),

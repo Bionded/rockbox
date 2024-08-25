@@ -37,6 +37,4 @@ int lang_english_to_id(const char *english);
 
 /* returns whether the loaded language is a right-to-left language */
 int lang_is_rtl(void);
-/* returns whether the loaded language needs units spoken before the value */
-int lang_units_first(void);
 #endif

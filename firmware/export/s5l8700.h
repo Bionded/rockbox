@@ -19,9 +19,7 @@
  *
  ****************************************************************************/
 
-#ifndef ASM
-#include <stdint.h>
-#endif
+#include <inttypes.h>
 
 #define REG8_PTR_T  volatile uint8_t *
 #define REG16_PTR_T volatile uint16_t *

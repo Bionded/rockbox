@@ -57,7 +57,7 @@ void backlight_hw_brightness(int val);
 
 #elif defined(IPOD_MINI) || defined(IPOD_MINI2G)
 
-bool backlight_hw_init(void);
+#define backlight_hw_init() true
 void backlight_hw_on(void);
 void backlight_hw_off(void);
 

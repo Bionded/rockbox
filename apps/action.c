@@ -26,7 +26,7 @@
 #include "config.h"
 #include "lang.h"
 
-#if !defined(BOOTLOADER)
+#if defined(HAVE_LCD_BITMAP) && !defined(BOOTLOADER)
 #include "language.h"
 #endif
 
@@ -34,7 +34,6 @@
 #include "button.h"
 #include "action.h"
 #include "kernel.h"
-#include "core_alloc.h"
 
 #include "splash.h"
 #include "settings.h"
@@ -58,54 +57,6 @@
 #define REPEAT_WINDOW_TICKS HZ/4
 #define ACTION_FILTER_TICKS HZ/2 /* timeout between filtered actions SL/BL */
 
-/* act_cur holds action state during get_action() call */
-typedef struct
-{
-    int                            action;
-    int                            button;
-    int                            context;
-    int                            timeout;
-    const struct button_mapping   *items;
-    const struct button_mapping* (*get_context_map)(int);
-    bool                           is_prebutton;
-} action_cur_t;
-
-/* act_last holds action state between get_action() calls */
-typedef struct
-{
-    int      action;
-    long     tick;
-    int      button;
-    int      context;
-    intptr_t data;
-
-#if defined(HAVE_BACKLIGHT)
-    unsigned int backlight_mask;
-    long         bl_filter_tick;
-#endif
-
-#if !defined(HAS_BUTTON_HOLD)
-    long         sl_filter_tick;
-    unsigned int softlock_mask;
-    int          unlock_combo;
-    bool         keys_locked;
-    bool         screen_has_lock;
-
-#endif
-
-    bool          repeated;
-    bool          wait_for_release;
-
-#ifndef DISABLE_ACTION_REMAP
-    int     key_remap;
-#endif
-
-#ifdef HAVE_TOUCHSCREEN
-    bool     ts_short_press;
-    int      ts_data;
-#endif
-} action_last_t;
-
 /* holds the action state between calls to get_action \ get_action_custom) */
 static action_last_t action_last =
 {
@@ -117,10 +68,6 @@ static action_last_t action_last =
     .repeated         = false,
     .tick             = 0,
     .wait_for_release = false,
-
-#ifndef DISABLE_ACTION_REMAP
-    .key_remap = 0,
-#endif
 
 #ifdef HAVE_TOUCHSCREEN
     .ts_data        = 0,
@@ -173,7 +120,7 @@ static bool is_action_filtered(int action, unsigned int mask, int context)
     {
         case ACTION_NONE:
             break;
-        /* Actions that are not mapped will not turn on the backlight */
+/*Actions that are not mapped will not turn on the backlight option NOUNMAPPED*/
         case ACTION_UNKNOWN:
             match = has_flag(mask, SEL_ACTION_NOUNMAPPED);
             break;
@@ -181,25 +128,21 @@ static bool is_action_filtered(int action, unsigned int mask, int context)
         case ACTION_FM_PLAY:
             match = has_flag(mask, SEL_ACTION_PLAY);
             break;
-        /* case ACTION_STD_PREVREPEAT:*/ /* seek not exempted outside of WPS */
-        /* case ACTION_STD_NEXTREPEAT: */
+        case ACTION_STD_PREVREPEAT:
+        case ACTION_STD_NEXTREPEAT:
         case ACTION_WPS_SEEKBACK:
         case ACTION_WPS_SEEKFWD:
         case ACTION_WPS_STOPSEEK:
             match = has_flag(mask, SEL_ACTION_SEEK);
             break;
-        /* case ACTION_STD_PREV: */ /* skip/scrollwheel not */
-        /* case ACTION_STD_NEXT: */ /* exempted outside of WPS */
+        case ACTION_STD_PREV:
+        case ACTION_STD_NEXT:
         case ACTION_WPS_SKIPNEXT:
         case ACTION_WPS_SKIPPREV:
         case ACTION_FM_NEXT_PRESET:
         case ACTION_FM_PREV_PRESET:
             match = has_flag(mask, SEL_ACTION_SKIP);
             break;
-#ifdef HAVE_VOLUME_IN_LIST
-        case ACTION_LIST_VOLUP:   /* volume exempted outside of WPS */
-        case ACTION_LIST_VOLDOWN: /* ( if the device supports it )*/
-#endif
         case ACTION_WPS_VOLUP:
         case ACTION_WPS_VOLDOWN:
             match = has_flag(mask, SEL_ACTION_VOL);
@@ -458,7 +401,6 @@ static inline bool get_action_touchscreen(action_last_t *last, action_cur_t *cur
         }
 
         last->button = cur->button;
-        last->tick = current_tick;
         cur->action = ACTION_TOUCHSCREEN;
         return true;
     }
@@ -479,7 +421,7 @@ static inline bool get_action_touchscreen(action_last_t *last, action_cur_t *cur
 static inline void button_flip_horizontally(int context, int *button)
 {
 
-#if defined(BOOTLOADER)
+#if !defined(HAVE_LCD_BITMAP) || defined(BOOTLOADER)
     (void) context;
     (void) *button;
     return;
@@ -492,7 +434,6 @@ static inline void button_flip_horizontally(int context, int *button)
         return;
     }
 
-#if defined(BUTTON_LEFT) && defined(BUTTON_RIGHT)
     newbutton &= ~(BUTTON_LEFT | BUTTON_RIGHT);
     if (has_flag(*button, BUTTON_LEFT))
     {
@@ -503,10 +444,6 @@ static inline void button_flip_horizontally(int context, int *button)
     {
         newbutton |= BUTTON_LEFT;
     }
-#else
-#warning "BUTTON_LEFT / BUTTON_RIGHT not defined!"
-#endif
-
 #ifndef SIMULATOR
 #ifdef HAVE_SCROLLWHEEL
     newbutton &= ~(BUTTON_SCROLL_BACK | BUTTON_SCROLL_FWD);
@@ -536,7 +473,7 @@ static inline void button_flip_horizontally(int context, int *button)
 #endif /* !SIMULATOR */
 
     *button = newbutton;
-#endif /* !BOOTLOADER */
+#endif /* !HAVE_LCD_BITMAP | BOOTLOADER */
 } /* button_flip_horizontally */
 
 /**********************************************************************
@@ -552,7 +489,7 @@ static inline int action_code_worker(action_last_t *last,
                                               int  *end  )
 {
     int ret = ACTION_UNKNOWN;
-    int i = *end;
+    int i = 0;
     unsigned int found = 0;
     while (cur->items[i].button_code != BUTTON_NONE)
     {
@@ -636,52 +573,14 @@ static inline int get_next_context(const struct button_mapping *items, int i)
 *  for a more in-depth explanation
 * places action into current_action
 */
-
 static inline void action_code_lookup(action_last_t *last, action_cur_t *cur)
 {
-    int  action, i;
+    int  action  = ACTION_NONE;
     int  context = cur->context;
+    int  i = 0;
+
     cur->is_prebutton = false;
 
-#if !defined(HAS_BUTTON_HOLD) && !defined(BOOTLOADER)
-    /* This only applies to the first context, to allow locked contexts to
-     * specify a fall through to their non-locked version */
-    if (is_keys_locked())
-        context |= CONTEXT_LOCKED;
-#endif
-
-#ifndef DISABLE_ACTION_REMAP
-        /* attempt to look up the button in user supplied remap */
-        if(last->key_remap && (context & CONTEXT_PLUGIN) == 0)
-        {
-            if ((cur->button & BUTTON_REMOTE) != 0)
-            {
-                context |= CONTEXT_REMOTE;
-            }
-            cur->items = core_get_data(last->key_remap);
-            i = 0;
-            action = ACTION_UNKNOWN;
-            /* check the lut at the beginning for the desired context */
-            while (cur->items[i].button_code != BUTTON_NONE)
-            {
-                if (cur->items[i].action_code == CORE_CONTEXT_REMAP(context))
-                {
-                    i = cur->items[i].button_code;
-                    action = action_code_worker(last, cur, &i);
-                    if (action != ACTION_UNKNOWN)
-                    {
-                        cur->action = action;
-                        return;
-                    }
-                }
-                i++;
-            }
-        }
-#endif
-
-    i = 0;
-    action  = ACTION_NONE;
-    /* attempt to look up the button in the in-built keymaps */
     for(;;)
     {
         /* logf("context = %x",context); */
@@ -693,13 +592,9 @@ static inline void action_code_lookup(action_last_t *last, action_cur_t *cur)
 #endif
 
         if ((context & CONTEXT_PLUGIN) && cur->get_context_map)
-        {
             cur->items = cur->get_context_map(context);
-        }
         else
-        {
             cur->items = get_context_mapping(context);
-        }
 
         if (cur->items != NULL)
         {
@@ -772,60 +667,27 @@ static inline int do_auto_softlock(action_last_t *last, action_cur_t *cur)
     if (is_timeout)
     {
         do_key_lock(true);
-
-#if defined(HAVE_TOUCHPAD) || defined(HAVE_TOUCHSCREEN)
-        /* if the touchpad is supposed to be off and the current buttonpress
-         * is from the touchpad, nullify both button and action. */
-        if (!has_flag(action_last.softlock_mask, SEL_ACTION_ENABLED) ||
-            has_flag(action_last.softlock_mask, SEL_ACTION_NOTOUCH))
-        {
-#if defined(HAVE_TOUCHPAD)
-            cur->button = touchpad_filter(cur->button);
-#endif
-#if defined(HAVE_TOUCHSCREEN)
-            const int touch_fakebuttons =
-                BUTTON_TOPLEFT    | BUTTON_TOPMIDDLE    | BUTTON_TOPRIGHT    |
-                BUTTON_LEFT       | BUTTON_CENTER       | BUTTON_RIGHT       |
-                BUTTON_BOTTOMLEFT | BUTTON_BOTTOMMIDDLE | BUTTON_BOTTOMRIGHT;
-            if (has_flag(cur->button, BUTTON_TOUCHSCREEN))
-                cur->button = BUTTON_NONE;
-            else
-                cur->button &= ~touch_fakebuttons;
-#endif
-            if (cur->button == BUTTON_NONE)
-            {
-                action = ACTION_NONE;
-            }
-        }
-#endif
     }
     else if (action == ACTION_STD_KEYLOCK)
     {
-        if (!has_flag(last->softlock_mask, SEL_ACTION_ALWAYSAUTOLOCK)) // normal operation, clear/arm autolock
+        last->unlock_combo = cur->button;/* set unlock combo to allow unlock */
+        last->softlock_mask ^= SEL_ACTION_ALOCK_OK;
+        action_handle_backlight(true, false);
+            /* If we don't wait for a moment for the backlight queue
+             *  to process, the user will never see the message */
+        if (!is_backlight_on(false))
         {
-            last->unlock_combo = cur->button;/* set unlock combo to allow unlock */
-            last->softlock_mask ^= SEL_ACTION_ALOCK_OK;
-            action_handle_backlight(true, false);
-                /* If we don't wait for a moment for the backlight queue
-                 *  to process, the user will never see the message */
-            if (!is_backlight_on(false))
-            {
-                sleep(HZ/2);
-            }
+            sleep(HZ/2);
+        }
 
-            if (has_flag(last->softlock_mask, SEL_ACTION_ALOCK_OK))
-            {
-                splash(HZ/2, ID2P(LANG_ACTION_AUTOLOCK_ON));
-                action = ACTION_REDRAW;
-            }
-            else
-            {
-                splash(HZ/2, ID2P(LANG_ACTION_AUTOLOCK_OFF));
-            }
-        } else if (!has_flag(last->softlock_mask, SEL_ACTION_ALOCK_OK)) // always autolock, but not currently armed
+        if (has_flag(last->softlock_mask, SEL_ACTION_ALOCK_OK))
         {
-            last->unlock_combo = cur->button;/* set unlock combo to allow unlock */
-            last->softlock_mask ^= SEL_ACTION_ALOCK_OK;
+            splash(HZ/2, ID2P(LANG_ACTION_AUTOLOCK_ON));
+            action = ACTION_REDRAW;
+        }
+        else
+        {
+            splash(HZ/2, ID2P(LANG_ACTION_AUTOLOCK_OFF));
         }
     }
 
@@ -850,11 +712,8 @@ static inline void do_softlock(action_last_t *last, action_cur_t *cur)
 #else
     int  action = cur->action;
 
-    /* check to make sure we don't get stuck without a way to unlock - if locked,
-     * we can still use unlock_combo to unlock */
-    if (!last->screen_has_lock && !last->keys_locked)
-    {
-        /* no need to check softlock return immediately */
+    if (!last->screen_has_lock)
+    { /* no need to check softlock return immediately */
         return;
     }
 
@@ -866,19 +725,10 @@ static inline void do_softlock(action_last_t *last, action_cur_t *cur)
     {
         action = do_auto_softlock(last, cur);
     }
-
     /* Lock/Unlock toggled by ACTION_STD_KEYLOCK presses*/
     if ((action == ACTION_STD_KEYLOCK)
          || (last->keys_locked && last->unlock_combo == cur->button))
     {
-#ifdef HAVE_BACKLIGHT
-	// if backlight is off and keys are unlocked, do nothing and exit.
-	// The backlight should come on without locking keypad.
-	if ((!last->keys_locked) && (!is_backlight_on(false)))
-	{
-	    return;
-	}
-#endif
         last->unlock_combo = cur->button;
         do_key_lock(!last->keys_locked);
         notify_user = true;
@@ -933,16 +783,13 @@ static inline void do_softlock(action_last_t *last, action_cur_t *cur)
             sleep(HZ/2);
         }
 #endif
-        if (!has_flag(last->softlock_mask, SEL_ACTION_ALLNONOTIFY))
+        if (last->keys_locked)
         {
-            if (last->keys_locked)
-            {
-                splash(HZ/2, ID2P(LANG_KEYLOCK_ON));
-            }
-            else
-            {
-                splash(HZ/2, ID2P(LANG_KEYLOCK_OFF));
-            }
+            splash(HZ/2, ID2P(LANG_KEYLOCK_ON));
+        }
+        else
+        {
+            splash(HZ/2, ID2P(LANG_KEYLOCK_OFF));
         }
 
         action       = ACTION_REDRAW;
@@ -985,8 +832,10 @@ static inline int update_action_last(action_last_t *last, action_cur_t *cur)
     last->data   = button_get_data();
     last->tick   = current_tick;
 
+#if CONFIG_CODEC == SWCODEC
     /* Produce keyclick */
     keyclick_click(false, action);
+#endif
 
     return action;
 }
@@ -1048,8 +897,7 @@ static inline int do_backlight(action_last_t *last, action_cur_t *cur, int actio
                      && power_input_present());
 #endif
     /* skip if backlight on | incorrect context | SEL_ACTION_NOEXT + ext pwr */
-    if (bl_is_off && (cur->context == CONTEXT_FM || cur->context == CONTEXT_WPS ||
-       cur->context == CONTEXT_MAINMENU))
+    if ((cur->context == CONTEXT_FM || cur->context == CONTEXT_WPS) && bl_is_off)
     {
         filtered = is_action_filtered(action, last->backlight_mask, cur->context);
         bl_activate = !is_action_discarded(cur, filtered, &last->bl_filter_tick);
@@ -1110,7 +958,6 @@ static int get_action_worker(action_last_t *last, action_cur_t *cur)
 
     if (get_action_touchscreen(last, cur))
     {
-        do_softlock(last, cur);
         return cur->action;
     }
 
@@ -1239,92 +1086,6 @@ int get_action(int context, int timeout)
     return action;
 }
 
-int action_set_keymap(struct button_mapping* core_keymap, int count)
-{
-#ifdef DISABLE_ACTION_REMAP
-    (void)core_keymap;
-    (void)count;
-    return -1;
-#else
-    if (count <= 0 || core_keymap == NULL)
-        return action_set_keymap_handle(0, 0);
-
-    size_t keyremap_buf_size = count * sizeof(struct button_mapping);
-    int handle = core_alloc(keyremap_buf_size);
-    if (handle < 0)
-        return -6;
-
-    memcpy(core_get_data(handle), core_keymap, keyremap_buf_size);
-    return action_set_keymap_handle(handle, count);
-#endif
-}
-
-int action_set_keymap_handle(int handle, int count)
-{
-#ifdef DISABLE_ACTION_REMAP
-    (void)core_keymap;
-    (void)count;
-    return -1;
-#else
-    /* free an existing remap */
-    action_last.key_remap = core_free(action_last.key_remap);
-
-    /* if clearing the remap, we're done */
-    if (count <= 0 || handle <= 0)
-        return 0;
-
-    /* validate the keymap */
-    struct button_mapping* core_keymap = core_get_data(handle);
-    struct button_mapping* entry = &core_keymap[count - 1];
-    if (entry->action_code != (int) CONTEXT_STOPSEARCHING ||
-        entry->button_code != BUTTON_NONE) /* check for sentinel at end*/
-    {
-        /* missing sentinel entry */
-        return -1;
-    }
-
-    /* check the lut at the beginning for invalid offsets */
-    for (int i = 0; i < count; ++i)
-    {
-        entry = &core_keymap[i];
-        if (entry->action_code == (int)CONTEXT_STOPSEARCHING)
-            break;
-
-        if ((entry->action_code & CONTEXT_REMAPPED) == CONTEXT_REMAPPED)
-        {
-            int firstbtn = entry->button_code;
-            int endpos = firstbtn + entry->pre_button_code;
-            if (firstbtn > count || firstbtn < i || endpos > count)
-            {
-                /* offset out of bounds */
-                return -2;
-            }
-
-            if (core_keymap[endpos].button_code != BUTTON_NONE)
-            {
-                /* stop sentinel is not at end of action lut */
-                return -3;
-            }
-        }
-        else
-        {
-            /* something other than a context remap in the lut */
-            return -4;
-        }
-
-        if (i+1 >= count)
-        {
-            /* no sentinel in the lut */
-            return -5;
-        }
-    }
-
-    /* success */
-    action_last.key_remap = handle;
-    return count;
-#endif
-}
-
 int get_custom_action(int context,int timeout,
                       const struct button_mapping* (*get_context_map)(int))
 {
@@ -1386,7 +1147,7 @@ void set_selective_backlight_actions(bool selective, unsigned int mask,
 #ifndef HAS_BUTTON_HOLD
 bool is_keys_locked(void)
 {
-    return (action_last.keys_locked);
+    return (action_last.screen_has_lock && action_last.keys_locked);
 }
 
 /* Enable selected actions to bypass a locked state */
@@ -1402,60 +1163,7 @@ void set_selective_softlock_actions(bool selective, unsigned int mask)
         action_last.softlock_mask = SEL_ACTION_NONE;
     }
 }
-
-/* look for an action in the given context, return button which triggers it.
- * (note: pre_button isn't taken into account here) */
-static int find_button_for_action(int context, int action)
-{
-    const struct button_mapping *items;
-    int i;
-
-    do
-    {
-        items = get_context_mapping(context);
-        if (items == NULL)
-            break;
-
-        for (i = 0; items[i].button_code != BUTTON_NONE; ++i)
-        {
-            if (items[i].action_code == action)
-                return items[i].button_code;
-        }
-
-        /* get chained context, if none it will be CONTEXT_STOPSEARCHING */
-        context = items[i].action_code;
-    } while (context != (int)CONTEXT_STOPSEARCHING);
-
-    return BUTTON_NONE;
-}
-
-void action_autosoftlock_init(void)
-{
-    /* search in WPS and STD contexts for the keylock button combo */
-    static const int contexts[2] = { CONTEXT_WPS, CONTEXT_STD };
-
-    for (int i = 0; i < 2; ++i)
-    {
-        int button = find_button_for_action(contexts[i], ACTION_STD_KEYLOCK);
-        if (button != BUTTON_NONE)
-        {
-            action_last.unlock_combo = button;
-            break;
-        }
-    }
-
-    /* if we have autolock and alwaysautolock, go ahead and arm it */
-    if (has_flag(action_last.softlock_mask, SEL_ACTION_AUTOLOCK) &&
-        has_flag(action_last.softlock_mask, SEL_ACTION_ALWAYSAUTOLOCK) &&
-        (action_last.unlock_combo != BUTTON_NONE))
-    {
-        action_last.softlock_mask = action_last.softlock_mask | SEL_ACTION_ALOCK_OK;
-    }
-
-    return;
-}
 #endif /* !HAS_BUTTON_HOLD */
-
 /*
 *******************************************************************************
 * END EXPORTED ACTION FUNCTIONS ***********************************************

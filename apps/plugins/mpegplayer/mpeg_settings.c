@@ -142,6 +142,14 @@ struct mpeg_settings settings;
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define MPEG_START_TIME_EXIT        BUTTON_POWER
 
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define MPEG_START_TIME_SELECT      BUTTON_MENU
+#define MPEG_START_TIME_LEFT        BUTTON_LEFT
+#define MPEG_START_TIME_RIGHT       BUTTON_RIGHT
+#define MPEG_START_TIME_UP          BUTTON_STOP
+#define MPEG_START_TIME_DOWN        BUTTON_PLAY
+#define MPEG_START_TIME_EXIT        BUTTON_POWER
+
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define MPEG_START_TIME_SELECT      BUTTON_SELECT
 #define MPEG_START_TIME_LEFT        BUTTON_LEFT
@@ -308,27 +316,7 @@ struct mpeg_settings settings;
 #define MPEG_START_TIME_RIGHT2      BUTTON_VOL_DOWN
 #define MPEG_START_TIME_EXIT        BUTTON_POWER
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
-#define MPEG_START_TIME_SELECT      BUTTON_PLAY
-#define MPEG_START_TIME_LEFT        BUTTON_PREV
-#define MPEG_START_TIME_RIGHT       BUTTON_NEXT
-#define MPEG_START_TIME_UP          BUTTON_HOME
-#define MPEG_START_TIME_DOWN        BUTTON_OPTION
-#define MPEG_START_TIME_LEFT2       BUTTON_VOL_UP
-#define MPEG_START_TIME_RIGHT2      BUTTON_VOL_DOWN
-#define MPEG_START_TIME_EXIT        BUTTON_POWER
-
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define MPEG_START_TIME_SELECT      BUTTON_PLAY
-#define MPEG_START_TIME_LEFT        BUTTON_PREV
-#define MPEG_START_TIME_RIGHT       BUTTON_NEXT
-#define MPEG_START_TIME_UP          BUTTON_HOME
-#define MPEG_START_TIME_DOWN        BUTTON_OPTION
-#define MPEG_START_TIME_LEFT2       BUTTON_VOL_UP
-#define MPEG_START_TIME_RIGHT2      BUTTON_VOL_DOWN
-#define MPEG_START_TIME_EXIT        BUTTON_POWER
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define MPEG_START_TIME_SELECT      BUTTON_PLAY
 #define MPEG_START_TIME_LEFT        BUTTON_HOME
 #define MPEG_START_TIME_RIGHT       BUTTON_VOL_DOWN
@@ -338,23 +326,14 @@ struct mpeg_settings settings;
 #define MPEG_START_TIME_RIGHT2      (BUTTON_POWER + BUTTON_VOL_DOWN)
 #define MPEG_START_TIME_EXIT        BUTTON_POWER
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define MPEG_START_TIME_SELECT      BUTTON_PLAY
-#define MPEG_START_TIME_LEFT        BUTTON_SCROLL_BACK
-#define MPEG_START_TIME_RIGHT       BUTTON_SCROLL_FWD
+#define MPEG_START_TIME_LEFT        BUTTON_HOME
+#define MPEG_START_TIME_RIGHT       BUTTON_VOL_DOWN
 #define MPEG_START_TIME_UP          BUTTON_PREV
 #define MPEG_START_TIME_DOWN        BUTTON_NEXT
-#define MPEG_START_TIME_EXIT        BUTTON_POWER
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define MPEG_START_TIME_SELECT      BUTTON_SELECT
-#define MPEG_START_TIME_LEFT        BUTTON_LEFT
-#define MPEG_START_TIME_RIGHT       BUTTON_RIGHT
-#define MPEG_START_TIME_UP          BUTTON_UP
-#define MPEG_START_TIME_DOWN        BUTTON_DOWN
-#define MPEG_START_TIME_EXIT        BUTTON_POWER
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
+#define MPEG_START_TIME_LEFT2       (BUTTON_POWER + BUTTON_HOME)
+#define MPEG_START_TIME_RIGHT2      (BUTTON_POWER + BUTTON_VOL_DOWN)
 #define MPEG_START_TIME_EXIT        BUTTON_POWER
 
 #else
@@ -988,8 +967,8 @@ static int get_start_time(uint32_t duration)
                     mpegplayer_iram_preserve();
 #endif
                     rb->talk_disable(false);
-                    talk_val(resume_time / TS_SECOND, UNIT_TIME, false);
-                    talk_val(resume_time * 100 / duration, UNIT_PERCENT, true);
+                    rb->talk_value(resume_time / TS_SECOND, UNIT_TIME, false);
+                    rb->talk_value(resume_time * 100 / duration, UNIT_PERCENT, true);
                 }
                 sliding = false;
             }
@@ -1199,7 +1178,7 @@ static void display_options(void)
 #if MPEG_OPTION_DITHERING_ENABLED
         case MPEG_OPTION_DITHERING:
             result = (settings.displayoptions & LCD_YUV_DITHER) ? 1 : 0;
-            mpeg_set_option(rb->str(LANG_DITHERING), &result, RB_INT, noyes, 2, NULL);
+            mpeg_set_option(rb->str(LANG_DITHERING), &result, INT, noyes, 2, NULL);
             settings.displayoptions =
                 (settings.displayoptions & ~LCD_YUV_DITHER)
                       | ((result != 0) ? LCD_YUV_DITHER : 0);
@@ -1208,17 +1187,17 @@ static void display_options(void)
 #endif /* MPEG_OPTION_DITHERING_ENABLED */
 
         case MPEG_OPTION_DISPLAY_FPS:
-            mpeg_set_option(rb->str(LANG_DISPLAY_FPS), &settings.showfps, RB_INT,
+            mpeg_set_option(rb->str(LANG_DISPLAY_FPS), &settings.showfps, INT,
                             noyes, 2, NULL);
             break;
 
         case MPEG_OPTION_LIMIT_FPS:
-            mpeg_set_option(rb->str(LANG_LIMIT_FPS), &settings.limitfps, RB_INT,
+            mpeg_set_option(rb->str(LANG_LIMIT_FPS), &settings.limitfps, INT,
                             noyes, 2, NULL);
             break;
 
         case MPEG_OPTION_SKIP_FRAMES:
-            mpeg_set_option(rb->str(LANG_SKIP_FRAMES), &settings.skipframes, RB_INT,
+            mpeg_set_option(rb->str(LANG_SKIP_FRAMES), &settings.skipframes, INT,
                             noyes, 2, NULL);
             break;
 
@@ -1246,6 +1225,7 @@ static void display_options(void)
     }
 }
 
+#if CONFIG_CODEC == SWCODEC
 static void audio_options(void)
 {
     int selected = 0;
@@ -1269,31 +1249,31 @@ static void audio_options(void)
         switch (result)
         {
         case MPEG_AUDIO_TONE_CONTROLS:
-            mpeg_set_option(rb->str(LANG_TONE_CONTROLS), &settings.tone_controls, RB_INT,
+            mpeg_set_option(rb->str(LANG_TONE_CONTROLS), &settings.tone_controls, INT,
                             globaloff, 2, NULL);
             sync_audio_setting(result, false);
             break;
 
         case MPEG_AUDIO_CHANNEL_MODES:
             mpeg_set_option(rb->str(LANG_CHANNEL_CONFIGURATION), &settings.channel_modes,
-                            RB_INT, globaloff, 2, NULL);
+                            INT, globaloff, 2, NULL);
             sync_audio_setting(result, false);
             break;
 
         case MPEG_AUDIO_CROSSFEED:
-            mpeg_set_option(rb->str(LANG_CROSSFEED), &settings.crossfeed, RB_INT,
+            mpeg_set_option(rb->str(LANG_CROSSFEED), &settings.crossfeed, INT,
                             globaloff, 2, NULL);
             sync_audio_setting(result, false);
             break;
 
         case MPEG_AUDIO_EQUALIZER:
-            mpeg_set_option(rb->str(LANG_EQUALIZER), &settings.equalizer, RB_INT,
+            mpeg_set_option(rb->str(LANG_EQUALIZER), &settings.equalizer, INT,
                             globaloff, 2, NULL);
             sync_audio_setting(result, false);
             break;
 
         case MPEG_AUDIO_DITHERING:
-            mpeg_set_option(rb->str(LANG_DITHERING), &settings.dithering, RB_INT,
+            mpeg_set_option(rb->str(LANG_DITHERING), &settings.dithering, INT,
                             globaloff, 2, NULL);
             sync_audio_setting(result, false);
             break;
@@ -1307,6 +1287,7 @@ static void audio_options(void)
             menu_quit = true;
     }
 }
+#endif
 
 static void resume_options(void)
 {
@@ -1322,7 +1303,7 @@ static void resume_options(void)
     };
 
     mpeg_set_option(rb->str(LANG_MENU_RESUME_OPTIONS), &settings.resume_options,
-                    RB_INT, items, MPEG_RESUME_NUM_OPTIONS, NULL);
+                    INT, items, MPEG_RESUME_NUM_OPTIONS, NULL);
 }
 
 static void clear_resume_count(void)
@@ -1369,7 +1350,7 @@ static void mpeg_settings(void)
 
         case MPEG_SETTING_PLAY_MODE:
             mpeg_set_option(rb->str(LANG_MENU_PLAY_MODE), &settings.play_mode,
-                            RB_INT, singleall, 2, NULL);
+                            INT, singleall, 2, NULL);
             break;
 
         case MPEG_SETTING_CLEAR_RESUMES:

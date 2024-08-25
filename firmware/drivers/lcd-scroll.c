@@ -30,7 +30,6 @@
 #define MAIN_LCD
 #endif
 
-#if !defined(BOOTLOADER)
 static struct scrollinfo LCDFN(scroll)[LCDM(SCROLLABLE_LINES)];
 
 struct scroll_screen_info LCDFN(scroll_info) =
@@ -40,7 +39,13 @@ struct scroll_screen_info LCDFN(scroll_info) =
     .ticks        = 12,
     .delay        = HZ/2,
     .bidir_limit  = 50,
+#ifdef HAVE_LCD_BITMAP
     .step         = 6,
+#endif
+#ifdef HAVE_LCD_CHARCELLS
+    .jump_scroll_delay = HZ/4,
+    .jump_scroll       = 0,
+#endif
 };
 
 
@@ -65,8 +70,8 @@ void LCDFN(scroll_stop_viewport_rect)(const struct viewport *vp, int x, int y, i
         struct scrollinfo *s = &LCDFN(scroll_info).scroll[i];
         /* check if the specified area crosses the viewport in some way */
         if (s->vp == vp
-            && (x < (s->x+s->width) && (x+width) > s->x)
-            && (y < (s->y+s->height) && (y+height) > s->y))
+            && (x < (s->x+s->width) && (x+width) >= s->x)
+            && (y < (s->y+s->height) && (y+height) >= s->y))
         {
             /* inform scroller about end of scrolling */
             s->line = NULL;
@@ -99,10 +104,12 @@ void LCDFN(scroll_speed)(int speed)
     LCDFN(scroll_info).ticks = scroll_tick_table[speed];
 }
 
+#if defined(HAVE_LCD_BITMAP)
 void LCDFN(scroll_step)(int step)
 {
     LCDFN(scroll_info).step = step;
 }
+#endif
 
 void LCDFN(scroll_delay)(int ms)
 {
@@ -114,6 +121,17 @@ void LCDFN(bidir_scroll)(int percent)
     LCDFN(scroll_info).bidir_limit = percent;
 }
 
+#ifdef HAVE_LCD_CHARCELLS
+void LCDFN(jump_scroll)(int mode) /* 0=off, 1=once, ..., JUMP_SCROLL_ALWAYS */
+{
+    LCDFN(scroll_info).jump_scroll = mode;
+}
+
+void LCDFN(jump_scroll_delay)(int ms)
+{
+    LCDFN(scroll_info).jump_scroll_delay = ms / (HZ / 10);
+}
+#endif
 
 /* This renders the scrolling line described by s immediatly.
  * This can be called to update a scrolling line if the text has changed
@@ -157,9 +175,9 @@ bool LCDFN(scroll_now)(struct scrollinfo *s)
         }
     }
 
-    /* Stash and restore these four, so that the scroll_func
+    /* Stash and restore these three, so that the scroll_func
      * can do whatever it likes without destroying the state */
-    struct frame_buffer_t *framebuf = s->vp->buffer;
+#ifdef HAVE_LCD_BITMAP
     unsigned drawmode;
 #if LCD_DEPTH > 1
     unsigned fg_pattern, bg_pattern;
@@ -167,27 +185,31 @@ bool LCDFN(scroll_now)(struct scrollinfo *s)
     bg_pattern = s->vp->bg_pattern;
 #endif
     drawmode   = s->vp->drawmode;
+#endif
     s->scroll_func(s);
 
     LCDFN(update_viewport_rect)(s->x, s->y, s->width, s->height);
 
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH > 1
     s->vp->fg_pattern = fg_pattern;
     s->vp->bg_pattern = bg_pattern;
 #endif
     s->vp->drawmode = drawmode;
-    s->vp->buffer = framebuf;
+#endif
 
     return ended;
 }
 
+#if !defined(BOOTLOADER) || defined(HAVE_REMOTE_LCD) || defined(HAVE_LCD_CHARCELLS)
 static void LCDFN(scroll_worker)(void)
 {
     int index;
     bool makedelay;
+    bool is_default;
     struct scroll_screen_info *si = &LCDFN(scroll_info);
     struct scrollinfo *s;
-    struct viewport *oldvp;
+    struct viewport *vp;
     int step;
 
     for ( index = 0; index < si->lines; index++ )
@@ -205,10 +227,16 @@ static void LCDFN(scroll_worker)(void)
          * is unaware of the swapped viewports. the vp must
          * be switched early so that lcd_getstringsize() picks the
          * correct font */
-        oldvp = LCDFN(set_viewport_ex)(s->vp, 0); /* don't mark the last vp as dirty */
+        vp = LCDFN(get_viewport)(&is_default);
+        LCDFN(set_viewport)(s->vp);
 
         makedelay = false;
+#ifdef HAVE_LCD_BITMAP
         step = si->step;
+#else
+        step = 1;
+#endif
+
 
         if (s->backward)
             s->offset -= step;
@@ -218,7 +246,7 @@ static void LCDFN(scroll_worker)(void)
         /* put the line onto the display now */
         makedelay = LCDFN(scroll_now(s));
 
-        LCDFN(set_viewport_ex)(oldvp, 0); /* don't mark the last vp as dirty */
+        LCDFN(set_viewport)(vp);
 
         if (makedelay)
             s->start_tick += si->delay + si->ticks;

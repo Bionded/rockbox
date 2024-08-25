@@ -32,10 +32,15 @@
  * targets. On color, mylcd_ub_update_XXXX refer to the proper update
  * functions, otherwise they are no-ops.
  *
- * lib/grey.h should be included before including this
+ * lib/playergfx.h or lib/grey.h should be included before including this
  * header. For bitmap LCD's, defaults to rb->lcd_XXXX otherwise.
  */
-#if (LCD_DEPTH < 4) && defined(__GREY_H__)
+#if defined (HAVE_LCD_CHARCELLS) && defined(__PGFX_H__)
+#define MYLCD_CFG_PGFX              /* using PGFX */
+#define mylcd_(fn)                  pgfx_##fn
+#define mylcd_ub_(fn)               pgfx_##fn
+
+#elif defined (HAVE_LCD_BITMAP) && (LCD_DEPTH < 4) && defined(__GREY_H__)
 #define MYLCD_CFG_GREYLIB           /* using greylib */
 #define mylcd_(fn)                  grey_##fn
 #define myxlcd_(fn)                 grey_##fn
@@ -51,8 +56,7 @@
 #define MYLCD_DEFAULT_FG            GREY_BLACK
 #define MYLCD_DEFAULT_BG            GREY_WHITE
 
-#else
-
+#elif defined (HAVE_LCD_BITMAP)
 #define MYLCD_CFG_RB_XLCD           /* using standard (X)LCD routines */
 #define mylcd_(fn)                  rb->lcd_##fn
 #define myxlcd_(fn)                 xlcd_##fn
@@ -68,11 +72,18 @@
 #define MYLCD_DEFAULT_FG            LCD_DEFAULT_FG
 #define MYLCD_DEFAULT_BG            LCD_DEFAULT_BG
 
+#else
+#error Configuration not supported! Did you forget to include the correct lib header?
 #endif /* end LCD type selection */
 
 /* Update functions */
 #define mylcd_update                mylcd_(update)
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_update_rect           mylcd_(update_rect)
+#else
+static inline void mylcd_update_rect(int x, int y, int w, int h)
+    { (void)x; (void)y; (void)w; (void)h; pgfx_update(); }
+#endif /* HAVE_LCD_BITMAP */
 
 /* Update functions - unbuffered : special handling for these
  * It is desirable to still evaluate arguments even if there will
@@ -98,6 +109,7 @@ static inline void mylcd_ub_update_rect(int x, int y, int w, int h)
 #define mylcd_set_drawmode          mylcd_(set_drawmode)
 #define mylcd_get_drawmode          mylcd_(get_drawmode)
 
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_set_foreground        mylcd_(set_foreground)
 #define mylcd_get_foreground        mylcd_(get_foreground)
 #define mylcd_set_background        mylcd_(set_background)
@@ -105,6 +117,7 @@ static inline void mylcd_ub_update_rect(int x, int y, int w, int h)
 #define mylcd_set_drawinfo          mylcd_(set_drawinfo)
 #define mylcd_setfont               mylcd_(setfont)
 #define mylcd_getstringsize         mylcd_(getstringsize)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Whole display */
 #define mylcd_clear_display         mylcd_(clear_display)
@@ -123,43 +136,57 @@ static inline void mylcd_ub_update_rect(int x, int y, int w, int h)
 
 /* Filled Primitives */
 #define mylcd_fillrect              mylcd_(fillrect)
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_filltriangle          myxlcd_(filltriangle)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Bitmaps */
 #define mylcd_mono_bitmap_part      mylcd_(mono_bitmap_part)
 #define mylcd_mono_bitmap           mylcd_(mono_bitmap)
 
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_gray_bitmap_part      myxlcd_(gray_bitmap_part)
 #define mylcd_gray_bitmap           myxlcd_(gray_bitmap)
 #if 0 /* possible, but not implemented in greylib */
 #define mylcd_color_bitmap_part     myxlcd_(color_bitmap_part)
 #define mylcd_color_bitmap          myxlcd_(color_bitmap)
 #endif
+#endif /* HAVE_LCD_BITMAP */
 
 /* Bitmaps - unbuffered */
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_ub_gray_bitmap_part   myxlcd_ub_(gray_bitmap_part)
 #define mylcd_ub_gray_bitmap        myxlcd_ub_(gray_bitmap)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Text */
 /* lcd_putsxyofs is static'ed in the core for now on color */
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_putsxyofs             mylcd_(putsxyofs)
 #define mylcd_putsxy                mylcd_(putsxy)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Scrolling */
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_scroll_left           myxlcd_(scroll_left)
 #define mylcd_scroll_right          myxlcd_(scroll_right)
 #define mylcd_scroll_up             myxlcd_(scroll_up)
 #define mylcd_scroll_down           myxlcd_(scroll_down)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Scrolling - unbuffered */
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_ub_scroll_left        myxlcd_ub_(scroll_left)
 #define mylcd_ub_scroll_right       myxlcd_ub_(scroll_right)
 #define mylcd_ub_scroll_up          myxlcd_ub_(scroll_up)
 #define mylcd_ub_scroll_down        myxlcd_ub_(scroll_down)
+#endif /* HAVE_LCD_BITMAP */
 
 /* Viewports */
+#ifdef HAVE_LCD_BITMAP
 #define mylcd_clear_viewport          mylcd_(clear_viewport)
 #define mylcd_set_viewport            mylcd_(set_viewport)
 #define mylcd_viewport_set_fullscreen mylcd_viewport_(set_fullscreen)
+#endif /* HAVE_LCD_BITMAP */
 
 #endif /* MYLCD_H */

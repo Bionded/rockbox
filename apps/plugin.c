@@ -21,7 +21,6 @@
 #define DIRFUNCTIONS_DEFINED
 #define FILEFUNCTIONS_DEFINED
 #include "plugin.h"
-#include "open_plugin.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -46,17 +45,17 @@
 #include "pathfuncs.h"
 #include "load_code.h"
 #include "file.h"
-#include "core_keymap.h"
-#include "language.h"
 
 #if CONFIG_CHARGING
 #include "power.h"
 #endif
 
+#ifdef HAVE_LCD_BITMAP
 #include "scrollbar.h"
 #include "peakmeter.h"
 #include "bmp.h"
 #include "bidi.h"
+#endif
 
 #ifdef USB_ENABLE_HID
 #include "usbstack/usb_hid.h"
@@ -75,7 +74,7 @@ extern unsigned char pluginbuf[];
 
 /* for actual plugins only, not for codecs */
 static int  plugin_size = 0;
-static int (*pfn_tsr_exit)(bool reenter) = NULL; /* TSR exit callback */
+static bool (*pfn_tsr_exit)(bool reenter) = NULL; /* TSR exit callback */
 static char current_plugin[MAX_PATH];
 /* NULL if no plugin is loaded, otherwise the handle that lc_open() returned */
 static void *current_plugin_handle;
@@ -84,7 +83,7 @@ char *plugin_get_current_filename(void);
 
 static void* plugin_get_audio_buffer(size_t *buffer_size);
 static void plugin_release_audio_buffer(void);
-static void plugin_tsr(int (*exit_callback)(bool));
+static void plugin_tsr(bool (*exit_callback)(bool));
 
 #ifdef HAVE_PLUGIN_CHECK_OPEN_CLOSE
 /* File handle leak prophylaxis */
@@ -180,12 +179,10 @@ static const struct plugin_api rockbox_api = {
     &global_settings,
     &global_status,
     language_strings,
-    &core_bitmaps[0],
+
     /* lcd */
     splash,
     splashf,
-    splash_progress,
-    splash_progress_set_delay,
 #ifdef HAVE_LCD_CONTRAST
     lcd_set_contrast,
 #endif
@@ -198,7 +195,19 @@ static const struct plugin_api rockbox_api = {
     lcd_putsf,
     lcd_puts_scroll,
     lcd_scroll_stop,
+#ifdef HAVE_LCD_CHARCELLS
+    lcd_define_pattern,
+    lcd_get_locked_pattern,
+    lcd_unlock_pattern,
+    lcd_putc,
+    lcd_put_cursor,
+    lcd_remove_cursor,
+    lcd_icon,
+    lcd_double_height,
+#else /* HAVE_LCD_BITMAP */
+    &lcd_static_framebuffer[0][0],
     lcd_set_viewport,
+    lcd_set_framebuffer,
     lcd_bmp_part,
     lcd_update_rect,
     lcd_set_drawmode,
@@ -261,6 +270,7 @@ static const struct plugin_api rockbox_api = {
     font_get_width,
     screen_clear_area,
     gui_scrollbar_draw,
+#endif /* HAVE_LCD_BITMAP */
     get_codepage_name,
 
 #ifdef HAVE_REMOTE_LCD
@@ -283,6 +293,7 @@ static const struct plugin_api rockbox_api = {
     lcd_remote_mono_bitmap_part,
     lcd_remote_mono_bitmap,
     lcd_remote_putsxy,
+    &lcd_remote_static_framebuffer[0][0],
     lcd_remote_update,
     lcd_remote_update_rect,
 #if (LCD_REMOTE_DEPTH > 1)
@@ -301,14 +312,19 @@ static const struct plugin_api rockbox_api = {
 #endif
 
     viewport_set_defaults,
+#ifdef HAVE_LCD_BITMAP
     viewportmanager_theme_enable,
     viewportmanager_theme_undo,
     viewport_set_fullscreen,
-    viewport_set_buffer,
+#endif
 
-#ifdef HAVE_BACKLIGHT
     /* lcd backlight */
-    /* For OLED targets like the Sansa Clip, the backlight_* functions control
+    /* The backlight_* functions must be present in the API regardless whether
+     * HAVE_BACKLIGHT is defined or not. The reason is that the stock Ondio has
+     * no backlight but can be modded to have backlight (it's prepared on the
+     * PCB). This makes backlight an all-target feature API wise, and keeps API
+     * compatible between stock and modded Ondio.
+     * For OLED targets like the Sansa Clip, the backlight_* functions control
      * the display enable, which has essentially the same effect. */
     is_backlight_on,
     backlight_on,
@@ -330,7 +346,6 @@ static const struct plugin_api rockbox_api = {
     remote_backlight_set_timeout_plugged,
 #endif
 #endif /* HAVE_REMOTE_LCD */
-#endif /* HAVE_BACKLIGHT */
 
     /* list */
     gui_synclist_init,
@@ -344,22 +359,20 @@ static const struct plugin_api rockbox_api = {
     gui_synclist_select_item,
     gui_synclist_add_item,
     gui_synclist_del_item,
+    gui_synclist_limit_scroll,
     gui_synclist_do_button,
     gui_synclist_set_title,
     gui_syncyesno_run,
     simplelist_info_init,
     simplelist_show_list,
-    yesno_pop,
 
     /* action handling */
     get_custom_action,
     get_action,
 #ifdef HAVE_TOUCHSCREEN
     action_get_touchscreen_press,
-    action_get_touchscreen_press_in_vp,
 #endif
     action_userabort,
-    core_set_keyremap,
 
     /* button */
     button_get,
@@ -373,10 +386,6 @@ static const struct plugin_api rockbox_api = {
     button_queue_count,
 #ifdef HAS_BUTTON_HOLD
     button_hold,
-#endif
-#ifdef HAVE_SW_POWEROFF
-    button_set_sw_poweroff_state,
-    button_get_sw_poweroff_state,
 #endif
 #ifdef HAVE_TOUCHSCREEN
     touchscreen_set_mode,
@@ -408,8 +417,8 @@ static const struct plugin_api rockbox_api = {
     read_line,
     settings_parseline,
     storage_sleep,
-    STORAGE_FUNCTION(spin),
-    STORAGE_FUNCTION(spindown),
+    storage_spin,
+    storage_spindown,
 #if USING_STORAGE_CALLBACK
     register_storage_idle_func,
     unregister_storage_idle_func,
@@ -419,9 +428,7 @@ static const struct plugin_api rockbox_api = {
     FS_PREFIX(file_exists),
     strip_extension,
     crc_32,
-    crc_32r,
     filetype_get_attr,
-    filetype_get_plugin,
 
     /* dir */
     FS_PREFIX(opendir),
@@ -433,24 +440,21 @@ static const struct plugin_api rockbox_api = {
     dir_get_info,
 
     /* browsing */
+    browse_context_init,
     rockbox_browse,
     tree_get_context,
     tree_get_entries,
     tree_get_entry_at,
     set_current_file,
     set_dirfilter,
-    onplay_show_playlist_menu,
-    onplay_show_playlist_cat_menu,
-    browse_id3,
 
     /* talking */
     talk_id,
-    talk_idarray,
     talk_file,
     talk_file_or_spell,
     talk_dir_or_spell,
     talk_number,
-    talk_value_decimal,
+    talk_value,
     talk_spell,
     talk_time,
     talk_date,
@@ -472,6 +476,7 @@ static const struct plugin_api rockbox_api = {
     thread_self,
     thread_exit,
     thread_wait,
+#if (CONFIG_CODEC == SWCODEC)
     thread_thaw,
 #ifdef HAVE_PRIORITY_SCHEDULING
     thread_set_priority,
@@ -479,6 +484,7 @@ static const struct plugin_api rockbox_api = {
     mutex_init,
     mutex_lock,
     mutex_unlock,
+#endif
 #ifdef HAVE_SEMAPHORE_OBJECTS
     semaphore_init,
     semaphore_wait,
@@ -521,12 +527,13 @@ static const struct plugin_api rockbox_api = {
     queue_delete,
     queue_post,
     queue_wait_w_tmo,
+#if CONFIG_CODEC == SWCODEC
     queue_enable_queue_send,
     queue_empty,
     queue_wait,
     queue_send,
     queue_reply,
-    queue_remove_from_head,
+#endif
 
 #ifdef RB_PROFILE
     profile_thread,
@@ -540,7 +547,7 @@ static const struct plugin_api rockbox_api = {
 
 #if (CONFIG_PLATFORM & PLATFORM_HOSTED)
     /* special simulator hooks */
-#if LCD_DEPTH < 8
+#if defined(HAVE_LCD_BITMAP) && LCD_DEPTH < 8
     sim_lcd_ex_init,
     sim_lcd_ex_update_rect,
 #endif
@@ -549,7 +556,6 @@ static const struct plugin_api rockbox_api = {
     /* strings and memory */
     snprintf,
     vsnprintf,
-    vuprintf,
     strcpy,
     strlcpy,
     strlen,
@@ -572,7 +578,6 @@ static const struct plugin_api rockbox_api = {
     memcmp,
     strcasestr,
     strtok_r,
-    output_dyn_value,
     /* unicode stuff */
     utf8decode,
     iso_decode,
@@ -581,9 +586,6 @@ static const struct plugin_api rockbox_api = {
     utf8encode,
     utf8length,
     utf8seek,
-
-    /* language */
-    lang_is_rtl,
 
     /* the buflib memory management library */
     buflib_init,
@@ -596,9 +598,9 @@ static const struct plugin_api rockbox_api = {
     buflib_free,
     buflib_shrink,
     buflib_get_data,
+    buflib_get_name,
 
     /* sound */
-    adjust_volume,
     sound_set,
     sound_current, /*stub*/
     sound_default,
@@ -609,10 +611,20 @@ static const struct plugin_api rockbox_api = {
 #ifdef AUDIOHW_HAVE_EQ
     sound_enum_hw_eq_band_setting,
 #endif
-#if defined (HAVE_PITCHCONTROL)
-    sound_get_pitch,
+#if ((CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F) || \
+     (CONFIG_CODEC == SWCODEC)) && defined (HAVE_PITCHCONTROL)
     sound_set_pitch,
 #endif
+#if (CONFIG_PLATFORM & PLATFORM_NATIVE)
+    mp3_play_data,
+    mp3_play_pause,
+    mp3_play_stop,
+    mp3_is_playing,
+#if CONFIG_CODEC != SWCODEC
+    bitswap,
+#endif
+#endif
+#if CONFIG_CODEC == SWCODEC
     &audio_master_sampr_list[0],
     &hw_freq_sampr[0],
     pcm_apply_settings,
@@ -620,6 +632,11 @@ static const struct plugin_api rockbox_api = {
     pcm_play_stop,
     pcm_set_frequency,
     pcm_is_playing,
+    pcm_is_paused,
+    pcm_play_pause,
+    pcm_get_bytes_waiting,
+    pcm_calculate_peaks,
+    pcm_get_peak_buffer,
     pcm_play_lock,
     pcm_play_unlock,
     beep_play,
@@ -640,10 +657,7 @@ static const struct plugin_api rockbox_api = {
     dsp_eq_enable,
     dsp_dither_enable,
 #ifdef HAVE_PITCHCONTROL
-    dsp_get_timestretch,
     dsp_set_timestretch,
-    dsp_timestretch_enable,
-    dsp_timestretch_available,
 #endif
     dsp_configure,
     dsp_get_config,
@@ -662,15 +676,23 @@ static const struct plugin_api rockbox_api = {
     mixer_get_frequency,
 
     pcmbuf_fade,
-    pcmbuf_set_low_latency,
     system_sound_play,
     keyclick_click,
+#endif /* CONFIG_CODEC == SWCODEC */
+
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    peak_meter_scale_value,
+    peak_meter_set_use_dbfs,
+    peak_meter_get_use_dbfs,
+#endif
+
 
     /* metadata */
     get_metadata,
-    get_codec_string,
+    mp3info,
     count_mp3_frames,
     create_xing_header,
+    find_next_frame,
 #ifdef HAVE_TAGCACHE
     tagcache_search,
     tagcache_search_set_uniqbuf,
@@ -679,15 +701,9 @@ static const struct plugin_api rockbox_api = {
     tagcache_retrieve,
     tagcache_search_finish,
     tagcache_get_numeric,
-    tagcache_get_stat,
-    tagcache_commit_finalize,
-#if defined(HAVE_TC_RAMCACHE)
-    tagcache_is_in_ram,
-#if defined(HAVE_DIRCACHE)
+#if defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
     tagcache_fill_tags,
 #endif
-#endif
-    tagtree_subentries_do_action,
 #endif /* HAVE_TAGCACHE */
 
 #ifdef HAVE_ALBUMART
@@ -695,25 +711,17 @@ static const struct plugin_api rockbox_api = {
 #endif
 
     /* playback control */
-    playlist_get_current,
-    playlist_get_resume_info,
-    playlist_get_track_info,
-    playlist_get_first_index,
-    playlist_get_display_index,
-    playlist_entries_iterate,
     playlist_amount,
     playlist_resume,
     playlist_resume_track,
-    playlist_set_modified,
     playlist_start,
+    playlist_add,
     playlist_sync,
     playlist_remove_all_tracks,
     playlist_create,
     playlist_insert_track,
     playlist_insert_directory,
-    playlist_insert_playlist,
     playlist_shuffle,
-    warn_on_pl_erase,
     audio_play,
     audio_stop,
     audio_pause,
@@ -726,9 +734,24 @@ static const struct plugin_api rockbox_api = {
     audio_current_track,
     audio_flush_and_reload_tracks,
     audio_get_file_pos,
-#ifdef PLUGIN_USE_IRAM
-    audio_hard_stop,
+#if !defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+    mpeg_get_last_header,
 #endif
+
+#if !defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+    /* MAS communication */
+    mas_readmem,
+    mas_writemem,
+    mas_readreg,
+    mas_writereg,
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    mas_codec_writereg,
+    mas_codec_readreg,
+    i2c_begin,
+    i2c_end,
+    i2c_write,
+#endif
+#endif /* !SIMULATOR && CONFIG_CODEC != SWCODEC */
 
     /* menu */
     root_menu_get_options,
@@ -736,6 +759,10 @@ static const struct plugin_api rockbox_api = {
     root_menu_set_default,
     root_menu_write_to_cfg,
     root_menu_load_from_cfg,
+
+    /* statusbars */
+    &statusbars,
+    gui_syncstatusbar_draw,
 
     /* options */
     get_settings_list,
@@ -756,7 +783,6 @@ static const struct plugin_api rockbox_api = {
     battery_level_safe,
     battery_time,
     battery_voltage,
-    battery_current,
 #if CONFIG_CHARGING
     charger_inserted,
 # if CONFIG_CHARGING >= CHARGING_MONITOR
@@ -773,23 +799,24 @@ static const struct plugin_api rockbox_api = {
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE)
     __errno,
 #endif
-    led,
     srand,
     rand,
     (void *)qsort,
     kbd_input,
     get_time,
+    set_time,
     gmtime_r,
 #if CONFIG_RTC
     mktime,
 #endif
-    format_time_auto,
+
 #if defined(DEBUG) || defined(SIMULATOR)
     debugf,
 #endif
 #ifdef ROCKBOX_HAS_LOGF
     _logf,
 #endif
+#if CONFIG_CODEC == SWCODEC
     codec_thread_do_callback,
     codec_load_file,
     codec_run_proc,
@@ -798,7 +825,9 @@ static const struct plugin_api rockbox_api = {
     find_array_ptr,
     remove_array_ptr,
     round_value_to_list32,
+#endif /* CONFIG_CODEC == SWCODEC */
 
+#ifdef HAVE_LCD_BITMAP
     read_bmp_file,
     read_bmp_fd,
 #ifdef HAVE_JPEG
@@ -806,42 +835,34 @@ static const struct plugin_api rockbox_api = {
     read_jpeg_fd,
 #endif
     screen_dump_set_hook,
+#endif
+    show_logo,
 
 #ifdef HAVE_WHEEL_POSITION
     wheel_status,
     wheel_send_events,
 #endif
 
-#if defined(IRIVER_H100_SERIES) || defined(IRIVER_H300_SERIES)
+#ifdef IRIVER_H100_SERIES
     /* Routines for the iriver_flash -plugin. */
     detect_original_firmware,
     detect_flashed_ramimage,
     detect_flashed_romimage,
 #endif
+    led,
 
     /*plugin*/
-    plugin_open,
     plugin_get_buffer,
     plugin_get_audio_buffer,     /* defined in plugin.c */
     plugin_release_audio_buffer, /* defined in plugin.c */
     plugin_tsr,                  /* defined in plugin.c */
     plugin_get_current_filename,
-    plugin_reserve_buffer,
-
-    /* reboot and poweroff */
-    sys_poweroff,
-    sys_reboot,
-
-    /* pathfuncs */
-    fix_path_part,
-#ifdef HAVE_MULTIVOLUME
-    path_strip_volume,
+#ifdef PLUGIN_USE_IRAM
+    audio_hard_stop,
 #endif
 
     /* new stuff at the end, sort into place next time
        the API gets incompatible */
-
-    talk_fullpath,
 };
 
 static int plugin_buffer_handle;
@@ -851,42 +872,23 @@ int plugin_load(const char* plugin, const void* parameter)
 {
     struct plugin_header *p_hdr;
     struct lc_header     *hdr;
-    const char * resume_plugin = NULL;
-
-    if (!plugin)
-        return PLUGIN_ERROR;
-
-    /* for some plugins, the SBS can be left enabled */
-    const char *sepch = strrchr(plugin, PATH_SEPCH);
-    bool theme_enabled = sepch && !strcmp("properties.rock", sepch + 1);
 
     if (current_plugin_handle && pfn_tsr_exit)
     {    /* if we have a resident old plugin and a callback */
-        bool reenter = (strcmp(current_plugin, plugin) == 0);
-        int exit_status = pfn_tsr_exit(reenter);
-        if (exit_status == PLUGIN_TSR_CONTINUE)
+        if (pfn_tsr_exit(!strcmp(current_plugin, plugin)) == false )
         {
             /* not allowing another plugin to load */
             return PLUGIN_OK;
         }
-        else
-        {
-            lc_close(current_plugin_handle);
-            current_plugin_handle = pfn_tsr_exit = NULL;
+        lc_close(current_plugin_handle);
+        current_plugin_handle = pfn_tsr_exit = NULL;
+        if (plugin_buffer_handle > 0)
             plugin_buffer_handle = core_free(plugin_buffer_handle);
-
-            if (!reenter)
-                resume_plugin = strdupa(current_plugin);
-            else if (exit_status == PLUGIN_TSR_TERMINATE)
-                return PLUGIN_OK; /* don't even load the new plugin either */
-        }
     }
 
-#ifdef HAVE_DISK_STORAGE
-    if (!storage_disk_is_active())
-        splash(0, ID2P(LANG_WAIT));
-#endif
+    splash(0, ID2P(LANG_WAIT));
     strcpy(current_plugin, plugin);
+
     current_plugin_handle = lc_open(plugin, pluginbuf, PLUGIN_BUFFER_SIZE);
     if (current_plugin_handle == NULL) {
         splashf(HZ*2, str(LANG_PLUGIN_CANT_OPEN), plugin);
@@ -894,7 +896,9 @@ int plugin_load(const char* plugin, const void* parameter)
     }
 
     p_hdr = lc_get_header(current_plugin_handle);
+
     hdr = p_hdr ? &p_hdr->lc_hdr : NULL;
+
 
     if (hdr == NULL
         || hdr->magic != PLUGIN_MAGIC
@@ -909,15 +913,13 @@ int plugin_load(const char* plugin, const void* parameter)
         splash(HZ*2, ID2P(LANG_PLUGIN_WRONG_MODEL));
         return -1;
     }
-
-    if (hdr->api_version != PLUGIN_API_VERSION ||
-        p_hdr->api_size > sizeof(struct plugin_api))
+    if (hdr->api_version > PLUGIN_API_VERSION
+        || hdr->api_version < PLUGIN_MIN_API_VERSION)
     {
         lc_close(current_plugin_handle);
         splash(HZ*2, ID2P(LANG_PLUGIN_WRONG_VERSION));
         return -1;
     }
-
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE)
     /* tlsf crashes observed on arm with 0x4 aligned addresses */
     plugin_size = ALIGN_UP(hdr->end_addr - pluginbuf, 0x8);
@@ -926,26 +928,21 @@ int plugin_load(const char* plugin, const void* parameter)
 #endif
 
     *(p_hdr->api) = &rockbox_api;
-    lcd_set_viewport(NULL);
-    if (!theme_enabled)
-        lcd_clear_display();
+
+    lcd_clear_display();
+    lcd_update();
 
 #ifdef HAVE_REMOTE_LCD
-    lcd_remote_set_viewport(NULL);
     lcd_remote_clear_display();
     lcd_remote_update();
 #endif
-    if (get_current_activity() == ACTIVITY_WPS)
-        push_activity_without_refresh(ACTIVITY_PLUGIN);
-    else
-        push_current_activity(ACTIVITY_PLUGIN);
+    push_current_activity(ACTIVITY_PLUGIN);
     /* some plugins assume the entry cache doesn't move and save pointers to it
      * they should be fixed properly instead of this lock */
     tree_lock_cache(tree_get_context());
 
-    if (!theme_enabled)
-        FOR_NB_SCREENS(i)
-            viewportmanager_theme_enable(i, false, NULL);
+    FOR_NB_SCREENS(i)
+       viewportmanager_theme_enable(i, false, NULL);
 
 #ifdef HAVE_TOUCHSCREEN
     touchscreen_set_mode(TOUCHSCREEN_BUTTON);
@@ -960,19 +957,14 @@ int plugin_load(const char* plugin, const void* parameter)
     int rc = p_hdr->entry_point(parameter);
 
     tree_unlock_cache(tree_get_context());
-
-    pop_current_activity_without_refresh();
-    if (get_current_activity() != ACTIVITY_WPS)
-    {
-        FOR_NB_SCREENS(i)
-                skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
-    }
+    pop_current_activity();
 
     if (!pfn_tsr_exit)
     {   /* close handle if plugin is no tsr one */
         lc_close(current_plugin_handle);
         current_plugin_handle = NULL;
-        plugin_buffer_handle = core_free(plugin_buffer_handle);
+        if (plugin_buffer_handle > 0)
+            plugin_buffer_handle = core_free(plugin_buffer_handle);
     }
 
     talk_buffer_set_policy(TALK_BUFFER_DEFAULT);
@@ -981,8 +973,8 @@ int plugin_load(const char* plugin, const void* parameter)
 #ifdef HAVE_TOUCHSCREEN
     touchscreen_set_mode(global_settings.touch_mode);
 #endif
-    /* restore default vp */
-    lcd_set_viewport(NULL);
+
+#ifdef HAVE_LCD_BITMAP
     screen_helper_setfont(FONT_UI);
 #if LCD_DEPTH > 1
 #ifdef HAVE_LCD_COLOR
@@ -994,10 +986,10 @@ int plugin_load(const char* plugin, const void* parameter)
 #else /* LCD_DEPTH == 1 */
     lcd_set_drawmode(DRMODE_SOLID);
 #endif /* LCD_DEPTH */
+#endif /* HAVE_LCD_BITMAP */
+
 
 #ifdef HAVE_REMOTE_LCD
-    lcd_remote_set_viewport(NULL);
-
 #if LCD_REMOTE_DEPTH > 1
     lcd_remote_set_drawinfo(DRMODE_SOLID, LCD_REMOTE_DEFAULT_FG,
                             LCD_REMOTE_DEFAULT_BG);
@@ -1006,16 +998,13 @@ int plugin_load(const char* plugin, const void* parameter)
 #endif
 #endif
 
+    lcd_clear_display();
 #ifdef HAVE_REMOTE_LCD
     lcd_remote_clear_display();
 #endif
 
-    if (!theme_enabled)
-    {
-        lcd_clear_display();
-        FOR_NB_SCREENS(i)
-            viewportmanager_theme_undo(i, true);
-    }
+    FOR_NB_SCREENS(i)
+        viewportmanager_theme_undo(i, true);
 
     plugin_check_open_close__exit();
 
@@ -1024,34 +1013,7 @@ int plugin_load(const char* plugin, const void* parameter)
     if (rc == PLUGIN_ERROR)
         splash(HZ*2, str(LANG_PLUGIN_ERROR));
 
-    if (resume_plugin && rc != PLUGIN_GOTO_PLUGIN && !pfn_tsr_exit)
-    {
-            /*plugin = resume_plugin;*/
-            /*parameter = rockbox_api.plugin_tsr;*/
-            return plugin_load(resume_plugin, rockbox_api.plugin_tsr);
-    }
     return rc;
-}
-
-/* For Terminate Stay Resident plugins
- * Locks buffer_size bytes of the plugin buffer
- * freed on plugin exit; call plugin_get_buffer first then reserve all
- * or a portion with plugin_reserve_buffer()
- * Returns size of buffer remaining */
-size_t plugin_reserve_buffer(size_t buffer_size)
-{
-    size_t locked_size = 0;
-
-    if (current_plugin_handle)
-    {
-        locked_size = ALIGN_UP(plugin_size + buffer_size, 0x8);
-        if (locked_size > PLUGIN_BUFFER_SIZE)
-            locked_size = PLUGIN_BUFFER_SIZE;
-
-        plugin_size = locked_size;
-    }
-
-    return (PLUGIN_BUFFER_SIZE - locked_size);
 }
 
 /* Returns a pointer to the portion of the plugin buffer that is not already
@@ -1083,10 +1045,14 @@ void* plugin_get_buffer(size_t *buffer_size)
  */
 static void* plugin_get_audio_buffer(size_t *buffer_size)
 {
+    /* dummy ops with no callbacks, needed because by
+     * default buflib buffers can be moved around which must be avoided */
+    static struct buflib_callbacks dummy_ops;
     if (plugin_buffer_handle <= 0)
     {
-        plugin_buffer_handle = core_alloc_maximum(&plugin_buffer_size,
-                                                  &buflib_ops_locked);
+        plugin_buffer_handle = core_alloc_maximum("plugin audio buf",
+                                                  &plugin_buffer_size,
+                                                  &dummy_ops);
     }
 
     if (buffer_size)
@@ -1107,15 +1073,9 @@ static void plugin_release_audio_buffer(void)
 /* The plugin wants to stay resident after leaving its main function, e.g.
    runs from timer or own thread. The callback is registered to later
    instruct it to free its resources before a new plugin gets loaded. */
-static void plugin_tsr(int (*exit_callback)(bool))
+static void plugin_tsr(bool (*exit_callback)(bool))
 {
     pfn_tsr_exit = exit_callback; /* remember the callback for later */
-}
-
-int plugin_open(const char *plugin, const char *parameter)
-{
-    open_plugin_add_path(ID2P(LANG_OPEN_PLUGIN), plugin, parameter);
-    return PLUGIN_GOTO_PLUGIN;
 }
 
 char *plugin_get_current_filename(void)

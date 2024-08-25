@@ -11,14 +11,12 @@
 /* Define if boot data from bootloader has been enabled for the target */
 #define HAVE_BOOTDATA
 
-// HW supports it but our buffers don't fit.
-//#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_192
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_48
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
 
-#define REC_SAMPR_CAPS      SAMPR_CAP_ALL_96
+#define REC_SAMPR_CAPS      SAMPR_CAP_ALL
 
 /* Default recording levels */
 #define DEFAULT_REC_MIC_GAIN    23
@@ -29,6 +27,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 
@@ -97,8 +97,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* Define this if you have a speaker */
 #define HAVE_SPEAKER
@@ -144,6 +144,7 @@
 #define CONFIG_STORAGE STORAGE_SD
 #define NUM_DRIVES 2
 #define HAVE_MULTIDRIVE
+#define HAVE_MULTIVOLUME
 #define HAVE_HOTSWAP
 
 /* Extra threads: touchpad */
@@ -183,6 +184,11 @@
 
 /* Type of LCD */
 #define CONFIG_LCD LCD_CREATIVEZXFI3
+
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

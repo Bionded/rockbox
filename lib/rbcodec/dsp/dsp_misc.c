@@ -149,6 +149,14 @@ unsigned int dsp_get_output_frequency(struct dsp_config *dsp)
     return dsp_configure(dsp, DSP_GET_OUT_FREQUENCY, 0);
 }
 
+static void INIT_ATTR misc_dsp_init(struct dsp_config *dsp,
+                                    enum dsp_ids dsp_id)
+{
+    /* Enable us for the audio DSP at startup */
+    if (dsp_id == CODEC_IDX_AUDIO)
+        dsp_proc_enable(dsp, DSP_PROC_MISC_HANDLER, true);
+}
+
 /* This is a null-processing stage that monitors as an enabled stage but never
  * becomes active in processing samples. It only hooks messages. */
 
@@ -160,6 +168,10 @@ static intptr_t misc_handler_configure(struct dsp_proc_entry *this,
 {
     switch (setting)
     {
+    case DSP_INIT:
+        misc_dsp_init(dsp, (enum dsp_ids)value);
+        break;
+
     case DSP_PROC_CLOSE:
         /* This stage should be enabled at all times */
         DEBUGF("DSP_PROC_MISC_HANDLER - Error: Closing!\n");

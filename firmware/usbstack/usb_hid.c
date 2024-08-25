@@ -23,7 +23,6 @@
 #include "usb_core.h"
 #include "usb_drv.h"
 #include "kernel.h"
-#include "powermgmt.h"
 #include "usb_hid.h"
 #include "usb_class_driver.h"
 /*#define LOGF_ENABLE*/
@@ -42,7 +41,6 @@
 /* HID main items (HID1_11.pdf, page 38) */
 #define INPUT                           0x80
 #define OUTPUT                          0x90
-#define FEATURE                         0xB0
 #define COLLECTION                      0xA0
 #define COLLECTION_PHYSICAL             0x00
 #define COLLECTION_APPLICATION          0x01
@@ -91,7 +89,6 @@
 #define HID_BUF_SIZE_REPORT             160
 #define HID_NUM_BUFFERS                 5
 #define SET_REPORT_BUF_LEN 2
-#define GET_REPORT_BUF_LEN 2
 
 #ifdef LOGF_ENABLE
 
@@ -104,8 +101,6 @@
 
 #define HID_BUF_INC(i) do { (i) = ((i) + 1) % HID_NUM_BUFFERS; } while (0)
 #define PACK_VAL(dest, val) *(dest)++ = (val) & 0xff
-
-#define REPORT_ID_BACKGROUND REPORT_ID_COUNT
 
 typedef enum
 {
@@ -556,27 +551,6 @@ static size_t descriptor_report_get(unsigned char *dest)
     PACK_VAL(report, END_COLLECTION);
 #endif /* HAVE_USB_HID_MOUSE */
 
-    /* Background reports */
-    pack_parameter(&report, 0, 1, USAGE_PAGE, HID_USAGE_PAGE_GENERIC_DEVICE_CONTROLS);
-    pack_parameter(&report, 0, 0, CONSUMER_USAGE, HID_GENERIC_DEVICE_BACKGROUND_CONTROLS);
-    pack_parameter(&report, 0, 1, COLLECTION, COLLECTION_APPLICATION);
-    pack_parameter(&report, 0, 1, REPORT_ID, REPORT_ID_BACKGROUND);
-    /* Padding */
-    pack_parameter(&report, 0, 0, CONSUMER_USAGE, HID_GENERIC_DEVICE_UNDEFINED);
-    pack_parameter(&report, 0, 1, LOGICAL_MINIMUM, 0);
-    pack_parameter(&report, 0, 1, LOGICAL_MAXIMUM, 255);
-    pack_parameter(&report, 0, 1, REPORT_SIZE, 8);
-    pack_parameter(&report, 0, 1, REPORT_COUNT, 1);
-    pack_parameter(&report, 0, 1, FEATURE, MAIN_ITEM_CONSTANT);
-    /* Battery percentage */
-    pack_parameter(&report, 0, 0, CONSUMER_USAGE, HID_GENERIC_DEVICE_BATTERY_STRENGTH);
-    pack_parameter(&report, 0, 1, LOGICAL_MINIMUM, 0);
-    pack_parameter(&report, 0, 1, LOGICAL_MAXIMUM, 100);
-    pack_parameter(&report, 0, 1, REPORT_SIZE, 8);
-    pack_parameter(&report, 0, 1, REPORT_COUNT, 1);
-    pack_parameter(&report, 0, 1, FEATURE, MAIN_ITEM_VARIABLE);
-    PACK_VAL(report, END_COLLECTION);
-
     return (size_t)(report - dest);
 }
 
@@ -617,6 +591,7 @@ int usb_hid_get_config_descriptor(unsigned char *dest, int max_packet_size)
 void usb_hid_init_connection(void)
 {
     logf("hid: init connection");
+
     active = true;
     currently_sending = false;
 }
@@ -664,14 +639,15 @@ void usb_hid_transfer_complete(int ep, int dir, int status, int length)
  * In order to allow sending info to the DAP, the Set Report mechanism can be
  * used by defining vendor specific output reports and send them from the host
  * to the DAP using the host's custom driver */
-static int usb_hid_set_report(struct usb_ctrlrequest *req, void *reqdata)
+static int usb_hid_set_report(struct usb_ctrlrequest *req)
 {
-    static unsigned char buf[64] USB_DEVBSS_ATTR __attribute__((aligned(32)));
+    static unsigned char buf[SET_REPORT_BUF_LEN] USB_DEVBSS_ATTR
+        __attribute__((aligned(32)));
     int length;
 
     if ((req->wValue >> 8) != REPORT_TYPE_OUTPUT)
     {
-        logf("Unsupported report type");
+        logf("Unsopported report type");
         return 1;
     }
     if ((req->wValue & 0xff) != REPORT_ID_KEYBOARD)
@@ -691,11 +667,8 @@ static int usb_hid_set_report(struct usb_ctrlrequest *req, void *reqdata)
         return 4;
     }
 
-    if(!reqdata) {
-        memset(buf, 0, length);
-        usb_drv_control_response(USB_CONTROL_RECEIVE, buf, length);
-        return 0;
-    }
+    memset(buf, 0, length);
+    usb_drv_recv(EP_CONTROL, buf, length);
 
 #ifdef LOGF_ENABLE
     if (buf[1] & 0x01)
@@ -712,52 +685,17 @@ static int usb_hid_set_report(struct usb_ctrlrequest *req, void *reqdata)
 
     /* Defining other LEDs and setting them from the USB host (OS) can be used
      * to send messages to the DAP */
-    usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
-    return 0;
-}
-
-static int usb_hid_get_report(struct usb_ctrlrequest *req, unsigned char* dest)
-{
-    if ((req->wValue >> 8) != REPORT_TYPE_FEATURE)
-    {
-        logf("Unsupported report type");
-        return 1;
-    }
-
-    if ((req->wValue & 0xff) != REPORT_ID_BACKGROUND)
-    {
-        logf("Wrong report id");
-        return 2;
-    }
-
-    if (req->wIndex != (uint16_t)usb_interface)
-    {
-        logf("Wrong interface");
-        return 3;
-    }
-
-    if (req->wLength < GET_REPORT_BUF_LEN)
-    {
-        logf("Wrong length");
-        return 4;
-    }
-
-    dest[0] = 0;
-    dest[1] = battery_level();
-    usb_drv_control_response(USB_CONTROL_ACK, dest, 2);
     return 0;
 }
 
 /* called by usb_core_control_request() */
-bool usb_hid_control_request(struct usb_ctrlrequest *req, void *reqdata, unsigned char *dest)
+bool usb_hid_control_request(struct usb_ctrlrequest *req, unsigned char *dest)
 {
-    (void)reqdata;
-
-    unsigned char *orig_dest = dest;
     switch (req->bRequestType & USB_TYPE_MASK)
     {
     case USB_TYPE_STANDARD:
     {
+        unsigned char *orig_dest = dest;
         uint8_t type = req->wValue >> 8;
         size_t len;
         logf("hid: type %d %s", type, (type == USB_DT_HID) ? "hid" :
@@ -776,7 +714,8 @@ bool usb_hid_control_request(struct usb_ctrlrequest *req, void *reqdata, unsigne
 
         if (dest != orig_dest)
         {
-            usb_drv_control_response(USB_CONTROL_ACK, orig_dest, dest - orig_dest);
+            usb_drv_recv(EP_CONTROL, NULL, 0); /* ack */
+            usb_drv_send(EP_CONTROL, orig_dest, dest - orig_dest);
             return true;
         }
         break;
@@ -786,28 +725,17 @@ bool usb_hid_control_request(struct usb_ctrlrequest *req, void *reqdata, unsigne
     {
         logf("req %d %s", req->bRequest, 
             (req->bRequest == USB_HID_SET_IDLE) ? "set idle" :
-            ((req->bRequest == USB_HID_SET_REPORT) ? "set report" :
-            ((req->bRequest == USB_HID_GET_REPORT) ? "get report" : "")));
-
-        int rc;
+            ((req->bRequest == USB_HID_SET_REPORT) ? "set report" : ""));
         switch (req->bRequest)
         {
         case USB_HID_SET_REPORT:
-            rc = usb_hid_set_report(req, reqdata);
-            break;
-        case USB_HID_GET_REPORT:
-            rc = usb_hid_get_report(req, dest);
-            break;
+            if (usb_hid_set_report(req))
+                break;
         case USB_HID_SET_IDLE:
-            usb_drv_control_response(USB_CONTROL_ACK, NULL, 0);
+            usb_drv_send(EP_CONTROL, NULL, 0); /* ack */
             return true;
-        default:
-            /* all other requests are errors */
-            return false;
         }
-
-        if(rc == 0)
-            return true;
+        break;
     }
 
     case USB_TYPE_VENDOR:

@@ -92,7 +92,7 @@ sub find_copyfile {
                 print "cp $path $destination\n" if $verbose;
                 copy($path, $destination);
                 chmod(0755, $destination.'/'.$path);
-            }
+            } 
         }
     }
 }
@@ -167,13 +167,6 @@ sub make_install {
         glob_install("$src/rocks/$t/*", "$libdir/rocks/$t", "-m 0755");
     }
 
-    if(-e "$src/rocks/games/sgt_puzzles") {
-        unless (glob_mkdir("$libdir/rocks/games/sgt_puzzles")) {
-            return 0;
-        }
-        glob_install("$src/rocks/games/sgt_puzzles/*", "$libdir/rocks/games/sgt_puzzles", "-m 0755");
-    }
-
     # rocks/viewers/lua
     unless (glob_mkdir("$libdir/rocks/viewers/lua")) {
         return 0;
@@ -188,14 +181,6 @@ sub make_install {
         glob_install("$ROOT/apps/plugins/lua_scripts/*.lua", "$libdir/rocks/demos/lua_scripts");
         #glob_mkdir("$temp_dir/rocks/demos/lua_scripts");
         #glob_copy("$ROOT/apps/plugins/lua_scripts/*.lua", "$temp_dir/rocks/demos/lua_scripts/");
-    }
-
-    #lua picross puzzles
-    if(-e "$ROOT/apps/plugins/picross") {
-        unless (glob_mkdir("$libdir/rocks/games/.picross")) {
-            return 0;
-        }
-        glob_install("$ROOT/apps/plugins/picross/*.picross", "$libdir/rocks/games/.picross");
     }
 
     # all the rest directories
@@ -273,12 +258,15 @@ sub gettargetinfo {
     # Get the LCD screen depth and graphical status
     print GCC <<STOP
 \#include "config.h"
+#ifdef HAVE_LCD_BITMAP
 Bitmap: yes
 Depth: LCD_DEPTH
 LCD Width: LCD_WIDTH
 LCD Height: LCD_HEIGHT
 Icon Width: CONFIG_DEFAULT_ICON_WIDTH
 Icon Height: CONFIG_DEFAULT_ICON_HEIGHT
+#endif
+Codec: CONFIG_CODEC
 #ifdef HAVE_REMOTE_LCD
 Remote Depth: LCD_REMOTE_DEPTH
 Remote Icon Width: CONFIG_REMOTE_DEFAULT_ICON_WIDTH
@@ -299,7 +287,7 @@ STOP
 
     open(TARGET, "$c|");
 
-    my ($bitmap, $width, $height, $depth, $icon_h, $icon_w);
+    my ($bitmap, $width, $height, $depth, $swcodec, $icon_h, $icon_w);
     my ($remote_depth, $remote_icon_h, $remote_icon_w);
     my ($recording);
     my $icon_count = 1;
@@ -323,6 +311,10 @@ STOP
         elsif($_ =~ /^Icon Height: (\d*)/) {
             $icon_h = $1;
         }
+        elsif($_ =~ /^Codec: (\d*)/) {
+            # SWCODEC is 1, the others are HWCODEC
+            $swcodec = ($1 == 1);
+        }
         elsif($_ =~ /^Remote Depth: (\d*)/) {
             $remote_depth = $1;
         }
@@ -340,7 +332,7 @@ STOP
     unlink("gcctemp");
 
     return ($bitmap, $depth, $width, $height, $icon_w, $icon_h, $recording,
-            $remote_depth, $remote_icon_w, $remote_icon_h);
+            $swcodec, $remote_depth, $remote_icon_w, $remote_icon_h);
 }
 
 sub filesize {
@@ -353,17 +345,17 @@ sub filesize {
 
 
 sub buildzip {
-    my ($image, $fonts)=@_;
+    my ($image, $fonts)=@_;    
     my $libdir = $install;
     my $temp_dir = ".rockbox";
 
     print "buildzip: image=$image fonts=$fonts\n" if $verbose;
-
+    
     my ($bitmap, $depth, $width, $height, $icon_w, $icon_h, $recording,
-        $remote_depth, $remote_icon_w, $remote_icon_h) =
+        $swcodec, $remote_depth, $remote_icon_w, $remote_icon_h) =
       &gettargetinfo();
 
-    # print "Bitmap: $bitmap\nDepth: $depth\n";
+    # print "Bitmap: $bitmap\nDepth: $depth\nSwcodec: $swcodec\n";
 
     # remove old traces
     rmtree($temp_dir);
@@ -380,7 +372,6 @@ sub buildzip {
         my $cmd = "$ROOT/tools/convbdf -f $ROOT/fonts/*bdf >/dev/null 2>&1";
         print($cmd."\n") if $verbose;
         system($cmd);
-        copy("$ROOT/fonts/COPYING", "COPYING-fonts.txt");
         chdir("../../");
 
         if($fonts < 2) {
@@ -389,11 +380,8 @@ sub buildzip {
         }
     }
 
-    # create the file so the database indexer skips this folder
+    # create the file so the database does not try indexing a folder
     open(IGNORE, ">$temp_dir/database.ignore")  || die "can't open database.ignore";
-    close(IGNORE);
-    # create the file so the talkclip generation skips this folder
-    open(IGNORE, ">$temp_dir/talkclips.ignore")  || die "can't open talkclips.ignore";
     close(IGNORE);
 
     # the samsung ypr0 has a loader script that's needed in the zip
@@ -405,11 +393,6 @@ sub buildzip {
     if ($modelname =~ /android/) {
         open(NOMEDIA, ">$temp_dir/.nomedia")  || die "can't open .nomedia";
         close(NOMEDIA);
-    }
-    # copy wifi firmware
-    if ($modelname =~ /sansaconnect/) {
-        glob_mkdir("$temp_dir/libertas");
-        glob_copy("$ROOT/firmware/drivers/libertas/firmware/*", "$temp_dir/libertas/");
     }
 
     glob_mkdir("$temp_dir/langs");
@@ -423,8 +406,11 @@ sub buildzip {
         glob_mkdir("$temp_dir/recpresets");
     }
 
-    glob_mkdir("$temp_dir/eqs");
-    glob_copy("$ROOT/lib/rbcodec/dsp/eqs/*.cfg", "$temp_dir/eqs/"); # equalizer presets
+    if($swcodec) {
+        glob_mkdir("$temp_dir/eqs");
+
+        glob_copy("$ROOT/lib/rbcodec/dsp/eqs/*.cfg", "$temp_dir/eqs/"); # equalizer presets
+    }
 
     glob_mkdir("$temp_dir/wps");
     glob_mkdir("$temp_dir/icons");
@@ -461,12 +447,6 @@ sub buildzip {
     if(-e "$ROOT/apps/plugins/lua_scripts") {
         glob_mkdir("$temp_dir/rocks/demos/lua_scripts");
         glob_copy("$ROOT/apps/plugins/lua_scripts/*.lua", "$temp_dir/rocks/demos/lua_scripts/");
-    }
-
-    #lua picross puzzles
-    if(-e "$ROOT/apps/plugins/picross") {
-        glob_mkdir("$temp_dir/rocks/games/.picross");
-        glob_copy("$ROOT/apps/plugins/picross/*.picross", "$temp_dir/rocks/games/.picross/");
     }
 
     # exclude entries for the image file types not supported by the imageviewer for the target.
@@ -530,13 +510,7 @@ sub buildzip {
     foreach my $line (@rock_targetdirs) {
         if ($line =~ /([^,]*),(.*)/) {
             my ($plugin, $dir)=($1, $2);
-            if($dir  eq 'games' and substr(${plugin}, 0, 4) eq "sgt-") {
-                glob_mkdir("$temp_dir/rocks/$dir/sgt_puzzles");
-                move("$temp_dir/rocks/${plugin}.rock", "$temp_dir/rocks/$dir/sgt_puzzles/${plugin}.rock");
-            }
-            else {
-                move("$temp_dir/rocks/${plugin}.rock", "$temp_dir/rocks/$dir/${plugin}.rock");
-            }
+            move("$temp_dir/rocks/${plugin}.rock", "$temp_dir/rocks/$dir/${plugin}.rock");
             if(-e "$temp_dir/rocks/${plugin}.ovl") {
                 # if there's an "overlay" file for the .rock, move that as
                 # well
@@ -554,20 +528,10 @@ sub buildzip {
     copy("$ROOT/apps/tagnavi.config", "$temp_dir/");
     copy("$ROOT/apps/plugins/disktidy.config", "$temp_dir/rocks/apps/");
 
-    if(-e "$temp_dir/rocks/viewers/open_plugins.rock") {
-        my $cwd = getcwd();
-        copy("$cwd/apps/plugins/open_plugins.opx", "$temp_dir/rocks/apps/open_plugins.opx") or
-            print STDERR "Copy failed: $cwd/apps/plugins/open_plugins.opx $!\n";
-    }
-
     if($bitmap) {
         copy("$ROOT/apps/plugins/sokoban.levels", "$temp_dir/rocks/games/sokoban.levels"); # sokoban levels
         copy("$ROOT/apps/plugins/snake2.levels", "$temp_dir/rocks/games/snake2.levels"); # snake2 levels
         copy("$ROOT/apps/plugins/rockbox-fonts.config", "$temp_dir/rocks/viewers/");
-        # picross files
-        copy("$ROOT/apps/plugins/picross_default.picross", "$temp_dir/rocks/games/picross_default.picross");
-        copy("$ROOT/apps/plugins/bitmaps/native/picross_numbers.bmp",
-             "$temp_dir/rocks/games/picross_numbers.bmp");
     }
 
     if(-e "$temp_dir/rocks/demos/pictureflow.rock") {
@@ -592,7 +556,7 @@ sub buildzip {
         if( filesize("rombox.ucl") > 1000) {
             copy("rombox.ucl", "$temp_dir/rombox.ucl");  # UCL for flashing
         }
-
+        
         # Check for rombox.target
         if ($image=~/(.*)\.(\w+)$/)
         {
@@ -632,16 +596,20 @@ sub buildzip {
     else {
         print STDERR "No wps module present, can't do the WPS magic!\n";
     }
-
+    
     # until buildwps.pl is fixed, manually copy the classic_statusbar theme across
     mkdir "$temp_dir/wps/classic_statusbar", 0777;
     glob_copy("$ROOT/wps/classic_statusbar/*.bmp", "$temp_dir/wps/classic_statusbar");
-    if ($depth == 16) {
-        copy("$ROOT/wps/classic_statusbar.sbs", "$temp_dir/wps");
-    } elsif ($depth > 1) {
-        copy("$ROOT/wps/classic_statusbar.grey.sbs", "$temp_dir/wps/classic_statusbar.sbs");
+    if ($swcodec) {
+        if ($depth == 16) {
+            copy("$ROOT/wps/classic_statusbar.sbs", "$temp_dir/wps");
+        } elsif ($depth > 1) {
+            copy("$ROOT/wps/classic_statusbar.grey.sbs", "$temp_dir/wps/classic_statusbar.sbs");
+        } else {
+            copy("$ROOT/wps/classic_statusbar.mono.sbs", "$temp_dir/wps/classic_statusbar.sbs");
+        }
     } else {
-        copy("$ROOT/wps/classic_statusbar.mono.sbs", "$temp_dir/wps/classic_statusbar.sbs");
+        copy("$ROOT/wps/classic_statusbar.112x64x1.sbs", "$temp_dir/wps/classic_statusbar.sbs");
     }
     if ($remote_depth != $depth) {
         copy("$ROOT/wps/classic_statusbar.mono.sbs", "$temp_dir/wps/classic_statusbar.rsbs");
@@ -654,15 +622,8 @@ sub buildzip {
     copy("rockbox-info.txt", "$temp_dir/rockbox-info.txt");
 
     # copy the already built lng files
-    glob_copy('apps/lang/*.lng', "$temp_dir/langs/");
+    glob_copy('apps/lang/*lng', "$temp_dir/langs/");
     glob_copy('apps/lang/*.zip', "$temp_dir/langs/");
-    # Copy over the Invalid Language fallback stuff
-    glob_copy("$ROOT/apps/lang/Invalid*.talk", "$temp_dir/langs/");
-
-    # Copy over any generated voice/talk clips
-    glob_copy('Invalid*.talk', "$temp_dir/langs/");
-    glob_copy('*.lng.talk', "$temp_dir/langs/");
-    glob_copy('*.voice', "$temp_dir/langs/");
 
     # copy the .lua files
     glob_mkdir("$temp_dir/rocks/viewers/lua/");
@@ -730,8 +691,14 @@ sub runone {
 
 if(!$exe) {
     # not specified, guess!
-   if($target =~ /iriver/i) {
+    if($target =~ /(recorder|ondio)/i) {
+        $exe = "ajbrec.ajz";
+    }
+    elsif($target =~ /iriver/i) {
         $exe = "rockbox.iriver";
+    }
+    else {
+        $exe = "archos.mod";
     }
 }
 elsif(($exe =~ /rockboxui/)) {

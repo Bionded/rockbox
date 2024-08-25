@@ -732,12 +732,11 @@ public:
     QIcon GetIcon(IconType it);
 
 protected:
-    QIcon GetFallbackIcon(IconType it);
+    void Render(IconType type);
 
     static YIconManager *m_singleton; // single instance
-    QIcon m_icon[MaxIcon]; /* cache icons */
+    QIcon m_icon[MaxIcon]; /* list add icon */
     QString m_icon_name[MaxIcon]; /* icon name from theme */
-    QStyle::StandardPixmap m_icon_fallback[MaxIcon]; /* icon from style */
 };
 
 class Misc

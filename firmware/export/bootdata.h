@@ -22,7 +22,6 @@
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
-#include "system.h"
 #endif
 
 /* /!\ This file can be included in assembly files /!\ */
@@ -37,7 +36,6 @@
 
 #define BOOT_DATA_MAGIC0    ('r' | 'b' << 8 | 'm' << 16 | 'a' << 24)
 #define BOOT_DATA_MAGIC1    ('g' | 'i' << 8 | 'c' << 16 | '!' << 24)
-#define BOOT_DATA_VERSION   1
 
 /* maximum size of payload */
 #define BOOT_DATA_PAYLOAD_SIZE  4
@@ -59,10 +57,7 @@ struct boot_data_t
     {
         struct
         {
-            uint8_t _boot_volume; /* IGNORED */
-            uint8_t version;
-            uint8_t boot_drive;
-            uint8_t boot_partition;
+            uint8_t boot_volume;
         };
         uint8_t payload[BOOT_DATA_PAYLOAD_SIZE];
     };
@@ -70,9 +65,6 @@ struct boot_data_t
 
 #if !defined(BOOTLOADER)
 extern struct boot_data_t boot_data;
-extern bool boot_data_valid;
-
-void verify_boot_data(void) INIT_ATTR;
 #endif
 #else /* __ASSEMBLER__ */
 
@@ -84,9 +76,7 @@ boot_data:
     .word   BOOT_DATA_MAGIC0
     .word   BOOT_DATA_MAGIC1
     .word   BOOT_DATA_PAYLOAD_SIZE
-    .byte   0xff                /* boot volume */
-    .byte   BOOT_DATA_VERSION   /* maximum supported boot protocol version */
-    .space  (BOOT_DATA_PAYLOAD_SIZE - 2), 0xff  /* remainder of payload */
+    .space  BOOT_DATA_PAYLOAD_SIZE, 0xff /* payload, initialised with value 0xff */
 .endm
 
 #endif

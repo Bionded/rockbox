@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-    .syntax unified
 
 #if CONFIG_CPU == PP5002
     /* Causes ATA retries on iPod G3 probably related to improper controller
@@ -140,9 +139,9 @@ copy_read_sectors:
 .r_end2_u:
 
     tst     r1, #1              /* one halfword left? */
-    ldrhne  r4, [r2]
+    ldrneh  r4, [r2]
     orrne   r3, r3, r4, lsl #8
-    strhne  r3, [r0], #2
+    strneh  r3, [r0], #2
     movne   r3, r4, lsr #8
 
     strb    r3, [r0], #1        /* store final byte */
@@ -152,8 +151,8 @@ copy_read_sectors:
     /* 16-bit aligned */
 .r_aligned:
     tst     r0, #2              /* 32 bit aligned? */
-    ldrhne  r3, [r2]            /* no: read first halfword */
-    strhne  r3, [r0], #2        /*     store */
+    ldrneh  r3, [r2]            /* no: read first halfword */
+    strneh  r3, [r0], #2        /*     store */
     subne   r1, r1, #1          /*     one halfword taken */
 
     sub     r1, r1, #8          /* adjust for zero-check and doing 8 halfwords/loop */
@@ -187,14 +186,14 @@ copy_read_sectors:
 .r_end4_a:
 
     tst     r1, #2              /* 2 or more halfwords left? */
-    ldrhne  r3, [r2]
-    ldrhne  r4, [r2]
+    ldrneh  r3, [r2]
+    ldrneh  r4, [r2]
     orrne   r3, r3, r4, lsl #16
     strne   r3, [r0], #4
 
     tst     r1, #1              /* one halfword left? */
-    ldrhne  r3, [r2]
-    strhne  r3, [r0], #2
+    ldrneh  r3, [r2]
+    strneh  r3, [r0], #2
 
     ldmpc   regs=r4-r5
 
@@ -292,9 +291,9 @@ copy_write_sectors:
 .w_end2_u:
 
     tst     r1, #1              /* one halfword left? */
-    ldrhne  r4, [r0], #2
+    ldrneh  r4, [r0], #2
     orrne   r3, r3, r4, lsl #8
-    strhne  r3, [r2]
+    strneh  r3, [r2]
     movne   r3, r3, lsr #16
     
     ldrb    r4, [r0], #1        /* load final byte */
@@ -306,8 +305,8 @@ copy_write_sectors:
     /* 16-bit aligned */
 .w_aligned:
     tst     r0, #2              /* 32 bit aligned? */
-    ldrhne  r3, [r0], #2        /* no: load first halfword */
-    strhne  r3, [r2]            /*     write */
+    ldrneh  r3, [r0], #2        /* no: load first halfword */
+    strneh  r3, [r2]            /*     write */
     subne   r1, r1, #1          /*     one halfword taken */
 
     sub     r1, r1, #8          /* adjust for zero-check and doing 8 halfwords/loop */
@@ -342,13 +341,13 @@ copy_write_sectors:
 
     tst     r1, #2              /* 2 or more halfwords left? */
     ldrne   r3, [r0], #4
-    strhne  r3, [r2]
+    strneh  r3, [r2]
     movne   r3, r3, lsr #16
-    strhne  r3, [r2]
+    strneh  r3, [r2]
 
     tst     r1, #1              /* one halfword left? */
-    ldrhne  r3, [r0], #2
-    strhne  r3, [r2]
+    ldrneh  r3, [r0], #2
+    strneh  r3, [r2]
 
     ldmpc   regs=r4-r5
 

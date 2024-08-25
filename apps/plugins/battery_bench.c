@@ -24,17 +24,47 @@
 #include "plugin.h"
 #include "lang_enum.h"
 
-#define BATTERY_LOG HOME_DIR "/battery_bench.txt"
+
+#define BATTERY_LOG  HOME_DIR"/battery_bench.txt"
 #define BUF_SIZE 16000
 
 #define EV_EXIT 1337
 
-/* seems to work with 1300, but who knows... */
-#define THREAD_STACK_SIZE 4*DEFAULT_STACK_SIZE
+/* seems to work with 1300, but who knows... */ 
+#define THREAD_STACK_SIZE DEFAULT_STACK_SIZE + 0x200
 
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+
+#define BATTERY_ON BUTTON_PLAY
+#define BATTERY_OFF BUTTON_OFF
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "OFF"
+
+#if BUTTON_REMOTE != 0
+#define BATTERY_RC_ON BUTTON_RC_PLAY
+#define BATTERY_RC_OFF BUTTON_RC_STOP
+#endif
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+
+#define BATTERY_ON BUTTON_RIGHT
+#define BATTERY_OFF BUTTON_OFF
+#define BATTERY_ON_TXT  "RIGHT - start"
+#define BATTERY_OFF_TXT "OFF"
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+
+#define BATTERY_ON BUTTON_PLAY
+#define BATTERY_OFF BUTTON_STOP
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "STOP"
+
+#define BATTERY_RC_ON BUTTON_RC_PLAY
+#define BATTERY_RC_OFF BUTTON_RC_STOP
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
-
+      
 #define BATTERY_ON BUTTON_ON
 #define BATTERY_RC_ON BUTTON_RC_ON
 
@@ -53,13 +83,19 @@
 #define BATTERY_ON_TXT  "PLAY - start"
 #define BATTERY_OFF_TXT "MENU"
 
-#elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD || \
-      CONFIG_KEYPAD == AGPTEK_ROCKER_PAD
+#elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 
 #define BATTERY_ON  BUTTON_SELECT
 #define BATTERY_OFF BUTTON_POWER
 #define BATTERY_ON_TXT  "SELECT - start"
 #define BATTERY_OFF_TXT "POWER"
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+
+#define BATTERY_ON  BUTTON_SELECT
+#define BATTERY_OFF BUTTON_PLAY
+#define BATTERY_ON_TXT  "SELECT - start"
+#define BATTERY_OFF_TXT "PLAY"
 
 #elif (CONFIG_KEYPAD == SANSA_E200_PAD) || \
       (CONFIG_KEYPAD == SANSA_C200_PAD) || \
@@ -76,16 +112,7 @@
 #define BATTERY_ON_TXT  "SELECT - start"
 #define BATTERY_OFF_TXT "HOME"
 
-#elif (CONFIG_KEYPAD == IRIVER_H10_PAD ||	\
-       CONFIG_KEYPAD == CREATIVE_ZENXFI3_PAD || \
-       CONFIG_KEYPAD == SONY_NWZ_PAD || \
-       CONFIG_KEYPAD == XDUOO_X3_PAD || \
-       CONFIG_KEYPAD == IHIFI_770_PAD || \
-       CONFIG_KEYPAD == IHIFI_800_PAD || \
-       CONFIG_KEYPAD == XDUOO_X3II_PAD || \
-       CONFIG_KEYPAD == XDUOO_X20_PAD || \
-       CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD || \
-       CONFIG_KEYPAD == EROSQ_PAD)
+#elif CONFIG_KEYPAD == IRIVER_H10_PAD
 
 #define BATTERY_ON  BUTTON_PLAY
 #define BATTERY_OFF BUTTON_POWER
@@ -134,6 +161,13 @@
 #define BATTERY_OFF BUTTON_POWER
 #define BATTERY_OFF_TXT "POWER"
 
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+
+#define BATTERY_OFF BUTTON_POWER
+#define BATTERY_OFF_TXT "POWER"
+#define BATTERY_ON BUTTON_PLAY
+#define BATTERY_ON_TXT  "PLAY - start"
+
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define BATTERY_ON BUTTON_PLAY
 #define BATTERY_ON_TXT  "PLAY - start"
@@ -172,7 +206,7 @@
 
 #elif (CONFIG_KEYPAD == SAMSUNG_YH820_PAD) || \
       (CONFIG_KEYPAD == SAMSUNG_YH92X_PAD)
-
+      
 #define BATTERY_ON      BUTTON_LEFT
 #define BATTERY_OFF     BUTTON_RIGHT
 #define BATTERY_ON_TXT  "LEFT"
@@ -209,12 +243,24 @@
 #define BATTERY_ON_TXT  "SELECT - start"
 #define BATTERY_OFF_TXT "POWER"
 
+#elif CONFIG_KEYPAD == CREATIVE_ZENXFI3_PAD
+#define BATTERY_ON BUTTON_PLAY
+#define BATTERY_OFF BUTTON_POWER
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "POWER"
+
 #elif (CONFIG_KEYPAD == HM60X_PAD) || (CONFIG_KEYPAD == HM801_PAD)
 #define BATTERY_ON BUTTON_SELECT
 #define BATTERY_OFF BUTTON_POWER
 #define BATTERY_ON_TXT  "SELECT - start"
 
 #define BATTERY_OFF_TXT "POWER"
+
+#elif CONFIG_KEYPAD == SONY_NWZ_PAD
+#define BATTERY_ON BUTTON_PLAY
+#define BATTERY_OFF BUTTON_POWER
+#define BATTERY_ON_TXT "PLAY - start"
+#define BATTERY_OFF_TXT "Power"
 
 #elif CONFIG_KEYPAD == DX50_PAD
 #define BATTERY_ON      BUTTON_PLAY
@@ -228,21 +274,35 @@
 #define BATTERY_OFF_TXT "Power"
 #define BATTERY_ON_TXT  "Menu - start"
 
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
+#elif CONFIG_KEYPAD == AGPTEK_ROCKER_PAD
+#define BATTERY_ON      BUTTON_LEFT
+#define BATTERY_OFF     BUTTON_RIGHT
+#define BATTERY_OFF_TXT "Right"
+#define BATTERY_ON_TXT  "Left - start"
+
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define BATTERY_ON      BUTTON_PLAY
 #define BATTERY_OFF     BUTTON_POWER
-#define BATTERY_ON_TXT  "Play"
-#define BATTERY_OFF_TXT "Power"
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "POWER"
 
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
+#define BATTERY_ON      BUTTON_PLAY
+#define BATTERY_OFF     BUTTON_POWER
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "POWER"
+
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
+#define BATTERY_ON      BUTTON_PLAY
+#define BATTERY_OFF     BUTTON_POWER
+#define BATTERY_ON_TXT  "PLAY - start"
+#define BATTERY_OFF_TXT "POWER"
 
 #else
-#error "No keymap defined!"
+#error No keymap defined!
 #endif
 
-#if defined(HAVE_TOUCHSCREEN)
-
+#ifdef HAVE_TOUCHSCREEN
 #ifndef BATTERY_ON
 #define BATTERY_ON       BUTTON_CENTER
 #endif
@@ -255,7 +315,6 @@
 #ifndef BATTERY_OFF_TXT
 #define BATTERY_OFF_TXT "TOPLEFT"
 #endif
-
 #endif
 
 /****************************** Plugin Entry Point ****************************/
@@ -268,36 +327,28 @@ static struct batt_info
      * a power of 2 */
     unsigned secs;
     int eta;
-    int voltage;
-#if CONFIG_BATTERY_MEASURE & CURRENT_MEASURE
-    int current;
-#endif
+    unsigned int voltage;
     short level;
     unsigned short flags;
 } bat[BUF_SIZE/sizeof(struct batt_info)];
 
 #define BUF_ELEMENTS    (sizeof(bat)/sizeof(struct batt_info))
 
-
-static struct
-{
-    unsigned int id; /* worker thread id */
-    long stack[THREAD_STACK_SIZE / sizeof(long)];
-} gThread;
-
+static unsigned int thread_id;
 static struct event_queue thread_q SHAREDBSS_ATTR;
 static bool in_usb_mode;
 static unsigned int buf_idx;
 
-static int exit_tsr(bool reenter)
+static bool exit_tsr(bool reenter)
 {
-    int exit_status;
     long button;
-
+    (void)reenter;
     rb->lcd_clear_display();
     rb->lcd_puts_scroll(0, 0, "Batt.Bench is currently running.");
     rb->lcd_puts_scroll(0, 1, "Press " BATTERY_OFF_TXT " to cancel the test");
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_puts_scroll(0, 2, "Anything else will resume");
+#endif
     if(rb->global_settings->talk_menu)
         rb->talk_id(VOICE_BATTERY_BENCH_IS_ALREADY_RUNNING, true);
     rb->lcd_update();
@@ -310,27 +361,23 @@ static int exit_tsr(bool reenter)
         if (button == BATTERY_OFF)
         {
             rb->queue_post(&thread_q, EV_EXIT, 0);
-            rb->thread_wait(gThread.id);
+            rb->thread_wait(thread_id);
             /* remove the thread's queue from the broadcast list */
             rb->queue_delete(&thread_q);
-            exit_status = (reenter ? PLUGIN_TSR_TERMINATE : PLUGIN_TSR_SUSPEND);
-            
+            return true;
         }
-        else exit_status = PLUGIN_TSR_CONTINUE;
-
-        break;
+        else return false;
     }
-    FOR_NB_SCREENS(idx)
-        rb->screens[idx]->scroll_stop();
-
-    return exit_status;
 }
 
 #define BIT_CHARGER     0x1
 #define BIT_CHARGING    0x2
 #define BIT_USB_POWER   0x4
 
-#define HMS(x) (x)/3600,((x)%3600)/60,((x)%3600)%60
+#define HMS(x) (x)/3600,((x)%3600)/60,((x)%3600)%60 
+
+/* use long for aligning */
+static unsigned long thread_stack[THREAD_STACK_SIZE/sizeof(long)];
 
 #if CONFIG_CHARGING || defined(HAVE_USB_POWER)
 static unsigned int charge_state(void)
@@ -372,9 +419,6 @@ static void flush_buffer(void)
         rb->fdprintf(fd,
                 "%02d:%02d:%02d,  %05d,     %03d%%,     "
                 "%02d:%02d,         %04d,   "
-#if CONFIG_BATTERY_MEASURE & CURRENT_MEASURE
-                "      %04d,   "
-#endif
 #if CONFIG_CHARGING
                 "  %c"
 #if CONFIG_CHARGING >= CHARGING_MONITOR
@@ -389,9 +433,6 @@ static void flush_buffer(void)
                 HMS(bat[i].secs), bat[i].secs, bat[i].level,
                 bat[i].eta / 60, bat[i].eta % 60,
                 bat[i].voltage
-#if CONFIG_BATTERY_MEASURE & CURRENT_MEASURE
-                , bat[i].current
-#endif
 #if CONFIG_CHARGING
                 , (bat[i].flags & BIT_CHARGER) ? 'A' : '-'
 #if CONFIG_CHARGING >= CHARGING_MONITOR
@@ -429,9 +470,6 @@ static void thread(void)
             bat[buf_idx].level = rb->battery_level();
             bat[buf_idx].eta = rb->battery_time();
             bat[buf_idx].voltage = rb->battery_voltage();
-#if CONFIG_BATTERY_MEASURE & CURRENT_MEASURE
-            bat[buf_idx].current = rb->battery_current();
-#endif
 #if CONFIG_CHARGING || defined(HAVE_USB_POWER)
             bat[buf_idx].flags = charge_state();
 #endif
@@ -440,7 +478,7 @@ static void thread(void)
             rb->register_storage_idle_func(flush_buffer);
 #endif
         }
-
+        
         /* What to do when the measurement buffer is full:
            1) save our measurements to disk but waste some power doing so?
            2) throw away measurements to save some power?
@@ -450,12 +488,12 @@ static void thread(void)
         if (buf_idx == BUF_ELEMENTS) {
             flush_buffer();
         }
-
+        
         /* sleep some time until next measurement */
         rb->queue_wait_w_tmo(&thread_q, &ev, sleep_time);
         switch (ev.id)
         {
-            case SYS_USB_CONNECTED:
+            case SYS_USB_CONNECTED: 
                 in_usb_mode = true;
                 rb->usb_acknowledge(SYS_USB_CONNECTED_ACK);
                 break;
@@ -463,12 +501,15 @@ static void thread(void)
                 in_usb_mode = false;
                 break;
             case SYS_POWEROFF:
-            case SYS_REBOOT:
                 exit_reason = "power off";
                 exit = true;
                 break;
             case EV_EXIT:
+#ifdef HAVE_LCD_BITMAP
                 rb->splash(HZ, "Exiting battery_bench...");
+#else
+                rb->splash(HZ, "bench exit");
+#endif
                 exit_reason = "plugin exit";
                 exit = true;
                 break;
@@ -481,7 +522,7 @@ static void thread(void)
 #else
     flush_buffer();
 #endif
-
+    
     /* log end of bench and exit reason */
     fd = rb->open(BATTERY_LOG, O_RDWR | O_CREAT | O_APPEND, 0666);
     if (fd >= 0)
@@ -492,6 +533,7 @@ static void thread(void)
 }
 
 
+#ifdef HAVE_LCD_BITMAP
 typedef void (*plcdfunc)(int x, int y, const unsigned char *str);
 
 static void put_centered_str(const char* str, plcdfunc putsxy, int lcd_width, int line)
@@ -500,32 +542,35 @@ static void put_centered_str(const char* str, plcdfunc putsxy, int lcd_width, in
     rb->lcd_getstringsize(str, &strwdt, &strhgt);
     putsxy((lcd_width - strwdt)/2, line*(strhgt), str);
 }
+#endif
 
 enum plugin_status plugin_start(const void* parameter)
 {
+    (void)parameter;
     int button, fd;
-    bool resume = false;
     bool on = false;
     start_tick = *rb->current_tick;
+#ifdef HAVE_LCD_BITMAP
     int i;
     const char *msgs[] = { "Battery Benchmark","Check file", BATTERY_LOG,
                            "for more info", BATTERY_ON_TXT, BATTERY_OFF_TXT " - quit" };
+#endif    
+    rb->lcd_clear_display();
 
-    if (parameter == rb->plugin_tsr)
-    {
-        resume = true;
-        on = true;
-    }
-
+#ifdef HAVE_LCD_BITMAP
     rb->lcd_clear_display();
     rb->lcd_setfont(FONT_SYSFIXED);
 
     for (i = 0; i<(int)(sizeof(msgs)/sizeof(char *)); i++)
         put_centered_str(msgs[i],rb->lcd_putsxy,LCD_WIDTH,i+1);
+#else
+    rb->lcd_puts_scroll(0, 0, "Batt.Bench.");
+    rb->lcd_puts_scroll(0, 1, "PLAY/STOP");
+#endif
     if(rb->global_settings->talk_menu)
         rb->talk_id(VOICE_BAT_BENCH_KEYS, true);
     rb->lcd_update();
-
+    
 #ifdef HAVE_REMOTE_LCD
     rb->lcd_remote_clear_display();
     put_centered_str(msgs[0],rb->lcd_remote_putsxy,LCD_REMOTE_WIDTH,0);
@@ -535,38 +580,36 @@ enum plugin_status plugin_start(const void* parameter)
                     rb->lcd_remote_putsxy,LCD_REMOTE_WIDTH,2);
     rb->lcd_remote_update();
 #endif
-    if (!resume)
+    
+    do
     {
-        do
+        button = rb->button_get(true);
+        switch (button)
         {
-            button = rb->button_get(true);
-            switch (button)
-            {
-                case BATTERY_ON:
-    #ifdef BATTERY_RC_ON
-                case BATTERY_RC_ON:
-    #endif
-                    on = true;
-                    break;
-                case BATTERY_OFF:
-    #ifdef BATTERY_RC_OFF
-                case BATTERY_RC_OFF:
-    #endif
-                    return PLUGIN_OK;
+            case BATTERY_ON:
+#ifdef BATTERY_RC_ON
+            case BATTERY_RC_ON:
+#endif                         
+                on = true;
+                break;        
+            case BATTERY_OFF: 
+#ifdef BATTERY_RC_OFF
+            case BATTERY_RC_OFF:
+#endif
+                return PLUGIN_OK;
 
-                default:
-                    if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
-                        return PLUGIN_USB_CONNECTED;
-            }
-        }while(!on);
-    }
+            default:
+                if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+                    return PLUGIN_USB_CONNECTED;
+        }
+    }while(!on);
+    
     fd = rb->open(BATTERY_LOG, O_RDONLY);
     if (fd < 0)
     {
         fd = rb->open(BATTERY_LOG, O_RDWR | O_CREAT, 0666);
         if (fd >= 0)
         {
-
             rb->fdprintf(fd,
                 "# This plugin will log your battery performance in a\n"
                 "# file (%s) every minute.\n"
@@ -588,21 +631,13 @@ enum plugin_status plugin_start(const void* parameter)
                 ,MODEL_NAME,rb->rbversion);
 
             rb->fdprintf(fd, "# Battery type: %d mAh      Buffer Entries: %d\n",
-#if BATTERY_CAPACITY_INC > 0
-                         rb->global_settings->battery_capacity,
-#else
-                         BATTERY_CAPACITY_DEFAULT,
-#endif
-                         (int)BUF_ELEMENTS);
+                rb->global_settings->battery_capacity, (int)BUF_ELEMENTS);
 
             rb->fdprintf(fd, "# Rockbox has been running for %02d:%02d:%02d\n",
                 HMS((unsigned)start_tick/HZ));
 
             rb->fdprintf(fd,
                 "# Time:,  Seconds:,  Level:,  Time Left:,  Voltage[mV]:"
-#if CONFIG_BATTERY_MEASURE & CURRENT_MEASURE
-                ", Current[mA]:"
-#endif
 #if CONFIG_CHARGING
                 ", C:"
 #endif
@@ -633,21 +668,18 @@ enum plugin_status plugin_start(const void* parameter)
             HMS((unsigned)start_tick/HZ));
         rb->close(fd);
     }
-
-    rb->memset(&gThread, 0, sizeof(gThread));
+    
     rb->queue_init(&thread_q, true); /* put the thread's queue in the bcast list */
-    gThread.id = rb->create_thread(thread, gThread.stack, sizeof(gThread.stack),
-                                   0, "Battery Benchmark"
-                                   IF_PRIO(, PRIORITY_BACKGROUND)
-                                   IF_COP(, CPU));
-
-    if (gThread.id == 0 || gThread.id == UINT_MAX)
+    if ((thread_id = rb->create_thread(thread, thread_stack,
+        sizeof(thread_stack), 0, "Battery Benchmark" 
+        IF_PRIO(, PRIORITY_BACKGROUND)
+        IF_COP(, CPU))) == 0)
     {
         rb->splash(HZ, "Cannot create thread!");
         return PLUGIN_ERROR;
     }
-
+            
     rb->plugin_tsr(exit_tsr);
-
+    
     return PLUGIN_OK;
 }

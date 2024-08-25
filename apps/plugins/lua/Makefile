@@ -28,8 +28,13 @@ OBJS = $(patsubst %.S, $(OBJDIR)/%.o, $(OBJS2))
 DIRS = .
 
 ifndef APP_TYPE
+ifneq (,$(strip $(foreach tgt,RECORDER ONDIO,$(findstring $(tgt),$(TARGET)))))
+    LDS := archos.lds
+    OUTPUT = $(OUTDIR)/lua.ovl
+else  ## iRiver/iPod/... targets
     LDS := ../plugin.lds
     OUTPUT = $(OUTDIR)/lua.rock
+endif
 else  ## simulators
     OUTPUT = $(OUTDIR)/lua.rock
 endif
@@ -50,7 +55,7 @@ ifdef APP_TYPE
 # This is the SDL simulator version
 
 $(OUTPUT): $(OBJS)
-	$(call PRINTS,LD $(@F))$(CC) $(CFLAGS) $(SHARED_LDFLAGS) $(OBJS) -L$(BUILDDIR) -lplugin -o $@
+	$(call PRINTS,LD $(@F))$(CC) $(CFLAGS) $(SHARED_LDFLAG) $(OBJS) -L$(BUILDDIR) -lplugin -o $@
 ifeq ($(findstring CYGWIN,$(UNAME)),CYGWIN)
 # 'x' must be kept or you'll have "Win32 error 5"
 #     $ fgrep 5 /usr/include/w32api/winerror.h | head -1

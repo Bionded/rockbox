@@ -75,7 +75,7 @@ static void encrypt_buffer(char *buf, size_t size, uint32_t *key);
 static void decrypt_buffer(char *buf, size_t size, uint32_t *key);
 
 /* the following two functions are the reference TEA implementation by
-   David Wheeler and Roger Needham taken from
+   David Wheeler and Roger Needham taken from 
    http://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm */
 
 static void do_encrypt(uint32_t* v, uint32_t* k)
@@ -104,13 +104,9 @@ static void do_decrypt(uint32_t* v, uint32_t* k)
     v[0]=v0; v[1]=v1;
 }
 
-static int context_item_cb(int action,
-                           const struct menu_item_ex *this_item,
-                           struct gui_synclist *this_list)
+static int context_item_cb(int action, const struct menu_item_ex *this_item)
 {
     int i = (intptr_t)this_item;
-    (void)this_list;
-
     if (action == ACTION_REQUEST_MENUITEM
         && pw_list.num_entries == 0
         && (i != 0 && i != 5))
@@ -196,12 +192,12 @@ static void add_entry(int selected_item)
 
     rb->splash(HZ, "Enter title");
     pw_list.entries[i].title[0] = '\0';
-    if (rb->kbd_input(pw_list.entries[i].title, FIELD_LEN, NULL) < 0)
+    if (rb->kbd_input(pw_list.entries[i].title, FIELD_LEN) < 0)
         return;
 
     rb->splash(HZ, "Enter name");
     pw_list.entries[i].name[0] = '\0';
-    if (rb->kbd_input(pw_list.entries[i].name, FIELD_LEN, NULL) < 0)
+    if (rb->kbd_input(pw_list.entries[i].name, FIELD_LEN) < 0)
     {
         pw_list.entries[i].title[0] = '\0';
         return;
@@ -209,7 +205,7 @@ static void add_entry(int selected_item)
 
     rb->splash(HZ, "Enter password");
     pw_list.entries[i].password[0] = '\0';
-    if (rb->kbd_input(pw_list.entries[i].password, FIELD_LEN, NULL) < 0)
+    if (rb->kbd_input(pw_list.entries[i].password, FIELD_LEN) < 0)
     {
         pw_list.entries[i].title[0] = '\0';
         pw_list.entries[i].name[0] = '\0';
@@ -244,7 +240,7 @@ static void edit_title(int selected_item)
         if (entry->next)
             entry = entry->next;
     }
-    if (rb->kbd_input(entry->title, FIELD_LEN, NULL) == 0)
+    if (rb->kbd_input(entry->title, FIELD_LEN) == 0)
         data_changed = true;
 }
 
@@ -257,7 +253,7 @@ static void edit_name(int selected_item)
         if (entry->next)
             entry = entry->next;
     }
-    if (rb->kbd_input(entry->name, FIELD_LEN, NULL) == 0)
+    if (rb->kbd_input(entry->name, FIELD_LEN) == 0)
         data_changed = true;
 }
 
@@ -270,7 +266,7 @@ static void edit_pw(int selected_item)
         if (entry->next)
             entry = entry->next;
     }
-    if (rb->kbd_input(entry->password, FIELD_LEN, NULL) == 0)
+    if (rb->kbd_input(entry->password, FIELD_LEN) == 0)
         data_changed = true;
 }
 
@@ -513,11 +509,11 @@ static int enter_pw(char *pw_buf, size_t buflen, bool new_pw)
     if (new_pw)
     {
         rb->splash(HZ, "Enter new master password");
-        if (rb->kbd_input(buf[0], sizeof(buf[0]), NULL) < 0)
+        if (rb->kbd_input(buf[0], sizeof(buf[0])) < 0)
             return -1;
 
         rb->splash(HZ, "Confirm master password");
-        if (rb->kbd_input(buf[1], sizeof(buf[1]), NULL) < 0)
+        if (rb->kbd_input(buf[1], sizeof(buf[1])) < 0)
             return -1;
 
         if (rb->strcmp(buf[0], buf[1]))
@@ -534,7 +530,7 @@ static int enter_pw(char *pw_buf, size_t buflen, bool new_pw)
     }
 
     rb->splash(HZ, "Enter master password");
-    if (rb->kbd_input(pw_buf, buflen, NULL) < 0)
+    if (rb->kbd_input(pw_buf, buflen) < 0)
         return -1;
     hash_pw(&pwhash);
     return 0;
@@ -567,7 +563,7 @@ static int keybox(void)
     {
         rb->gui_synclist_draw(&kb_list);
         button = rb->get_action(CONTEXT_LIST, TIMEOUT_BLOCK);
-        if (rb->gui_synclist_do_button(&kb_list, &button))
+        if (rb->gui_synclist_do_button(&kb_list, &button, LIST_WRAP_ON))
             continue;
 
         switch (button)
@@ -657,7 +653,9 @@ enum plugin_status plugin_start(const void *parameter)
     rb->gui_synclist_init(&kb_list, &kb_list_cb, NULL, false, 1, NULL);
 
     rb->gui_synclist_set_title(&kb_list, "Keybox", NOICON);
+    rb->gui_synclist_set_icon_callback(&kb_list, NULL);
     rb->gui_synclist_set_nb_items(&kb_list, 0);
+    rb->gui_synclist_limit_scroll(&kb_list, false);
     rb->gui_synclist_select_item(&kb_list, 0);
 
     init_ll();

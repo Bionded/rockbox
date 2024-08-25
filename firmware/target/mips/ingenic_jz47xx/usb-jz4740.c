@@ -75,7 +75,7 @@ static unsigned char ep0_rx_buf[64];
 static struct usb_endpoint endpoints[] =
 {
     { .type = ep_control,   .fifo_addr = USB_FIFO_EP0, .fifo_size = 64 },
-    { .type = ep_control,   .fifo_addr = USB_FIFO_EP0, .buf = ep0_rx_buf },
+    { .type = ep_control,   .fifo_addr = USB_FIFO_EP0, .buf = &ep0_rx_buf },
     { .type = ep_bulk,      .fifo_addr = USB_FIFO_EP1, .fifo_size = 512 },
     { .type = ep_bulk,      .fifo_addr = USB_FIFO_EP1, .fifo_size = 512 },
     { .type = ep_interrupt, .fifo_addr = USB_FIFO_EP2, .fifo_size = 64 },
@@ -193,7 +193,7 @@ static void EP0_send(void)
     if(ep->sent >= ep->length)
     {
         REG_USB_REG_CSR0 = (csr0 | USB_CSR0_INPKTRDY | USB_CSR0_DATAEND); /* Set data end! */
-        usb_core_transfer_complete(EP_CONTROL, USB_DIR_IN, 0, ep->sent);
+        usb_core_transfer_complete(0, USB_DIR_IN, 0, ep->sent);
         ep_transfer_completed(ep);
     }
     else
@@ -239,7 +239,7 @@ static void EP0_handler(void)
     {
         readFIFO(ep_recv, REG_USB_REG_COUNT0);
         REG_USB_REG_CSR0 = csr0 | USB_CSR0_SVDOUTPKTRDY; /* clear OUTPKTRDY bit */
-        usb_core_legacy_control_request((struct usb_ctrlrequest*)ep_recv->buf);
+        usb_core_control_request((struct usb_ctrlrequest*)ep_recv->buf);
     }
 }
 
@@ -274,7 +274,7 @@ static void EPIN_handler(unsigned int endpoint)
     }
 
     logf("EP%d: %d -> %d", endpoint, ep->sent, ep->length);
-
+    
     if(ep->sent == 0)
         length = MIN(ep->length, ep->fifo_size);
     else
@@ -364,6 +364,8 @@ static void EPDMA_handler(int number)
     {
         /* Disable DMA */
         REG_USB_REG_CNTL2 = 0;
+
+        __dcache_invalidate_all();
 
         select_endpoint(endpoint);
         /* Read out last packet manually */
@@ -705,7 +707,8 @@ static void usb_drv_send_internal(struct usb_endpoint* ep, void* ptr, int length
     {
         if(ep->use_dma)
         {
-            commit_discard_dcache_range(ptr, length);
+            //dma_cache_wback_inv((unsigned long)ptr, length);
+            __dcache_writeback_all();
             REG_USB_REG_ADDR1 = PHYSADDR((unsigned long)ptr);
             REG_USB_REG_COUNT1 = length;
             REG_USB_REG_CNTL1 = (USB_CNTL_INTR_EN | USB_CNTL_MODE_1 |
@@ -743,7 +746,7 @@ int usb_drv_send(int endpoint, void* ptr, int length)
     return 0;
 }
 
-int usb_drv_recv_nonblocking(int endpoint, void* ptr, int length)
+int usb_drv_recv(int endpoint, void* ptr, int length)
 {
     int flags;
     struct usb_endpoint *ep;
@@ -764,7 +767,8 @@ int usb_drv_recv_nonblocking(int endpoint, void* ptr, int length)
         ep->busy = true;
         if(ep->use_dma)
         {
-            discard_dcache_range(ptr, length);
+            //dma_cache_wback_inv((unsigned long)ptr, length);
+            __dcache_writeback_all();
             REG_USB_REG_ADDR2 = PHYSADDR((unsigned long)ptr);
             REG_USB_REG_COUNT2 = length;
             REG_USB_REG_CNTL2 = (USB_CNTL_INTR_EN | USB_CNTL_MODE_1 |

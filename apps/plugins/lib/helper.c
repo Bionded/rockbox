@@ -22,13 +22,20 @@
 #include "plugin.h"
 #include "helper.h"
 
-int talk_val(long n, int unit, bool enqueue)
-{
-    #define NODECIMALS 0
-    return rb->talk_value_decimal(n, unit, NODECIMALS, enqueue);
-}
+#ifdef CPU_SH
+/* Lookup table for using the BIT_N() macro in plugins */
+const unsigned bit_n_table[32] = {
+    1LU<< 0, 1LU<< 1, 1LU<< 2, 1LU<< 3,
+    1LU<< 4, 1LU<< 5, 1LU<< 6, 1LU<< 7,
+    1LU<< 8, 1LU<< 9, 1LU<<10, 1LU<<11,
+    1LU<<12, 1LU<<13, 1LU<<14, 1LU<<15,
+    1LU<<16, 1LU<<17, 1LU<<18, 1LU<<19,
+    1LU<<20, 1LU<<21, 1LU<<22, 1LU<<23,
+    1LU<<24, 1LU<<25, 1LU<<26, 1LU<<27,
+    1LU<<28, 1LU<<29, 1LU<<30, 1LU<<31
+};
+#endif
 
-#ifdef HAVE_BACKLIGHT
 /* Force the backlight on */
 void backlight_force_on(void)
 {
@@ -58,31 +65,6 @@ void backlight_use_settings(void)
                                       backlight_timeout_plugged);
 #endif /* CONFIG_CHARGING */
 }
-#else /* HAVE_BACKLIGHT */
-/* DUMMY FUNCTIONS */
-void backlight_force_on(void){}
-void backlight_ignore_timeout(void){}
-void backlight_use_settings(void){}
-#endif /* !HAVE_BACKLIGHT */
-
-#ifdef HAVE_SW_POWEROFF
-static bool original_sw_poweroff_state = true;
-
-void sw_poweroff_disable(void)
-{
-    original_sw_poweroff_state = rb->button_get_sw_poweroff_state();
-    rb->button_set_sw_poweroff_state(false);
-}
-
-void sw_poweroff_restore(void)
-{
-    rb->button_set_sw_poweroff_state(original_sw_poweroff_state);
-}
-#else /* HAVE_SW_POWEROFF */
-/* DUMMY FUNCTIONS */
-void sw_poweroff_disable(void){}
-void sw_poweroff_restore(void){}
-#endif /* !HAVE_SW_POWEROFF */
 
 #ifdef HAVE_REMOTE_LCD
 /*  Force the backlight on */
@@ -115,12 +97,7 @@ void remote_backlight_use_settings(void)
                                              remote_backlight_timeout_plugged);
 #endif /* CONFIG_CHARGING */
 }
-#else /* HAVE_REMOTE_LCD */
-/* DUMMY FUNCTIONS */
-void remote_backlight_force_on(void){}
-void remote_backlight_ignore_timeout(void){}
-void remote_backlight_use_settings(void){}
-#endif /* !HAVE_REMOTE_LCD */
+#endif /* HAVE_REMOTE_LCD */
 
 #ifdef HAVE_BUTTON_LIGHT
 /*  Force the buttonlight on */
@@ -147,13 +124,7 @@ void buttonlight_use_settings(void)
 {
     rb->buttonlight_set_timeout(rb->global_settings->buttonlight_timeout);
 }
-#else /* HAVE_BUTTON_LIGHT */
-/* DUMMY FUNCTIONS */
-void buttonlight_force_on(void){}
-void buttonlight_force_off(void){}
-void buttonlight_ignore_timeout(void){}
-void buttonlight_use_settings(void){}
-#endif /* !HAVE_BUTTON_LIGHT */
+#endif /* HAVE_BUTTON_LIGHT */
 
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
 void backlight_brightness_set(int brightness)
@@ -165,15 +136,7 @@ void backlight_brightness_use_setting(void)
 {
     rb->backlight_set_brightness(rb->global_settings->brightness);
 }
-#else /* HAVE_BACKLIGHT_BRIGHTNESS */
-/* DUMMY FUNCTIONS */
-void backlight_brightness_set(int brightness)
-{
-    (void)brightness;
-}
-void backlight_brightness_use_setting(void){}
-
-#endif /* !HAVE_BACKLIGHT_BRIGHTNESS */
+#endif /* HAVE_BACKLIGHT_BRIGHTNESS */
 
 #ifdef HAVE_BUTTONLIGHT_BRIGHTNESS
 void buttonlight_brightness_set(int brightness)
@@ -185,12 +148,4 @@ void buttonlight_brightness_use_setting(void)
 {
     rb->buttonlight_set_brightness(rb->global_settings->buttonlight_brightness);
 }
-#else /* HAVE_BUTTONLIGHT_BRIGHTNESS */
-/* DUMMY FUNCTIONS */
-void buttonlight_brightness_set(int brightness)
-{
-    (void)brightness;
-}
-
-void buttonlight_brightness_use_setting(void){}
-#endif /* !HAVE_BUTTONLIGHT_BRIGHTNESS */
+#endif /* HAVE_BUTTONLIGHT_BRIGHTNESS */

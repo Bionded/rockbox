@@ -20,14 +20,47 @@
 #include "plugin.h"
 #include "fixedpoint.h"
 #include "lib/playback_control.h"
-#include "lib/helper.h"
-#include "lib/pluginlib_exit.h"
 
 
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
-    (CONFIG_KEYPAD == IRIVER_H300_PAD)
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define VUMETER_QUIT BUTTON_OFF
+#define VUMETER_HELP BUTTON_ON
+#define VUMETER_MENU BUTTON_F1
+#define VUMETER_UP BUTTON_UP
+#define VUMETER_DOWN BUTTON_DOWN
+#define LABEL_HELP "ON"
+#define LABEL_QUIT "OFF"
+#define LABEL_MENU "F1"
+#define LABEL_VOLUME "UP/DOWN"
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define VUMETER_QUIT BUTTON_OFF
+#define VUMETER_HELP BUTTON_ON
+#define VUMETER_MENU BUTTON_F1
+#define VUMETER_UP BUTTON_UP
+#define VUMETER_DOWN BUTTON_DOWN
+#define LABEL_HELP "ON"
+#define LABEL_QUIT "OFF"
+#define LABEL_MENU "F1"
+#define LABEL_VOLUME "UP/DOWN"
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define VUMETER_QUIT BUTTON_OFF
+#define VUMETER_HELP_PRE BUTTON_MENU
+#define VUMETER_HELP (BUTTON_MENU | BUTTON_REL)
+#define VUMETER_MENU_PRE BUTTON_MENU
+#define VUMETER_MENU (BUTTON_MENU | BUTTON_REPEAT)
+#define VUMETER_UP BUTTON_UP
+#define VUMETER_DOWN BUTTON_DOWN
+#define LABEL_HELP "MODE"
+#define LABEL_QUIT "OFF"
+#define LABEL_MENU "MODE.."
+#define LABEL_VOLUME "UP/DOWN"
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+      (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define VUMETER_QUIT BUTTON_OFF
 #define VUMETER_HELP BUTTON_ON
 #define VUMETER_MENU BUTTON_SELECT
@@ -399,7 +432,7 @@
 #define LABEL_MENU      "PLAY"
 #define LABEL_VOLUME    "VOL UP/DN"
 
-#elif (CONFIG_KEYPAD == XDUOO_X3II_PAD) || (CONFIG_KEYPAD == XDUOO_X20_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_770_PAD)
 #define VUMETER_QUIT    BUTTON_POWER
 #define VUMETER_HELP    BUTTON_HOME
 #define VUMETER_MENU    BUTTON_PLAY
@@ -410,7 +443,7 @@
 #define LABEL_MENU      "PLAY"
 #define LABEL_VOLUME    "VOL UP/DN"
 
-#elif (CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD)
+#elif (CONFIG_KEYPAD == IHIFI_800_PAD)
 #define VUMETER_QUIT    BUTTON_POWER
 #define VUMETER_HELP    BUTTON_HOME
 #define VUMETER_MENU    BUTTON_PLAY
@@ -420,42 +453,6 @@
 #define LABEL_QUIT      "POWER"
 #define LABEL_MENU      "PLAY"
 #define LABEL_VOLUME    "VOL UP/DN"
-
-#elif (CONFIG_KEYPAD == IHIFI_770_PAD) || (CONFIG_KEYPAD == IHIFI_800_PAD)
-#define VUMETER_QUIT    BUTTON_POWER
-#define VUMETER_HELP    BUTTON_HOME
-#define VUMETER_MENU    BUTTON_PLAY
-#define VUMETER_UP      BUTTON_VOL_UP
-#define VUMETER_DOWN    BUTTON_VOL_DOWN
-#define LABEL_HELP      "HOME"
-#define LABEL_QUIT      "POWER"
-#define LABEL_MENU      "PLAY"
-#define LABEL_VOLUME    "VOL UP/DN"
-
-#elif (CONFIG_KEYPAD == EROSQ_PAD)
-#define VUMETER_QUIT    BUTTON_POWER
-#define VUMETER_HELP    BUTTON_BACK
-#define VUMETER_MENU    BUTTON_MENU
-#define VUMETER_UP      BUTTON_VOL_UP
-#define VUMETER_DOWN    BUTTON_VOL_DOWN
-#define LABEL_HELP      "BACK"
-#define LABEL_QUIT      "POWER"
-#define LABEL_MENU      "MENU"
-#define LABEL_VOLUME    "VOL UP/DN"
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define VUMETER_QUIT    BUTTON_POWER
-#define VUMETER_HELP    BUTTON_BACK
-#define VUMETER_MENU    BUTTON_MENU
-#define VUMETER_UP      BUTTON_VOL_UP
-#define VUMETER_DOWN    BUTTON_VOL_DOWN
-#define LABEL_HELP      "BACK"
-#define LABEL_QUIT      "POWER"
-#define LABEL_MENU      "MENU"
-#define LABEL_VOLUME    "VOL+/VOL-"
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -483,6 +480,10 @@
 #ifndef LABEL_VOLUME
 #define LABEL_VOLUME      "UP/DOWN"
 #endif
+#endif
+
+#if defined(SIMULATOR) && (CONFIG_CODEC != SWCODEC)
+#define mas_codec_readreg(x) rand()%MAX_PEAK
 #endif
 
 /* Defines x positions on a logarithmic (dBfs) scale. */
@@ -556,7 +557,7 @@ struct saved_settings {
     bool analog_minimeters;
     bool digital_minimeters;
     int analog_decay;
-    int digital_decay;
+    int digital_decay; 
 } vumeter_settings;
 
 static void reset_settings(void) {
@@ -566,7 +567,7 @@ static void reset_settings(void) {
     vumeter_settings.analog_minimeters=true;
     vumeter_settings.digital_minimeters=false;
     vumeter_settings.analog_decay=3;
-    vumeter_settings.digital_decay=0;
+    vumeter_settings.digital_decay=0; 
 }
 
 static void calc_scales(void)
@@ -644,11 +645,11 @@ static bool vu_meter_menu(void)
     int selection;
     bool menu_quit = false;
     bool exit = false;
-
+    
     MENUITEM_STRINGLIST(menu,"VU Meter Menu",NULL,"Meter Type","Scale",
                         "Minimeters","Decay Speed","Playback Control",
                         "Quit");
-
+    
     static const struct opt_items meter_type_option[2] = {
         { "Analog", -1 },
         { "Digital", -1 },
@@ -668,10 +669,10 @@ static bool vu_meter_menu(void)
         switch(rb->do_menu(&menu, &selection, NULL, false))
         {
             case 0:
-                rb->set_option("Meter Type", &vumeter_settings.meter_type, RB_INT,
+                rb->set_option("Meter Type", &vumeter_settings.meter_type, INT,
                                meter_type_option, 2, NULL);
                 break;
-
+                
             case 1:
                 if(vumeter_settings.meter_type==ANALOG)
                 {
@@ -684,7 +685,7 @@ static bool vu_meter_menu(void)
                                          "dBfs", -1, "Linear", -1, NULL);
                 }
                 break;
-
+                
             case 2:
                 if(vumeter_settings.meter_type==ANALOG)
                 {
@@ -697,16 +698,16 @@ static bool vu_meter_menu(void)
                                  &vumeter_settings.digital_minimeters);
                 }
                 break;
-
+                
             case 3:
                 if(vumeter_settings.meter_type==ANALOG)
                 {
-                    rb->set_option("Decay Speed", &vumeter_settings.analog_decay, RB_INT,
+                    rb->set_option("Decay Speed", &vumeter_settings.analog_decay, INT, 
                                decay_speed_option, 7, NULL);
                 }
                 else
                 {
-                    rb->set_option("Decay Speed", &vumeter_settings.digital_decay, RB_INT,
+                    rb->set_option("Decay Speed", &vumeter_settings.digital_decay, INT, 
                                decay_speed_option, 7, NULL);
                 }
                 break;
@@ -784,7 +785,7 @@ static void draw_digital_minimeters(void) {
     if(8<(num_right_leds))
         rb->lcd_mono_bitmap(sound_max_level, 46, half_height+8, 3, 8);
     rb->lcd_set_drawmode(DRMODE_SOLID);
-
+    
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(screen_foreground);
 #endif
@@ -792,11 +793,16 @@ static void draw_digital_minimeters(void) {
 
 static void analog_meter(void) {
 
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    int left_peak = rb->mas_codec_readreg(0xC);
+    int right_peak = rb->mas_codec_readreg(0xD);
+#elif (CONFIG_CODEC == SWCODEC)
     static struct pcm_peaks peaks;
     rb->mixer_channel_calculate_peaks(PCM_MIXER_CHAN_PLAYBACK,
                                       &peaks);
     #define left_peak peaks.left
     #define right_peak peaks.right
+#endif
 
     if(vumeter_settings.analog_use_db_scale) {
         left_needle_top_x = analog_db_scale[left_peak * half_width / MAX_PEAK];
@@ -847,11 +853,16 @@ static void analog_meter(void) {
 }
 
 static void digital_meter(void) {
+#if (CONFIG_CODEC == MAS3587F) || (CONFIG_CODEC == MAS3539F)
+    int left_peak = rb->mas_codec_readreg(0xC);
+    int right_peak = rb->mas_codec_readreg(0xD);
+#elif (CONFIG_CODEC == SWCODEC)
     static struct pcm_peaks peaks;
     rb->mixer_channel_calculate_peaks(PCM_MIXER_CHAN_PLAYBACK,
                                       &peaks);
     #define left_peak peaks.left
     #define right_peak peaks.right
+#endif
 
     if(vumeter_settings.digital_use_db_scale) {
         num_left_leds = digital_db_scale[left_peak * 44 / MAX_PEAK];
@@ -885,10 +896,10 @@ static void digital_meter(void) {
         rb->lcd_set_foreground(LCD_RGBPACK(255, 255 - 23 * i, 0));
 #endif
         rb->lcd_fillrect((digital_lead + (i*digital_block_width)),
-            (half_height + 20), digital_block_width - digital_block_gap,
+            (half_height + 20), digital_block_width - digital_block_gap, 
             digital_block_height);
     }
-
+    
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(screen_foreground);
 #endif
@@ -912,12 +923,6 @@ static void digital_meter(void) {
     rb->lcd_hline(0,LCD_WIDTH-1,half_height+3);
 }
 
-static void vu_meter_cleanup(void)
-{
-    /* Turn on backlight timeout (revert to settings) */
-    backlight_use_settings();
-}
-
 enum plugin_status plugin_start(const void* parameter) {
     int button;
 #if defined(VUMETER_HELP_PRE) || defined(VUMETER_MENU_PRE)
@@ -928,16 +933,11 @@ enum plugin_status plugin_start(const void* parameter) {
 
     calc_scales();
 
-    atexit(vu_meter_cleanup);
-
     load_settings();
     rb->lcd_setfont(FONT_SYSFIXED);
 #ifdef HAVE_LCD_COLOR
     screen_foreground = rb->lcd_get_foreground();
 #endif
-
-     /* Turn off backlight timeout */
-    backlight_ignore_timeout();
 
     while (1)
     {

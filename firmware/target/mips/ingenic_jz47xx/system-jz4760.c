@@ -18,7 +18,7 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-
+ 
 #include "config.h"
 #include "cpu.h"
 #include "mips.h"
@@ -27,11 +27,6 @@
 #include "system.h"
 #include "kernel.h"
 #include "power.h"
-
-#define HW_UDELAY_TIMER 3
-#ifdef BOOTLOADER
-#define WITH_SERIAL
-#endif
 
 static int irq;
 static void UIRQ(void)
@@ -90,20 +85,19 @@ intr(GPIO187);intr(GPIO188);intr(GPIO189);intr(GPIO190);intr(GPIO191);
 
 static void (* const irqvector[])(void) =
 {
-    // @0
     I2C1,I2C0,UART3,UART2,UART1,UART0,GPU,SSI1,
     SSI0,TSSI,UIRQ,KBC,UIRQ,UIRQ,UIRQ,UIRQ,
     UIRQ,UIRQ,SADC,ETH,UHC,OTG,UIRQ,UIRQ,
     UIRQ,TCU2,TCU1,TCU0,GPS,IPU,CIM,LCD,
-    // @32
-    RTC,OWI,AIC,MSC2,MSC1,MSC0,SCC,BCH,
-    PCM,HARB0,HARB2,AOSD,CPM,  // end of HW IRQs, everything else is SW
-    // @45
-    UIRQ,DMA0,DMA1,DMA2,DMA3,DMA4,DMA5,
-    DMA6,DMA7,DMA8,DMA9,DMA10,DMA11,MDMA0,MDMA1,
-    MDMA2,BDMA0,BDMA1,BDMA2,
-    // @64
-    GPIO0,GPIO1,GPIO2,GPIO3,GPIO4,GPIO5,GPIO6,GPIO7,
+
+    RTC,OWI,AIC,MSC2,MSC1,MSC0,SCC,BCH, // 32
+    PCM,HARB0,HARB2,AOSD,CPM,UIRQ,
+
+    DMA0,DMA1,DMA2,DMA3,DMA4,DMA5,DMA6,DMA7, // 46
+    DMA8,DMA9,DMA10,DMA11,MDMA0,MDMA1,MDMA2,BDMA0,
+    BDMA1,BDMA2,
+
+    GPIO0,GPIO1,GPIO2,GPIO3,GPIO4,GPIO5,GPIO6,GPIO7, // 64
     GPIO8,GPIO9,GPIO10,GPIO11,GPIO12,GPIO13,GPIO14,GPIO15,
     GPIO16,GPIO17,GPIO18,GPIO19,GPIO20,GPIO21,GPIO22,GPIO23,
     GPIO24,GPIO25,GPIO26,GPIO27,GPIO28,GPIO29,GPIO30,GPIO31,
@@ -247,19 +241,22 @@ static int get_irq_number(void)
     if (UNLIKELY(irq0 < 0) && UNLIKELY(irq1 < 0))
         return -1;
 
-    // Prioritze DMA0 (audio) and TCU0 (systick), then everything on ipl1 (ie MSC mostly)
-    if (ipl0 & 1<<IRQ_DMAC0) {
-        irq = IRQ_DMAC0;
-        ipl0 &= ~(1<<IRQ_DMAC0);
-    } else if (ipl0 & 1<<IRQ_TCU0) {
-        irq = IRQ_TCU0;
-        ipl0 &= ~(1<<IRQ_TCU0);
-    } else if (ipl1) {
-        irq = irq1 + 32;
-        ipl1 &= ~(1<<irq1);
-    } else {
-        irq = irq0;
-        ipl0 &= ~(1<<irq0);
+    if (!(ipl0 & 3)) {
+        if (ipl0) {
+            irq = irq0;
+            ipl0 &= ~(1<<irq0);
+        } else {
+            irq = irq1 + 32;
+            ipl1 &= ~(1<<irq1);
+        }
+    } else  {
+        if (ipl0 & 2) {
+            irq = 1;
+            ipl0 &= ~(1<<irq);
+        } else {
+            irq = 0;
+            ipl0 &= ~(1<<irq);
+        }
     }
 
     switch (irq)
@@ -289,49 +286,55 @@ static int get_irq_number(void)
 
 void intr_handler(void)
 {
-    register int irq;
-top:
-    irq = get_irq_number();
+    register int irq = get_irq_number();
     if(UNLIKELY(irq < 0))
         return;
-
+    
     ack_irq(irq);
     if(LIKELY(irq >= 0))
         irqvector[irq]();
-    goto top;
 }
 
-#ifdef HW_UDELAY_TIMER
-/* This enables the HW timer, set to EXT_XTAL / 4 (so @ 12/4 = 3MHz, 1 us = 3 ticks) */
-static void init_delaytimer(void)
+#define EXC(x,y) case (x): return (y);
+static char* parse_exception(unsigned int cause)
 {
-    __tcu_stop_counter(HW_UDELAY_TIMER);
-    __tcu_disable_pwm_output(HW_UDELAY_TIMER);
-    __tcu_select_extalclk(HW_UDELAY_TIMER);
-    __tcu_clear_half_match_flag(HW_UDELAY_TIMER);
-    __tcu_clear_full_match_flag(HW_UDELAY_TIMER);
-    __tcu_mask_half_match_irq(HW_UDELAY_TIMER);
-    __tcu_mask_full_match_irq(HW_UDELAY_TIMER);
-    __tcu_select_clk_div4(HW_UDELAY_TIMER);
-    REG_TCU_TCNT(HW_UDELAY_TIMER) = 0;
-    REG_TCU_TDFR(HW_UDELAY_TIMER) = 0xffff;  /* wraps at 21.845ms */
-    __tcu_start_counter(HW_UDELAY_TIMER);
+    switch(cause & M_CauseExcCode)
+    {
+        EXC(EXC_INT, "Interrupt");
+        EXC(EXC_MOD, "TLB Modified");
+        EXC(EXC_TLBL, "TLB Exception (Load or Ifetch)");
+        EXC(EXC_ADEL, "Address Error (Load or Ifetch)");
+        EXC(EXC_ADES, "Address Error (Store)");
+        EXC(EXC_TLBS, "TLB Exception (Store)");
+        EXC(EXC_IBE, "Instruction Bus Error");
+        EXC(EXC_DBE, "Data Bus Error");
+        EXC(EXC_SYS, "Syscall");
+        EXC(EXC_BP, "Breakpoint");
+        EXC(EXC_RI, "Reserved Instruction");
+        EXC(EXC_CPU, "Coprocessor Unusable");
+        EXC(EXC_OV, "Overflow");
+        EXC(EXC_TR, "Trap Instruction");
+        EXC(EXC_FPE, "Floating Point Exception");
+        EXC(EXC_C2E, "COP2 Exception");
+        EXC(EXC_MDMX, "MDMX Exception");
+        EXC(EXC_WATCH, "Watch Exception");
+        EXC(EXC_MCHECK, "Machine Check Exception");
+        EXC(EXC_CacheErr, "Cache error caused re-entry to Debug Mode");
+        default:
+            return NULL;
+    }
 }
 
-void udelay(unsigned int usec) /* Must be under 21845 us! */
+void exception_handler(void* stack_ptr, unsigned int cause, unsigned int epc)
 {
-    if (!__tcu_counter_enabled(HW_UDELAY_TIMER))
-	init_delaytimer();
-
-    unsigned short start = REG_TCU_TCNT(HW_UDELAY_TIMER);
-
-    /* Figure out how many ticks we need */
-    usec = (CFG_EXTAL / (4 * 1000 * 1000)) * (usec + 1);
-
-    while (((REG_TCU_TCNT(HW_UDELAY_TIMER) - start) & 0xffff) < usec) { }
-    // while (start + usec < REG_TCU_TCNT(HW_UDELAY_TIMER)) { };
+    panicf("Exception occurred: %s [0x%08x] at 0x%08x (stack at 0x%08x)", parse_exception(cause), read_c0_badvaddr(), epc, (unsigned int)stack_ptr);
 }
-#else
+
+void tlb_refill_handler(void)
+{
+    panicf("TLB refill handler at 0x%08lx! [0x%x]", read_c0_epc(), read_c0_badvaddr());
+}
+
 void udelay(unsigned int usec)
 {
     unsigned int i = usec * (__cpm_get_cclk() / 2000000);
@@ -345,7 +348,6 @@ void udelay(unsigned int usec)
                           : "0" (i)
                           );
 }
-#endif
 
 void mdelay(unsigned int msec)
 {
@@ -360,40 +362,42 @@ static inline unsigned int pll_calc_m_n_od(unsigned int speed, unsigned int xtal
 	const int pll_m_max = 0x7f, pll_m_min = 4;
 	const int pll_n_max = 0x0f, pll_n_min = 2;
 
-	unsigned char od[] = {1, 2, 4, 8};
+	int od[] = {1, 2, 4, 8};
 
 	unsigned int plcr_m_n_od = 0;
 	unsigned int distance;
-	unsigned int tmp;
+	unsigned int tmp, raw;
 
 	int i, j, k;
 	int m, n;
 
 	distance = 0xFFFFFFFF;
 
-	for (i = 0; i < (int)sizeof(od); i++) {
+	for (i = 0; i < (int)sizeof (od) / (int)sizeof(int); i++) {
 		/* Limit: 500MHZ <= CLK_OUT * OD <= 1500MHZ */
 		if ((speed * od[i]) < 500 * MHZ || (speed * od[i]) > 1500 * MHZ)
 			continue;
 		for (k = pll_n_min; k <= pll_n_max; k++) {
 			n = k;
-
+			
 			/* Limit: 1MHZ <= XIN/N <= 50MHZ */
 			if ((xtal / n) < (1 * MHZ))
 				break;
-			if ((xtal / n) > (50 * MHZ))
+			if ((xtal / n) > (15 * MHZ))
 				continue;
 
 			for (j = pll_m_min; j <= pll_m_max; j++) {
 				m = j*2;
 
-				tmp = xtal * m / (n * od[i]);
+				raw = xtal * m / n;
+				tmp = raw / od[i];
+
 				tmp = (tmp > speed) ? (tmp - speed) : (speed - tmp);
 
 				if (tmp < distance) {
 					distance = tmp;
-
-					plcr_m_n_od = (j << CPPCR0_PLLM_LSB)
+					
+					plcr_m_n_od = (j << CPPCR0_PLLM_LSB) 
 						| (k << CPPCR0_PLLN_LSB)
 						| (i << CPPCR0_PLLOD_LSB);
 
@@ -415,63 +419,58 @@ static inline unsigned int pll_calc_m_n_od(unsigned int speed, unsigned int xtal
 static void pll0_init(unsigned int freq)
 {
     register unsigned int cfcr, plcr1;
-    int usbdiv, offset;
+    int n2FR[9] = {
+        0, 0, 1, 2, 3, 0, 4, 0, 5
+    };
 
     /** divisors,
      *  for jz4760b,I:H:H2:P:M:S.
      *  DIV should be one of [1, 2, 3, 4, 6, 8]
      */
-    const int div[2][6] = { { 1, 2, 2, 2, 2, 2 },
-			    { 1, 4, 4, 4, 4, 4 } };
-    const int n2FR[9] = {
-        0, 0, 1, 2, 3, 0, 4, 0, 5
-    };
+    int div[6] = {1, 4, 4, 4, 4, 4};
+    int usbdiv;
 
-    /* @ CPU_FREQ of 576/192MHz, this means:
-              CCLK  (= HCLK*n, H2CLK*n, PCLK*o)
-        96MHz HCLK  (= MCLK or 2x MCLK, PCLK*n)
-        96MHz H2CLK (= HCLK or HCLK/2, PCLK*n)
-        96MHz PCLK
-        96MHz MCLK  (= PCLK*n)
-        96MHZ SCLK  (= H2CLK or HCLK/2)
-    */
+    /* set ahb **/
+    REG32(HARB0_BASE) = 0x00300000;
+    REG32(0xb3070048) = 0x00000000;
+    REG32(HARB2_BASE) = 0x00FFFFFF;
+	
+    cfcr = CPCCR_PCS |
+        (n2FR[div[0]] << CPCCR_CDIV_LSB) |
+        (n2FR[div[1]] << CPCCR_HDIV_LSB) |
+        (n2FR[div[2]] << CPCCR_H2DIV_LSB) |
+        (n2FR[div[3]] << CPCCR_PDIV_LSB) |
+        (n2FR[div[4]] << CPCCR_MDIV_LSB) |
+        (n2FR[div[5]] << CPCCR_SDIV_LSB);
 
-    if (freq > CPUFREQ_NORMAL)
-	    offset = 1;
-    else
-	    offset = 0;
-
-    cfcr = CPCCR_PCS | // no divisor on PLL for peripherals
-        (n2FR[div[offset][0]] << CPCCR_CDIV_LSB) |
-        (n2FR[div[offset][1]] << CPCCR_HDIV_LSB) |
-        (n2FR[div[offset][2]] << CPCCR_H2DIV_LSB) |
-        (n2FR[div[offset][3]] << CPCCR_PDIV_LSB) |
-        (n2FR[div[offset][4]] << CPCCR_MDIV_LSB) |
-        (n2FR[div[offset][5]] << CPCCR_SDIV_LSB);
+    // write REG_DDRC_CTRL 8 times to clear ddr fifo
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
+    REG_DDRC_CTRL = 0;
 
     if (CFG_EXTAL > 16000000)
         cfcr |= CPCCR_ECS;
     else
         cfcr &= ~CPCCR_ECS;
 
-    cfcr &= ~CPCCR_MEM; /* Use mobile DDR / SDRAM */
+    cfcr &= ~CPCCR_MEM; /* mddr */
     cfcr |= CPCCR_CE;
 
     plcr1 = pll_calc_m_n_od(freq, CFG_EXTAL);
     plcr1 |= (0x20 << CPPCR0_PLLST_LSB)  /* PLL stable time */
              | CPPCR0_PLLEN;             /* enable PLL */
-
+	
     /*
-     * Init USB Host clock, PLL0 must be multiple of 48MHz!
+     * Init USB Host clock, pllout2 must be n*48MHz
+     * For JZ4760b UHC - River.
      */
-    usbdiv = (cfcr & CPCCR_PCS) ? freq : (freq / 2);
+    usbdiv = (cfcr & CPCCR_PCS) ? CPU_FREQ : (CPU_FREQ / 2);
     REG_CPM_UHCCDR = usbdiv / 48000000 - 1;
-
-    /* Init MSC clock; shoot for 48MHz base clock. */
-    REG_CPM_MSCCDR = MSCCDR_MCS | ((freq / 48000000) - 1);
-
-    /* Clock LCD clock as low as possible here */
-    __cpm_set_pixdiv(2048 -1);
 
     /* init PLL */
     REG_CPM_CPCCR = cfcr;
@@ -489,6 +488,7 @@ void pll1_init(unsigned int freq)
 {
     register unsigned int plcr2;
 
+    /* set CPM_CPCCR_MEM only for ddr1 or ddr2 */
     plcr2 = pll_calc_m_n_od(freq, CFG_EXTAL)
             | CPPCR1_PLL1EN;            /* enable PLL1 */
 
@@ -503,12 +503,6 @@ void pll1_init(unsigned int freq)
     REG_CPM_CPPCR1 &= ~CPPCR1_LOCK;
 }
 
-void pll1_disable(void)
-{
-    REG_CPM_CPPCR1 &= ~CPPCR1_PLL1EN;
-}
-
-#ifdef WITH_SERIAL
 static void serial_setbrg(void)
 {
     volatile u8 *uart_lcr = (volatile u8 *)(CFG_UART_BASE + OFF_LCR);
@@ -533,7 +527,7 @@ static void serial_setbrg(void)
     *uart_lcr = tmp;
 }
 
-static int serial_preinit(void)
+int serial_preinit(void)
 {
     volatile u8 *uart_fcr = (volatile u8 *)(CFG_UART_BASE + OFF_FCR);
     volatile u8 *uart_lcr = (volatile u8 *)(CFG_UART_BASE + OFF_LCR);
@@ -554,22 +548,17 @@ static int serial_preinit(void)
 
     /* Set databits, stopbits and parity. (8-bit data, 1 stopbit, no parity) */
     *uart_lcr = UARTLCR_WLEN_8 | UARTLCR_STOP1;
-
+	
     /* Set baud rate */
     serial_setbrg();
-
+	
     /* Enable UART unit, enable and clear FIFO */
     *uart_fcr = UARTFCR_UUE | UARTFCR_FE | UARTFCR_TFLS | UARTFCR_RFLS;
 
     return 0;
 }
-#endif
 
-#ifndef HAVE_ADJUSTABLE_CPU_FREQ
-#define cpu_frequency CPU_FREQ
-#endif
-
-static void usb_preinit(void)
+void usb_preinit(void)
 {
     /* Clear ECS bit of CPCCR, 0:clock source is EXCLK, 1:clock source is EXCLK/2 */
     REG_CPM_CPCCR &= ~CPCCR_ECS;
@@ -589,7 +578,7 @@ static void usb_preinit(void)
     REG_CPM_USBVBFIL = 0x80;
 
     /* rdt */
-    REG_CPM_USBRDT = (600 * (CPUFREQ_DEFAULT / 1000000)) / 1000;
+    REG_CPM_USBRDT = (600 * (CPU_FREQ / 1000000)) / 1000;
 
     /* rdt - filload_en */
     REG_CPM_USBRDT |= (1 << 25);
@@ -621,7 +610,7 @@ static void usb_preinit(void)
     udelay(300);
 }
 
-static void dma_preinit(void)
+void dma_preinit(void)
 {
     __cpm_start_mdma();
     __cpm_start_dmac();
@@ -629,57 +618,30 @@ static void dma_preinit(void)
     REG_MDMAC_DMACKES = 0x1;
 
     REG_DMAC_DMACR(DMA_AIC_TX_CHANNEL) = DMAC_DMACR_DMAE | DMAC_DMACR_FAIC;
-    REG_DMAC_DMACR(DMA_SD_RX_CHANNEL(0)) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
-    REG_DMAC_DMACR(DMA_SD_RX_CHANNEL(1)) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
-    REG_DMAC_DMACR(DMA_SD_TX_CHANNEL(0)) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
-    REG_DMAC_DMACR(DMA_SD_TX_CHANNEL(1)) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
+    REG_DMAC_DMACR(DMA_SD_RX_CHANNEL) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
+    REG_DMAC_DMACR(DMA_SD_TX_CHANNEL) = DMAC_DMACR_DMAE | DMAC_DMACR_FMSC;
 }
 
 /* Gets called *before* main */
-void ICODE_ATTR system_early_init(void)
+void ICODE_ATTR system_main(void)
 {
     int i;
-
-    commit_discard_idcache();
-
+       
+    __dcache_writeback_all();
+    __icache_invalidate_all();
+    
     write_c0_status(1 << 28 | 1 << 10 ); /* Enable CP | Mask interrupt 2 */
 
     /* Disable all interrupts */
     for(i=0; i<IRQ_INTC_MAX; i++)
         dis_irq(i);
 
-#ifdef HW_UDELAY_TIMER
-    init_delaytimer();
-#endif
-
     mmu_init();
 
-    /* set ahb arbitrators */
-    REG32(HARB0_BASE) = 0x00300000; /* HARB0_PRIOR [bridge, cim, lcd, ipu] */
-    REG32(0xb3070048) = 0x00000000; /* Not documented! */
-    REG32(HARB2_BASE) = 0x00FFFFFF; /* HARB2_PRIOR [p0b, gps, uhc],[eth, dma, p1br, otg] */
+    pll0_init(CPU_FREQ);
+    pll1_init(CPU_FREQ);
 
-    /* write REG_DDRC_CTRL 8 times to clear ddr fifo */
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-    REG_DDRC_CTRL = 0;
-
-    pll0_init(CPUFREQ_DEFAULT); // PLL0 drives everything but audio
-    pll1_disable();             // Leave PLL1 disabled until audio needs it
-
-    /* Make sure UARTs are off */
-    __cpm_stop_uart0();
-    __cpm_stop_uart1();
-    __cpm_stop_uart2();
-#ifdef WITH_SERIAL
     serial_preinit();
-#endif
-
     usb_preinit();
     dma_preinit();
 
@@ -704,14 +666,14 @@ void system_exception_wait(void)
     {
         if( (~REG_GPIO_PXPIN(0)) & (1 << 30) )
             return;
-        asm volatile("ssnop");
+        asm volatile("nop");
     }
 }
 
 void power_off(void)
 {
     REG_CPM_RSR = 0x0;
-
+	
     /* Set minimum wakeup_n pin low-level assertion time for wakeup: 100ms */
     rtc_write_reg(RTC_HWFCR, HWFCR_WAIT_TIME(1000));
 
@@ -743,14 +705,6 @@ int system_memory_guard(int newmode)
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
 void set_cpu_frequency(long frequency)
 {
-   if (frequency == cpu_frequency)
-       return;
-   else if (frequency < CPUFREQ_MIN)
-       frequency = CPUFREQ_MIN;
-   else if (frequency > CPUFREQ_MAX)
-       frequency = CPUFREQ_MAX;
-
-   pll0_init(frequency);
-   cpu_frequency = __cpm_get_pllout2();
+    serial_putsf("set_cpu_frequency: %d\n", frequency);
 }
 #endif

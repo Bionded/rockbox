@@ -6,7 +6,8 @@ UFO will appear -- shoot this for extra points.
 
 \begin{btnmap}
     %
-    \opt{SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
+    \opt{RECORDER_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
+    \opt{ONDIO_PAD}{\ButtonMenu}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IPOD_4G_PAD,IPOD_3G_PAD,IAUDIO_X5_PAD%
         ,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD%
         ,GIGABEAT_S_PAD,MROBE100_PAD,SANSA_FUZEPLUS_PAD}
@@ -18,19 +19,19 @@ UFO will appear -- shoot this for extra points.
        \opt{HAVEREMOTEKEYMAP}{& }
     & Shoot\\
     %
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
+    \opt{RECORDER_PAD,ONDIO_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
         ,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD%
         ,GIGABEAT_S_PAD,MROBE100_PAD,PBELL_VIBE500_PAD,SANSA_FUZEPLUS_PAD%
         ,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}
         {\ButtonUp}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonRight}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonMenu}
     \opt{IRIVER_H10_PAD}{\ButtonScrollUp}
     \opt{COWON_D2_PAD}{\TouchTopMiddle}
     \opt{MPIO_HD300_PAD}{\ButtonRec}
        \opt{HAVEREMOTEKEYMAP}{& }
     & Thrust\\
     %
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
+    \opt{RECORDER_PAD,ONDIO_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
         ,IRIVER_H10_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD,GIGABEAT_S_PAD,MROBE100_PAD%
         ,PBELL_VIBE500_PAD,SANSA_FUZEPLUS_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}
         {\ButtonLeft / \ButtonRight}
@@ -40,12 +41,12 @@ UFO will appear -- shoot this for extra points.
        \opt{HAVEREMOTEKEYMAP}{& }
     & Turn left/right\\
     %
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
+    \opt{RECORDER_PAD,ONDIO_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
         ,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,GIGABEAT_PAD%
         ,GIGABEAT_S_PAD,MROBE100_PAD,PBELL_VIBE500_PAD,SAMSUNG_YH92X_PAD%
         ,SAMSUNG_YH820_PAD}
         {\ButtonDown}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonLeft}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonPlay}
     \opt{IRIVER_H10_PAD}{\ButtonScrollDown}
     \opt{COWON_D2_PAD}{\TouchTopRight}
     \opt{MPIO_HD300_PAD}{Long \ButtonPlay}
@@ -53,10 +54,12 @@ UFO will appear -- shoot this for extra points.
        \opt{HAVEREMOTEKEYMAP}{& }
     & Teleport\\
     %
+    \opt{RECORDER_PAD}{\ButtonOn}
+    \opt{ONDIO_PAD}{\ButtonMenu+\ButtonOff}
     \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,SANSA_E200_PAD,SANSA_C200_PAD}{\ButtonRec}
     \opt{SANSA_CLIP_PAD}{\ButtonHome}
     \opt{SANSA_FUZE_PAD}{\ButtonSelect+\ButtonUp}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonPlay}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect+\ButtonPlay}
     \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,GIGABEAT_S_PAD,PBELL_VIBE500_PAD%
         ,MPIO_HD300_PAD,SANSA_FUZEPLUS_PAD}{\ButtonPlay}
     \opt{GIGABEAT_PAD}{\ButtonA}
@@ -66,8 +69,8 @@ UFO will appear -- shoot this for extra points.
        \opt{HAVEREMOTEKEYMAP}{& }
     & Pause game\\
     %
-    \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
-    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonMenu}
+    \opt{RECORDER_PAD,ONDIO_PAD,IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
+    \opt{IPOD_4G_PAD,IPOD_3G_PAD}{\ButtonSelect+\ButtonMenu}
     \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,SANSA_E200_PAD,GIGABEAT_PAD,MROBE100_PAD%
         ,SANSA_C200_PAD,SANSA_CLIP_PAD,COWON_D2_PAD,SANSA_FUZEPLUS_PAD}{\ButtonPower}
     \opt{SANSA_FUZE_PAD}{Long \ButtonHome}

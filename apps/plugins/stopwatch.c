@@ -23,7 +23,11 @@
 
 
 
+#ifdef HAVE_LCD_BITMAP
 #define TIMER_Y 1
+#else
+#define TIMER_Y 0
+#endif
 
 #define LAP_Y TIMER_Y+1
 #define MAX_LAPS 64
@@ -31,7 +35,39 @@
 #define STOPWATCH_FILE PLUGIN_APPS_DATA_DIR "/stopwatch.dat"
 
 /* variable button definitions */
-#if (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
+#if CONFIG_KEYPAD == RECORDER_PAD
+#define STOPWATCH_QUIT BUTTON_OFF
+#define STOPWATCH_START_STOP BUTTON_PLAY
+#define STOPWATCH_RESET_TIMER BUTTON_LEFT
+#define STOPWATCH_LAP_TIMER BUTTON_ON
+#define STOPWATCH_SCROLL_UP BUTTON_UP
+#define STOPWATCH_SCROLL_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ARCHOS_AV300_PAD
+#define STOPWATCH_QUIT BUTTON_OFF
+#define STOPWATCH_START_STOP BUTTON_SELECT
+#define STOPWATCH_RESET_TIMER BUTTON_LEFT
+#define STOPWATCH_LAP_TIMER BUTTON_ON
+#define STOPWATCH_SCROLL_UP BUTTON_UP
+#define STOPWATCH_SCROLL_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == ONDIO_PAD
+#define STOPWATCH_QUIT BUTTON_OFF
+#define STOPWATCH_START_STOP BUTTON_RIGHT
+#define STOPWATCH_RESET_TIMER BUTTON_LEFT
+#define STOPWATCH_LAP_TIMER BUTTON_MENU
+#define STOPWATCH_SCROLL_UP BUTTON_UP
+#define STOPWATCH_SCROLL_DOWN BUTTON_DOWN
+
+#elif CONFIG_KEYPAD == PLAYER_PAD
+#define STOPWATCH_QUIT BUTTON_MENU
+#define STOPWATCH_START_STOP BUTTON_PLAY
+#define STOPWATCH_RESET_TIMER BUTTON_STOP
+#define STOPWATCH_LAP_TIMER BUTTON_ON
+#define STOPWATCH_SCROLL_UP BUTTON_RIGHT
+#define STOPWATCH_SCROLL_DOWN BUTTON_LEFT
+
+#elif (CONFIG_KEYPAD == IRIVER_H100_PAD) || \
       (CONFIG_KEYPAD == IRIVER_H300_PAD)
 #define STOPWATCH_QUIT BUTTON_OFF
 #define STOPWATCH_START_STOP BUTTON_SELECT
@@ -50,6 +86,14 @@
 #define STOPWATCH_LAP_TIMER BUTTON_RIGHT
 #define STOPWATCH_SCROLL_UP BUTTON_SCROLL_FWD
 #define STOPWATCH_SCROLL_DOWN BUTTON_SCROLL_BACK
+
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+#define STOPWATCH_QUIT BUTTON_PLAY
+#define STOPWATCH_START_STOP BUTTON_MODE
+#define STOPWATCH_RESET_TIMER BUTTON_EQ
+#define STOPWATCH_LAP_TIMER BUTTON_SELECT
+#define STOPWATCH_SCROLL_UP BUTTON_UP
+#define STOPWATCH_SCROLL_DOWN BUTTON_DOWN
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define STOPWATCH_QUIT BUTTON_POWER
@@ -124,6 +168,15 @@
 
 #elif CONFIG_KEYPAD == COWON_D2_PAD
 #define STOPWATCH_QUIT BUTTON_POWER
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define STOPWATCH_QUIT BUTTON_MENU
+#define STOPWATCH_START_STOP BUTTON_PLAY
+#define STOPWATCH_RESET_TIMER BUTTON_STOP
+#define STOPWATCH_LAP_TIMER BUTTON_LEFT
+#define STOPWATCH_SCROLL_UP BUTTON_VOLUP
+#define STOPWATCH_SCROLL_DOWN BUTTON_VOLDOWN
+#define STOPWATCH_RC_QUIT BUTTON_POWER
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define STOPWATCH_QUIT BUTTON_BACK
@@ -260,7 +313,7 @@
 #define STOPWATCH_SCROLL_UP      BUTTON_UP
 #define STOPWATCH_SCROLL_DOWN    BUTTON_DOWN
 
-#elif CONFIG_KEYPAD == XDUOO_X3_PAD || CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == XDUOO_X3_PAD
 #define STOPWATCH_QUIT           BUTTON_POWER
 #define STOPWATCH_START_STOP     BUTTON_NEXT
 #define STOPWATCH_RESET_TIMER    BUTTON_PREV
@@ -268,15 +321,7 @@
 #define STOPWATCH_SCROLL_UP      BUTTON_HOME
 #define STOPWATCH_SCROLL_DOWN    BUTTON_OPTION
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
-#define STOPWATCH_QUIT           BUTTON_POWER
-#define STOPWATCH_START_STOP     BUTTON_NEXT
-#define STOPWATCH_RESET_TIMER    BUTTON_PREV
-#define STOPWATCH_LAP_TIMER      BUTTON_PLAY
-#define STOPWATCH_SCROLL_UP      BUTTON_HOME
-#define STOPWATCH_SCROLL_DOWN    BUTTON_OPTION
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define STOPWATCH_QUIT           BUTTON_POWER
 #define STOPWATCH_START_STOP     BUTTON_NEXT
 #define STOPWATCH_RESET_TIMER    BUTTON_PREV
@@ -284,21 +329,13 @@
 #define STOPWATCH_SCROLL_UP      BUTTON_VOL_UP
 #define STOPWATCH_SCROLL_DOWN    BUTTON_VOL_DOWN
 
-#elif CONFIG_KEYPAD == EROSQ_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define STOPWATCH_QUIT           BUTTON_POWER
-#define STOPWATCH_START_STOP     BUTTON_PLAY
-#define STOPWATCH_RESET_TIMER    BUTTON_BACK
-#define STOPWATCH_LAP_TIMER      BUTTON_MENU
-#define STOPWATCH_SCROLL_UP      BUTTON_SCROLL_FWD
-#define STOPWATCH_SCROLL_DOWN    BUTTON_SCROLL_BACK
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define STOPWATCH_QUIT          BUTTON_POWER
-#define STOPWATCH_START_STOP    BUTTON_PLAY
-#define STOPWATCH_RESET_TIMER   BUTTON_BACK
-#define STOPWATCH_LAP_TIMER     BUTTON_SELECT
-#define STOPWATCH_SCROLL_UP     BUTTON_SCROLL_BACK
-#define STOPWATCH_SCROLL_DOWN   BUTTON_SCROLL_FWD
+#define STOPWATCH_START_STOP     BUTTON_NEXT
+#define STOPWATCH_RESET_TIMER    BUTTON_PREV
+#define STOPWATCH_LAP_TIMER      BUTTON_PLAY
+#define STOPWATCH_SCROLL_UP      BUTTON_VOL_UP
+#define STOPWATCH_SCROLL_DOWN    BUTTON_VOL_DOWN
 
 #else
 #error No keymap defined!
@@ -380,24 +417,24 @@ static void ticks_to_string(int ticks,int lap,int buflen, char * buf)
     }
 }
 
-/*
+/* 
  * Load saved stopwatch state, if exists.
  */
 static void load_stopwatch(void)
 {
     int fd;
-
+    
     fd = rb->open(STOPWATCH_FILE, O_RDONLY);
-
+    
     if (fd < 0)
     {
         return;
     }
-
+    
     /* variable stopwatch isn't saved/loaded, because it is only used
      * temporarily in main loop
      */
-
+    
     rb->read(fd, &start_at, sizeof(start_at));
     rb->read(fd, &prev_total, sizeof(prev_total));
     rb->read(fd, &counting, sizeof(counting));
@@ -405,7 +442,7 @@ static void load_stopwatch(void)
     rb->read(fd, &lap_scroll, sizeof(lap_scroll));
     rb->read(fd, &lap_start, sizeof(lap_start));
     rb->read(fd, lap_times, sizeof(lap_times));
-
+    
     if (counting && start_at > *rb->current_tick)
     {
         /* Stopwatch started in the future? Unlikely; probably started on a
@@ -416,28 +453,28 @@ static void load_stopwatch(void)
         start_at = 0;
         counting = false;
     }
-
+    
     rb->close(fd);
 }
 
-/*
+/* 
  * Save stopwatch state.
  */
 static void save_stopwatch(void)
 {
     int fd;
-
+    
     fd = rb->open(STOPWATCH_FILE, O_CREAT|O_WRONLY|O_TRUNC, 0666);
-
+    
     if (fd < 0)
     {
         return;
     }
-
+    
     /* variable stopwatch isn't saved/loaded, because it is only used
      * temporarily in main loop
      */
-
+    
     rb->write(fd, &start_at, sizeof(start_at));
     rb->write(fd, &prev_total, sizeof(prev_total));
     rb->write(fd, &counting, sizeof(counting));
@@ -445,7 +482,7 @@ static void save_stopwatch(void)
     rb->write(fd, &lap_scroll, sizeof(lap_scroll));
     rb->write(fd, &lap_start, sizeof(lap_start));
     rb->write(fd, lap_times, sizeof(lap_times));
-
+    
     rb->close(fd);
 }
 
@@ -460,15 +497,19 @@ enum plugin_status plugin_start(const void* parameter)
 
     (void)parameter;
 
+#ifdef HAVE_LCD_BITMAP
     int h;
     rb->lcd_setfont(FONT_UI);
     rb->lcd_getstringsize("M", NULL, &h);
     lines = (LCD_HEIGHT / h) - (LAP_Y);
+#else
+    lines = 1;
+#endif
 
     load_stopwatch();
-
+    
     rb->lcd_clear_display();
-
+    
     while (!done)
     {
         if (counting)

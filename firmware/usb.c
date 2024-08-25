@@ -41,23 +41,14 @@
 #endif
 #include "logf.h"
 #include "screendump.h"
-#include "powermgmt.h"
-
-#ifndef BOOTLOADER
-#include "misc.h"
-#include "gui/yesno.h"
-#include "settings.h"
-#include "lang_enum.h"
-#include "gui/skin_engine/skin_engine.h"
-#endif
 
 /* Conditions under which we want the entire driver */
-#if !defined(BOOTLOADER) || \
+#if !defined(BOOTLOADER) || (CONFIG_CPU == SH7034) || \
      (defined(HAVE_USBSTACK) && defined(HAVE_BOOTLOADER_USB_MODE)) || \
      (defined(HAVE_USBSTACK) && defined(IPOD_NANO2G)) || \
      (defined(HAVE_USBSTACK) && (defined(CREATIVE_ZVx))) || \
      (defined(HAVE_USBSTACK) && (defined(OLYMPUS_MROBE_500))) || \
-     defined(CPU_TCC780X) || \
+     defined(CPU_TCC77X) || defined(CPU_TCC780X) || \
      (CONFIG_USBOTG == USBOTG_JZ4740) || \
      (CONFIG_USBOTG == USBOTG_JZ4760)
 /* TODO: condition should be reset to be only the original
@@ -65,10 +56,9 @@
 #define USB_FULL_INIT
 #endif
 
-/* USB detect debouncing interval (200ms taken from the usb polling code) */
-#define USB_DEBOUNCE_TIME (200*HZ/1000)
-
+#ifdef HAVE_LCD_BITMAP
 bool do_screendump_instead_of_usb = false;
+#endif
 
 #if !defined(SIMULATOR) && !defined(USB_NONE)
 
@@ -80,10 +70,7 @@ static int usb_mmc_countdown = 0;
 
 /* Make sure there's enough stack space for screendump */
 #ifdef USB_FULL_INIT
-#ifndef USB_EXTRA_STACK
-#   define USB_EXTRA_STACK 0x0 /*Define in firmware/export/config/[target].h*/
-#endif
-static long usb_stack[(DEFAULT_STACK_SIZE*4 + DUMP_BMP_LINESIZE + USB_EXTRA_STACK)/sizeof(long)];
+static long usb_stack[(DEFAULT_STACK_SIZE + DUMP_BMP_LINESIZE)/sizeof(long)];
 static const char usb_thread_name[] = "usb";
 static unsigned int usb_thread_entry = 0;
 static bool usb_monitor_enabled = false;
@@ -99,8 +86,7 @@ static bool usb_host_present = false;
 static int usb_num_acks_to_expect = 0;
 static long usb_last_broadcast_tick = 0;
 #ifdef HAVE_USB_POWER
-static int usb_mode = USBMODE_DEFAULT;
-static int new_usbmode = USBMODE_DEFAULT;
+static bool usb_charging_only = false;
 #endif
 
 static int usb_release_exclusive_storage(void);
@@ -130,6 +116,7 @@ static void try_reboot(void)
 #endif /* USB_FIRWIRE_HANDLING */
 
 /* Screen dump */
+#ifdef HAVE_LCD_BITMAP
 static inline bool usb_do_screendump(void)
 {
     if(do_screendump_instead_of_usb)
@@ -142,16 +129,19 @@ static inline bool usb_do_screendump(void)
     }
     return false;
 }
+#endif /* HAVE_LCD_BITMAP */
 
-#ifdef HAVE_USB_POWER
-void usb_set_mode(int mode)
+/* Power (charging-only) button */
+static inline void usb_detect_charging_only(bool detect)
 {
-    usb_mode = mode;
-#if defined(DX50) || defined(DX90)
-    ibasso_set_usb_mode(mode);
+#ifdef HAVE_USB_POWER
+    if (detect)
+        detect = button_status() & ~USBPOWER_BTN_IGNORE;
+
+    usb_charging_only = detect;
 #endif
+    (void)detect;
 }
-#endif
 
 #ifdef USB_FIREWIRE_HANDLING
 static inline bool usb_reboot_button(void)
@@ -212,7 +202,7 @@ static inline bool usb_configure_drivers(int for_state)
         usb_attach(); /* Powered only: attach now. */
         break;
         /* USB_POWERED: */
-
+    
     case USB_INSERTED:
 #ifdef USB_ENABLE_STORAGE
         usb_core_enable_driver(USB_DRIVER_MASS_STORAGE, true);
@@ -383,7 +373,7 @@ static void usb_set_host_present(bool present)
     }
 
 #ifdef HAVE_USB_POWER
-    if (new_usbmode == USB_MODE_CHARGE || new_usbmode == USB_MODE_ADB)
+    if (usb_charging_only)
     {
         /* Only charging is desired */
         usb_configure_drivers(USB_POWERED);
@@ -440,8 +430,6 @@ static void NORETURN_ATTR usb_thread(void)
     {
         queue_wait(&usb_queue, &ev);
 
-        reset_poweroff_timer(); /* Any USB event counts */
-
         switch(ev.id)
         {
         /*** Main USB thread duties ***/
@@ -470,37 +458,18 @@ static void NORETURN_ATTR usb_thread(void)
             if(usb_state != USB_EXTRACTED)
                 break;
 
+#ifdef HAVE_LCD_BITMAP
             if(usb_do_screendump())
             {
                 usb_state = USB_SCREENDUMP;
                 break;
             }
+#endif
 
             usb_state = USB_POWERED;
-
             usb_stack_enable(true);
-#ifndef BOOTLOADER
-#ifndef HAVE_USB_POWER
-            int usb_mode = -1;
-#endif
-            send_event(SYS_EVENT_USB_INSERTED, &usb_mode);
-#endif
-            /* Power (charging-only) button */
-#ifdef HAVE_USB_POWER
-            new_usbmode = usb_mode;
-            switch (usb_mode) {
-            case USB_MODE_CHARGE:
-            case USB_MODE_ADB:
-                if (button_status() & ~USBPOWER_BTN_IGNORE)
-                    new_usbmode = USB_MODE_MASS_STORAGE;
-                break;
-            default:
-            case USB_MODE_MASS_STORAGE:
-                if (button_status() & ~USBPOWER_BTN_IGNORE)
-                    new_usbmode = USB_MODE_CHARGE;
-                break;
-	    }
-#endif
+
+            usb_detect_charging_only(true);
 
 #ifndef USB_DETECT_BY_REQUEST
             usb_set_host_present(true);
@@ -527,12 +496,8 @@ static void NORETURN_ATTR usb_thread(void)
                 usb_slave_mode(false);
 
             usb_state = USB_EXTRACTED;
-#ifdef HAVE_USB_POWER
-	    new_usbmode = usb_mode;
-#endif
-#ifndef BOOTLOADER
-            send_event(SYS_EVENT_USB_EXTRACTED, NULL);
-#endif
+
+            usb_detect_charging_only(false);
             usb_set_host_present(false);
             break;
             /* USB_EXTRACTED: */
@@ -583,33 +548,8 @@ void usb_charger_update(void)
 #endif
 
 #ifdef USB_STATUS_BY_EVENT
-static int usb_status_tmo_callback(struct timeout* tmo)
-{
-    if(usb_monitor_enabled)
-    {
-        int current_status = usb_detect();
-        int* last_status = (int*)tmo->data;
-
-        if(current_status != *last_status)
-        {
-            /* Signal changed during the timeout; wait longer */
-            *last_status = current_status;
-            return USB_DEBOUNCE_TIME;
-        }
-
-        /* Signal is stable, post the event. The thread will deal with
-         * any spurious transitions (like inserted -> inserted). */
-        queue_post(&usb_queue, current_status, 0);
-    }
-
-    return 0;
-}
-
 void usb_status_event(int current_status)
 {
-    static struct timeout tmo;
-    static int last_status = USB_EXTRACTED;
-
     /* Caller isn't expected to filter for changes in status.
      * current_status:
      *   USB_INSERTED, USB_EXTRACTED
@@ -617,9 +557,8 @@ void usb_status_event(int current_status)
     if(usb_monitor_enabled)
     {
         int oldstatus = disable_irq_save(); /* Dual-use function */
-        last_status = current_status;
-        timeout_register(&tmo, usb_status_tmo_callback, USB_DEBOUNCE_TIME,
-                         (intptr_t)&last_status);
+        queue_remove_from_head(&usb_queue, current_status);
+        queue_post(&usb_queue, current_status, 0);
         restore_irq(oldstatus);
     }
 }
@@ -655,12 +594,13 @@ void usb_firewire_connect_event(void)
 
 static void usb_tick(void)
 {
+    #define NUM_POLL_READINGS (HZ/5)
     static int usb_countdown = -1;
     static int last_usb_status = USB_EXTRACTED;
 #ifdef USB_FIREWIRE_HANDLING
     static int firewire_countdown = -1;
     static int last_firewire_status = false;
-#endif
+#endif    
 
     if(usb_monitor_enabled)
     {
@@ -669,7 +609,7 @@ static void usb_tick(void)
         if(current_firewire_status != last_firewire_status)
         {
             last_firewire_status = current_firewire_status;
-            firewire_countdown = USB_DEBOUNCE_TIME;
+            firewire_countdown = NUM_POLL_READINGS;
         }
         else
         {
@@ -677,7 +617,8 @@ static void usb_tick(void)
             if(firewire_countdown >= 0)
                 firewire_countdown--;
 
-            /* Report status when the signal has been stable long enough */
+            /* Report to the thread if we have had 3 identical status
+               readings in a row */
             if(firewire_countdown == 0)
             {
                 queue_post(&usb_queue, USB_REQUEST_REBOOT, 0);
@@ -691,7 +632,7 @@ static void usb_tick(void)
         if(current_status != last_usb_status)
         {
             last_usb_status = current_status;
-            usb_countdown = USB_DEBOUNCE_TIME;
+            usb_countdown = NUM_POLL_READINGS;
         }
         else
         {
@@ -699,7 +640,8 @@ static void usb_tick(void)
             if(usb_countdown >= 0)
                 usb_countdown--;
 
-            /* Report status when the signal has been stable long enough */
+            /* Report to the thread if we have had 3 identical status
+               readings in a row */
             if(usb_countdown == 0)
             {
                 queue_post(&usb_queue, current_status, 0);
@@ -829,6 +771,13 @@ int usb_release_exclusive_storage(void)
     return bccount;
 }
 
+#ifdef HAVE_USB_POWER
+bool usb_powered_only(void)
+{
+    return usb_state == USB_POWERED;
+}
+#endif /* HAVE_USB_POWER */
+
 #ifdef USB_ENABLE_HID
 void usb_set_hid(bool enable)
 {
@@ -836,13 +785,6 @@ void usb_set_hid(bool enable)
     usb_core_enable_driver(USB_DRIVER_HID, usb_hid);
 }
 #endif /* USB_ENABLE_HID */
-
-#ifdef HAVE_USB_POWER
-bool usb_powered_only(void)
-{
-    return usb_state == USB_POWERED;
-}
-#endif /* HAVE_USB_POWER */
 
 #elif defined(USB_NONE)
 /* Dummy functions for USB_NONE  */
@@ -875,3 +817,4 @@ void usb_wait_for_disconnect(struct event_queue *q)
    (void)q;
 }
 #endif /* USB_NONE */
+

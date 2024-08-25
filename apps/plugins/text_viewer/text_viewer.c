@@ -31,7 +31,7 @@
 enum plugin_status plugin_start(const void* file)
 {
     int button;
-#if defined(TV_AUTOSCROLL_PRE)
+#if defined(TV_AUTOSCROLL_PRE) 
     int lastbutton = BUTTON_NONE;
 #endif
     bool autoscroll = false;
@@ -50,27 +50,21 @@ enum plugin_status plugin_start(const void* file)
     plugin_buf = rb->plugin_get_buffer(&size);
 
     if (!tv_init_action(&plugin_buf, &size)) {
-        rb->splashf(HZ, ID2P(LANG_ERROR_FORMATSTR), "initialize");
+        rb->splash(HZ, "Error initialize");
         return PLUGIN_ERROR;
     }
 
-    /* Voice that we're loading the file... */
-    if (rb->global_settings->talk_menu) {
-        rb->talk_id(LANG_WAIT, true);
-        rb->talk_file_or_spell(NULL, file, NULL, true);
-        rb->talk_force_enqueue_next();
-    }
-//    rb->splashf(HZ/2, "%s %s", rb->str(LANG_WAIT), file);
-
     if (!tv_load_file(file)) {
-        rb->splashf(HZ, ID2P(LANG_ERROR_FORMATSTR), "reading file");
+        rb->splash(HZ, "Error opening file");
         return PLUGIN_ERROR;
     }
 
     atexit(tv_exit);
     while (!done) {
+#ifdef HAVE_LCD_BITMAP
         if (preferences->statusbar)
             rb->send_event(GUI_EVENT_ACTIONUPDATE, NULL);
+#endif
 
         if (display_update)
             tv_draw();
@@ -223,7 +217,7 @@ enum plugin_status plugin_start(const void* file)
         }
         if (button != BUTTON_NONE)
         {
-#if defined(TV_AUTOSCROLL_PRE)
+#if defined(TV_AUTOSCROLL_PRE) 
             lastbutton = button;
 #endif
             rb->yield();

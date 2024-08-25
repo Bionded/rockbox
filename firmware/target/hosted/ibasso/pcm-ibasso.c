@@ -123,7 +123,7 @@ static void* pcm_thread_run(void* nothing)
 
 /* https://github.com/tinyalsa/tinyalsa/blob/master/tinypcminfo.c */
 
-static const char* const format_lookup[] =
+static const char* format_lookup[] =
 {
     /*[0] =*/ "S8",
     "U8",
@@ -310,7 +310,7 @@ void pcm_play_dma_init(void)
         pcm_thread_run relies on this size match. See pcm_mixer.h.
     */
     _config.channels          = 2;
-    _config.rate              = pcm_sampr;
+    _config.rate              = 44100;
     _config.period_size       = 256;
     _config.period_count      = 4;
     _config.format            = PCM_FORMAT_S16_LE;
@@ -363,6 +363,22 @@ void pcm_play_dma_start(const void *addr, size_t size)
     pthread_cond_signal(&_dma_suspended_cond);
     pthread_mutex_unlock(&_dma_suspended_mtx);
 }
+
+
+/* TODO: Why is this in the API if it gets never called? */
+void pcm_play_dma_pause(bool pause)
+{
+    TRACE;
+
+    pthread_mutex_lock(&_dma_suspended_mtx);
+    _dma_stopped = pause ? 1 : 0;
+    if(_dma_stopped == 0)
+    {
+        pthread_cond_signal(&_dma_suspended_cond);
+    }
+    pthread_mutex_unlock(&_dma_suspended_mtx);
+}
+
 
 void pcm_play_dma_stop(void)
 {
@@ -438,6 +454,26 @@ void pcm_dma_apply_settings(void)
         }
     }
 }
+
+
+size_t pcm_get_bytes_waiting(void)
+{
+    TRACE;
+
+    return _pcm_buffer_size;
+}
+
+
+/* TODO: WTF */
+const void* pcm_play_dma_get_peak_buffer(int* count)
+{
+    TRACE;
+
+    uintptr_t addr = (uintptr_t) _pcm_buffer;
+    *count = _pcm_buffer_size / 4;
+    return (void*) ((addr + 3) & ~3);
+}
+
 
 void pcm_close_device(void)
 {

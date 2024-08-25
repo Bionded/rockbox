@@ -280,13 +280,14 @@ int main(void)
     /* unmask T0 source in INTC */
     INTC_MSK |= (1<<10);
 
-    lcm_init();
-    lcd_init();
     backlight_init();
 
-        /* copy rb logo image */
+    /* copy rb logo image */
     for (i=0; i<240*74; i++)
         framebuffer[i] = rockboxlogo[i];
+
+    lcm_init();
+    lcd_init();
     lcd_update_rect(0,0,240,74);
 
     /* ADEC_N63.BIN seems to setup P_CLK as 7.5MHz which is timer clk */

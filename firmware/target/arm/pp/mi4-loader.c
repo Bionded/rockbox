@@ -7,7 +7,6 @@
  *                     \/            \/     \/    \/            \/
  *
  * Copyright (C) 2006 by Barry Wardell
- * Copyright (C) 2020 by William Wilgus [MULTIBOOT]
  *
  * Based on Rockbox iriver bootloader by Linus Nielsen Feltzing
  * and the ipodlinux bootloader by Daniel Palffy and Bernard Leach
@@ -27,11 +26,8 @@
 #include "config.h"
 #include "mi4-loader.h"
 #include "loader_strerror.h"
-#include "crc32.h"
+#include "crc32-mi4.h"
 #include "file.h"
-#if defined(HAVE_BOOTDATA)
-#include "multiboot.h"
-#endif /* HAVE_BOOTDATA */
 
 static inline unsigned int le2int(unsigned char* buf)
 {
@@ -173,20 +169,26 @@ static int tea_find_key(struct mi4header_t *mi4header, unsigned char* buf)
     return key_found;
 }
 
-/* Load mi4 format firmware image from a FULLY QUALIFIED PATH */
-static int load_mi4_filename(unsigned char* buf,
-                                const char* filename,
-                               unsigned int buffer_size)
+/* Load mi4 format firmware image */
+int load_mi4(unsigned char* buf,
+             const char* firmware,
+             unsigned int buffer_size)
 {
     int fd;
     struct mi4header_t mi4header;
     int rc;
     unsigned long sum;
+    char filename[MAX_PATH];
 
+    snprintf(filename,sizeof(filename), BOOTDIR "/%s",firmware);
     fd = open(filename, O_RDONLY);
-
     if(fd < 0)
-        return EFILE_NOT_FOUND;
+    {
+        snprintf(filename,sizeof(filename),"/%s",firmware);
+        fd = open(filename, O_RDONLY);
+        if(fd < 0)
+            return EFILE_NOT_FOUND;
+    }
 
     read(fd, &mi4header, MI4_HEADER_SIZE);
 
@@ -205,7 +207,7 @@ static int load_mi4_filename(unsigned char* buf,
         return EREAD_IMAGE_FAILED;
 
     /* Check CRC32 to see if we have a valid file */
-    sum = crc_32r (buf, mi4header.mi4size - MI4_HEADER_SIZE, 0);
+    sum = chksum_crc32 (buf, mi4header.mi4size - MI4_HEADER_SIZE);
 
     if(sum != mi4header.crc32)
         return EBAD_CHKSUM;
@@ -232,58 +234,4 @@ static int load_mi4_filename(unsigned char* buf,
     }
 
     return mi4header.mi4size - MI4_HEADER_SIZE;
-}
-
-/* Load mi4 format firmware image */
-int load_mi4(unsigned char* buf, const char* firmware, unsigned int buffer_size)
-{
-
-    int ret = EFILE_NOT_FOUND;
-    char filename[MAX_PATH+2];
-    /* only filename passed */
-    if (firmware[0] != '/')
-    {
-
-#ifdef HAVE_MULTIBOOT /* defined by config.h */
-        /* checks <volumes> highest index to lowest for redirect file
-         * 0 is the default boot volume, it is not checked here
-         * if found <volume>/rockbox_main.<playername> and firmware
-         * has a bootdata region this firmware will be loaded */
-        for (unsigned int i = NUM_VOLUMES - 1; i > 0 && ret < 0; i--)
-        {
-            if (get_redirect_dir(filename, sizeof(filename), i,
-                                 BOOTDIR, firmware) > 0)
-            {
-                ret = load_mi4_filename(buf, filename, buffer_size);
-            /* if firmware has no boot_data don't load from external drive */
-                if (!write_bootdata(buf, ret, i))
-                    ret = EKEY_NOT_FOUND;
-            }
-            /* if ret is valid breaks from loop to continue loading */
-        }
-#endif
-
-        if (ret < 0) /* Check default volume, no valid firmware file loaded yet */
-        {
-            /* First check in BOOTDIR */
-            snprintf(filename, sizeof(filename), BOOTDIR "/%s",firmware);
-
-            ret = load_mi4_filename(buf, filename, buffer_size);
-
-            if (ret < 0)
-            {
-                /* Check in root dir */
-                snprintf(filename, sizeof(filename),"/%s",firmware);
-                ret = load_mi4_filename(buf, filename, buffer_size);
-            }
-#ifdef HAVE_BOOTDATA
-                /* 0 is the default boot volume */
-                write_bootdata(buf, ret, 0);
-#endif
-        }
-    }
-    else /* full path passed ROLO etc.*/
-        ret = load_mi4_filename(buf, firmware, buffer_size);
-
-    return ret;
 }

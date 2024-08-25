@@ -82,9 +82,8 @@ static void kdb_init(void)
         sleep(HZ/10);
 }
 
-int kbd_input(char* text, int buflen, unsigned short *kbd)
+int kbd_input(char* text, int buflen)
 {
-	(void)kbd;
     JNIEnv e            = *env_ptr;
     jstring str         = e->NewStringUTF(env_ptr, text);
     jstring ok_text     = e->NewStringUTF(env_ptr, str(LANG_KBD_OK));
@@ -100,7 +99,7 @@ int kbd_input(char* text, int buflen, unsigned short *kbd)
     if (accepted)
     {
         utf8_string = e->GetStringUTFChars(env_ptr, new_string, 0);
-        strmemccpy(text, utf8_string, buflen);
+        strlcpy(text, utf8_string, buflen);
         e->ReleaseStringUTFChars(env_ptr, new_string, utf8_string);
         e->DeleteGlobalRef(env_ptr, new_string);
     }

@@ -27,8 +27,10 @@
 
 
 struct view_info {
+#ifdef HAVE_LCD_BITMAP
     struct font* pf;
     struct viewport scrollbar_vp; /* viewport for scrollbar */
+#endif
     struct viewport vp;
     const char *title;
     const char *text;   /* displayed text */
@@ -62,12 +64,17 @@ static const char* get_next_line(const char *text, struct view_info *info)
     total = 0;
     while(*ptr)
     {
+#ifdef HAVE_LCD_CHARCELLS
+        n = rb->utf8seek(ptr, 1);
+        w = 1;
+#else
         unsigned short ch;
         n = ((intptr_t)rb->utf8decode(ptr, &ch) - (intptr_t)ptr);
         if (rb->is_diacritic(ch, NULL))
             w = 0;
         else
             w = rb->font_get_width(info->pf, ch);
+#endif
         if (isbrchr(ptr, n))
             space = ptr+(isspace(*ptr) || total + w <= info->vp.width? n: 0);
         if (*ptr == '\n')
@@ -87,12 +94,15 @@ static void calc_line_count(struct view_info *info)
 {
     const char *ptr = info->text;
     int i = 0;
+#ifdef HAVE_LCD_BITMAP
     bool scrollbar = false;
+#endif
 
     while (*ptr)
     {
         ptr = get_next_line(ptr, info);
         i++;
+#ifdef HAVE_LCD_BITMAP
         if (!scrollbar && i > info->display_lines)
         {
             ptr = info->text;
@@ -106,6 +116,7 @@ static void calc_line_count(struct view_info *info)
                 info->scrollbar_vp.x = info->vp.width;
             scrollbar = true;
         }
+#endif
     }
     info->line_count = i;
 }
@@ -138,8 +149,12 @@ static int init_view(struct view_info *info,
                      const char *title, const char *text)
 {
     rb->viewport_set_defaults(&info->vp, SCREEN_MAIN);
+#ifdef HAVE_LCD_BITMAP
     info->pf = rb->font_get(FONT_UI);
     info->display_lines = info->vp.height / info->pf->height;
+#else
+    info->display_lines = info->vp.height;
+#endif
 
     info->title = title;
     info->text = text;
@@ -147,6 +162,7 @@ static int init_view(struct view_info *info,
     info->line = 0;
     info->start = 0;
 
+#ifdef HAVE_LCD_BITMAP
     /* no title for small screens. */
     if (info->display_lines < 4)
     {
@@ -158,6 +174,7 @@ static int init_view(struct view_info *info,
         info->vp.y += info->pf->height;
         info->vp.height -= info->pf->height;
     }
+#endif
 
     calc_line_count(info);
     return 0;
@@ -165,7 +182,11 @@ static int init_view(struct view_info *info,
 
 static void draw_text(struct view_info *info)
 {
+#ifdef HAVE_LCD_BITMAP
 #define OUTPUT_SIZE LCD_WIDTH+1
+#else
+#define OUTPUT_SIZE LCD_WIDTH*3+1
+#endif
     static char output[OUTPUT_SIZE];
     const char *text, *ptr;
     int max_show, line;
@@ -174,12 +195,14 @@ static void draw_text(struct view_info *info)
     /* clear screen */
     display->clear_display();
 
+#ifdef HAVE_LCD_BITMAP
     /* display title. */
     if(info->title)
     {
         display->set_viewport(NULL);
         display->puts(0, 0, info->title);
     }
+#endif
 
     max_show = MIN(info->line_count - info->line, info->display_lines);
     text = info->text + info->start;
@@ -197,6 +220,7 @@ static void draw_text(struct view_info *info)
         display->puts(0, line, output);
         text = ptr;
     }
+#ifdef HAVE_LCD_BITMAP
     if (info->line_count > info->display_lines)
     {
         display->set_viewport(&info->scrollbar_vp);
@@ -205,6 +229,7 @@ static void draw_text(struct view_info *info)
                 info->line_count, info->line, info->line + max_show,
                 VERTICAL);
     }
+#endif
 
     display->set_viewport(NULL);
     display->update();

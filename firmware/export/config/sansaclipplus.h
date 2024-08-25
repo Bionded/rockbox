@@ -5,23 +5,21 @@
 /* For Rolo and boot loader */
 #define MODEL_NUMBER 66
 #define MODEL_NAME   "Sandisk Sansa Clip+"
+#define FIRMWARE_OFFSET_FILE_DATA 8
+#define FIRMWARE_OFFSET_FILE_CRC 0
 /* Define if boot data from bootloader has been enabled for the target */
 #define HAVE_BOOTDATA
 /* define boot redirect file name allows booting from external drives */
 #define BOOT_REDIR "rockbox_main.clip+"
-#define MULTIBOOT_MIN_VOLUME 1
 
 #define HAVE_MULTIDRIVE
 #define NUM_DRIVES 2
 
 #ifndef BOOTLOADER
 #define HAVE_HOTSWAP
-#define HAVE_RDS_CAP
-#define CONFIG_RDS (RDS_CFG_POLL | RDS_CFG_PROCESS)
-#define CONFIG_RDS_POLL_TICKS 4
 #endif
 
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_96
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
@@ -39,8 +37,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you have access to the quickscreen */
 #define HAVE_QUICKSCREEN
@@ -105,8 +103,8 @@
 
 #define HAVE_GUI_BOOST
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 /* There is no hardware tone control */
 #define HAVE_SW_TONE_CONTROLS
 
@@ -147,9 +145,6 @@
 
 /* define this if the flash memory uses the SecureDigital Memory Card protocol */
 #define CONFIG_STORAGE STORAGE_SD
-
-/* Define this if target has an additional number of threads specific to it */
-#define TARGET_EXTRA_THREADS 1  /* RDS thread */
 
 #define BATTERY_CAPACITY_DEFAULT 290    /* default battery capacity */
 #define BATTERY_CAPACITY_MIN 290        /* min. capacity selectable */
@@ -200,7 +195,6 @@
 #define HAVE_USBSTACK
 #define USB_VENDOR_ID 0x0781
 #define USB_PRODUCT_ID 0x74d1
-#define HAVE_USB_HID_MOUSE
 #define HAVE_BOOTLOADER_USB_MODE
 
 /* Virtual LED (icon) */
@@ -235,4 +229,4 @@
 #define DEFAULT_REC_RIGHT_GAIN  23
 
 /* Define this if a programmable hotkey is mapped */
-#define HAVE_HOTKEY
+//#define HAVE_HOTKEY

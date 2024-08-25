@@ -19,10 +19,12 @@
  *
  **************************************************************************/
 #include "plugin.h"
+#include "lib/playergfx.h"
 #include "lib/mylcd.h"
 #include "lib/pluginlib_actions.h"
 
 
+#ifdef HAVE_LCD_BITMAP
 #define GFX_X (LCD_WIDTH/2-1)
 #define GFX_Y (LCD_HEIGHT/2-1)
 #if LCD_WIDTH != LCD_HEIGHT
@@ -32,21 +34,20 @@
 #define GFX_WIDTH  GFX_X
 #define GFX_HEIGHT (4*GFX_Y/5)
 #endif
+#else
+#define GFX_X 9
+#define GFX_Y 6
+#define GFX_WIDTH  9
+#define GFX_HEIGHT 6
+#endif
 
 /* this set the context to use with PLA */
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
 #define MOSAIQUE_QUIT        PLA_EXIT
-#define MOSAIQUE_SPEED       PLA_RIGHT
+#define MOSAIQUE_QUIT2       PLA_CANCEL
+#define MOSAIQUE_SPEED       PLA_UP
 #define MOSAIQUE_RESTART     PLA_SELECT
-
-#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-#define MOSAIQUE_QUIT2             PLA_UP
-#else
-#define MOSAIQUE_QUIT2             PLA_CANCEL
-#endif
 
 enum plugin_status plugin_start(const void* parameter)
 {
@@ -58,6 +59,14 @@ enum plugin_status plugin_start(const void* parameter)
     int sy = 3;
     (void)parameter;
 
+#ifdef HAVE_LCD_CHARCELLS
+    if (!pgfx_init(4, 2))
+    {
+        rb->splash(HZ*2, "Old LCD :(");
+        return PLUGIN_OK;
+    }
+    pgfx_display(3, 0);
+#endif
     mylcd_clear_display();
     mylcd_set_drawmode(DRMODE_COMPLEMENT);
     while (1) {
@@ -108,6 +117,9 @@ enum plugin_status plugin_start(const void* parameter)
             case MOSAIQUE_QUIT:
             case MOSAIQUE_QUIT2:
                 mylcd_set_drawmode(DRMODE_SOLID);
+#ifdef HAVE_LCD_CHARCELLS
+                pgfx_release();
+#endif
                 return PLUGIN_OK;
 
             case MOSAIQUE_SPEED:
@@ -130,6 +142,9 @@ enum plugin_status plugin_start(const void* parameter)
                 if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
                 {
                     mylcd_set_drawmode(DRMODE_SOLID);
+#ifdef HAVE_LCD_CHARCELLS
+                    pgfx_release();
+#endif
                     return PLUGIN_USB_CONNECTED;
                 }
                 break;

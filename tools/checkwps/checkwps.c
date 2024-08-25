@@ -1,10 +1,10 @@
 /***************************************************************************
- *             __________               __   ___.
- *   Open      \______   \ ____   ____ |  | _\_ |__   _______  ___
- *   Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /
- *   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <
- *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \
- *                     \/            \/     \/    \/            \/
+ *             __________               __   ___.                  
+ *   Open      \______   \ ____   ____ |  | _\_ |__   _______  ___  
+ *   Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /  
+ *   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <   
+ *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \  
+ *                     \/            \/     \/    \/            \/ 
  * $Id$
  *
  * Copyright (C) 2008 by Dave Chapman
@@ -35,7 +35,7 @@
 #include "file.h"
 #include "font.h"
 
-bool debug_wps = false;
+bool debug_wps = true;
 int wps_verbose_level = 0;
 char *skin_buffer;
 
@@ -144,11 +144,6 @@ void* plugin_get_buffer(size_t *buffer_size)
     return pluginbuf;
 }
 
-static struct viewport* init_viewport(struct viewport* vp)
-{
-    return NULL;
-}
-
 struct user_settings global_settings = {
     .statusbar = STATUSBAR_TOP,
 #ifdef HAVE_LCD_COLOR
@@ -167,9 +162,9 @@ int remote_getwidth(void) { return LCD_REMOTE_WIDTH; }
 int remote_getheight(void) { return LCD_REMOTE_HEIGHT; }
 #endif
 
-static inline bool backdrop_load(const char *filename, char* backdrop_buffer)
-{
- (void)filename; (void)backdrop_buffer; return true;
+static inline bool backdrop_load(const char *filename, char* backdrop_buffer) 	 
+{ 	 
+ (void)filename; (void)backdrop_buffer; return true; 	 
 }
 
 struct screen screens[NB_SCREENS] =
@@ -184,10 +179,11 @@ struct screen screens[NB_SCREENS] =
 #else
         .is_color=false,
 #endif
-        .init_viewport=init_viewport,
         .getwidth = getwidth,
         .getheight = getheight,
+#ifdef HAVE_LCD_BITMAP
         .getuifont = getuifont,
+#endif
 #if LCD_DEPTH > 1
         .get_foreground=dummy_func2,
         .get_background=dummy_func2,
@@ -202,7 +198,6 @@ struct screen screens[NB_SCREENS] =
         .depth=LCD_REMOTE_DEPTH,
         .getuifont = getuifont,
         .is_color=false,/* No color remotes yet */
-        .init_viewport=init_viewport,
         .getwidth=remote_getwidth,
         .getheight=remote_getheight,
 #if LCD_REMOTE_DEPTH > 1
@@ -214,6 +209,7 @@ struct screen screens[NB_SCREENS] =
 #endif
 };
 
+#ifdef HAVE_LCD_BITMAP
 void screen_clear_area(struct screen * display, int xstart, int ystart,
                        int width, int height)
 {
@@ -221,6 +217,7 @@ void screen_clear_area(struct screen * display, int xstart, int ystart,
     display->fillrect(xstart, ystart, width, height);
     display->set_drawmode(DRMODE_SOLID);
 }
+#endif
 
 #if CONFIG_TUNER
 bool radio_hardware_present(void)
@@ -229,6 +226,7 @@ bool radio_hardware_present(void)
 }
 #endif
 
+#ifdef HAVE_LCD_BITMAP
 static int loaded_fonts = 0;
 static struct font _font;
 int font_load(const char *path)
@@ -237,7 +235,7 @@ int font_load(const char *path)
     loaded_fonts++;
     return id;
 }
-
+    
 void font_unload(int font_id)
 {
     (void)font_id;
@@ -247,13 +245,13 @@ struct font* font_get(int font)
 {
     return &_font;
 }
+#endif
 
 /* This is no longer defined in ROCKBOX builds so just use a huge value */
 #define SKIN_BUFFER_SIZE (200*1024)
 
 int main(int argc, char **argv)
 {
-    int ret = 0;
     int res;
     int filearg = 1;
 
@@ -282,7 +280,6 @@ int main(int argc, char **argv)
         while (argv[1][i] && argv[1][i] == 'v') {
             i++;
             wps_verbose_level++;
-            debug_wps = true;
         }
     }
     skin_buffer = malloc(SKIN_BUFFER_SIZE);
@@ -304,8 +301,7 @@ int main(int argc, char **argv)
         if (!ext)
         {
             printf("Invalid extension\n");
-            ret = 2;
-            goto done;
+            return 2;
         }
         ext++;
         if (!strcmp(ext, "rwps") || !strcmp(ext, "rsbs") || !strcmp(ext, "rfms"))
@@ -324,8 +320,7 @@ int main(int argc, char **argv)
         else
         {
             printf("Invalid extension\n");
-            ret = 2;
-            goto done;
+            return 2;
         }
         wps_screen = &screens[screen];
 
@@ -334,17 +329,12 @@ int main(int argc, char **argv)
         if (!res) {
             printf("WPS parsing failure\n");
             skin_error_format_message();
-            ret = 3;
-            goto done;
+            return 3;
         }
 
         printf("WPS parsed OK\n\n");
         if (wps_verbose_level>2)
             skin_debug_tree(SKINOFFSETTOPTR(skin_buffer, wps.tree));
     }
-
-done:
-    if (skin_buffer)
-        free(skin_buffer);
-    return ret;
+    return 0;
 }

@@ -30,10 +30,12 @@
  */
 #include "config.h"
 
+#if defined(HAVE_LCD_BITMAP) || (CONFIG_PLATFORM & PLATFORM_HOSTED)
 #ifndef __PCTOOL__
 #include "font_cache.h"
 #include "sysfont.h"
 #endif
+
 
 /*
  * Fonts are specified by number, and used for display
@@ -117,7 +119,7 @@ struct font {
 
 /* font routines*/
 void font_init(void) INIT_ATTR;
-bool font_filename_matches_loaded_id(int font_id, const char *filename);
+const char* font_filename(int font_id);
 int font_load(const char *path);
 int font_load_ex(const char *path, size_t buffer_size, int glyphs);
 void font_unload(int font_id);
@@ -132,9 +134,16 @@ void font_disable_all(void);
 void font_enable_all(void);
 
 struct font* font_get(int font);
-int font_getstringnsize(const unsigned char *str, size_t maxbytes, int *w, int *h, int fontnumber);
+
 int font_getstringsize(const unsigned char *str, int *w, int *h, int fontnumber);
 int font_get_width(struct font* ft, unsigned short ch);
 const unsigned char * font_get_bits(struct font* ft, unsigned short ch);
+
+#else /* HAVE_LCD_BITMAP */
+
+#define font_init()
+#define font_load(x)
+
+#endif
 
 #endif

@@ -24,8 +24,6 @@
 #include "config.h"
 #include "cpu.h"
 
-     .syntax     unified
-
 /****************************************************************************
  * void lcd_copy_buffer_rect(fb_data *dst, fb_data *src, int width,
  *                           int height);
@@ -93,9 +91,9 @@ lcd_copy_buffer_rect:                   @
     stmia   r0!, { r6-r12, r14 }        @
     bgt     30b @ octword loop          @
 40: @ finish line                       @
-    ldrheq  r6, [r1], #2                @ finish last halfword if eq ...
+    ldreqh  r6, [r1], #2                @ finish last halfword if eq ...
     add     r1, r1, r4, lsl #1          @
-    strheq  r6, [r0], #2                @ ...
+    streqh  r6, [r0], #2                @ ...
     add     r0, r0, r4, lsl #1          @
     subs    r3, r3, #1                  @ next line
     bgt     10b @ copy line             @

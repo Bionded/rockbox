@@ -36,19 +36,21 @@
 #include "sound.h"
 #include "misc.h"
 #endif
-#include "skin_engine/wps_internals.h"
 
 
 char* default_radio_skin(enum screen_type screen)
 {
     (void)screen;
-    static char default_fms[] =
+    static char default_fms[] = 
         "%s%?Ti<%Ti. |>%?Tn<%Tn|%Tf>\n"
         "%Sx(Station:) %tf MHz\n"
         "%?St(force fm mono)<%Sx(Force Mono)|%?ts<%Sx(Stereo)|%Sx(Mono)>>\n"
         "%Sx(Mode:) %?tm<%Sx(Scan)|%Sx(Preset)>\n"
 #ifdef HAVE_RADIO_RSSI
         "%Sx(Signal strength:) %tr dBuV\n"
+#endif
+#if CONFIG_CODEC != SWCODEC && !defined(SIMULATOR)
+        "%?Rr<%Sx(Time:) %Rh:%Rn:%Rs|%?St(prerecording time)<%pm|%Sx(Prerecord Time) %Rs>>\n"
 #endif
         "%pb\n"
 #ifdef HAVE_RDS_CAP
@@ -63,12 +65,12 @@ void fms_fix_displays(enum fms_exiting toggle_state)
 {
     FOR_NB_SCREENS(i)
     {
-        struct gui_wps *gwps = skin_get_gwps(FM_SCREEN, i);
+        struct wps_data *data = skin_get_gwps(FM_SCREEN, i)->data;
         if (toggle_state == FMS_ENTER)
         {
-            viewportmanager_theme_enable(i, skin_has_sbs(gwps), NULL);
+            viewportmanager_theme_enable(i, skin_has_sbs(i, data), NULL);  
 #ifdef HAVE_BACKDROP_IMAGE
-            skin_backdrop_show(gwps->data->backdrop_id);
+            skin_backdrop_show(data->backdrop_id);
 #endif
             screens[i].clear_display();
             /* force statusbar/skin update since we just cleared the whole screen */
@@ -80,10 +82,10 @@ void fms_fix_displays(enum fms_exiting toggle_state)
 #ifdef HAVE_BACKDROP_IMAGE
             skin_backdrop_show(sb_get_backdrop(i));
 #endif
-            viewportmanager_theme_undo(i, skin_has_sbs(gwps));
+            viewportmanager_theme_undo(i, skin_has_sbs(i, data));
         }
 #ifdef HAVE_TOUCHSCREEN
-        if (i==SCREEN_MAIN && !gwps->data->touchregions)
+        if (i==SCREEN_MAIN && !data->touchregions)
             touchscreen_set_mode(toggle_state == FMS_ENTER ? 
                                  TOUCHSCREEN_BUTTON : global_settings.touch_mode);
 #endif
@@ -96,10 +98,11 @@ int fms_do_button_loop(bool update_screen)
     int button = skin_wait_for_action(FM_SCREEN, CONTEXT_FM|ALLOW_SOFTLOCK,
                                       update_screen ? TIMEOUT_NOBLOCK : HZ/5);
 #ifdef HAVE_TOUCHSCREEN
-    struct gui_wps *gwps = skin_get_gwps(FM_SCREEN, SCREEN_MAIN);
+    struct touchregion *region;
     int offset;
     if (button == ACTION_TOUCHSCREEN)
-        button = skin_get_touchaction(gwps, &offset);
+        button = skin_get_touchaction(skin_get_gwps(FM_SCREEN, SCREEN_MAIN)->data,
+                                      &offset, &region);
     switch (button)
     {
         case ACTION_WPS_STOP:

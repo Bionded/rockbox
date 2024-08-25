@@ -24,7 +24,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "settings.h"
-#include "rbpaths.h"
 #include "general.h"
 #include "radio.h"
 #include "tuner.h"
@@ -111,7 +110,7 @@ static int find_closest_preset(int freq, int direction)
         int f = presets[i].frequency;
         if (f == freq)
             return i; /* Exact match = stop */
-
+        
         /* remember the highest and lowest presets for wraparound */
         if (f < presets[lowpreset].frequency)
             lowpreset = i;
@@ -224,8 +223,8 @@ void radio_load_presets(char *filename)
         return;
     }
     /* Temporary preset, loaded until player shuts down. */
-    else if(filename[0] == '/')
-        strmemccpy(filepreset, filename, sizeof(filepreset));
+    else if(filename[0] == '/') 
+        strlcpy(filepreset, filename, sizeof(filepreset));
     /* Preset from default directory. */
     else
         snprintf(filepreset, sizeof(filepreset), "%s/%s.fmr",
@@ -246,7 +245,7 @@ void radio_load_presets(char *filename)
                     {
                         struct fmstation * const fms = &presets[num_presets];
                         fms->frequency = f;
-                        strmemccpy(fms->name, name, MAX_FMPRESET_LEN+1);
+                        strlcpy(fms->name, name, MAX_FMPRESET_LEN+1);
                         num_presets++;
                     }
                 }
@@ -278,7 +277,7 @@ int handle_radio_add_preset(void)
     {
         buf[0] = '\0';
 
-        if (!kbd_input(buf, MAX_FMPRESET_LEN + 1, NULL))
+        if (!kbd_input(buf, MAX_FMPRESET_LEN + 1))
         {
             struct fmstation * const fms = &presets[num_presets];
             strcpy(fms->name, buf);
@@ -308,7 +307,7 @@ static int radio_edit_preset(void)
 
         strcpy(buf, fms->name);
 
-        if (!kbd_input(buf, MAX_FMPRESET_LEN + 1, NULL))
+        if (!kbd_input(buf, MAX_FMPRESET_LEN + 1))
         {
             strcpy(fms->name, buf);
             presets_changed = true;
@@ -351,23 +350,18 @@ static int radio_delete_preset(void)
 int preset_list_load(void)
 {
     char selected[MAX_PATH];
+    struct browse_context browse;
     snprintf(selected, sizeof(selected), "%s.%s", global_settings.fmr_file, "fmr");
-
-    struct browse_context browse = {
-        .dirfilter = SHOW_FMR,
-        .title = str(LANG_FM_PRESET_LOAD),
-        .icon = Icon_NOICON,
-        .root = FMPRESET_PATH,
-        .selected = selected,
-    };
-
+    browse_context_init(&browse, SHOW_FMR, 0,
+                        str(LANG_FM_PRESET_LOAD), NOICON,
+                        FMPRESET_PATH, selected);
     return !rockbox_browse(&browse);
 }
 
 int preset_list_save(void)
 {
     if(num_presets > 0)
-    {
+    { 
         bool bad_file_name = true;
 
         if(!dir_exists(FMPRESET_PATH)) /* Check if there is preset folder */
@@ -378,7 +372,7 @@ int preset_list_save(void)
 
         while(bad_file_name)
         {
-            if(!kbd_input(filepreset, sizeof(filepreset), NULL))
+            if(!kbd_input(filepreset, sizeof(filepreset)))
             {
                 /* check the name: max MAX_FILENAME (20) chars */
                 char* p2;
@@ -432,24 +426,22 @@ int preset_list_clear(void)
     return true;
 }
 
-MENUITEM_FUNCTION(radio_edit_preset_item, MENU_FUNC_CHECK_RETVAL,
-                  ID2P(LANG_FM_EDIT_PRESET),
-                  radio_edit_preset, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(radio_edit_preset_item, MENU_FUNC_CHECK_RETVAL, 
+                    ID2P(LANG_FM_EDIT_PRESET), 
+                    radio_edit_preset, NULL, NULL, Icon_NOICON);
 MENUITEM_FUNCTION(radio_delete_preset_item, MENU_FUNC_CHECK_RETVAL,
-                  ID2P(LANG_FM_DELETE_PRESET),
-                  radio_delete_preset, NULL, Icon_NOICON);
+                    ID2P(LANG_FM_DELETE_PRESET), 
+                    radio_delete_preset, NULL, NULL, Icon_NOICON);
 static int radio_preset_callback(int action,
-                                 const struct menu_item_ex *this_item,
-                                 struct gui_synclist *this_list)
+                                 const struct menu_item_ex *this_item)
 {
     if (action == ACTION_STD_OK)
         action = ACTION_EXIT_AFTER_THIS_MENUITEM;
     return action;
     (void)this_item;
-    (void)this_list;
 }
 MAKE_MENU(handle_radio_preset_menu, ID2P(LANG_PRESET),
-            radio_preset_callback, Icon_NOICON, &radio_edit_preset_item,
+            radio_preset_callback, Icon_NOICON, &radio_edit_preset_item, 
             &radio_delete_preset_item);
 /* present a list of preset stations */
 static const char* presets_get_name(int selected_item, void *data,
@@ -479,12 +471,24 @@ int handle_radio_presets(void)
     struct gui_synclist lists;
     int result = 0;
     int action = ACTION_NONE;
+#ifdef HAVE_BUTTONBAR
+    struct gui_buttonbar buttonbar;
+#endif
 
     if(presets_loaded == false)
         return result;
 
+#ifdef HAVE_BUTTONBAR
+    gui_buttonbar_init(&buttonbar);
+    gui_buttonbar_set_display(&buttonbar, &(screens[SCREEN_MAIN]) );
+    gui_buttonbar_set(&buttonbar, str(LANG_FM_BUTTONBAR_ADD),
+                                 str(LANG_FM_BUTTONBAR_EXIT),
+                                 str(LANG_FM_BUTTONBAR_ACTION));
+    gui_buttonbar_draw(&buttonbar);
+#endif
     gui_synclist_init(&lists, presets_get_name, NULL, false, 1, NULL);
     gui_synclist_set_title(&lists, str(LANG_PRESET), NOICON);
+    gui_synclist_set_icon_callback(&lists, NULL);
     if(global_settings.talk_file)
         gui_synclist_set_voice_callback(&lists, presets_speak_name);
     gui_synclist_set_nb_items(&lists, num_presets);
@@ -494,7 +498,8 @@ int handle_radio_presets(void)
     while (result == 0)
     {
         gui_synclist_draw(&lists);
-        list_do_action(CONTEXT_STD, TIMEOUT_BLOCK, &lists, &action);
+        list_do_action(CONTEXT_STD, TIMEOUT_BLOCK,
+                       &lists, &action, LIST_WRAP_UNLESS_HELD);
         switch (action)
         {
             case ACTION_STD_MENU:
@@ -513,6 +518,7 @@ int handle_radio_presets(void)
                 next_station(0);
                 result = 1;
                 break;
+            case ACTION_F3:
             case ACTION_STD_CONTEXT:
                 selected_preset = gui_synclist_get_sel_pos(&lists);
                 do_menu(&handle_radio_preset_menu, NULL, NULL, false);
@@ -611,6 +617,7 @@ void presets_save(void)
 }
 
 #if 0 /* disabled in draw_progressbar() */
+#ifdef HAVE_LCD_BITMAP
 static inline void draw_vertical_line_mark(struct screen * screen,
                                            int x, int y, int h)
 {
@@ -635,4 +642,5 @@ void presets_draw_markers(struct screen *screen,
         draw_vertical_line_mark(screen, xi, y, h);
     }
 }
+#endif
 #endif

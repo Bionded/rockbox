@@ -40,18 +40,12 @@ then
     exit
 fi
 
-echo > checkwps.failures
-
 awk -f $rootdir/parse_configure.awk $rootdir/../configure | (
     while read target model
     do
         make -j $jobs clean
         $toolsdir/configure --target=$model --type=C --ram=32 --lcdwidth=100 --lcdheight=100 # 32 should always give default RAM, assume 100x100 for RaaA for now
         make -j $jobs
-        if [ -f checkwps.$model ] ; then
-            mv checkwps.$model $outdir
-        else
-            echo "checkwps.$model" >> checkwps.failures
-        fi
+        mv checkwps.$model $outdir
     done
 )

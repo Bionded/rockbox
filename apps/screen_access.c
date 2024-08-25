@@ -35,35 +35,51 @@
 #include "backlight.h"
 #include "screen_access.h"
 #include "backdrop.h"
-#include "viewport.h"
 
 /* some helper functions to calculate metrics on the fly */
 static int screen_helper_getcharwidth(void)
 {
+#ifdef HAVE_LCD_BITMAP
     return font_get(lcd_getfont())->maxwidth;
+#else
+    return 1;
+#endif
 }
 
 static int screen_helper_getcharheight(void)
 {
+#ifdef HAVE_LCD_BITMAP
     return font_get(lcd_getfont())->height;
+#else
+    return 1;
+#endif
 }
 
 static int screen_helper_getnblines(void)
 {
     int height=screens[0].lcdheight;
+#ifdef HAVE_LCD_BITMAP
     if(global_settings.statusbar != STATUSBAR_OFF)
         height -= STATUSBAR_HEIGHT;
+#ifdef HAVE_BUTTONBAR
+    if(global_settings.buttonbar && screens[0].has_buttonbar)
+        height -= BUTTONBAR_HEIGHT;
+#endif
+#endif
     return height / screens[0].getcharheight();
 }
 
 void screen_helper_setfont(int font)
 {
     (void)font;
+#ifdef HAVE_LCD_BITMAP
     if (font == FONT_UI)
         font = global_status.font_id[SCREEN_MAIN];
     lcd_setfont(font);
+#endif
 }
 
+#ifdef HAVE_LCD_BITMAP
 static int screen_helper_getuifont(void)
 {
     return global_status.font_id[SCREEN_MAIN];
@@ -73,10 +89,15 @@ static void screen_helper_setuifont(int font)
 {
     global_status.font_id[SCREEN_MAIN] = font;
 }
+#endif
 
 static void screen_helper_set_drawmode(int mode)
 {
+#ifdef HAVE_LCD_BITMAP
     lcd_set_drawmode(mode);
+#else
+    (void) mode;
+#endif
 }
 
 static void screen_helper_put_line(int x, int y, struct line_desc *line,
@@ -88,32 +109,36 @@ static void screen_helper_put_line(int x, int y, struct line_desc *line,
     va_end(ap);
 }
 
-void screen_helper_lcd_viewport_set_buffer(struct viewport *vp, struct frame_buffer_t *buffer)
-{
-    viewport_set_buffer(vp, buffer, SCREEN_MAIN);
-}
-
 #if NB_SCREENS == 2
-void screen_helper_lcd_remote_viewport_set_buffer(struct viewport *vp, struct frame_buffer_t *buffer)
-{
-    viewport_set_buffer(vp, buffer, SCREEN_REMOTE);
-}
-
 static int screen_helper_remote_getcharwidth(void)
 {
+#ifdef HAVE_LCD_BITMAP
     return font_get(lcd_remote_getfont())->maxwidth;
+#else
+    return 1;
+#endif
 }
 
 static int screen_helper_remote_getcharheight(void)
 {
+#ifdef HAVE_LCD_BITMAP
     return font_get(lcd_remote_getfont())->height;
+#else
+    return 1;
+#endif
 }
 
 static int screen_helper_remote_getnblines(void)
 {
     int height=screens[1].lcdheight;
+#ifdef HAVE_LCD_BITMAP
     if(global_settings.statusbar != STATUSBAR_OFF)
         height -= STATUSBAR_HEIGHT;
+#ifdef HAVE_BUTTONBAR
+    if(global_settings.buttonbar && screens[1].has_buttonbar)
+        height -= BUTTONBAR_HEIGHT;
+#endif
+#endif
     return height / screens[1].getcharheight();
 }
 
@@ -126,12 +151,18 @@ void screen_helper_remote_setfont(int font)
 
 static int screen_helper_remote_getuifont(void)
 {
+#ifdef HAVE_LCD_BITMAP
     return global_status.font_id[SCREEN_REMOTE];
+#else
+    return FONT_SYSFIXED;
+#endif
 }
 
 static void screen_helper_remote_setuifont(int font)
 {
+#ifdef HAVE_LCD_BITMAP
     global_status.font_id[SCREEN_REMOTE] = font;
+#endif
 }
 
 static void screen_helper_remote_put_line(int x, int y, struct line_desc *line,
@@ -158,7 +189,9 @@ struct screen screens[NB_SCREENS] =
 #else
         .is_color=false,
 #endif
+#ifdef HAVE_LCD_BITMAP
         .pixel_format=LCD_PIXELFORMAT,
+#endif
         .getcharwidth=screen_helper_getcharwidth,
         .getcharheight=screen_helper_getcharheight,
 #if (CONFIG_LED == LED_VIRTUAL)
@@ -167,14 +200,11 @@ struct screen screens[NB_SCREENS] =
         .has_disk_led=true,
 #endif
         .set_drawmode=&screen_helper_set_drawmode,
-        .init_viewport=&lcd_init_viewport,
         .set_viewport=&lcd_set_viewport,
-        .set_viewport_ex=&lcd_set_viewport_ex,
-        .viewport_set_buffer = &screen_helper_lcd_viewport_set_buffer,
-        .current_viewport = &lcd_current_viewport,
         .getwidth=&lcd_getwidth,
         .getheight=&lcd_getheight,
         .getstringsize=&lcd_getstringsize,
+#ifdef HAVE_LCD_BITMAP
         .setfont=screen_helper_setfont,
         .getuifont=screen_helper_getuifont,
         .setuifont=screen_helper_setuifont,
@@ -213,11 +243,20 @@ struct screen screens[NB_SCREENS] =
         .vline=&lcd_vline,
         .hline=&lcd_hline,
         .scroll_step=&lcd_scroll_step,
+#endif /* HAVE_LCD_BITMAP */
+
+#ifdef HAVE_LCD_CHARCELLS
+        .double_height=&lcd_double_height,
+        .putchar=&lcd_putc,
+        .get_locked_pattern=&lcd_get_locked_pattern,
+        .define_pattern=&lcd_define_pattern,
+        .unlock_pattern=&lcd_unlock_pattern,
+        .icon=&lcd_icon,
+#endif /* HAVE_LCD_CHARCELLS */
 
         .putsxy=&lcd_putsxy,
         .puts=&lcd_puts,
         .putsf=&lcd_putsf,
-        .putsxyf=&lcd_putsxyf,
         .puts_scroll=&lcd_puts_scroll,
         .putsxy_scroll_func=&lcd_putsxy_scroll_func,
         .scroll_speed=&lcd_scroll_speed,
@@ -237,9 +276,15 @@ struct screen screens[NB_SCREENS] =
         .backdrop_load=&backdrop_load,
         .backdrop_show=&backdrop_show,
 #endif
-#if defined(HAVE_LCD_COLOR)
+#ifdef HAVE_BUTTONBAR
+        .has_buttonbar=false,
+#endif
+#if defined(HAVE_LCD_BITMAP)
+        .set_framebuffer = (void*)lcd_set_framebuffer,
+#if defined(HAVE_LCD_COLOR)    
         .gradient_fillrect = lcd_gradient_fillrect,
         .gradient_fillrect_part = lcd_gradient_fillrect_part,
+#endif
 #endif
         .put_line = screen_helper_put_line,
     },
@@ -256,11 +301,7 @@ struct screen screens[NB_SCREENS] =
         .getcharheight=screen_helper_remote_getcharheight,
         .has_disk_led=false,
         .set_drawmode=&lcd_remote_set_drawmode,
-        .init_viewport=&lcd_remote_init_viewport,
         .set_viewport=&lcd_remote_set_viewport,
-        .set_viewport_ex=&lcd_remote_set_viewport_ex,
-        .viewport_set_buffer = &screen_helper_lcd_remote_viewport_set_buffer,
-        .current_viewport = &lcd_remote_current_viewport,
         .getwidth=&lcd_remote_getwidth,
         .getheight=&lcd_remote_getheight,
         .getstringsize=&lcd_remote_getstringsize,
@@ -303,10 +344,16 @@ struct screen screens[NB_SCREENS] =
         .scroll_step=&lcd_remote_scroll_step,
 #endif /* 1 */
 
+#if 0 /* no charcell remote LCDs so far */
+        .double_height=&lcd_remote_double_height,
+        .putc=&lcd_remote_putc,
+        .get_locked_pattern=&lcd_remote_get_locked_pattern,
+        .define_pattern=&lcd_remote_define_pattern,
+        .icon=&lcd_remote_icon,
+#endif /* 0 */
         .putsxy=&lcd_remote_putsxy,
         .puts=&lcd_remote_puts,
         .putsf=&lcd_remote_putsf,
-        .putsxyf=&lcd_remote_putsxyf,
         .puts_scroll=&lcd_remote_puts_scroll,
         .putsxy_scroll_func=&lcd_remote_putsxy_scroll_func,
         .scroll_speed=&lcd_remote_scroll_speed,
@@ -322,16 +369,23 @@ struct screen screens[NB_SCREENS] =
         .backlight_off=&remote_backlight_off,
         .is_backlight_on=&is_remote_backlight_on,
         .backlight_set_timeout=&remote_backlight_set_timeout,
-
+        
 #if LCD_DEPTH > 1
         .backdrop_load=&remote_backdrop_load,
         .backdrop_show=&remote_backdrop_show,
+#endif
+#ifdef HAVE_BUTTONBAR
+        .has_buttonbar=false,
+#endif
+#if defined(HAVE_LCD_BITMAP)
+        .set_framebuffer = (void*)lcd_remote_set_framebuffer,
 #endif
         .put_line = screen_helper_remote_put_line,
     }
 #endif /* NB_SCREENS == 2 */
 };
 
+#ifdef HAVE_LCD_BITMAP
 void screen_clear_area(struct screen * display, int xstart, int ystart,
                        int width, int height)
 {
@@ -339,3 +393,4 @@ void screen_clear_area(struct screen * display, int xstart, int ystart,
     display->fillrect(xstart, ystart, width, height);
     display->set_drawmode(DRMODE_SOLID);
 }
+#endif

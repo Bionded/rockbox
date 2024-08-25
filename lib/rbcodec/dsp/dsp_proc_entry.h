@@ -103,7 +103,7 @@ typedef void (*dsp_proc_fn_type)(struct dsp_proc_entry *this,
  *
  * default settings:
  *  .data    = 0
- *  .process = dsp_empty_process (dsp_core.c)
+ *  .process = NULL
  *
  * DSP_PROC_INIT handler just has to change what it needs to change. It may
  * also be modified at any time to implement the stage's demands.
@@ -127,8 +127,6 @@ typedef intptr_t (*dsp_proc_config_fn_type)(struct dsp_proc_entry *this,
                                             struct dsp_config *dsp,
                                             unsigned int setting,
                                             intptr_t value);
-typedef void (*dsp_proc_init_fn_type)(struct dsp_config *dsp,
-                                      unsigned int dsp_id);
 
 /* Enable/disable a processing stage - not to be called during processing
  * by processing code! */

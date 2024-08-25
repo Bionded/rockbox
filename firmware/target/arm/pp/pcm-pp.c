@@ -327,7 +327,6 @@ void fiq_playback(void)
      */
     asm volatile (
     /* No external calls */
-        BEGIN_ARM_ASM_SYNTAX_UNIFIED
         "sub     lr, lr, #4           \n" /* Prepare return address */
         "stmfd   sp!, { lr }          \n" /* stack lr so we can use it */
         "ldr     r12, =0xcf001040     \n" /* Some magic from iPodLinux ... */
@@ -350,8 +349,8 @@ void fiq_playback(void)
         "bhi     0b                   \n" /* ... yes, continue */
 
         "cmp     r9, #0               \n" /* either FIFO full or size empty? */
-        "stmiane r11, { r8-r9 }       \n" /* save p and size, if not empty */
-        "ldmfdne sp!, { pc }^         \n" /* RFE if not empty */
+        "stmneia r11, { r8-r9 }       \n" /* save p and size, if not empty */
+        "ldmnefd sp!, { pc }^         \n" /* RFE if not empty */
 
     /* Making external calls */
     "1:                               \n"
@@ -364,7 +363,7 @@ void fiq_playback(void)
         "mov     lr, pc               \n" /* long call (not in same section) */
         "bx      r3                   \n"
         "cmp     r0, #0               \n" /* more data? */
-        "ldmfdeq sp!, { r0-r3, pc }^  \n" /* no? -> exit */
+        "ldmeqfd sp!, { r0-r3, pc }^  \n" /* no? -> exit */
 
         "ldr     r14, [r10, #0x1c]    \n" /* read IISFIFO_CFG to check FIFO status */
         "ands    r14, r14, #(0xe<<23) \n" /* r14 = (IIS_TX_FREE_COUNT & ~1) << 23 */
@@ -395,7 +394,6 @@ void fiq_playback(void)
         "bne     3b                   \n" /* no? -> go return */
         "b       2b                   \n" /* yes -> get even more */
         ".ltorg                       \n"
-        END_ARM_ASM_SYNTAX_UNIFIED
         : /* These must only be integers! No regs */
         : "i"(PCM_DMAST_OK), "i"(PCM_DMAST_STARTED));
 }
@@ -499,6 +497,20 @@ void pcm_play_dma_stop(void)
 #endif
 }
 
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause) {
+        play_stop_pcm();
+    } else {
+        play_start_pcm();
+    }
+}
+
+size_t pcm_get_bytes_waiting(void)
+{
+    return dma_play_data.size & ~3;
+}
+
 void pcm_play_dma_init(void)
 {
     /* Initialize default register values. */
@@ -512,6 +524,19 @@ void pcm_play_dma_init(void)
 void pcm_play_dma_postinit(void)
 {
     audiohw_postinit();
+}
+
+const void * pcm_play_dma_get_peak_buffer(int *count)
+{
+    unsigned long addr, size;
+
+    int status = disable_fiq_save();
+    addr = dma_play_data.addr;
+    size = dma_play_data.size;
+    restore_fiq(status);
+
+    *count = size >> 2;
+    return (void *)((addr + 2) & ~3);
 }
 
 /****************************************************************************

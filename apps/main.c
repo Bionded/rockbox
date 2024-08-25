@@ -21,7 +21,6 @@
 #include "config.h"
 #include "system.h"
 
-#include "version.h"
 #include "gcc_extensions.h"
 #include "storage.h"
 #include "disk.h"
@@ -32,20 +31,21 @@
 #include "led.h"
 #include "../kernel-internal.h"
 #include "button.h"
-#include "core_keymap.h"
 #include "tree.h"
 #include "filetypes.h"
 #include "panic.h"
 #include "menu.h"
 #include "usb.h"
-#include "wifi.h"
 #include "powermgmt.h"
+#if !defined(DX50) && !defined(DX90)
 #include "adc.h"
+#endif
 #include "i2c.h"
 #ifndef DEBUG
 #include "serial.h"
 #endif
 #include "audio.h"
+#include "mp3_playback.h"
 #include "settings.h"
 #include "backlight.h"
 #include "status.h"
@@ -71,13 +71,13 @@
 #include "string.h"
 #include "splash.h"
 #include "eeprom_settings.h"
+#include "scrobbler.h"
 #include "icon.h"
 #include "viewport.h"
 #include "skin_engine/skin_engine.h"
 #include "statusbar-skinned.h"
 #include "bootchart.h"
 #include "logdiskf.h"
-#include "bootdata.h"
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
 #include "notification.h"
 #endif
@@ -87,10 +87,12 @@
 #include "iap.h"
 #endif
 
+#if (CONFIG_CODEC == SWCODEC)
 #include "audio_thread.h"
 #include "playback.h"
 #include "tdspeed.h"
-#if defined(HAVE_RECORDING) && !defined(SIMULATOR)
+#endif
+#if (CONFIG_CODEC == SWCODEC) && defined(HAVE_RECORDING) && !defined(SIMULATOR)
 #include "pcm_record.h"
 #endif
 
@@ -131,12 +133,6 @@
 #define MAIN_NORETURN_ATTR
 #endif
 
-#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
-#ifdef HAVE_MULTIVOLUME
-#include "pathfuncs.h" /* for init_volume_names */
-#endif
-#endif
-
 #if (CONFIG_PLATFORM & (PLATFORM_SDL|PLATFORM_MAEMO|PLATFORM_PANDORA))
 #ifdef SIMULATOR
 #include "sim_tasks.h"
@@ -147,7 +143,7 @@
 #if defined(WIN32)
 #undef main
 #endif
-#endif /* SDL|MAEMO|PAMDORA */
+#endif
 
 /*#define AUTOROCK*/ /* define this to check for "autostart.rock" on boot */
 
@@ -174,22 +170,15 @@ int main(void)
         screens[i].clear_display();
         screens[i].update();
     }
+#ifdef HAVE_LCD_BITMAP
     list_init();
-    tree_init();
+#endif
+    tree_gui_init();
     /* Keep the order of this 3
      * Must be done before any code uses the multi-screen API */
 #ifdef HAVE_USBSTACK
     /* All threads should be created and public queues registered by now */
     usb_start_monitoring();
-#endif
-
-#if !defined(DISABLE_ACTION_REMAP) && defined(CORE_KEYREMAP_FILE)
-    if (file_exists(CORE_KEYREMAP_FILE))
-    {
-        int mapct = core_load_key_remap(CORE_KEYREMAP_FILE);
-        if (mapct <= 0)
-            splashf(HZ, "key remap failed: %d,  %s", mapct, CORE_KEYREMAP_FILE);
-    }
 #endif
 
 #ifdef AUTOROCK
@@ -214,50 +203,6 @@ int main(void)
      * see definition of INIT_ATTR in config.h */
     CHART(">root_menu");
     root_menu();
-}
-
-/* The disk isn't ready at boot, rblogo is stored in bin and erased after boot */
-int show_logo_boot( void ) INIT_ATTR;
-int show_logo_boot( void )
-{
-    unsigned char version[32];
-    int font_h, ver_w;
-    snprintf(version, sizeof(version), "Ver. %s", rbversion);
-    ver_w = font_getstringsize(version, NULL, &font_h, FONT_SYSFIXED);
-    lcd_clear_display();
-    lcd_setfont(FONT_SYSFIXED);
-#if defined(SANSA_CLIP) || defined(SANSA_CLIPV2) || defined(SANSA_CLIPPLUS)
-    /* display the logo in the blue area of the screen (bottom 48 pixels) */
-    if (ver_w > LCD_WIDTH)
-        lcd_putsxy(0, 0, rbversion);
-    else
-        lcd_putsxy((LCD_WIDTH/2) - (ver_w/2), 0, version);
-    lcd_bmp(&bm_rockboxlogo, (LCD_WIDTH - BMPWIDTH_rockboxlogo) / 2, 16);
-#else
-    lcd_bmp(&bm_rockboxlogo, (LCD_WIDTH - BMPWIDTH_rockboxlogo) / 2, 10);
-    if (ver_w > LCD_WIDTH)
-        lcd_putsxy(0, LCD_HEIGHT-font_h, rbversion);
-    else
-        lcd_putsxy((LCD_WIDTH/2) - (ver_w/2), LCD_HEIGHT-font_h, version);
-#endif
-    lcd_setfont(FONT_UI);
-    lcd_update();
-#ifdef HAVE_REMOTE_LCD
-    lcd_remote_clear_display();
-    lcd_remote_bmp(&bm_remote_rockboxlogo, 0, 10);
-    lcd_remote_setfont(FONT_SYSFIXED);
-    if (ver_w > LCD_REMOTE_WIDTH)
-        lcd_remote_putsxy(0, LCD_REMOTE_HEIGHT-font_h, rbversion);
-    else
-        lcd_remote_putsxy((LCD_REMOTE_WIDTH/2) - (ver_w/2),
-                      LCD_REMOTE_HEIGHT-font_h, version);
-    lcd_remote_setfont(FONT_UI);
-    lcd_remote_update();
-#endif
-#ifdef SIMULATOR
-    sleep(HZ); /* sim is too fast to see logo */
-#endif
-    return 0;
 }
 
 #ifdef HAVE_DIRCACHE
@@ -293,7 +238,7 @@ static int INIT_ATTR init_dircache(bool preinit)
                 splash(0, str(LANG_SCANNING_DISK));
                 dircache_wait();
                 backlight_on();
-                show_logo_boot();
+                show_logo();
             }
 
             struct dircache_info info;
@@ -313,7 +258,7 @@ static void init_tagcache(void) INIT_ATTR;
 static void init_tagcache(void)
 {
     bool clear = false;
-#if 0
+#if 0 /* CONFIG_CODEC == SWCODEC */
     long talked_tick = 0;
 #endif
     tagcache_init();
@@ -324,7 +269,7 @@ static void init_tagcache(void)
 
         if (ret > 0)
         {
-#if 0 /* FIXME: Audio isn't even initialized yet! */
+#if 0 /* FIXME: Audio isn't even initialized yet! */ /* CONFIG_CODEC == SWCODEC */
             /* hwcodec can't use voice here, as the database commit
              * uses the audio buffer. */
             if(global_settings.talk_menu
@@ -338,18 +283,23 @@ static void init_tagcache(void)
                 talk_number(tagcache_get_max_commit_step(), true);
             }
 #endif
+#ifdef HAVE_LCD_BITMAP
             if (lang_is_rtl())
             {
-                splash_progress(ret, tagcache_get_max_commit_step(),
-                               "[%d/%d] %s", ret, tagcache_get_max_commit_step(),
-                               str(LANG_TAGCACHE_INIT));
+                splashf(0, "[%d/%d] %s", ret, tagcache_get_max_commit_step(),
+                    str(LANG_TAGCACHE_INIT));
             }
             else
             {
-                splash_progress(ret, tagcache_get_max_commit_step(),
-                                "%s [%d/%d]", str(LANG_TAGCACHE_INIT), ret,
-                                tagcache_get_max_commit_step());
+                splashf(0, "%s [%d/%d]", str(LANG_TAGCACHE_INIT), ret,
+                    tagcache_get_max_commit_step());
             }
+#else
+            lcd_double_height(false);
+            lcd_putsf(0, 1, " DB [%d/%d]", ret,
+                tagcache_get_max_commit_step());
+            lcd_update();
+#endif
             clear = true;
         }
         sleep(HZ/4);
@@ -359,10 +309,10 @@ static void init_tagcache(void)
     if (clear)
     {
         backlight_on();
-        show_logo_boot();
+        show_logo();
     }
 }
-#endif /* HAVE_TAGCACHE */
+#endif
 
 #if (CONFIG_PLATFORM & PLATFORM_HOSTED)
 
@@ -379,17 +329,20 @@ static void init(void)
 #ifdef HAVE_REMOTE_LCD
     lcd_remote_init();
 #endif
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
         global_status.font_id[i] = FONT_SYSFIXED;
     font_init();
-    show_logo_boot();
+#endif
+    show_logo();
+#ifndef USB_NONE
+    usb_init();
+    usb_start_monitoring();
+#endif
     button_init();
     powermgmt_init();
     backlight_init();
     unicode_init();
-#ifdef HAVE_MULTIVOLUME
-    init_volume_names();
-#endif
 #ifdef SIMULATOR
     sim_tasks_init();
 #endif
@@ -412,8 +365,10 @@ static void init(void)
     viewportmanager_init();
 
     storage_init();
+#if CONFIG_CODEC == SWCODEC
     pcm_init();
     dsp_init();
+#endif
     settings_reset();
     settings_load(SETTINGS_ALL);
     settings_apply(true);
@@ -429,19 +384,32 @@ static void init(void)
     playlist_init();
     shortcuts_init();
 
-    audio_init();
-    talk_announce_voice_invalid(); /* notify user w/ voice prompt if voice file invalid */
-    settings_apply_skins();
+#if CONFIG_CODEC != SWCODEC
+    mp3_init( global_settings.volume,
+              global_settings.bass,
+              global_settings.treble,
+              global_settings.balance,
+              global_settings.loudness,
+              global_settings.avc,
+              global_settings.channel_config,
+              global_settings.stereo_width,
+              global_settings.mdb_strength,
+              global_settings.mdb_harmonics,
+              global_settings.mdb_center,
+              global_settings.mdb_shape,
+              global_settings.mdb_enable,
+              global_settings.superbass);
+#endif /* CONFIG_CODEC != SWCODEC */
 
-/* do USB last so prompt (if enabled) can work correctly if USB was inserted with device off,
- * also doesn't hurt that it will display the nice pretty backdrop this way too. */
-#ifndef USB_NONE
-    usb_init();
-    usb_start_monitoring();
-#endif
+    if (global_settings.audioscrobbler)
+        scrobbler_init();
+
+    audio_init();
+
+    settings_apply_skins();
 }
 
-#else /* ! (CONFIG_PLATFORM & PLATFORM_HOSTED) */
+#else
 
 #include "errno.h"
 
@@ -450,14 +418,14 @@ static void init(void)
 {
     int rc;
     bool mounted = false;
+#if CONFIG_CHARGING && (CONFIG_CPU == SH7034)
+    /* if nobody initialized ATA before, I consider this a cold start */
+    bool coldstart = (PACR2 & 0x4000) != 0; /* starting from Flash */
+#endif
 
     system_init();
     core_allocator_init();
     kernel_init();
-
-#if defined(HAVE_BOOTDATA) && !defined(BOOTLOADER)
-    verify_boot_data();
-#endif
 
     /* early early early! */
     filesystem_init();
@@ -486,14 +454,16 @@ static void init(void)
 #ifdef HAVE_REMOTE_LCD
     lcd_remote_init();
 #endif
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
         global_status.font_id[i] = FONT_SYSFIXED;
     font_init();
+#endif
 
     settings_reset();
 
     CHART(">show_logo");
-    show_logo_boot();
+    show_logo();
     CHART("<show_logo");
     lang_init(core_language_builtin, language_strings,
               LANG_LAST_INDEX_IN_ARRAY);
@@ -508,6 +478,11 @@ static void init(void)
 
 #if CONFIG_RTC
     rtc_init();
+#endif
+#ifdef HAVE_RTC_RAM
+    CHART(">settings_load(RTC)");
+    settings_load(SETTINGS_RTC); /* early load parts of global_settings */
+    CHART("<settings_load(RTC)");
 #endif
 
     adc_init();
@@ -553,17 +528,37 @@ static void init(void)
     viewportmanager_init();
     CHART("<viewportmanager_init");
 
+#if CONFIG_CHARGING && (CONFIG_CPU == SH7034)
+    /* charger_inserted() can't be used here because power_thread()
+       hasn't checked power_input_status() yet */
+    if (coldstart && (power_input_status() & POWER_INPUT_MAIN_CHARGER)
+        && !global_settings.car_adapter_mode
+#ifdef ATA_POWER_PLAYERSTYLE
+        && !ide_powered() /* relies on probing result from bootloader */
+#endif
+        )
+    {
+        rc = charging_screen(); /* display a "charging" screen */
+        if (rc == 1)            /* charger removed */
+            power_off();
+        /* "On" pressed or USB connected: proceed */
+        show_logo();  /* again, to provide better visual feedback */
+    }
+#endif
+
     CHART(">storage_init");
     rc = storage_init();
     CHART("<storage_init");
     if(rc)
     {
+#ifdef HAVE_LCD_BITMAP
         lcd_clear_display();
         lcd_putsf(0, 1, "ATA error: %d", rc);
-        lcd_puts(0, 3, "Press button to debug");
+        lcd_puts(0, 3, "Press ON to debug");
         lcd_update();
         while(!(button_get(true) & BUTTON_REL)); /* DO NOT CHANGE TO ACTION SYSTEM */
         dbg_ports();
+#endif
         panicf("ata: %d", rc);
     }
 
@@ -613,61 +608,45 @@ static void init(void)
         {
             lcd_clear_display();
             lcd_puts(0, 0, "No partition");
-            lcd_putsf(0, 1, "found (%d).", rc);
-#ifndef USB_NONE
+            lcd_puts(0, 1, "found.");
+#ifdef HAVE_LCD_BITMAP
             lcd_puts(0, 2, "Insert USB cable");
             lcd_puts(0, 3, "and fix it.");
-#elif !defined(DEBUG) && !(CONFIG_STORAGE & STORAGE_RAMDISK)
-            lcd_puts(0, 2, "Rebooting in 5s");
 #endif
             lcd_update();
 
-#ifndef USB_NONE
-            usb_start_monitoring();
             while(button_get(true) != SYS_USB_CONNECTED) {};
             gui_usb_screen_run(true);
-#elif !defined(DEBUG) && !(CONFIG_STORAGE & STORAGE_RAMDISK)
-            sleep(HZ*5);
-#endif
-
-#if !defined(DEBUG) && !(CONFIG_STORAGE & STORAGE_RAMDISK)
             system_reboot();
-#else
-            rc = disk_mount_all();
-            if (rc <= 0) {
-                lcd_putsf(0, 4, "Error mounting: %08x", rc);
-                lcd_update();
-                sleep(HZ*5);
-            }
-#endif
         }
     }
 
+#if CONFIG_CODEC == SWCODEC
     pcm_init();
     dsp_init();
+#endif
 
-    CHART(">settings_load(ALL)");
-    settings_load(SETTINGS_ALL);
-    CHART("<settings_load(ALL)");
-
-#if defined(BUTTON_REC) || \
-    (CONFIG_KEYPAD == GIGABEAT_PAD) || \
-    (CONFIG_KEYPAD == IPOD_4G_PAD) || \
+#if defined(SETTINGS_RESET) || (CONFIG_KEYPAD == IPOD_4G_PAD) || \
     (CONFIG_KEYPAD == IRIVER_H10_PAD)
-    if (global_settings.clear_settings_on_hold &&
 #ifdef SETTINGS_RESET
     /* Reset settings if holding the reset button. (Rec on Archos,
        A on Gigabeat) */
-    ((button_status() & SETTINGS_RESET) == SETTINGS_RESET))
+    if ((button_status() & SETTINGS_RESET) == SETTINGS_RESET)
 #else
     /* Reset settings if the hold button is turned on */
-    (button_hold()))
+    if (button_hold())
 #endif
     {
         splash(HZ*2, str(LANG_RESET_DONE_CLEAR));
         settings_reset();
     }
+    else
 #endif
+    {
+        CHART(">settings_load(ALL)");
+        settings_load(SETTINGS_ALL);
+        CHART("<settings_load(ALL)");
+    }
 
 #ifdef HAVE_DIRCACHE
     CHART(">init_dircache(true)");
@@ -675,7 +654,7 @@ static void init(void)
     CHART("<init_dircache(true)");
 #ifdef HAVE_TAGCACHE
     if (rc < 0)
-        tagcache_remove_statefile();
+        remove(TAGCACHE_STATEFILE);
 #endif /* HAVE_TAGCACHE */
 #endif /* HAVE_DIRCACHE */
 
@@ -707,16 +686,33 @@ static void init(void)
     tree_mem_init();
     filetype_init();
 
+    if (global_settings.audioscrobbler)
+        scrobbler_init();
+
     shortcuts_init();
+
+#if CONFIG_CODEC != SWCODEC
+    /* No buffer allocation (see buffer.c) may take place after the call to
+       audio_init() since the mpeg thread takes the rest of the buffer space */
+    mp3_init( global_settings.volume,
+              global_settings.bass,
+              global_settings.treble,
+              global_settings.balance,
+              global_settings.loudness,
+              global_settings.avc,
+              global_settings.channel_config,
+              global_settings.stereo_width,
+              global_settings.mdb_strength,
+              global_settings.mdb_harmonics,
+              global_settings.mdb_center,
+              global_settings.mdb_shape,
+              global_settings.mdb_enable,
+              global_settings.superbass);
+#endif /* CONFIG_CODEC != SWCODEC */
 
     CHART(">audio_init");
     audio_init();
     CHART("<audio_init");
-    talk_announce_voice_invalid(); /* notify user w/ voice prompt if voice file invalid */
-
-#ifdef HAVE_WIFI
-    wifi_init();
-#endif
 
     /* runtime database has to be initialized after audio_init() */
     cpu_boost(false);
@@ -767,4 +763,4 @@ void cop_main(void)
 }
 #endif /* CPU_PP */
 
-#endif /* CONFIG_PLATFORM & PLATFORM_HOSTED */
+#endif /* SIMULATOR */

@@ -55,35 +55,19 @@ enum {
     UNIT_LAST     /* END MARKER */
 };
 
-/* Status of loading talk file, shown in debug_menu */
-enum talk_status {
-    TALK_STATUS_OK = 0,
-    TALK_STATUS_ERR_OOM,
-    TALK_STATUS_ERR_ALLOC,
-    TALK_STATUS_ERR_NOFILE,
-    TALK_STATUS_ERR_INCOMPATIBLE
-};
-
-enum talk_speakmode {
-    /* voice mode: 0=off, 1=number, 2=spell */
-    TALK_SPEAK_OFF = 0,
-    TALK_SPEAK_NUMBER,
-    TALK_SPEAK_SPELL
-};
-
 #define UNIT_SHIFT (32-5) /* this many bits left from UNIT_xx enum */
 
 #define DECIMAL_SHIFT (32 - 8)
 
 /* make a "talkable" ID from number + unit
    unit is upper 4 bits, number the remaining (in regular 2's complement) */
-#define TALK_ID(n,u) (((long)(u))<<UNIT_SHIFT | ((n) & ~(((unsigned int)-1L)<<DECIMAL_SHIFT)))
+#define TALK_ID(n,u) (((long)(u))<<UNIT_SHIFT | ((n) & ~(-1L<<DECIMAL_SHIFT)))
 
 /* make a "talkable" ID from a decimal number + unit, the decimal number
    is represented like x*10^d where d is the number of decimal digits */
 #define TALK_ID_DECIMAL(n,d,u) (((long)(u))<<UNIT_SHIFT |\
                              ((long)(d))<<DECIMAL_SHIFT |\
-                             ((n) & ~(((unsigned int)-1L)<<DECIMAL_SHIFT)))
+                             ((n) & ~(-1L<<DECIMAL_SHIFT)))
 
 /* convenience macro to have both virtual pointer and ID as arguments */
 #define STR(id) ID2P(id), id
@@ -145,16 +129,12 @@ void talk_fractional(char *tbuf, int value, int unit);
 void talk_time(const struct tm *tm, bool enqueue);
 void talk_date(const struct tm *tm, bool enqueue);
 
-#ifdef HAVE_MULTIVOLUME
-int talk_volume_id(int volume);
-#endif
-
 /* speaks hr, min, sec, ms; unit_idx is lowest or base unit of the time value */
 int talk_time_intervals(long time, int unit_idx, bool enqueue);
 
 /* This (otherwise invalid) ID signals the end of the array. */
 #define TALK_FINAL_ID LANG_LAST_INDEX_IN_ARRAY
-#define TALK_FINAL_ID_VOICEONLY LANG_LAST_VOICEONLY_INDEX_IN_ARRAY
+
 /* Enqueue next utterance even if enqueue parameter is false: don't
    interrupt the current utterance. */
 void talk_force_enqueue_next(void);
@@ -194,10 +174,7 @@ struct talk_debug_data {
     int  cached_clips;
     int  cache_hits;
     int  cache_misses;
-    enum talk_status status;
 };
-
-void talk_announce_voice_invalid(void);
 
 bool talk_get_debug_data(struct talk_debug_data *data);
 

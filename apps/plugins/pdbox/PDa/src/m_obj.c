@@ -270,11 +270,6 @@ static int outlet_eventno;
     /* set a stack limit (on each incoming event that can set off messages)
     for the outlet functions to check to prevent stack overflow from message
     recursion */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#if __GNUC__ >= 13
-#pragma GCC diagnostic ignored "-Wdangling-pointer"
-#endif
 void outlet_setstacklim(void)
 {
     char c;
@@ -282,7 +277,6 @@ void outlet_setstacklim(void)
     stacklimit = (&c) - STACKSIZE;
     outlet_eventno++;
 }
-#pragma GCC diagnostic pop
 
     /* get a number unique to the (clock, MIDI, GUI, etc.) event we're on */
 int sched_geteventno( void)

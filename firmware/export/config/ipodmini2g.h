@@ -21,12 +21,15 @@
 #define INPUT_SRC_CAPS (SRC_CAP_FMRADIO)
 
 /* define the bitmask of hardware sample rates */
-#define HW_SAMPR_CAPS   (/*SAMPR_CAP_96 | SAMPR_CAP_88 |*/ SAMPR_CAP_48 | \
+#define HW_SAMPR_CAPS   (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8)
 
 /* define the bitmask of recording sample rates
 #define REC_SAMPR_CAPS  (SAMPR_CAP_96 | SAMPR_CAP_88 | SAMPR_CAP_48 | \
                          SAMPR_CAP_44 | SAMPR_CAP_32 | SAMPR_CAP_8) */
+
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you want album art for this target */
 #define HAVE_ALBUMART
@@ -82,8 +85,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_PCF50605
@@ -185,6 +188,15 @@
 #define CPU_FREQ      11289600
 
 #define CONFIG_LCD LCD_IPODMINI
+
+/* Offset ( in the firmware file's header ) to the file length */
+#define FIRMWARE_OFFSET_FILE_LENGTH 0
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC

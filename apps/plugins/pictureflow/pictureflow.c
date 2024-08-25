@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "plugin.h"
-#include "albumart.h"
+#include <albumart.h>
 #include "lib/read_image.h"
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_exit.h"
@@ -33,10 +33,10 @@
 #include "lib/grey.h"
 #include "lib/mylcd.h"
 #include "lib/feature_wrappers.h"
-#include "lib/id3.h"
+
+
 
 /******************************* Globals ***********************************/
-static fb_data *lcd_fb;
 
 /*
  *  Targets which use plugin_get_audio_buffer() can't have playback from
@@ -45,7 +45,6 @@ static fb_data *lcd_fb;
 
 #if PF_PLAYBACK_CAPABLE
 #include "lib/playback_control.h"
-#include "lib/mul_id3.h"
 #endif
 
 #define PF_PREV ACTION_STD_PREV
@@ -57,22 +56,13 @@ static fb_data *lcd_fb;
 #define PF_BACK ACTION_STD_CANCEL
 #define PF_MENU ACTION_STD_MENU
 #define PF_WPS ACTION_TREE_WPS
-#define PF_JMP ACTION_LISTTREE_PGDOWN
-#define PF_JMP_PREV ACTION_LISTTREE_PGUP
 
 #define PF_QUIT (LAST_ACTION_PLACEHOLDER + 1)
 #define PF_TRACKLIST (LAST_ACTION_PLACEHOLDER + 2)
-#define PF_SORTING_NEXT (LAST_ACTION_PLACEHOLDER + 3)
-#define PF_SORTING_PREV (LAST_ACTION_PLACEHOLDER + 4)
 
 #if defined(HAVE_SCROLLWHEEL) || CONFIG_KEYPAD == IRIVER_H10_PAD || \
     CONFIG_KEYPAD == MPIO_HD300_PAD
-#if (CONFIG_KEYPAD != IPOD_1G2G_PAD) \
-    && (CONFIG_KEYPAD != IPOD_3G_PAD) \
-    && (CONFIG_KEYPAD != IPOD_4G_PAD) \
-    && (CONFIG_KEYPAD != FIIO_M3K_PAD)
 #define USE_CORE_PREVNEXT
-#endif
 #endif
 
 #ifndef USE_CORE_PREVNEXT
@@ -92,19 +82,7 @@ const struct button_mapping pf_context_album_scroll[] =
     {PF_PREV_REPEAT,  BUTTON_RC_REW|BUTTON_REPEAT,BUTTON_NONE},
     {PF_NEXT,         BUTTON_RC_FF,               BUTTON_NONE},
     {PF_NEXT_REPEAT,  BUTTON_RC_FF|BUTTON_REPEAT, BUTTON_NONE},
-#elif (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD) \
-    || (CONFIG_KEYPAD == FIIO_M3K_PAD)
-    {PF_JMP_PREV,     BUTTON_LEFT,                BUTTON_NONE},
-    {PF_JMP_PREV,     BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_NONE},
-    {PF_JMP,          BUTTON_RIGHT,               BUTTON_NONE},
-    {PF_JMP,          BUTTON_RIGHT|BUTTON_REPEAT, BUTTON_NONE},
-    {ACTION_NONE,     BUTTON_LEFT|BUTTON_REL,     BUTTON_LEFT},
-    {ACTION_NONE,     BUTTON_RIGHT|BUTTON_REL,    BUTTON_RIGHT},
-    {ACTION_NONE,     BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_LEFT},
-    {ACTION_NONE,     BUTTON_RIGHT|BUTTON_REPEAT, BUTTON_RIGHT},
-#elif defined(BUTTON_LEFT) && defined(BUTTON_RIGHT)
+#else
     {PF_PREV,         BUTTON_LEFT,                BUTTON_NONE},
     {PF_PREV_REPEAT,  BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_NONE},
     {PF_NEXT,         BUTTON_RIGHT,               BUTTON_NONE},
@@ -113,8 +91,13 @@ const struct button_mapping pf_context_album_scroll[] =
     {ACTION_NONE,     BUTTON_RIGHT|BUTTON_REL,    BUTTON_RIGHT},
     {ACTION_NONE,     BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_LEFT},
     {ACTION_NONE,     BUTTON_RIGHT|BUTTON_REPEAT, BUTTON_RIGHT},
-#else
-#warning "LEFT/RIGHT not defined!"
+#endif
+#if CONFIG_KEYPAD == ONDIO_PAD
+    {PF_SELECT,       BUTTON_UP|BUTTON_REL,       BUTTON_UP},
+    {PF_CONTEXT,      BUTTON_UP|BUTTON_REPEAT,    BUTTON_UP},
+    {ACTION_NONE,     BUTTON_UP,                  BUTTON_NONE},
+    {ACTION_NONE,     BUTTON_DOWN,                BUTTON_NONE},
+    {ACTION_NONE,     BUTTON_DOWN|BUTTON_REPEAT,  BUTTON_NONE},
 #endif
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_PLUGIN|1)
 };
@@ -126,8 +109,12 @@ const struct button_mapping pf_context_buttons[] =
     {PF_SELECT,       BUTTON_CENTER,              BUTTON_NONE},
     {PF_BACK,         BUTTON_BOTTOMRIGHT,         BUTTON_NONE},
 #endif
-#if CONFIG_KEYPAD == CREATIVEZV_PAD || CONFIG_KEYPAD == CREATIVEZVM_PAD || \
-    CONFIG_KEYPAD == PHILIPS_HDD1630_PAD || \
+#if CONFIG_KEYPAD == ARCHOS_AV300_PAD
+    {PF_QUIT,         BUTTON_OFF,                 BUTTON_NONE},
+#elif CONFIG_KEYPAD == SANSA_C100_PAD
+    {PF_QUIT,         BUTTON_MENU|BUTTON_REPEAT,  BUTTON_MENU},
+#elif CONFIG_KEYPAD == CREATIVEZV_PAD || CONFIG_KEYPAD == CREATIVEZVM_PAD || \
+    CONFIG_KEYPAD == PHILIPS_HDD1630_PAD || CONFIG_KEYPAD == IAUDIO67_PAD || \
     CONFIG_KEYPAD == GIGABEAT_PAD || CONFIG_KEYPAD == GIGABEAT_S_PAD || \
     CONFIG_KEYPAD == MROBE100_PAD || CONFIG_KEYPAD == MROBE500_PAD || \
     CONFIG_KEYPAD == PHILIPS_SA9200_PAD || CONFIG_KEYPAD == SANSA_CLIP_PAD || \
@@ -151,20 +138,21 @@ const struct button_mapping pf_context_buttons[] =
 #endif
 #elif CONFIG_KEYPAD == SANSA_E200_PAD
     {PF_QUIT,         BUTTON_POWER,               BUTTON_NONE},
+#elif CONFIG_KEYPAD == IRIVER_IFP7XX_PAD
+    {PF_QUIT,         BUTTON_EQ,                  BUTTON_NONE},
 #elif (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
     || (CONFIG_KEYPAD == IPOD_3G_PAD) \
-    || (CONFIG_KEYPAD == IPOD_4G_PAD)
-    {PF_MENU,         BUTTON_MENU|BUTTON_REPEAT,  BUTTON_MENU},
-    {PF_QUIT,         BUTTON_MENU|BUTTON_REL,     BUTTON_MENU},
-    {PF_SORTING_NEXT, BUTTON_SELECT|BUTTON_MENU,  BUTTON_NONE},
-    {PF_SORTING_PREV, BUTTON_SELECT|BUTTON_PLAY,  BUTTON_NONE},
-#elif CONFIG_KEYPAD == MPIO_HD300_PAD
+    || (CONFIG_KEYPAD == IPOD_4G_PAD) \
+    || (CONFIG_KEYPAD == MPIO_HD300_PAD)
     {PF_QUIT,         BUTTON_MENU|BUTTON_REPEAT,  BUTTON_MENU},
+#elif CONFIG_KEYPAD == LOGIK_DAX_PAD
+    {PF_QUIT,         BUTTON_POWERPLAY|BUTTON_REPEAT, BUTTON_POWERPLAY},
 #elif CONFIG_KEYPAD == IAUDIO_M3_PAD
     {PF_QUIT,         BUTTON_RC_REC,              BUTTON_NONE},
 #elif CONFIG_KEYPAD == MEIZU_M6SL_PAD
     {PF_QUIT,         BUTTON_MENU|BUTTON_REPEAT,  BUTTON_MENU},
-#elif CONFIG_KEYPAD == IRIVER_H100_PAD || CONFIG_KEYPAD == IRIVER_H300_PAD
+#elif CONFIG_KEYPAD == IRIVER_H100_PAD || CONFIG_KEYPAD == IRIVER_H300_PAD || \
+    CONFIG_KEYPAD == RECORDER_PAD || CONFIG_KEYPAD == ONDIO_PAD
     {PF_QUIT,         BUTTON_OFF,                 BUTTON_NONE},
 #elif CONFIG_KEYPAD == PBELL_VIBE500_PAD
     {PF_QUIT,         BUTTON_REC,                 BUTTON_NONE},
@@ -175,17 +163,6 @@ const struct button_mapping pf_context_buttons[] =
     {PF_CONTEXT,      BUTTON_FFWD|BUTTON_REPEAT,  BUTTON_FFWD},
     {PF_TRACKLIST,    BUTTON_FFWD|BUTTON_REL,     BUTTON_FFWD},
     {PF_WPS,          BUTTON_PLAY|BUTTON_REPEAT,  BUTTON_PLAY},
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-    {PF_JMP_PREV,     BUTTON_LEFT,                BUTTON_NONE},
-    {PF_JMP_PREV,     BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_NONE},
-    {PF_JMP,          BUTTON_RIGHT,               BUTTON_NONE},
-    {PF_JMP,          BUTTON_RIGHT|BUTTON_REPEAT, BUTTON_NONE},
-    {PF_MENU,         BUTTON_POWER|BUTTON_REL,    BUTTON_POWER},
-    {PF_SORTING_NEXT, BUTTON_VOL_UP,              BUTTON_NONE},
-    {PF_SORTING_PREV, BUTTON_VOL_DOWN,            BUTTON_NONE},
-    {PF_QUIT,         BUTTON_POWER|BUTTON_REPEAT, BUTTON_POWER},
-    {PF_CONTEXT,      BUTTON_MENU|BUTTON_REL,     BUTTON_MENU},
-    {PF_TRACKLIST,    BUTTON_MENU|BUTTON_REPEAT,  BUTTON_MENU},
 #endif
 #if CONFIG_KEYPAD == IAUDIO_M3_PAD
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD|CONTEXT_REMOTE)
@@ -223,7 +200,7 @@ GREY_INFO_STRUCT
 #define BUFFER_HEIGHT _grey_info.height
 typedef unsigned char pix_t;
 #else   /* LCD_DEPTH >= 8 */
-#define LCD_BUF lcd_fb
+#define LCD_BUF rb->lcd_framebuffer
 #define G_PIX LCD_RGBPACK
 #define N_PIX LCD_RGBPACK
 #define G_BRIGHT(y) LCD_RGBPACK(y,y,y)
@@ -240,6 +217,7 @@ typedef fb_data pix_t;
 #define PFREAL_FACTOR (1 << PFREAL_SHIFT)
 #define PFREAL_ONE (1 << PFREAL_SHIFT)
 #define PFREAL_HALF (PFREAL_ONE >> 1)
+
 
 #define IANGLE_MAX 1024
 #define IANGLE_MASK 1023
@@ -263,7 +241,6 @@ typedef fb_data pix_t;
 
 #define THREAD_STACK_SIZE DEFAULT_STACK_SIZE + 0x200
 #define CACHE_PREFIX PLUGIN_DEMOS_DATA_DIR "/pictureflow"
-#define ALBUM_INDEX CACHE_PREFIX "/pictureflow_album.idx"
 
 #define EV_EXIT 9999
 #define EV_WAKEUP 1337
@@ -274,92 +251,18 @@ typedef fb_data pix_t;
 
 /* some magic numbers for cache_version. */
 #define CACHE_REBUILD   0
+#define CACHE_UPDATE    1
 
 /* Error return values */
-#define SUCCESS              0
 #define ERROR_NO_ALBUMS     -1
 #define ERROR_BUFFER_FULL   -2
-#define ERROR_NO_ARTISTS    -3
-#define ERROR_USER_ABORT    -4
 
 /* current version for cover cache */
-#define CACHE_VERSION 4
+#define CACHE_VERSION 3
 #define CONFIG_VERSION 1
 #define CONFIG_FILE "pictureflow.cfg"
-#define INDEX_HDR "PFID"
 
 /** structs we use */
-struct pf_config_t
-{
-     /* config values */
-     int slide_spacing;
-     int center_margin;
-
-     int num_slides;
-     int zoom;
-
-     int auto_wps;
-     int last_album;
-
-     int backlight_mode;
-     int cache_version;
-
-     int show_album_name;
-     int sort_albums_by;
-     int year_sort_order;
-     bool show_year;
-
-     bool resize;
-     bool show_fps;
-
-     bool update_albumart;
-};
-
-struct pf_index_t {
-    uint32_t            header; /*INDEX_HDR*/
-    uint16_t            artist_ct;
-    uint16_t            album_ct;
-
-    char               *artist_names;
-    struct artist_data *artist_index;
-    size_t              artist_len;
-
-    unsigned int        album_untagged_idx;
-    char               *album_names;
-    struct album_data  *album_index;
-    size_t              album_len;
-    long                album_untagged_seek;
-
-    void * buf;
-    size_t buf_sz;
-};
-
-struct pf_track_t {
-    int    count;
-    int    cur_idx;
-    int    sel;
-    int    sel_pulse;
-    int    last_sel;
-    int    list_start;
-    int    list_visible;
-    int    list_y;
-    int    list_h;
-    size_t borrowed;
-    size_t used;
-    struct track_data *index;
-    char  *names;
-};
-
-struct albumart_t {
-    struct bitmap input_bmp;
-    char pfraw_file[MAX_PATH];
-    char file[MAX_PATH];
-    int idx;
-    int slides;
-    int inspected;
-    void * buf;
-    size_t buf_sz;
-};
 
 struct slide_data {
     int slide_index;
@@ -377,16 +280,8 @@ struct slide_cache {
 };
 
 struct album_data {
-    int name_idx;    /* offset to the album name */
-    int artist_idx;  /* offset to the artist name */
-    int year;        /* album year */
-    long artist_seek; /* artist taglist position */
-    long seek;        /* album taglist position */
-};
-
-struct artist_data {
-    int name_idx; /* offset to the artist name */
-    long seek;    /* artist taglist position */
+    int name_idx;
+    long seek;
 };
 
 struct track_data {
@@ -411,20 +306,9 @@ struct load_slide_event_data {
     int cache_index;
 };
 
-struct pf_slide_cache
-{
-    struct slide_cache cache[SLIDE_CACHE_SIZE];
-    int free;
-    int used;
-    int left_idx;
-    int right_idx;
-    int center_idx;
-};
-
 enum pf_scroll_line_type {
     PF_SCROLL_TRACK = 0,
     PF_SCROLL_ALBUM,
-    PF_SCROLL_ARTIST,
     PF_MAX_SCROLL_LINES
 };
 
@@ -450,75 +334,49 @@ struct pfraw_header {
 enum show_album_name_values {
     ALBUM_NAME_HIDE = 0,
     ALBUM_NAME_BOTTOM,
-    ALBUM_NAME_TOP,
-    ALBUM_AND_ARTIST_TOP,
-    ALBUM_AND_ARTIST_BOTTOM
+    ALBUM_NAME_TOP
 };
 static char* show_album_name_conf[] =
 {
     "hide",
     "bottom",
-    "top",
-    "both top",
-    "both bottom",
-};
-
-enum sort_albums_by_values {
-    SORT_BY_ARTIST_AND_NAME = 0,
-    SORT_BY_ARTIST_AND_YEAR,
-    SORT_BY_YEAR,
-    SORT_BY_NAME,
-
-    SORT_VALUES_SIZE
-};
-static char* sort_albums_by_conf[] =
-{
-    "artist + name",
-    "artist + year",
-    "year",
-    "name"
-};
-enum year_sort_order_values {
-    ASCENDING = 0,
-    DESCENDING
-};
-static char* year_sort_order_conf[] =
-{
-    "ascending",
-    "descending"
+    "top"
 };
 
 #define MAX_SPACING 40
 #define MAX_MARGIN 80
 
-static struct albumart_t aa_cache;
-static struct pf_config_t pf_cfg;
+/* config values and their defaults */
+static int slide_spacing = DISPLAY_WIDTH / 4;
+static int center_margin = (LCD_WIDTH - DISPLAY_WIDTH) / 12;
+static int num_slides = 4;
+static int zoom = 100;
+static bool show_fps = false;
+static int auto_wps = 0;
+static int last_album = 0;
+static int backlight_mode = 0;
+static bool resize = true;
+static int cache_version = 0;
+static int show_album_name = (LCD_HEIGHT > 100)
+    ? ALBUM_NAME_TOP : ALBUM_NAME_BOTTOM;
 
 static struct configdata config[] =
 {
-    { TYPE_INT, 0, MAX_SPACING, { .int_p = &pf_cfg.slide_spacing }, "slide spacing",
+    { TYPE_INT, 0, MAX_SPACING, { .int_p = &slide_spacing }, "slide spacing",
       NULL },
-    { TYPE_INT, 0, MAX_MARGIN, { .int_p = &pf_cfg.center_margin }, "center margin",
+    { TYPE_INT, 0, MAX_MARGIN, { .int_p = &center_margin }, "center margin",
       NULL },
-    { TYPE_INT, 0, MAX_SLIDES_COUNT, { .int_p = &pf_cfg.num_slides }, "slides count",
+    { TYPE_INT, 0, MAX_SLIDES_COUNT, { .int_p = &num_slides }, "slides count",
       NULL },
-    { TYPE_INT, 0, 300, { .int_p = &pf_cfg.zoom }, "zoom", NULL },
-    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.show_fps }, "show fps", NULL },
-    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.resize }, "resize", NULL },
-    { TYPE_INT, 0, 100, { .int_p = &pf_cfg.cache_version }, "cache version", NULL },
-    { TYPE_ENUM, 0, 5, { .int_p = &pf_cfg.show_album_name }, "show album name",
+    { TYPE_INT, 0, 300, { .int_p = &zoom }, "zoom", NULL },
+    { TYPE_BOOL, 0, 1, { .bool_p = &show_fps }, "show fps", NULL },
+    { TYPE_BOOL, 0, 1, { .bool_p = &resize }, "resize", NULL },
+    { TYPE_INT, 0, 100, { .int_p = &cache_version }, "cache version", NULL },
+    { TYPE_ENUM, 0, 3, { .int_p = &show_album_name }, "show album name",
       show_album_name_conf },
-    { TYPE_INT, 0, 2, { .int_p = &pf_cfg.auto_wps }, "auto wps", NULL },
-    { TYPE_INT, 0, 999999, { .int_p = &pf_cfg.last_album }, "last album", NULL },
-    { TYPE_INT, 0, 1, { .int_p = &pf_cfg.backlight_mode }, "backlight", NULL },
-    { TYPE_INT, 0, 999999, { .int_p = &aa_cache.idx }, "art cache pos", NULL },
-    { TYPE_INT, 0, 999999, { .int_p = &aa_cache.inspected }, "art cache inspected", NULL },
-    { TYPE_ENUM, 0, 4, { .int_p = &pf_cfg.sort_albums_by }, "sort albums by",
-      sort_albums_by_conf },
-    { TYPE_ENUM, 0, 2, { .int_p = &pf_cfg.year_sort_order }, "year order",
-      year_sort_order_conf },
-    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.show_year }, "show year", NULL },
-    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.update_albumart }, "update albumart", NULL }
+    { TYPE_INT, 0, 2, { .int_p = &auto_wps }, "auto wps", NULL },
+    { TYPE_INT, 0, 999999, { .int_p = &last_album }, "last album", NULL },
+    { TYPE_INT, 0, 1, { .int_p = &backlight_mode }, "backlight", NULL }
 };
 
 #define CONFIG_NUM_ITEMS (sizeof(config) / sizeof(struct configdata))
@@ -539,10 +397,13 @@ static int itilt;
 static PFreal offsetX;
 static PFreal offsetY;
 static int number_of_slides;
-static bool is_initial_slide = true;
-static bool show_tracks_while_browsing = false;
 
-static struct pf_slide_cache pf_sldcache;
+static struct slide_cache cache[SLIDE_CACHE_SIZE];
+static int cache_free;
+static int cache_used = -1;
+static int cache_left_index = -1;
+static int cache_right_index = -1;
+static int cache_center_index = -1;
 
 /* use long for aligning */
 unsigned long thread_stack[THREAD_STACK_SIZE / sizeof(long)];
@@ -557,32 +418,37 @@ static struct tagcache_search tcs;
 
 static struct buflib_context buf_ctx;
 
-static struct pf_index_t pf_idx;
+static struct album_data *album;
+static char *album_names;
+static int album_count;
 
-static struct pf_track_t pf_tracks;
-
-static struct mp3entry id3;
-
+static struct track_data *tracks;
+static char *track_names;
+static size_t borrowed = 0;
+static int track_count;
+static int track_index;
+static int selected_track;
+static int selected_track_pulse;
 void reset_track_list(void);
 
-static bool thread_is_running;
-static bool wants_to_quit = false;
+void * buf;
+size_t buf_size;
 
-/*
-    Prevent picture loading thread from allocating
-    buflib memory while the main thread may be
-    performing buffer-shifting operations.
-*/
-static struct mutex buf_ctx_mutex;
-static bool buf_ctx_locked = false;
+static bool thread_is_running;
 
 static int cover_animation_keyframe;
 static int extra_fade;
 
 static struct pf_scroll_line_info scroll_line_info;
 static struct pf_scroll_line scroll_lines[PF_MAX_SCROLL_LINES];
+static int prev_albumtxt_index = -1;
+static int last_selected_track = -1;
 
-enum ePFS{ePFS_ARTIST = 0, ePFS_ALBUM};
+static int start_index_track_list = 0;
+static int track_list_visible_entries = 0;
+static int track_list_y;
+static int track_list_h;
+
 /*
     Proposals for transitions:
 
@@ -609,99 +475,10 @@ enum pf_states {
 
 static int pf_state;
 
-#if PF_PLAYBACK_CAPABLE
-static bool insert_whole_album;
-static bool old_shuffle = false;
-static int old_playlist = -1;
-#endif
-
 /** code */
 static bool free_slide_prio(int prio);
 bool load_new_slide(void);
 int load_surface(int);
-static void draw_progressbar(int step, int count, char *msg);
-static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size);
-static void free_all_slide_prio(int prio);
-
-static inline void buf_ctx_lock(void)
-{
-    rb->mutex_lock(&buf_ctx_mutex);
-    buf_ctx_locked = true;
-}
-
-static inline void buf_ctx_unlock(void)
-{
-    rb->mutex_unlock(&buf_ctx_mutex);
-    buf_ctx_locked = false;
-}
-
-static bool check_database(void)
-{
-    bool needwarn = true;
-    int spin = 5;
-
-    struct tagcache_stat *stat = rb->tagcache_get_stat();
-
-    while ( !(stat->initialized && stat->ready) )
-    {
-        if (--spin > 0)
-        {
-            rb->sleep(HZ/5);
-        }
-        else if (needwarn)
-        {
-            needwarn = false;
-            rb->splash(0, ID2P(LANG_TAGCACHE_BUSY));
-        }
-        else
-            return false;
-
-        rb->yield();
-        stat = rb->tagcache_get_stat();
-    }
-    return true;
-}
-
-static bool confirm_quit(void)
-{
-    const struct text_message prompt =
-             { (const char*[]) {"Quit?", "Progress will be lost"}, 2};
-    enum yesno_res response = rb->gui_syncyesno_run(&prompt, NULL, NULL);
-    while (rb->button_get(false) == BUTTON_NONE)
-    {;;}
-
-    if(response == YESNO_NO)
-        return false;
-    else
-        return true;
-}
-
-static void config_save(int cache_version, bool update_albumart)
-{
-    pf_cfg.cache_version = cache_version;
-    pf_cfg.update_albumart = update_albumart;
-    configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
-}
-
-static void config_set_defaults(struct pf_config_t *cfg)
-{
-     cfg->slide_spacing = DISPLAY_WIDTH / 4;
-     cfg->center_margin = (LCD_WIDTH - DISPLAY_WIDTH) / 12;
-     cfg->num_slides = 4;
-     cfg->zoom = 100;
-     cfg->show_fps = false;
-     cfg->auto_wps = 0;
-     cfg->last_album = 0;
-     cfg->backlight_mode = 0;
-     cfg->resize = true;
-     cfg->cache_version = CACHE_REBUILD;
-     cfg->show_album_name = (LCD_HEIGHT > 100)
-        ? ALBUM_AND_ARTIST_BOTTOM : ALBUM_NAME_BOTTOM;
-     cfg->sort_albums_by = SORT_BY_ARTIST_AND_NAME;
-     cfg->year_sort_order = ASCENDING;
-     cfg->show_year = false;
-     cfg->update_albumart = false;
-}
 
 static inline PFreal fmul(PFreal a, PFreal b)
 {
@@ -820,7 +597,13 @@ static inline PFreal fdiv(PFreal num, PFreal den)
 #define fabs(a) (a < 0 ? -a : a)
 #define fbound(min,val,max) (fmax((min),fmin((max),(val))))
 
+#if CONFIG_CPU == SH7034
+/* 16*16->32 bit multiplication is a single instrcution on the SH1 */
+#define MULUQ(a, b) ((uint32_t) (((uint16_t) (a)) * ((uint16_t) (b))))
+#else
 #define MULUQ(a, b) ((a) * (b))
+#endif
+
 
 #if 0
 #define fmul(a,b) ( ((a)*(b)) >> PFREAL_SHIFT )
@@ -970,7 +753,6 @@ const struct custom_format format_transposed = {
 
 static const struct button_mapping* get_context_map(int context)
 {
-    context &= ~CONTEXT_LOCKED;
     return pf_contexts[context & ~CONTEXT_PLUGIN];
 }
 
@@ -1052,647 +834,44 @@ static void init_reflect_table(void)
             (5 * REFLECT_HEIGHT);
 }
 
-
-static int compare_albums (const void *a_v, const void *b_v)
-{
-    uint32_t artist_a = ((struct album_data *)a_v)->artist_idx;
-    uint32_t artist_b = ((struct album_data *)b_v)->artist_idx;
-
-    uint32_t album_a = ((struct album_data *)a_v)->name_idx;
-    uint32_t album_b = ((struct album_data *)b_v)->name_idx;
-
-    int year_a = ((struct album_data *)a_v)->year;
-    int year_b = ((struct album_data *)b_v)->year;
-
-    switch (pf_cfg.sort_albums_by)
-    {
-        case SORT_BY_ARTIST_AND_NAME:
-            if (artist_a - artist_b == 0)
-                return (int)(album_a - album_b);
-            break;
-        case SORT_BY_ARTIST_AND_YEAR:
-            if (artist_a - artist_b == 0)
-            {
-                if (pf_cfg.year_sort_order == ASCENDING)
-                    return year_a - year_b;
-                else
-                    return year_b - year_a;
-            }
-            break;
-        case SORT_BY_YEAR:
-            if (year_a - year_b != 0)
-            {
-                if (pf_cfg.year_sort_order == ASCENDING)
-                    return year_a - year_b;
-                else
-                    return year_b - year_a;
-            }
-            break;
-        case SORT_BY_NAME:
-            if (album_a - album_b != 0)
-                return (int)(album_a - album_b);
-            break;
-    }
-
-    return (int)(artist_a - artist_b);
-}
-
-static int compare_album_artists (const void *a_v, const void *b_v)
-{
-    uint32_t a = ((struct album_data *)a_v)->artist_idx;
-    uint32_t b = ((struct album_data *)b_v)->artist_idx;
-    return (int)(a - b);
-}
-
-static void write_album_index(int idx, int name_idx,
-                              long album_seek, int artist_idx, long artist_seek)
-{
-    pf_idx.album_index[idx].name_idx = name_idx;
-    pf_idx.album_index[idx].seek = album_seek;
-    pf_idx.album_index[idx].artist_idx = artist_idx;
-    pf_idx.album_index[idx].artist_seek = artist_seek;
-    pf_idx.album_index[idx].year = 0;
-}
-
-static inline void write_album_entry(struct tagcache_search *tcs,
-                                     int name_idx, unsigned int len)
-{
-    write_album_index(-pf_idx.album_ct, name_idx, tcs->result_seek, 0, -1);
-    pf_idx.album_len += len;
-    pf_idx.album_ct++;
-
-    if (pf_idx.album_untagged_seek == -1 && rb->strcmp(UNTAGGED, tcs->result) == 0)
-    {
-        pf_idx.album_untagged_idx = name_idx;
-        pf_idx.album_untagged_seek = tcs->result_seek;
-    }
-}
-
-static void write_artist_entry(struct tagcache_search *tcs,
-                               int name_idx, unsigned int len)
-{
-    pf_idx.artist_index[-pf_idx.artist_ct].name_idx = name_idx;
-    pf_idx.artist_index[-pf_idx.artist_ct].seek = tcs->result_seek;
-    pf_idx.artist_len += len;
-    pf_idx.artist_ct++;
-}
-
-/* adds tagcache_search results into artist/album index */
-static int get_tcs_search_res(int type, struct tagcache_search *tcs,
-                              void **buf, size_t *bufsz)
-{
-    char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    int ret = SUCCESS;
-    unsigned int l, name_idx = 0;
-    void (*writefn)(struct tagcache_search *, int, unsigned int);
-    int data_size;
-    if (type == ePFS_ARTIST)
-    {
-        writefn = &write_artist_entry;
-        data_size = sizeof(struct artist_data);
-    }
-    else
-    {
-        writefn = &write_album_entry;
-        data_size = sizeof(struct album_data);
-    }
-
-    while (rb->tagcache_get_next(tcs, tcs_buf, tcs_bufsz))
-    {
-        if (rb->button_get(false) > BUTTON_NONE)
-        {
-            if (confirm_quit())
-            {
-                ret = ERROR_USER_ABORT;
-                break;
-            } else
-                rb->lcd_clear_display();
-        }
-
-        *bufsz -= data_size;
-
-        l = tcs->result_len;
-
-        if ( l > *bufsz )
-        {
-            /* not enough memory */
-            ret = ERROR_BUFFER_FULL;
-            break;
-        }
-
-        rb->strcpy(*buf, tcs->result);
-
-        *bufsz -= l;
-        *buf = l + (char *)*buf;
-
-        writefn(tcs, name_idx, l);
-
-        name_idx += l;
-    }
-    rb->tagcache_search_finish(tcs);
-    return ret;
-}
-
-/*adds <untagged> albums/artist to existing album index */
-static int create_album_untagged(struct tagcache_search *tcs,
-                                 void **buf, size_t *bufsz)
-{
-    static char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    int ret = SUCCESS;
-    int album_count = pf_idx.album_ct; /* store existing count */
-    int total_count = pf_idx.album_ct + pf_idx.artist_ct * 2;
-    long seek;
-    int last, final, retry;
-    int i, j;
-    draw_splashscreen(*buf, *bufsz);
-    draw_progressbar(0, total_count, "Searching " UNTAGGED);
-
-    /* search tagcache for all <untagged> albums & save the albumartist seek pos */
-    if (rb->tagcache_search(tcs, tag_albumartist))
-    {
-        rb->tagcache_search_add_filter(tcs, tag_album, pf_idx.album_untagged_seek);
-
-        while (rb->tagcache_get_next(tcs, tcs_buf, tcs_bufsz))
-        {
-            if (rb->button_get(false) > BUTTON_NONE) {
-                if (confirm_quit())
-                    return ERROR_USER_ABORT;
-                else
-                {
-                    rb->lcd_clear_display();
-                    draw_progressbar(pf_idx.album_ct, total_count,
-                                     "Searching " UNTAGGED);
-                }
-            }
-
-            if (tcs->result_seek ==
-                pf_idx.album_index[-(pf_idx.album_ct - 1)].artist_seek)
-                continue;
-
-            if (sizeof(struct album_data) > *bufsz)
-            {
-                /* not enough memory */
-                ret = ERROR_BUFFER_FULL;
-                break;
-            }
-
-            *bufsz -= sizeof(struct album_data);
-            write_album_index(-pf_idx.album_ct, pf_idx.album_untagged_idx,
-                               pf_idx.album_untagged_seek, -1, tcs->result_seek);
-
-            pf_idx.album_ct++;
-            draw_progressbar(pf_idx.album_ct, total_count, NULL);
-        }
-        rb->tagcache_search_finish(tcs);
-
-        if (ret == SUCCESS) {
-            draw_splashscreen(*buf, *bufsz);
-            draw_progressbar(0, pf_idx.album_ct, "Finalizing " UNTAGGED);
-
-            last = 0;
-            final = pf_idx.artist_ct;
-            retry = 0;
-
-            /* map the artist_seek position to the artist name index */
-            for (j = album_count; j < pf_idx.album_ct; j++)
-            {
-                if (rb->button_get(false) > BUTTON_NONE) {
-                    if (confirm_quit())
-                        return ERROR_USER_ABORT;
-                    else
-                    {
-                        rb->lcd_clear_display();
-                        draw_progressbar(j, pf_idx.album_ct, "Finalizing " UNTAGGED);
-                    }
-                }
-
-                draw_progressbar(j, pf_idx.album_ct, NULL);
-                seek = pf_idx.album_index[-j].artist_seek;
-
-    retry_artist_lookup:
-                retry++;
-                for (i = last; i < final; i++)
-                {
-                    if (seek == pf_idx.artist_index[i].seek)
-                    {
-                        int idx = pf_idx.artist_index[i].name_idx;
-                        pf_idx.album_index[-j].artist_idx = idx;
-                        last = i; /* last match, start here next loop */
-                        final = pf_idx.artist_ct;
-                        retry = 0;
-                        break;
-                    }
-                }
-                if (retry > 0 && retry < 2)
-                {
-                    /* no match start back at beginning */
-                    final = last;
-                    last = 0;
-                    goto retry_artist_lookup;
-                }
-            }
-        }
-    }
-
-    return ret;
-}
-
-/* Create an index of all artists from the database */
-static int build_artist_index(struct tagcache_search *tcs,
-                                 void **buf, size_t *bufsz)
-{
-    int i, res = SUCCESS;
-    struct artist_data* tmp_artist;
-
-    /* artist index starts at end of buf it will be rearranged when finalized */
-    pf_idx.artist_index = ((struct artist_data *)(*bufsz + (char *) *buf)) - 1;
-    pf_idx.artist_ct = 0;
-    pf_idx.artist_len = 0;
-    /* artist names starts at beginning of buf */
-    pf_idx.artist_names = *buf;
-
-    rb->tagcache_search(tcs, tag_albumartist);
-    res = get_tcs_search_res(ePFS_ARTIST, tcs, &(*buf), bufsz);
-    rb->tagcache_search_finish(tcs);
-    if (res < SUCCESS)
-        return res;
-
-    /* finalize the artist index */
-    ALIGN_BUFFER(*buf, *bufsz, alignof(struct artist_data));
-    tmp_artist = (struct artist_data*)*buf;
-    for (i = pf_idx.artist_ct - 1; i >= 0; i--)
-        tmp_artist[i] = pf_idx.artist_index[-i];
-
-    pf_idx.artist_index = tmp_artist;
-    /* move buf ptr to end of artist_index */
-    *buf = pf_idx.artist_index + pf_idx.artist_ct;
-
-    if (res == SUCCESS)
-    {
-        if (pf_idx.artist_ct > 0)
-            res = pf_idx.artist_ct;
-        else
-            res = ERROR_NO_ALBUMS;
-    }
-
-    return res;
-}
-
-
-static int assign_album_year(void)
-{
-    char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    draw_progressbar(0, pf_idx.album_ct, "Assigning Album Year");
-    for (int album_idx = 0; album_idx < pf_idx.album_ct; album_idx++)
-    {
-        /* Prevent idle poweroff */
-        rb->reset_poweroff_timer();
-
-        if (rb->button_get(false) > BUTTON_NONE)
-        {
-            if (confirm_quit())
-                return ERROR_USER_ABORT;
-            else
-            {
-                rb->lcd_clear_display();
-                draw_progressbar(album_idx, pf_idx.album_ct, "Assigning Album Year");
-            }
-        }
-        draw_progressbar(album_idx, pf_idx.album_ct, NULL);
-        int album_year = 0;
-
-        if (rb->tagcache_search(&tcs, tag_year))
-        {
-            rb->tagcache_search_add_filter(&tcs, tag_album,
-                                       pf_idx.album_index[album_idx].seek);
-
-            if (pf_idx.album_index[album_idx].artist_idx >= 0)
-                rb->tagcache_search_add_filter(&tcs, tag_albumartist,
-                    pf_idx.album_index[album_idx].artist_seek);
-
-            while (rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz)) {
-                int track_year = rb->tagcache_get_numeric(&tcs, tag_year);
-                if (track_year > album_year)
-                    album_year = track_year;
-            }
-        }
-        rb->tagcache_search_finish(&tcs);
-
-        pf_idx.album_index[album_idx].year = album_year;
-    }
-    return SUCCESS;
-}
-
 /**
-  Create an index of all artists and albums from the database.
-  Also store the artists and album names so we can access them later.
+  Create an index of all albums from the database.
+  Also store the album names so we can access them later.
  */
 static int create_album_index(void)
 {
-    static char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    void *buf = pf_idx.buf;
-    size_t buf_size = pf_idx.buf_sz;
-
-    struct album_data* tmp_album;
-
-    int i, j, last, final, retry, res;
-
-    draw_splashscreen(buf, buf_size);
-    ALIGN_BUFFER(buf, buf_size, sizeof(long));
-
-    /* Artists */
-    res = build_artist_index(&tcs, &buf, &buf_size);
-    if (res < SUCCESS)
-        return res;
-
-    /* Albums */
-    pf_idx.album_ct = 0;
-    pf_idx.album_len =0;
-    pf_idx.album_untagged_idx = 0;
-    pf_idx.album_untagged_seek = -1;
-
-    /* album_index starts at end of buf it will be rearranged when finalized */
-    pf_idx.album_index = ((struct album_data *)(buf_size + (char *)buf)) - 1;
-    /* album_names starts at the beginning of buf */
-    pf_idx.album_names = buf;
-
+    album = ((struct album_data *)(buf_size + (char *) buf)) - 1;
+    rb->memset(&tcs, 0, sizeof(struct tagcache_search) );
+    album_count = 0;
     rb->tagcache_search(&tcs, tag_album);
-    res = get_tcs_search_res(ePFS_ALBUM, &tcs, &buf, &buf_size);
+    unsigned int l, name_idx = 0;
+    album_names = buf;
+    while (rb->tagcache_get_next(&tcs))
+    {
+        buf_size -= sizeof(struct album_data);
+        l = tcs.result_len;
+        album[-album_count].name_idx = name_idx;
+
+        if ( l > buf_size )
+            /* not enough memory */
+            return ERROR_BUFFER_FULL;
+
+        rb->strcpy(buf, tcs.result);
+        buf_size -= l;
+        buf = l + (char *)buf;
+        album[-album_count].seek = tcs.result_seek;
+        name_idx += l;
+        album_count++;
+    }
     rb->tagcache_search_finish(&tcs);
-    if (res < SUCCESS)
-        return res;
-
-    /* Build artist list for untagged albums */
-    res = create_album_untagged(&tcs, &buf, &buf_size);
-
-    if (res < SUCCESS)
-        return res;
-
-    /* finalize the album index */
-    ALIGN_BUFFER(buf, buf_size, alignof(struct album_data));
-    tmp_album = (struct album_data*)buf;
-    for (i = pf_idx.album_ct - 1; i >= 0; i--)
-        tmp_album[i] = pf_idx.album_index[-i];
-
-    pf_idx.album_index = tmp_album;
-    /* move buf ptr to end of album_index */
-    buf = pf_idx.album_index + pf_idx.album_ct;
-
-    /* Assign indices */
-    draw_splashscreen(buf, buf_size);
-    draw_progressbar(0, pf_idx.album_ct, "Assigning Albums");
-    for (j = 0; j < pf_idx.album_ct; j++)
-    {
-        /* Prevent idle poweroff */
-        rb->reset_poweroff_timer();
-
-        if (rb->button_get(false) > BUTTON_NONE)
-        {
-            if (confirm_quit())
-                return ERROR_USER_ABORT;
-            else
-            {
-                rb->lcd_clear_display();
-                draw_progressbar(j, pf_idx.album_ct, "Assigning Albums");
-            }
-
-        }
-
-        draw_progressbar(j, pf_idx.album_ct, NULL);
-        if (pf_idx.album_index[j].artist_seek >= 0) { continue; }
-
-        rb->tagcache_search(&tcs, tag_albumartist);
-        rb->tagcache_search_add_filter(&tcs, tag_album, pf_idx.album_index[j].seek);
-
-        last = 0;
-        final = pf_idx.artist_ct;
-        retry = 0;
-        if (rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz))
-        {
-
-retry_artist_lookup:
-            retry++;
-            for (i = last; i < final; i++)
-            {
-                if (tcs.result_seek == pf_idx.artist_index[i].seek)
-                {
-                    int idx = pf_idx.artist_index[i].name_idx;
-                    pf_idx.album_index[j].artist_idx = idx;
-                    pf_idx.album_index[j].artist_seek = tcs.result_seek;
-                    last = i; /* last match, start here next loop */
-                    final = pf_idx.artist_ct;
-                    retry = 0;
-                    break;
-                }
-            }
-            if (retry > 0 && retry < 2)
-            {
-                /* no match start back at beginning */
-                final = last;
-                last = 0;
-                goto retry_artist_lookup;
-            }
-        }
-        rb->tagcache_search_finish(&tcs);
-    }
-
-    draw_splashscreen(buf, buf_size);
-
-    res = assign_album_year();
-
-    if (res < SUCCESS)
-        return res;
-
-    /* sort list order to find duplicates */
-    rb->qsort(pf_idx.album_index, pf_idx.album_ct,
-              sizeof(struct album_data), compare_album_artists);
-
-    draw_splashscreen(buf, buf_size);
-    draw_progressbar(0, pf_idx.album_ct, "Removing duplicates");
-    /* mark duplicate albums for deletion */
-    for (i = 0; i < pf_idx.album_ct - 1; i++) /* -1 don't check last entry */
-    {
-        /* Prevent idle poweroff */
-        rb->reset_poweroff_timer();
-
-        int idxi = pf_idx.album_index[i].artist_idx;
-        int seeki = pf_idx.album_index[i].seek;
-
-        draw_progressbar(i, pf_idx.album_ct, NULL);
-        for (j = i + 1; j < pf_idx.album_ct; j++)
-        {
-            if (idxi > 0 &&
-            idxi == pf_idx.album_index[j].artist_idx &&
-            seeki == pf_idx.album_index[j].seek)
-            {
-                pf_idx.album_index[j].artist_idx = -1;
-            }
-            else
-            {
-                i = j - 1;
-                break;
-            }
-        }
-    }
-
-    /* now fix the album list order */
-    rb->qsort(pf_idx.album_index, pf_idx.album_ct,
-              sizeof(struct album_data), compare_album_artists);
-
-    /* remove any extra untagged albums
-     * extra space is orphaned till restart */
-    for (i = 0; i < pf_idx.album_ct; i++)
-    {
-        if (pf_idx.album_index[i].artist_idx > 0)
-        {
-            if (i > 0) { i--; }
-            pf_idx.album_index += i;
-            pf_idx.album_ct -= i;
-            break;
-        }
-    }
-
-    pf_idx.buf = buf;
-    pf_idx.buf_sz = buf_size;
-    pf_idx.artist_index = 0;
-
-    rb->qsort(pf_idx.album_index, pf_idx.album_ct,
-                          sizeof(struct album_data), compare_albums);
-
-    return (pf_idx.album_ct > 0) ? 0 : ERROR_NO_ALBUMS;
-}
-
-/*Saves the album index into a binary file to be recovered the
- next time PictureFlow is launched*/
-
-static int save_album_index(void){
-    int fd = rb->creat(ALBUM_INDEX,0666);
-
-    struct pf_index_t data;
-    memcpy(&data, &pf_idx, sizeof(struct pf_index_t));
-
-    if(fd >= 0)
-    {
-        rb->memcpy(&data.header, INDEX_HDR, sizeof(pf_idx.header));
-
-        rb->write(fd, &data, sizeof(struct pf_index_t));
-
-        rb->write(fd, data.artist_names, data.artist_len);
-        rb->write(fd, data.album_names, data.album_len);
-
-        rb->write(fd, data.album_index, data.album_ct * sizeof(struct album_data));
-
-        rb->close(fd);
-        return 0;
-    }
-    return -1;
-}
-
-/* reads data from save file to buffer */
-static inline int read2buf(int fildes, void *buf, size_t nbyte){
-    int read;
-    read = rb->read(fildes, buf, nbyte);
-    if (read < (int)nbyte)
-        return 0;
-
-    return read;
-}
-
-/*Loads the album_index information stored in the hard drive*/
-static int load_album_index(void){
-
-    int i, fr = rb->open(ALBUM_INDEX, O_RDONLY);
-    struct pf_index_t data;
-
-    void *bufstart = pf_idx.buf;
-    unsigned int bufstart_sz = pf_idx.buf_sz;
-
-    void* buf = pf_idx.buf;
-    size_t buf_size = pf_idx.buf_sz;
-
-    unsigned int name_sz, album_idx_sz;
-    int album_idx, artist_idx;
-
-    if (fr >= 0){
-        const unsigned long filesize = rb->filesize(fr);
-        if (filesize > sizeof(data))
-        {
-            if (rb->read(fr, &data, sizeof(data)) == sizeof(data) &&
-                rb->memcmp(&(data.header), INDEX_HDR, sizeof(data.header)) == 0)
-            {
-                name_sz = data.artist_len + data.album_len;
-                album_idx_sz = data.album_ct * sizeof(struct album_data);
-
-                if (name_sz + album_idx_sz > bufstart_sz)
-                    goto failure;
-
-                //rb->lseek(fr, sizeof(data) + 1, SEEK_SET);
-                /* artist names */
-                if (read2buf(fr, buf, data.artist_len) == 0)
-                    goto failure;
-
-                data.artist_names = buf;
-                buf = (char *)buf + data.artist_len;
-                buf_size -= data.artist_len;
-
-                /* album names */
-                if (read2buf(fr, buf, data.album_len) == 0)
-                    goto failure;
-
-                data.album_names = buf;
-                buf = (char *)buf + data.album_len;
-                buf_size -= data.album_len;
-
-                /* index of album names */
-                ALIGN_BUFFER(buf, buf_size, alignof(struct album_data));
-                if (read2buf(fr, buf, album_idx_sz) == 0)
-                    goto failure;
-
-                data.album_index = buf;
-                buf = (char *)buf + album_idx_sz;
-                buf_size -= album_idx_sz;
-
-                rb->close(fr);
-
-                /* sanity check loaded data */
-                for (i = 0; i < data.album_ct; i++)
-                {
-                    album_idx = data.album_index[i].name_idx;
-                    artist_idx = data.album_index[i].artist_idx;
-                    if (album_idx >= (int) data.album_len ||
-                        artist_idx >= (int) data.artist_len)
-                    {
-                        goto failure;
-                    }
-                }
-
-                memcpy(&pf_idx, &data, sizeof(struct pf_index_t));
-                pf_idx.buf = buf;
-                pf_idx.buf_sz = buf_size;
-
-                rb->qsort(pf_idx.album_index, pf_idx.album_ct,
-                          sizeof(struct album_data), compare_albums);
-
-                return 0;
-            }
-        }
-    }
-
-failure:
-    rb->splash(HZ/2, "Failed to load index");
-    if (fr >= 0)
-        rb->close(fr);
-
-    pf_idx.buf = bufstart;
-    pf_idx.buf_sz = bufstart_sz;
-    pf_idx.artist_ct = 0;
-    pf_idx.album_ct = 0;
-    return -1;
-
+    ALIGN_BUFFER(buf, buf_size, 4);
+    int i;
+    struct album_data* tmp_album = (struct album_data*)buf;
+    for (i = album_count - 1; i >= 0; i--)
+        tmp_album[i] = album[-i];
+    album = tmp_album;
+    buf = album + album_count;
+    return (album_count > 0) ? 0 : ERROR_NO_ALBUMS;
 }
 
 /**
@@ -1700,42 +879,7 @@ failure:
  */
 static char* get_album_name(const int slide_index)
 {
-    char *name = pf_idx.album_names + pf_idx.album_index[slide_index].name_idx;
-    return name;
-}
-
-/**
- Return a pointer to the album name of the given slide_index
- */
-static char* get_album_name_idx(const int slide_index, int *idx)
-{
-    *idx = pf_idx.album_index[slide_index].name_idx;
-    char *name = pf_idx.album_names + pf_idx.album_index[slide_index].name_idx;
-    return name;
-}
-
-/**
- Return a pointer to the album artist of the given slide_index
- */
-static char* get_album_artist(const int slide_index)
-{
-    if (slide_index < pf_idx.album_ct && slide_index >= 0){
-        int idx = pf_idx.album_index[slide_index].artist_idx;
-        if (idx >= 0 && idx < (int) pf_idx.artist_len) {
-            char *name = pf_idx.artist_names + idx;
-            return name;
-        }
-    }
-    return "?";
-}
-
-
-static char* get_slide_name(const int slide_index, bool artist)
-{
-    if (artist)
-        return get_album_artist(slide_index);
-
-    return get_album_name(slide_index);
+    return album_names + album[slide_index].name_idx;
 }
 
 /**
@@ -1744,144 +888,31 @@ static char* get_slide_name(const int slide_index, bool artist)
  */
 static char* get_track_name(const int track_index)
 {
-    if (track_index >= 0 && track_index < pf_tracks.count )
-        return pf_tracks.names + pf_tracks.index[track_index].name_idx;
+    if ( track_index < track_count )
+        return track_names + tracks[track_index].name_idx;
     return 0;
 }
 #if PF_PLAYBACK_CAPABLE
 static char* get_track_filename(const int track_index)
 {
-    if ( track_index < pf_tracks.count )
-        return pf_tracks.names + pf_tracks.index[track_index].filename_idx;
+    if ( track_index < track_count )
+        return track_names + tracks[track_index].filename_idx;
     return 0;
 }
 #endif
 
-
-
-static int jmp_idx_prev(void)
+static int get_wps_current_index(void)
 {
-    if (aa_cache.inspected < pf_idx.album_ct)
-    {
-#ifdef USEGSLIB
-        grey_show(false);
-        rb->lcd_clear_display();
-        rb->lcd_update();
-#endif
-        rb->splash(HZ*2, rb->str(LANG_WAIT_FOR_CACHE));
-#ifdef USEGSLIB
-        grey_show(true);
-#endif
-        return center_index;
-    }
-
-    if (pf_cfg.sort_albums_by == SORT_BY_YEAR)
-    {
-        int current_year = pf_idx.album_index[center_index].year;
-
-        for (int i = center_index - 1; i > 0; i-- )
-        {
-            if(pf_idx.album_index[i].year != current_year)
-                current_year = pf_idx.album_index[i].year;
-            while (i > 0)
-            {
-                if (pf_idx.album_index[i-1].year != current_year)
-                    break;
-                i--;
-            }
-            return i;
-        }
-    }
-    else
-    {
-        bool by_artist = pf_cfg.sort_albums_by != SORT_BY_NAME;
-        char *current_selection = get_slide_name(center_index, by_artist);
-
-        for (int i = center_index - 1; i > 0; i-- )
-        {
-            if(rb->strncmp(get_slide_name(i, by_artist), current_selection, 1))
-                current_selection = get_slide_name(i, by_artist);
-            while (i > 0)
-            {
-                if (rb->strncmp(get_slide_name(i-1, by_artist), current_selection, 1))
-                    break;
-                i--;
-            }
-            return i;
-        }
-    }
-
-    return 0;
-}
-
-static int jmp_idx_next(void)
-{
-    if (aa_cache.inspected < pf_idx.album_ct)
-    {
-#ifdef USEGSLIB
-        grey_show(false);
-        rb->lcd_clear_display();
-        rb->lcd_update();
-#endif
-        rb->splash(HZ*2, rb->str(LANG_WAIT_FOR_CACHE));
-#ifdef USEGSLIB
-        grey_show(true);
-#endif
-        return center_index;
-    }
-
-    if (pf_cfg.sort_albums_by == SORT_BY_YEAR)
-    {
-        int current_year = pf_idx.album_index[center_index].year;
-        for (int i = center_index + 1; i < pf_idx.album_ct; i++ )
-            if(pf_idx.album_index[i].year != current_year)
-                return i;
-    }
-    else
-    {
-        bool by_artist = pf_cfg.sort_albums_by != SORT_BY_NAME;
-        char *current_selection = get_slide_name(center_index, by_artist);
-        for (int i = center_index + 1; i < pf_idx.album_ct; i++ )
-            if(rb->strncmp(get_slide_name(i, by_artist), current_selection, 1))
-                return i;
-    }
-    return pf_idx.album_ct - 1;
-}
-
-static int id3_get_index(struct mp3entry *id3)
-{
-    char* current_artist = UNTAGGED;
-    char* current_album  = UNTAGGED;
-
-    if(id3)
-    {
-        /* we could be looking for the artist in either field */
-        if(id3->albumartist)
-            current_artist = id3->albumartist;
-        else if(id3->artist)
-            current_artist = id3->artist;
-
-        if (id3->album && rb->strlen(id3->album) > 0)
-            current_album = id3->album;
-
-        //rb->splashf(1000, "%s, %s", current_album, current_artist);
-
+    struct mp3entry *id3 = rb->audio_current_track();
+    if(id3 && id3->album) {
         int i;
-        int album_idx, artist_idx;
-
-        for (i = 0; i < pf_idx.album_ct; i++ )
+        for( i=0; i < album_count; i++ )
         {
-            album_idx = pf_idx.album_index[i].name_idx;
-            artist_idx = pf_idx.album_index[i].artist_idx;
-
-            if(!rb->strcmp(pf_idx.album_names + album_idx, current_album) &&
-                !rb->strcmp(pf_idx.artist_names + artist_idx, current_artist))
+            if(!rb->strcmp(album_names + album[i].name_idx, id3->album))
                 return i;
         }
-
     }
-    rb->splash(HZ/2, "Album Not Found!");
-    return pf_cfg.last_album;
+    return last_album;
 }
 
 /**
@@ -1894,183 +925,112 @@ static int compare_tracks (const void *a_v, const void *b_v)
     return (int)(a - b);
 }
 
-
-
-static bool track_buffer_avail(size_t needed)
-{
-    size_t total_out = 0;
-    size_t out = 0;
-    if (pf_tracks.borrowed == 0 && pf_tracks.used == 0)
-    {
-        pf_tracks.names = rb->buflib_buffer_out(&buf_ctx, &out);
-        pf_tracks.borrowed = out;
-    }
-
-    if (needed <= pf_tracks.borrowed - pf_tracks.used)
-        return true;
-
-    while (needed > (pf_tracks.borrowed + total_out) - pf_tracks.used)
-    {
-        if (!free_slide_prio(0))
-            break;
-        out = 0;
-        rb->buflib_buffer_out(&buf_ctx, &out);
-        total_out += out;
-    }
-    pf_tracks.borrowed += total_out;
-
-    // have to move already stored track_data structs
-    if (pf_tracks.count)
-    {
-        struct track_data *new_tracks = (struct track_data *)(total_out + (uintptr_t)pf_tracks.index);
-        unsigned int bytes = pf_tracks.count * sizeof(struct track_data);
-        rb->memmove(new_tracks, pf_tracks.index, bytes);
-    }
-
-    if (needed > pf_tracks.borrowed - pf_tracks.used)
-        return false;
-
-    return true;
-}
-
-
-static int pf_tcs_retrieve_track_title(int string_index, int disc_num, int track_num)
-{
-    char file_name[MAX_PATH];
-    char *track_title = NULL;
-    int str_len;
-
-    if (rb->strcmp(UNTAGGED, tcs.result) == 0)
-    {
-        /* show filename instead of <untaggged> */
-        if (!rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_virt_basename,
-                                file_name, MAX_PATH))
-            return 0;
-        track_title = file_name;
-    }
-
-    if (!track_title)
-        track_title = tcs.result;
-
-    int max_len = rb->strlen(track_title) + 10;
-    if (!track_buffer_avail(max_len))
-        return 0;
-
-    if (track_num > 0)
-    {
-        if (disc_num > 0)
-            str_len = rb->snprintf(pf_tracks.names + string_index, max_len,
-                "%d.%02d: %s", disc_num, track_num, track_title);
-        else
-            str_len = rb->snprintf(pf_tracks.names + string_index, max_len,
-                "%d: %s", track_num, track_title);
-    }
-    else
-        str_len = rb->snprintf(pf_tracks.names + string_index, max_len,
-            "%s", track_title);
-    return str_len;
-}
-
-#if PF_PLAYBACK_CAPABLE
-static int pf_tcs_retrieve_file_name(int fn_idx)
-{
-    if (!track_buffer_avail(MAX_PATH))
-        return 0;
-
-    rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_filename,
-            pf_tracks.names + fn_idx, MAX_PATH);
-
-    return rb->strlen(pf_tracks.names + fn_idx);
-}
-#endif
-
 /**
   Create the track index of the given slide_index.
  */
 static void create_track_index(const int slide_index)
 {
-    char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    buf_ctx_lock();
-    if ( slide_index == pf_tracks.cur_idx )
+    if ( slide_index == track_index )
         return;
+    track_index = slide_index;
 
     if (!rb->tagcache_search(&tcs, tag_title))
         goto fail;
 
-    rb->tagcache_search_add_filter(&tcs, tag_album,
-                                   pf_idx.album_index[slide_index].seek);
-
-    if (pf_idx.album_index[slide_index].artist_idx >= 0)
-        rb->tagcache_search_add_filter(&tcs, tag_albumartist,
-            pf_idx.album_index[slide_index].artist_seek);
-
-    int string_index = 0;
-    pf_tracks.count = 0;
-
-    while (rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz))
+    rb->tagcache_search_add_filter(&tcs, tag_album, album[slide_index].seek);
+    track_count=0;
+    int string_index = 0, track_num;
+    int disc_num;
+    size_t out = 0;
+    track_names = rb->buflib_buffer_out(&buf_ctx, &out);
+    borrowed += out;
+    int avail = borrowed;
+    tracks = (struct track_data*)(track_names + borrowed);
+    while (rb->tagcache_get_next(&tcs))
     {
-        int disc_num = rb->tagcache_get_numeric(&tcs, tag_discnumber);
-        int track_num = rb->tagcache_get_numeric(&tcs, tag_tracknumber);
-        disc_num = disc_num > 0 ? disc_num : 0;
-        track_num = track_num > 0 ? track_num : 0;
-        int fn_idx = 1 + pf_tcs_retrieve_track_title(string_index, disc_num, track_num);
-        if (fn_idx <= 1)
-            goto fail;
-        pf_tracks.used += fn_idx;
+        int len = 0, fn_idx = 0;
 
-#if PF_PLAYBACK_CAPABLE
-        int fn_len = 1 + pf_tcs_retrieve_file_name(string_index + fn_idx);
-        if (fn_len <= 1)
-            goto fail;
-        pf_tracks.used += fn_len;
-#endif
-        if (!track_buffer_avail(sizeof(struct track_data)))
-            goto fail;
+        avail -= sizeof(struct track_data);
+        track_num = rb->tagcache_get_numeric(&tcs, tag_tracknumber);
+        disc_num = rb->tagcache_get_numeric(&tcs, tag_discnumber);
 
-        pf_tracks.used += sizeof(struct track_data);
-        unsigned int arr_sz = (pf_tracks.count + 1) * sizeof(struct track_data);
-        // Arrray descends from upper end of buflib-borrowed buffer.
-        pf_tracks.index = (struct track_data*)(pf_tracks.names + pf_tracks.borrowed
-                                                               - arr_sz );
-        pf_tracks.index->sort = (disc_num << 24) + (track_num << 14);
-        pf_tracks.index->sort += pf_tracks.count;
-        pf_tracks.index->name_idx = string_index;
-        pf_tracks.index->seek = tcs.result_seek;
+        if (disc_num < 0)
+            disc_num = 0;
+retry:
+        if (track_num > 0)
+        {
+            if (disc_num)
+                fn_idx = 1 + rb->snprintf(track_names + string_index , avail,
+                    "%d.%02d: %s", disc_num, track_num, tcs.result);
+            else
+                fn_idx = 1 + rb->snprintf(track_names + string_index , avail,
+                    "%d: %s", track_num, tcs.result);
+        }
+        else
+        {
+            track_num = 0;
+            fn_idx = 1 + rb->snprintf(track_names + string_index, avail,
+                "%s", tcs.result);
+        }
+        if (fn_idx <= 0)
+            goto fail;
 #if PF_PLAYBACK_CAPABLE
-        pf_tracks.index->filename_idx = fn_idx + string_index;
-        string_index += (fn_idx + fn_len);
+        int remain = avail - fn_idx;
+        if (remain >= MAX_PATH)
+        {   /* retrieve filename for building the playlist */
+            rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_filename,
+                    track_names + string_index + fn_idx, remain);
+            len = fn_idx + rb->strlen(track_names + string_index + fn_idx) + 1;
+            /* make sure track name and file name are really split by a \0, else
+             * get_track_name might fail */
+            *(track_names + string_index + fn_idx -1) = '\0';
+
+        }
+        else /* request more buffer so that track and filename fit */
+            len = (avail - remain) + MAX_PATH;
 #else
-        string_index += fn_idx;
+            len = fn_idx;
 #endif
-        pf_tracks.count++;
+        if (len > avail)
+        {
+            while (len > avail)
+            {
+                if (!free_slide_prio(0))
+                    goto fail;
+                out = 0;
+                rb->buflib_buffer_out(&buf_ctx, &out);
+                avail += out;
+                borrowed += out;
+
+                struct track_data *new_tracks = (struct track_data *)(out + (uintptr_t)tracks);
+                unsigned int bytes = track_count * sizeof(struct track_data);
+                if (track_count)
+                    rb->memmove(new_tracks, tracks, bytes);
+                tracks = new_tracks;
+            }
+            goto retry;
+        }
+
+        avail -= len;
+        tracks--;
+        tracks->sort = (disc_num << 24) + (track_num << 14) + track_count;
+        tracks->name_idx = string_index;
+        tracks->seek = tcs.result_seek;
+#if PF_PLAYBACK_CAPABLE
+        tracks->filename_idx = fn_idx + string_index;
+#endif
+        track_count++;
+        string_index += len;
     }
 
     rb->tagcache_search_finish(&tcs);
 
     /* now fix the track list order */
-    rb->qsort(pf_tracks.index, pf_tracks.count,
-              sizeof(struct track_data), compare_tracks);
-
-    pf_tracks.cur_idx = slide_index;
+    rb->qsort(tracks, track_count, sizeof(struct track_data), compare_tracks);
     return;
 fail:
-    rb->tagcache_search_finish(&tcs);
-    pf_tracks.count = 0;
+    track_count = 0;
     return;
-}
-
-/**
-  Re-grow the buflib buffer by returning space borrowed
-  for track list
-*/
-static inline void free_borrowed_tracks(void)
-{
-    rb->buflib_buffer_in(&buf_ctx, pf_tracks.borrowed);
-    pf_tracks.borrowed = 0;
-    pf_tracks.used = 0;
-    pf_tracks.cur_idx = -1;
-    buf_ctx_unlock();
 }
 
 /**
@@ -2082,32 +1042,54 @@ static inline void free_borrowed_tracks(void)
 static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
                                     int buflen)
 {
-    bool ret;
-    char tcs_buf[TAGCACHE_BUFSZ];
-    const long tcs_bufsz = sizeof(tcs_buf);
-    if (tcs.valid || !rb->tagcache_search(&tcs, tag_filename))
+    if ( slide_index == -1 )
+    {
+        rb->strlcpy( buf, EMPTY_SLIDE, buflen );
+    }
+
+    if (!rb->tagcache_search(&tcs, tag_filename))
         return false;
 
+    bool result;
     /* find the first track of the album */
-    rb->tagcache_search_add_filter(&tcs, tag_album,
-                                   pf_idx.album_index[slide_index].seek);
+    rb->tagcache_search_add_filter(&tcs, tag_album, album[slide_index].seek);
 
-    rb->tagcache_search_add_filter(&tcs, tag_albumartist,
-                                   pf_idx.album_index[slide_index].artist_seek);
+    if ( rb->tagcache_get_next(&tcs) ) {
+        struct mp3entry id3;
+        int fd;
 
-    ret = rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz) &&
-          retrieve_id3(&id3, tcs.result) &&
-          search_albumart_files(&id3, ":", buf, buflen);
-
+#if defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
+        if (rb->tagcache_fill_tags(&id3, tcs.result))
+        {
+            rb->strlcpy(id3.path, tcs.result, sizeof(id3.path));
+        }
+        else
+#endif
+        {
+            fd = rb->open(tcs.result, O_RDONLY);
+            rb->get_metadata(&id3, fd, tcs.result);
+            rb->close(fd);
+        }
+        if ( search_albumart_files(&id3, ":", buf, buflen) )
+            result = true;
+        else
+            result = false;
+    }
+    else {
+        /* did not find a matching track */
+        result = false;
+    }
     rb->tagcache_search_finish(&tcs);
-    return ret;
+    return result;
 }
 
 /**
   Draw the PictureFlow logo
  */
-static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
+static void draw_splashscreen(void)
 {
+    unsigned char * buf_tmp = buf;
+    size_t buf_tmp_size = buf_size;
     struct screen* display = rb->screens[SCREEN_MAIN];
 #if FB_DATA_SZ > 1
     ALIGN_BUFFER(buf_tmp, buf_tmp_size, sizeof(fb_data));
@@ -2151,28 +1133,20 @@ static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 /**
   Draw a simple progress bar
  */
-static void draw_progressbar(int step, int count, char *msg)
+static void draw_progressbar(int step)
 {
-    static int txt_w, txt_h;
+    int txt_w, txt_h;
     const int bar_height = 22;
     const int w = LCD_WIDTH - 20;
     const int x = 10;
-    static int y;
-    if (msg != NULL)
-    {
-#if LCD_DEPTH > 1
-        rb->lcd_set_background(N_BRIGHT(0));
-        rb->lcd_set_foreground(N_BRIGHT(255));
-#else
-        rb->lcd_set_drawmode(PICTUREFLOW_DRMODE);
-#endif
-        rb->lcd_getstringsize(msg, &txt_w, &txt_h);
 
-        y = (LCD_HEIGHT - txt_h)/2;
+    rb->lcd_getstringsize("Preparing album artwork", &txt_w, &txt_h);
 
-        rb->lcd_putsxy((LCD_WIDTH - txt_w)/2, y, msg);
-        y += (txt_h + 5);
-    }
+    int y = (LCD_HEIGHT - txt_h)/2;
+
+    rb->lcd_putsxy((LCD_WIDTH - txt_w)/2, y, "Preparing album artwork");
+    y += (txt_h + 5);
+
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(N_BRIGHT(100));
 #endif
@@ -2181,7 +1155,7 @@ static void draw_progressbar(int step, int count, char *msg)
     rb->lcd_set_foreground(N_PIX(165, 231, 82));
 #endif
 
-    rb->lcd_fillrect(x+1, y+1, step * w / count, bar_height-2);
+    rb->lcd_fillrect(x+1, y+1, step * w / album_count, bar_height-2);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(N_BRIGHT(255));
 #endif
@@ -2189,7 +1163,7 @@ static void draw_progressbar(int step, int count, char *msg)
     rb->yield();
 }
 
-/* Calculate modified FNV hash of string
+/* Calculate modified FNV hash of string 
  * has good avalanche behaviour and uniform distribution
  * see http://home.comcast.net/~bretm/hash/ */
 static unsigned int mfnv(char *str)
@@ -2197,10 +1171,7 @@ static unsigned int mfnv(char *str)
     const unsigned int p = 16777619;
     unsigned int hash = 0x811C9DC5; // 2166136261;
 
-    if (!str)
-        return 0;
-
-    while(*str)
+    while(*str) 
         hash = (hash ^ *str++) * p;
     hash += hash << 13;
     hash ^= hash >> 7;
@@ -2218,101 +1189,18 @@ static bool save_pfraw(char* filename, struct bitmap *bm)
     struct pfraw_header bmph;
     bmph.width = bm->width;
     bmph.height = bm->height;
-    int fh = rb->open(filename, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    int fh = rb->creat( filename , 0666);
     if( fh < 0 ) return false;
     rb->write( fh, &bmph, sizeof( struct pfraw_header ) );
-    rb->write( fh, bm->data , sizeof( pix_t ) * bm->width *  bm->height );
+    pix_t *data = (pix_t*)( bm->data );
+    int y;
+    for( y = 0; y < bm->height; y++ )
+    {
+        rb->write( fh, data , sizeof( pix_t ) * bm->width );
+        data += bm->width;
+    }
     rb->close( fh );
     return true;
-}
-
-static bool incremental_albumart_cache(bool verbose)
-{
-    if (!aa_cache.buf)
-        goto aa_failure;
-
-    if (aa_cache.inspected >= pf_idx.album_ct)
-        return false;
-
-    /* Prevent idle poweroff */
-    rb->reset_poweroff_timer();
-
-    int idx, ret;
-    unsigned int hash_artist, hash_album;
-    unsigned int format = FORMAT_NATIVE;
-
-    if (pf_cfg.resize)
-        format |= FORMAT_RESIZE|FORMAT_KEEP_ASPECT;
-
-    idx = aa_cache.idx;
-    if (idx >= pf_idx.album_ct || idx < 0) { idx = 0; } /* Rollover */
-
-
-    aa_cache.idx++;
-    aa_cache.inspected++;
-    if (aa_cache.idx >= pf_idx.album_ct) { aa_cache.idx = 0; } /* Rollover */
-
-
-    hash_artist = mfnv(get_album_artist(idx));
-    hash_album = mfnv(get_album_name(idx));
-
-    rb->snprintf(aa_cache.pfraw_file, sizeof(aa_cache.pfraw_file),
-                 CACHE_PREFIX "/%x%x.pfraw", hash_album, hash_artist);
-
-    if(pf_cfg.update_albumart && rb->file_exists(aa_cache.pfraw_file)) {
-        aa_cache.slides++;
-        goto aa_success;
-    }
-
-    if (!get_albumart_for_index_from_db(idx, aa_cache.file, sizeof(aa_cache.file)))
-        goto aa_failure; //rb->strcpy(aa_cache.file, EMPTY_SLIDE_BMP);
-
-
-    aa_cache.input_bmp.data = aa_cache.buf;
-    aa_cache.input_bmp.width = DISPLAY_WIDTH;
-    aa_cache.input_bmp.height = DISPLAY_HEIGHT;
-
-    ret = read_image_file(aa_cache.file, &aa_cache.input_bmp,
-                          aa_cache.buf_sz, format, &format_transposed);
-    if (ret <= 0) {
-        if (verbose) {
-            rb->splashf(HZ, "Album art is bad: %s", get_album_name(idx));
-        }
-
-        goto aa_failure;
-    }
-    rb->remove(aa_cache.pfraw_file);
-
-    if (!save_pfraw(aa_cache.pfraw_file, &aa_cache.input_bmp))
-    {
-        if (verbose) { rb->splash(HZ, "Could not write bmp"); }
-        goto aa_failure;
-    }
-    aa_cache.slides++;
-
-aa_failure:
-    if (verbose)
-    {
-        if (aa_cache.inspected >= pf_idx.album_ct)
-            configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS,
-                            CONFIG_VERSION);
-        return false;
-    }
-
-aa_success:
-    if (aa_cache.inspected >= pf_idx.album_ct)
-    {
-        configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS,
-                            CONFIG_VERSION);
-        free_all_slide_prio(0);
-        if (pf_state == pf_idle)
-            rb->queue_post(&thread_q, EV_WAKEUP, 0);
-    }
-
-    if(verbose)/* direct interaction with user */
-        return true;
-
-    return false;
 }
 
 /**
@@ -2321,17 +1209,57 @@ aa_success:
  */
 static bool create_albumart_cache(void)
 {
-    draw_splashscreen(pf_idx.buf, pf_idx.buf_sz);
-    draw_progressbar(0, pf_idx.album_ct, "Preparing artwork");
-    aa_cache.inspected = 0;
-    for (int i=0; i < pf_idx.album_ct; i++)
+    int ret;
+
+    int i, slides = 0;
+    struct bitmap input_bmp;
+
+    char pfraw_file[MAX_PATH];
+    char albumart_file[MAX_PATH];
+    unsigned int format = FORMAT_NATIVE;
+    bool update = (cache_version == CACHE_UPDATE);
+    if (resize)
+        format |= FORMAT_RESIZE|FORMAT_KEEP_ASPECT;
+    for (i=0; i < album_count; i++)
     {
-        incremental_albumart_cache(true);
-        draw_progressbar(aa_cache.inspected, pf_idx.album_ct, NULL);
-        if (rb->button_get(false) > BUTTON_NONE)
-            return true;
+        draw_progressbar(i);
+
+        rb->snprintf(pfraw_file, sizeof(pfraw_file), CACHE_PREFIX "/%x.pfraw",
+                     mfnv(get_album_name(i)));
+        /* delete existing cache, so it's a true rebuild */
+        if(rb->file_exists(pfraw_file)) {
+            if(update) {
+                slides++;
+                continue;
+            }
+            rb->remove(pfraw_file);
+        }
+        if (!get_albumart_for_index_from_db(i, albumart_file, MAX_PATH))
+            rb->strcpy(albumart_file, EMPTY_SLIDE_BMP);
+
+        input_bmp.data = buf;
+        input_bmp.width = DISPLAY_WIDTH;
+        input_bmp.height = DISPLAY_HEIGHT;
+        ret = read_image_file(albumart_file, &input_bmp, buf_size,
+                                format, &format_transposed);
+        if (ret <= 0) {
+            rb->splashf(HZ, "Album art is bad: %s", get_album_name(i));
+            rb->strcpy(albumart_file, EMPTY_SLIDE_BMP);
+            ret = read_image_file(albumart_file, &input_bmp, buf_size,
+                                    format, &format_transposed);
+            if(ret <= 0)
+                continue;
+        }
+        if (!save_pfraw(pfraw_file, &input_bmp))
+        {
+            rb->splash(HZ, "Could not write bmp");
+            continue;
+        }
+        slides++;
+        if ( rb->button_get(false) == PF_MENU ) return false;
     }
-    if ( aa_cache.slides == 0 ) {
+    draw_progressbar(i);
+    if ( slides == 0 ) {
         /* Warn the user that we couldn't find any albumart */
         rb->splash(2*HZ, ID2P(LANG_NO_ALBUMART_FOUND));
         return false;
@@ -2345,23 +1273,19 @@ static bool create_albumart_cache(void)
  */
 static int create_empty_slide(bool force)
 {
-    const unsigned int format = FORMAT_NATIVE|FORMAT_RESIZE|FORMAT_KEEP_ASPECT;
-
-    if (!aa_cache.buf)
-        return false;
-
     if ( force || ! rb->file_exists( EMPTY_SLIDE ) )  {
-        aa_cache.input_bmp.width = DISPLAY_WIDTH;
-        aa_cache.input_bmp.height = DISPLAY_HEIGHT;
+        struct bitmap input_bmp;
+        input_bmp.width = DISPLAY_WIDTH;
+        input_bmp.height = DISPLAY_HEIGHT;
 #if LCD_DEPTH > 1
-        aa_cache.input_bmp.format = FORMAT_NATIVE;
+        input_bmp.format = FORMAT_NATIVE;
 #endif
-        aa_cache.input_bmp.data = (char*)aa_cache.buf;
-
-        scaled_read_bmp_file(EMPTY_SLIDE_BMP, &aa_cache.input_bmp,
-                             aa_cache.buf_sz, format, &format_transposed);
-
-        if (!save_pfraw(EMPTY_SLIDE, &aa_cache.input_bmp))
+        input_bmp.data = (char*)buf;
+        scaled_read_bmp_file(EMPTY_SLIDE_BMP, &input_bmp,
+                                buf_size,
+                                FORMAT_NATIVE|FORMAT_RESIZE|FORMAT_KEEP_ASPECT,
+                                &format_transposed);
+        if (!save_pfraw(EMPTY_SLIDE, &input_bmp))
             return false;
     }
 
@@ -2384,15 +1308,12 @@ static void thread(void)
                 /* we just woke up */
                 break;
         }
-
-        if(ev.id != SYS_TIMEOUT) {
-            while ( rb->queue_empty(&thread_q) ) {
-                buf_ctx_lock();
-                bool slide_loaded = load_new_slide();
-                buf_ctx_unlock();
-                if (!slide_loaded)
-                    break;
-                rb->yield();
+        if(ev.id != SYS_TIMEOUT)
+          while ( load_new_slide() ) {
+            rb->yield();
+            switch (ev.id) {
+                case EV_EXIT:
+                    return;
             }
         }
     }
@@ -2439,58 +1360,28 @@ static bool create_pf_thread(void)
 }
 
 
-static void initialize_slide_cache(void)
-{
-    int i= 0;
-    for (i = 0; i < SLIDE_CACHE_SIZE; i++) {
-        pf_sldcache.cache[i].hid = 0;
-        pf_sldcache.cache[i].index = 0;
-        pf_sldcache.cache[i].next = i + 1;
-        pf_sldcache.cache[i].prev = i - 1;
-    }
-    pf_sldcache.cache[0].prev = i - 1;
-    pf_sldcache.cache[i - 1].next = 0;
-
-    pf_sldcache.free = 0;
-    pf_sldcache.used = -1;
-    pf_sldcache.left_idx = -1;
-    pf_sldcache.right_idx = -1;
-    pf_sldcache.center_idx = -1;
-}
-
-
 /*
  * The following functions implement the linked-list-in-array used to manage
  * the LRU cache of slides, and the list of free cache slots.
  */
 
-#define _SEEK_RIGHT_WHILE(start, cond) \
+#define seek_right_while(start, cond) \
 ({ \
     int ind_, next_ = (start); \
-    int i_ = 0; \
     do { \
         ind_ = next_; \
-        next_ = pf_sldcache.cache[ind_].next; \
-        i_++; \
-    } while (next_ != pf_sldcache.used && (cond) && i_ < SLIDE_CACHE_SIZE); \
-    if (i_ >= SLIDE_CACHE_SIZE) \
-    /* TODO: Not supposed to happen */ \
-        ind_ = -1; \
+        next_ = cache[ind_].next; \
+    } while (next_ != cache_used && (cond)); \
     ind_; \
 })
 
-#define _SEEK_LEFT_WHILE(start, cond) \
+#define seek_left_while(start, cond) \
 ({ \
     int ind_, next_ = (start); \
-    int i_ = 0; \
     do { \
         ind_ = next_; \
-        next_ = pf_sldcache.cache[ind_].prev; \
-        i_++; \
-    } while (ind_ != pf_sldcache.used && (cond) && i_ < SLIDE_CACHE_SIZE); \
-    if (i_ >= SLIDE_CACHE_SIZE) \
-    /* TODO: Not supposed to happen */ \
-        ind_ = -1; \
+        next_ = cache[ind_].prev; \
+    } while (ind_ != cache_used && (cond)); \
     ind_; \
 })
 
@@ -2500,8 +1391,8 @@ static void initialize_slide_cache(void)
 */
 static inline int lla_pop_item (int *head, int i)
 {
-    int prev = pf_sldcache.cache[i].prev;
-    int next = pf_sldcache.cache[i].next;
+    int prev = cache[i].prev;
+    int next = cache[i].next;
     if (i == next)
     {
         *head = -1;
@@ -2509,8 +1400,8 @@ static inline int lla_pop_item (int *head, int i)
     }
     else if (i == *head)
         *head = next;
-    pf_sldcache.cache[next].prev = prev;
-    pf_sldcache.cache[prev].next = next;
+    cache[next].prev = prev;
+    cache[prev].next = next;
     return next;
 }
 
@@ -2533,11 +1424,11 @@ static inline int lla_pop_head (int *head)
 static inline void lla_insert (int i, int p)
 {
     int next = p;
-    int prev = pf_sldcache.cache[next].prev;
-    pf_sldcache.cache[next].prev = i;
-    pf_sldcache.cache[prev].next = i;
-    pf_sldcache.cache[i].next = next;
-    pf_sldcache.cache[i].prev = prev;
+    int prev = cache[next].prev;
+    cache[next].prev = i;
+    cache[prev].next = i;
+    cache[i].next = next;
+    cache[i].prev = prev;
 }
 
 
@@ -2549,8 +1440,8 @@ static inline void lla_insert_tail (int *head, int i)
     if (*head == -1)
     {
         *head = i;
-        pf_sldcache.cache[i].next = i;
-        pf_sldcache.cache[i].prev = i;
+        cache[i].next = i;
+        cache[i].prev = i;
     } else
         lla_insert(i, *head);
 }
@@ -2560,7 +1451,7 @@ static inline void lla_insert_tail (int *head, int i)
 */
 static inline void lla_insert_after(int i, int p)
 {
-    p = pf_sldcache.cache[p].next;
+    p = cache[p].next;
     lla_insert(i, p);
 }
 
@@ -2583,16 +1474,16 @@ static inline void lla_insert_before(int *head, int i, int p)
 */
 static inline void free_slide(int i)
 {
-    if (pf_sldcache.cache[i].hid != empty_slide_hid)
-        rb->buflib_free(&buf_ctx, pf_sldcache.cache[i].hid);
-    pf_sldcache.cache[i].index = -1;
-    lla_pop_item(&pf_sldcache.used, i);
-    lla_insert_tail(&pf_sldcache.free, i);
-    if (pf_sldcache.used == -1)
+    if (cache[i].hid != empty_slide_hid)
+        rb->buflib_free(&buf_ctx, cache[i].hid);
+    cache[i].index = -1;
+    lla_pop_item(&cache_used, i);
+    lla_insert_tail(&cache_free, i);
+    if (cache_used == -1)
     {
-        pf_sldcache.right_idx = -1;
-        pf_sldcache.left_idx = -1;
-        pf_sldcache.center_idx = -1;
+        cache_right_index = -1;
+        cache_left_index = -1;
+        cache_center_index = -1;
     }
 }
 
@@ -2603,17 +1494,13 @@ static inline void free_slide(int i)
 */
 static bool free_slide_prio(int prio)
 {
-    if (pf_sldcache.used == -1)
+    if (cache_used == -1)
         return false;
-
-    int i, prio_max;
-    int l = pf_sldcache.used;
-    int r = pf_sldcache.cache[pf_sldcache.used].prev;
-
-    int prio_l = pf_sldcache.cache[l].index < center_index ?
-           center_index - pf_sldcache.cache[l].index : 0;
-    int prio_r = pf_sldcache.cache[r].index > center_index ?
-           pf_sldcache.cache[r].index - center_index : 0;
+    int i, l = cache_used, r = cache[cache_used].prev, prio_max;
+    int prio_l = cache[l].index < center_index ?
+           center_index - cache[l].index : 0;
+    int prio_r = cache[r].index > center_index ?
+           cache[r].index - center_index : 0;
     if (prio_l > prio_r)
     {
         i = l;
@@ -2624,26 +1511,15 @@ static bool free_slide_prio(int prio)
     }
     if (prio_max > prio)
     {
-        if (i == pf_sldcache.left_idx)
-            pf_sldcache.left_idx = pf_sldcache.cache[i].next;
-        if (i == pf_sldcache.right_idx)
-            pf_sldcache.right_idx = pf_sldcache.cache[i].prev;
+        if (i == cache_left_index)
+            cache_left_index = cache[i].next;
+        if (i == cache_right_index)
+            cache_right_index = cache[i].prev;
         free_slide(i);
         return true;
     } else
         return false;
 }
-
-
-/**
- Free all slides ranked above the given priority.
-*/
-static void free_all_slide_prio(int prio)
-{
-    while (free_slide_prio(prio))
-    {;;}
-}
-
 
 /**
  Read the pfraw image given as filename and return the hid of the buffer
@@ -2653,7 +1529,7 @@ static int read_pfraw(char* filename, int prio)
     struct pfraw_header bmph;
     int fh = rb->open(filename, O_RDONLY);
     if( fh < 0 ) {
-        /* pf_cfg.cache_version = CACHE_UPDATE; -- don't invalidate on missing pfraw */
+        cache_version = CACHE_UPDATE;
         return empty_slide_hid;
     }
     else
@@ -2669,7 +1545,7 @@ static int read_pfraw(char* filename, int prio)
 
     if (hid < 0) {
         rb->close( fh );
-        return -1;
+        return 0;
     }
 
     rb->yield(); /* allow audio to play when fast scrolling */
@@ -2679,7 +1555,12 @@ static int read_pfraw(char* filename, int prio)
     bm->height = bmph.height;
     pix_t *data = (pix_t*)(sizeof(struct dim) + (char *)bm);
 
-    rb->read( fh, data , sizeof( pix_t ) * bm->width * bm->height );
+    int y;
+    for( y = 0; y < bm->height; y++ )
+    {
+        rb->read( fh, data , sizeof( pix_t ) * bm->width );
+        data += bm->width;
+    }
     rb->close( fh );
     return hid;
 }
@@ -2693,20 +1574,17 @@ static inline bool load_and_prepare_surface(const int slide_index,
                                             const int prio)
 {
     char pfraw_file[MAX_PATH];
-    unsigned int hash_artist = mfnv(get_album_artist(slide_index));
-    unsigned int hash_album = mfnv(get_album_name(slide_index));
-
-    rb->snprintf(pfraw_file, sizeof(pfraw_file), CACHE_PREFIX "/%x%x.pfraw",
-                 hash_album, hash_artist);
+    rb->snprintf(pfraw_file, sizeof(pfraw_file), CACHE_PREFIX "/%x.pfraw",
+                 mfnv(get_album_name(slide_index)));
 
     int hid = read_pfraw(pfraw_file, prio);
-    if (hid < 0)
+    if (!hid)
         return false;
 
-    pf_sldcache.cache[cache_index].hid = hid;
+    cache[cache_index].hid = hid;
 
     if ( cache_index < SLIDE_CACHE_SIZE ) {
-        pf_sldcache.cache[cache_index].index = slide_index;
+        cache[cache_index].index = slide_index;
     }
 
     return true;
@@ -2719,140 +1597,109 @@ static inline bool load_and_prepare_surface(const int slide_index,
 */
 bool load_new_slide(void)
 {
-    if (wants_to_quit)
-        return false;
-
     int i = -1;
-
-    if (pf_sldcache.center_idx != -1)
+    if (cache_center_index != -1)
     {
         int next, prev;
-        if (pf_sldcache.cache[pf_sldcache.center_idx].index != center_index)
+        if (cache[cache_center_index].index != center_index)
         {
-            if (pf_sldcache.cache[pf_sldcache.center_idx].index < center_index)
+            if (cache[cache_center_index].index < center_index)
             {
-                pf_sldcache.center_idx = _SEEK_RIGHT_WHILE(pf_sldcache.center_idx,
-                                pf_sldcache.cache[next_].index <= center_index);
-                if (pf_sldcache.center_idx == -1)
-                    goto fatal_fail;
-
-                prev = pf_sldcache.center_idx;
-                next = pf_sldcache.cache[pf_sldcache.center_idx].next;
+                cache_center_index = seek_right_while(cache_center_index,
+                                       cache[next_].index <= center_index);
+                prev = cache_center_index;
+                next = cache[cache_center_index].next;
             }
             else
             {
-                pf_sldcache.center_idx = _SEEK_LEFT_WHILE(pf_sldcache.center_idx,
-                                pf_sldcache.cache[next_].index >= center_index);
-                if (pf_sldcache.center_idx == -1)
-                    goto fatal_fail;
-
-                next = pf_sldcache.center_idx;
-                prev = pf_sldcache.cache[pf_sldcache.center_idx].prev;
+                cache_center_index = seek_left_while(cache_center_index,
+                                      cache[next_].index >= center_index);
+                next = cache_center_index;
+                prev = cache[cache_center_index].prev;
             }
-            if (pf_sldcache.cache[pf_sldcache.center_idx].index != center_index)
+            if (cache[cache_center_index].index != center_index)
             {
-                if (pf_sldcache.free == -1)
+                if (cache_free == -1)
                     free_slide_prio(0);
-
-                i = lla_pop_head(&pf_sldcache.free);
+                i = lla_pop_head(&cache_free);
                 if (!load_and_prepare_surface(center_index, i, 0))
                     goto fail_and_refree;
-
-                if (pf_sldcache.cache[next].index == -1)
+                if (cache[next].index == -1)
                 {
-                    if (pf_sldcache.cache[prev].index == -1)
+                    if (cache[prev].index == -1)
                         goto insert_first_slide;
                     else
-                        next = pf_sldcache.cache[prev].next;
+                        next = cache[prev].next;
                 }
                 lla_insert(i, next);
-                if (pf_sldcache.cache[i].index < pf_sldcache.cache[pf_sldcache.used].index)
-                    pf_sldcache.used = i;
-
-                pf_sldcache.center_idx = i;
-                pf_sldcache.left_idx = i;
-                pf_sldcache.right_idx = i;
+                if (cache[i].index < cache[cache_used].index)
+                    cache_used = i;
+                cache_center_index = i;
+                cache_left_index = i;
+                cache_right_index = i;
                 return true;
             }
         }
-        int left, center, right;
-        left = pf_sldcache.cache[pf_sldcache.left_idx].index;
-        center = pf_sldcache.cache[pf_sldcache.center_idx].index;
-        right = pf_sldcache.cache[pf_sldcache.right_idx].index;
-
-        if (left > center)
-            pf_sldcache.left_idx = pf_sldcache.center_idx;
-        if (right < center)
-            pf_sldcache.right_idx = pf_sldcache.center_idx;
-
-        pf_sldcache.left_idx = _SEEK_LEFT_WHILE(pf_sldcache.left_idx,
-            pf_sldcache.cache[ind_].index - 1 == pf_sldcache.cache[next_].index);
-
-        pf_sldcache.right_idx = _SEEK_RIGHT_WHILE(pf_sldcache.right_idx,
-            pf_sldcache.cache[ind_].index - 1 == pf_sldcache.cache[next_].index);
-        if (pf_sldcache.right_idx == -1 || pf_sldcache.left_idx == -1)
-            goto fatal_fail;
-
-
-        /* update indices */
-        left = pf_sldcache.cache[pf_sldcache.left_idx].index;
-        center = pf_sldcache.cache[pf_sldcache.center_idx].index;
-        right = pf_sldcache.cache[pf_sldcache.right_idx].index;
-
-        int prio_l = center - left + 1;
-        int prio_r = right - center + 1;
-        if ((prio_l < prio_r || right >= number_of_slides) && left > 0)
+        if (cache[cache_left_index].index >
+                cache[cache_center_index].index)
+            cache_left_index = cache_center_index;
+        if (cache[cache_right_index].index <
+                cache[cache_center_index].index)
+            cache_right_index = cache_center_index;
+        cache_left_index = seek_left_while(cache_left_index,
+                   cache[ind_].index - 1 == cache[next_].index);
+        cache_right_index = seek_right_while(cache_right_index,
+                   cache[ind_].index - 1 == cache[next_].index);
+        int prio_l = cache[cache_center_index].index -
+                     cache[cache_left_index].index + 1;
+        int prio_r = cache[cache_right_index].index -
+                     cache[cache_center_index].index + 1;
+        if ((prio_l < prio_r ||
+             cache[cache_right_index].index >= number_of_slides) &&
+             cache[cache_left_index].index > 0)
         {
-            if (pf_sldcache.free == -1 && !free_slide_prio(prio_l))
-            {
+            if (cache_free == -1 && !free_slide_prio(prio_l))
                 return false;
-            }
-
-            i = lla_pop_head(&pf_sldcache.free);
-            if (load_and_prepare_surface(left - 1, i, prio_l))
+            i = lla_pop_head(&cache_free);
+            if (load_and_prepare_surface(cache[cache_left_index].index
+                                         - 1, i, prio_l))
             {
-                lla_insert_before(&pf_sldcache.used, i, pf_sldcache.left_idx);
-                pf_sldcache.left_idx = i;
+                lla_insert_before(&cache_used, i, cache_left_index);
+                cache_left_index = i;
                 return true;
             }
-        } else if(right < number_of_slides - 1)
+        } else if(cache[cache_right_index].index < number_of_slides - 1)
         {
-            if (pf_sldcache.free == -1 && !free_slide_prio(prio_r))
-            {
+            if (cache_free == -1 && !free_slide_prio(prio_r))
                 return false;
-            }
-
-            i = lla_pop_head(&pf_sldcache.free);
-            if (load_and_prepare_surface(right + 1, i, prio_r))
+            i = lla_pop_head(&cache_free);
+            if (load_and_prepare_surface(cache[cache_right_index].index
+                                         + 1, i, prio_r))
             {
-                lla_insert_after(i, pf_sldcache.right_idx);
-                pf_sldcache.right_idx = i;
+                lla_insert_after(i, cache_right_index);
+                cache_right_index = i;
                 return true;
             }
         }
     } else {
-        i = lla_pop_head(&pf_sldcache.free);
+        i = lla_pop_head(&cache_free);
         if (load_and_prepare_surface(center_index, i, 0))
         {
 insert_first_slide:
-            pf_sldcache.cache[i].next = i;
-            pf_sldcache.cache[i].prev = i;
-            pf_sldcache.center_idx = i;
-            pf_sldcache.left_idx = i;
-            pf_sldcache.right_idx = i;
-            pf_sldcache.used = i;
+            cache[i].next = i;
+            cache[i].prev = i;
+            cache_center_index = i;
+            cache_left_index = i;
+            cache_right_index = i;
+            cache_used = i;
             return true;
         }
     }
 fail_and_refree:
     if (i != -1)
     {
-        lla_insert_tail(&pf_sldcache.free, i);
+        lla_insert_tail(&cache_free, i);
     }
-    return false;
-fatal_fail:
-    free_all_slide_prio(0);
-    initialize_slide_cache();
     return false;
 }
 
@@ -2883,23 +1730,15 @@ static inline struct dim *surface(const int slide_index)
     if (slide_index >= number_of_slides)
         return 0;
     int i;
-    if ((i = pf_sldcache.used ) != -1)
+    if ((i = cache_used ) != -1)
     {
-        int j = 0;
         do {
-            if (pf_sldcache.cache[i].index == slide_index) {
-                if (is_initial_slide && slide_index == center_index)
-                    is_initial_slide = false;
-                return get_slide(pf_sldcache.cache[i].hid);
-            }
-            i = pf_sldcache.cache[i].next;
-            j++;
-        } while (i != pf_sldcache.used && j < SLIDE_CACHE_SIZE);
+            if (cache[i].index == slide_index)
+                return get_slide(cache[i].hid);
+            i = cache[i].next;
+        } while (i != cache_used);
     }
-    if (is_initial_slide && slide_index == center_index)
-        return NULL;
-    else
-        return get_slide(empty_slide_hid);
+    return get_slide(empty_slide_hid);
 }
 
 /**
@@ -2914,19 +1753,19 @@ static void reset_slides(void)
     center_slide.slide_index = center_index;
 
     int i;
-    for (i = 0; i < pf_cfg.num_slides; i++) {
+    for (i = 0; i < num_slides; i++) {
         struct slide_data *si = &left_slides[i];
         si->angle = itilt;
-        si->cx = -(offsetX + pf_cfg.slide_spacing * i * PFREAL_ONE);
+        si->cx = -(offsetX + slide_spacing * i * PFREAL_ONE);
         si->cy = offsetY;
         si->slide_index = center_index - 1 - i;
         si->distance = 0;
     }
 
-    for (i = 0; i < pf_cfg.num_slides; i++) {
+    for (i = 0; i < num_slides; i++) {
         struct slide_data *si = &right_slides[i];
         si->angle = -itilt;
-        si->cx = offsetX + pf_cfg.slide_spacing * i * PFREAL_ONE;
+        si->cx = offsetX + slide_spacing * i * PFREAL_ONE;
         si->cy = offsetY;
         si->slide_index = center_index + 1 + i;
         si->distance = 0;
@@ -2950,14 +1789,14 @@ static void recalc_offsets(void)
 {
     PFreal xs = PFREAL_HALF - DISPLAY_WIDTH * PFREAL_HALF;
     PFreal zo;
-    PFreal xp = (DISPLAY_WIDTH * PFREAL_HALF - PFREAL_HALF +
-                pf_cfg.center_margin * PFREAL_ONE) * pf_cfg.zoom / 100;
+    PFreal xp = (DISPLAY_WIDTH * PFREAL_HALF - PFREAL_HALF + center_margin *
+        PFREAL_ONE) * zoom / 100;
     PFreal cosr, sinr;
 
     itilt = 70 * IANGLE_MAX / 360;      /* approx. 70 degrees tilted */
     cosr = fcos(-itilt);
     sinr = fsin(-itilt);
-    zo = CAM_DIST_R * 100 / pf_cfg.zoom - CAM_DIST_R +
+    zo = CAM_DIST_R * 100 / zoom - CAM_DIST_R +
         fmuln(MAXSLIDE_LEFT_R, sinr, PFREAL_SHIFT - 2, 0);
     offsetX = xp - fmul(xs, cosr) + fmuln(xp,
         zo + fmuln(xs, sinr, PFREAL_SHIFT - 2, 0), PFREAL_SHIFT - 2, 0)
@@ -3055,7 +1894,7 @@ static void render_slide(struct slide_data *slide, const int alpha)
 
     PFreal cosr = fcos(slide->angle);
     PFreal sinr = fsin(slide->angle);
-    PFreal zo = PFREAL_ONE * slide->distance + CAM_DIST_R * 100 / pf_cfg.zoom
+    PFreal zo = PFREAL_ONE * slide->distance + CAM_DIST_R * 100 / zoom
         - CAM_DIST_R - fmuln(MAXSLIDE_LEFT_R, fabs(sinr), PFREAL_SHIFT - 2, 0);
     PFreal xs = slide_left, xsnum, xsnumi, xsden, xsdeni;
     PFreal xp = fdiv(CAM_DIST * (slide->cx + fmul(xs, cosr)),
@@ -3087,7 +1926,7 @@ static void render_slide(struct slide_data *slide, const int alpha)
 
         const pix_t *ptr = &src[column * bmp->height];
 
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if   defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
 #define PIXELSTEP_Y   1
 #define LCDADDR(x, y) (&buffer[BUFFER_HEIGHT*(x) + (y)])
 #else
@@ -3154,110 +1993,18 @@ static void render_slide(struct slide_data *slide, const int alpha)
 }
 
 /**
-  Jump to the given slide_index
+  Jump the the given slide_index
  */
 static inline void set_current_slide(const int slide_index)
 {
     int old_center_index = center_index;
     step = 0;
-    center_index = fbound(0, slide_index, number_of_slides - 1);
+    center_index = fbound(slide_index, 0, number_of_slides - 1);
     if (old_center_index != center_index)
-    {
-        rb->queue_remove_from_head(&thread_q, EV_WAKEUP);
         rb->queue_post(&thread_q, EV_WAKEUP, 0);
-    }
     target = center_index;
-    slide_frame = center_index << 16;
+    slide_frame = slide_index << 16;
     reset_slides();
-}
-
-
-static void skip_animation_to_idle_state(void);
-static bool sort_albums(int new_sorting, bool from_settings)
-{
-    int i, album_idx, artist_idx;
-    char* current_album_name = NULL;
-    char* current_album_artist = NULL;
-    static const char* sort_options[] = {
-        ID2P(LANG_ARTIST_PLUS_NAME),
-        ID2P(LANG_ARTIST_PLUS_YEAR),
-        ID2P(LANG_ID3_YEAR),
-        ID2P(LANG_NAME)
-    };
-
-    /* Only change sorting once artwork has been inspected */
-    if (aa_cache.inspected < pf_idx.album_ct)
-    {
-#ifdef USEGSLIB
-        if (!from_settings)
-            grey_show(false);
-#endif
-        rb->splash(HZ*2, rb->str(LANG_WAIT_FOR_CACHE));
-#ifdef USEGSLIB
-        if (!from_settings)
-            grey_show(true);
-#endif
-        return false;
-    }
-
-    /* set idle state */
-    if (pf_state == pf_show_tracks)
-        free_borrowed_tracks();
-    if (pf_state == pf_show_tracks ||
-        pf_state == pf_cover_in ||
-        pf_state == pf_cover_out)
-        skip_animation_to_idle_state();
-    else if (pf_state == pf_scrolling)
-        set_current_slide(target);
-    pf_state = pf_idle;
-
-    pf_cfg.sort_albums_by = new_sorting;
-    if (!from_settings)
-    {
-#ifdef USEGSLIB
-        grey_show(false);
-#if LCD_DEPTH > 1
-        rb->lcd_set_background(N_BRIGHT(0));
-        rb->lcd_set_foreground(N_BRIGHT(255));
-#endif
-        rb->lcd_clear_display();
-        rb->lcd_update();
-#endif
-        rb->splash(HZ, sort_options[pf_cfg.sort_albums_by]);
-#ifdef USEGSLIB
-        grey_show(true);
-#endif
-    }
-
-    current_album_artist = get_album_artist(center_index);
-    current_album_name = get_album_name(center_index);
-
-    end_pf_thread(); /* stop loading of covers  */
-
-    rb->qsort(pf_idx.album_index, pf_idx.album_ct,
-                  sizeof(struct album_data), compare_albums);
-
-    /* Empty cache and restart cover loading thread */
-    rb->buflib_init(&buf_ctx, (void *)pf_idx.buf, pf_idx.buf_sz);
-    empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0);
-    initialize_slide_cache();
-    is_initial_slide = true;
-    create_pf_thread();
-
-    /* Go to previously selected slide */
-    for (i = 0; i < pf_idx.album_ct; i++ )
-    {
-        album_idx = pf_idx.album_index[i].name_idx;
-        artist_idx = pf_idx.album_index[i].artist_idx;
-
-        if(!rb->strcmp(pf_idx.album_names + album_idx, current_album_name) &&
-            !rb->strcmp(pf_idx.artist_names + artist_idx, current_album_artist))
-        {
-            set_current_slide(i);
-            pf_cfg.last_album = i;
-        }
-    }
-    return true;
 }
 
 /**
@@ -3268,8 +2015,6 @@ static void start_animation(void)
     step = (target < center_slide.slide_index) ? -1 : 1;
     pf_state = pf_scrolling;
 }
-
-static void update_scroll_animation(void);
 
 /**
   Go to the previous slide
@@ -3284,8 +2029,6 @@ static void show_previous_slide(void)
     } else if ( step > 0 ) {
         target = center_index;
         step = (target <= center_slide.slide_index) ? -1 : 1;
-        if (step < 0)
-            update_scroll_animation();
     } else {
         target = fmax(0, center_index - 2);
     }
@@ -3305,8 +2048,6 @@ static void show_next_slide(void)
     } else if ( step < 0 ) {
         target = center_index;
         step = (target < center_slide.slide_index) ? -1 : 1;
-        if (step > 0)
-            update_scroll_animation();
     } else {
         target = fmin(center_index + 2, number_of_slides - 1);
     }
@@ -3322,8 +2063,8 @@ static void render_all_slides(void)
     /* TODO: Optimizes this by e.g. invalidating rects */
     mylcd_clear_display();
 
-    int nleft = pf_cfg.num_slides;
-    int nright = pf_cfg.num_slides;
+    int nleft = num_slides;
+    int nright = num_slides;
 
     int alpha;
     int index;
@@ -3362,7 +2103,7 @@ static void render_all_slides(void)
         }
     }
     alpha = 256;
-    if (step != 0 && pf_cfg.num_slides <= 2) /* fading out center slide */
+    if (step != 0 && num_slides <= 2) /* fading out center slide */
         alpha = (step > 0) ? 256 - fade / 2 : 128 + fade / 2;
     render_slide(&center_slide, alpha);
 }
@@ -3411,9 +2152,9 @@ static void update_scroll_animation(void)
         rb->queue_post(&thread_q, EV_WAKEUP, 0);
         slide_frame = index << 16;
         center_slide.slide_index = center_index;
-        for (i = 0; i < pf_cfg.num_slides; i++)
+        for (i = 0; i < num_slides; i++)
             left_slides[i].slide_index = center_index - 1 - i;
-        for (i = 0; i < pf_cfg.num_slides; i++)
+        for (i = 0; i < num_slides; i++)
             right_slides[i].slide_index = center_index + 1 + i;
     }
 
@@ -3430,21 +2171,21 @@ static void update_scroll_animation(void)
         return;
     }
 
-    for (i = 0; i < pf_cfg.num_slides; i++) {
+    for (i = 0; i < num_slides; i++) {
         struct slide_data *si = &left_slides[i];
         si->angle = itilt;
         si->cx =
-            -(offsetX + pf_cfg.slide_spacing * i * PFREAL_ONE + step
-                        * pf_cfg.slide_spacing * ftick);
+            -(offsetX + slide_spacing * i * PFREAL_ONE + step
+                        * slide_spacing * ftick);
         si->cy = offsetY;
     }
 
-    for (i = 0; i < pf_cfg.num_slides; i++) {
+    for (i = 0; i < num_slides; i++) {
         struct slide_data *si = &right_slides[i];
         si->angle = -itilt;
         si->cx =
-            offsetX + pf_cfg.slide_spacing * i * PFREAL_ONE - step
-                      * pf_cfg.slide_spacing * ftick;
+            offsetX + slide_spacing * i * PFREAL_ONE - step
+                      * slide_spacing * ftick;
         si->cy = offsetY;
     }
 
@@ -3475,15 +2216,10 @@ static void update_scroll_animation(void)
 */
 static void cleanup(void)
 {
-    wants_to_quit = true;
-    if (buf_ctx_locked)
-        buf_ctx_unlock();
-
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(false);
 #endif
     end_pf_thread();
-
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
 
@@ -3492,60 +2228,30 @@ static void cleanup(void)
 #endif
 }
 
-static void skip_animation_to_show_tracks(void);
-static void adjust_album_display_for_setting(int old_val, int new_val)
-{
-    if (old_val == new_val)
-        return;
-
-    reset_track_list();
-    recalc_offsets();
-    reset_slides();
-
-    if (pf_state == pf_show_tracks)
-        skip_animation_to_show_tracks();
-}
-
 /**
   Shows the settings menu
  */
 static int settings_menu(void)
 {
     int selection = 0;
-    int old_val;
+    bool old_val;
 
     MENUITEM_STRINGLIST(settings_menu, "PictureFlow Settings", NULL,
-                        ID2P(LANG_SHOW_ALBUM_TITLE),
-                        ID2P(LANG_SHOW_YEAR_IN_ALBUM_TITLE),
-                        ID2P(LANG_SORT_ALBUMS_BY),
-                        ID2P(LANG_YEAR_SORT_ORDER),
                         ID2P(LANG_DISPLAY_FPS),
                         ID2P(LANG_SPACING),
                         ID2P(LANG_CENTRE_MARGIN),
                         ID2P(LANG_NUMBER_OF_SLIDES),
                         ID2P(LANG_ZOOM),
+                        ID2P(LANG_SHOW_ALBUM_TITLE),
                         ID2P(LANG_RESIZE_COVERS),
                         ID2P(LANG_REBUILD_CACHE),
-                        ID2P(LANG_UPDATE_CACHE),
                         ID2P(LANG_WPS_INTEGRATION),
                         ID2P(LANG_BACKLIGHT));
 
     static const struct opt_items album_name_options[] = {
-        { STR(LANG_HIDE_ALBUM_TITLE_NEW) },
-        { STR(LANG_SHOW_AT_THE_BOTTOM_NEW) },
-        { STR(LANG_SHOW_AT_THE_TOP_NEW) },
-        { STR(LANG_SHOW_ALL_AT_THE_TOP) },
-        { STR(LANG_SHOW_ALL_AT_THE_BOTTOM) },
-    };
-    static const struct opt_items sort_options[] = {
-        { STR(LANG_ARTIST_PLUS_NAME) },
-        { STR(LANG_ARTIST_PLUS_YEAR) },
-        { STR(LANG_ID3_YEAR) },
-        { STR(LANG_NAME) }
-    };
-    static const struct opt_items year_sort_order_options[] = {
-        { STR(LANG_ASCENDING) },
-        { STR(LANG_DESCENDING) }
+        { STR(LANG_HIDE_ALBUM_TITLE) },
+        { STR(LANG_SHOW_AT_THE_BOTTOM) },
+        { STR(LANG_SHOW_AT_THE_TOP) }
     };
     static const struct opt_items wps_options[] = {
         { STR(LANG_OFF) },
@@ -3561,96 +2267,64 @@ static int settings_menu(void)
         selection=rb->do_menu(&settings_menu,&selection, NULL, false);
         switch(selection) {
             case 0:
-                old_val = pf_cfg.show_album_name;
-                rb->set_option(rb->str(LANG_SHOW_ALBUM_TITLE),
-                      &pf_cfg.show_album_name, RB_INT, album_name_options, 5, NULL);
-                adjust_album_display_for_setting(old_val, pf_cfg.show_album_name);
+                rb->set_bool(rb->str(LANG_DISPLAY_FPS), &show_fps);
+                reset_track_list();
                 break;
+
             case 1:
-                rb->set_bool(rb->str(LANG_SHOW_YEAR_IN_ALBUM_TITLE), &pf_cfg.show_year);
-                break;
-            case 2:
-                old_val = pf_cfg.sort_albums_by;
-                rb->set_option(rb->str(LANG_SORT_ALBUMS_BY),
-                      &pf_cfg.sort_albums_by, RB_INT, sort_options, 4, NULL);
-                if (old_val != pf_cfg.sort_albums_by &&
-                    !sort_albums(pf_cfg.sort_albums_by, true))
-                    pf_cfg.sort_albums_by = old_val;
-                break;
-            case 3:
-                old_val = pf_cfg.year_sort_order;
-                rb->set_option(rb->str(LANG_YEAR_SORT_ORDER),
-                      &pf_cfg.year_sort_order, RB_INT, year_sort_order_options, 2, NULL);
-                if (old_val != pf_cfg.year_sort_order &&
-                    !sort_albums(pf_cfg.sort_albums_by, true))
-                    pf_cfg.year_sort_order = old_val;
-                break;
-            case 4:
-                old_val = pf_cfg.show_fps;
-                rb->set_bool(rb->str(LANG_DISPLAY_FPS), &pf_cfg.show_fps);
-                if (old_val != pf_cfg.show_fps)
-                    reset_track_list();
-                break;
-
-            case 5:
-                old_val = pf_cfg.slide_spacing;
                 rb->set_int(rb->str(LANG_SPACING), "", 1,
-                            &pf_cfg.slide_spacing,
+                            &slide_spacing,
                             NULL, 1, 0, 100, NULL );
-                adjust_album_display_for_setting(old_val, pf_cfg.slide_spacing);
+                recalc_offsets();
+                reset_slides();
                 break;
 
-            case 6:
-                old_val = pf_cfg.center_margin;
+            case 2:
                 rb->set_int(rb->str(LANG_CENTRE_MARGIN), "", 1,
-                            &pf_cfg.center_margin,
+                            &center_margin,
                             NULL, 1, 0, 80, NULL );
-                adjust_album_display_for_setting(old_val, pf_cfg.center_margin);
+                recalc_offsets();
+                reset_slides();
                 break;
 
-            case 7:
-                old_val = pf_cfg.num_slides;
-                rb->set_int(rb->str(LANG_NUMBER_OF_SLIDES), "", 1,
-                        &pf_cfg.num_slides, NULL, 1, 1, MAX_SLIDES_COUNT, NULL );
-                adjust_album_display_for_setting(old_val, pf_cfg.num_slides);
+            case 3:
+                rb->set_int(rb->str(LANG_NUMBER_OF_SLIDES), "", 1, &num_slides,
+                            NULL, 1, 1, MAX_SLIDES_COUNT, NULL );
+                recalc_offsets();
+                reset_slides();
                 break;
 
-            case 8:
-                old_val = pf_cfg.zoom;
-                rb->set_int(rb->str(LANG_ZOOM), "", 1, &pf_cfg.zoom,
+            case 4:
+                rb->set_int(rb->str(LANG_ZOOM), "", 1, &zoom,
                             NULL, 1, 10, 300, NULL );
-                adjust_album_display_for_setting(old_val, pf_cfg.zoom);
+                recalc_offsets();
+                reset_slides();
                 break;
-
-            case 9:
-                old_val = pf_cfg.resize;
-                rb->set_bool(rb->str(LANG_RESIZE_COVERS), &pf_cfg.resize);
-                if (old_val == pf_cfg.resize) /* changed? */
+            case 5:
+                rb->set_option(rb->str(LANG_SHOW_ALBUM_TITLE), &show_album_name,
+                               INT, album_name_options, 3, NULL);
+                reset_track_list();
+                recalc_offsets();
+                reset_slides();
+                break;
+            case 6:
+                old_val = resize;
+                rb->set_bool(rb->str(LANG_RESIZE_COVERS), &resize);
+                if (old_val == resize) /* changed? */
                     break;
                 /* fallthrough if changed, since cache needs to be rebuilt */
-            case 10:
-                pf_cfg.update_albumart = false;
-                pf_cfg.cache_version = CACHE_REBUILD;
+            case 7:
+                cache_version = CACHE_REBUILD;
                 rb->remove(EMPTY_SLIDE);
                 configfile_save(CONFIG_FILE, config,
                                 CONFIG_NUM_ITEMS, CONFIG_VERSION);
                 rb->splash(HZ, ID2P(LANG_CACHE_REBUILT_NEXT_RESTART));
                 break;
-            case 11:
-                pf_cfg.update_albumart = true;
-                pf_cfg.cache_version = CACHE_REBUILD;
-                rb->remove(EMPTY_SLIDE);
-                configfile_save(CONFIG_FILE, config,
-                                CONFIG_NUM_ITEMS, CONFIG_VERSION);
-                rb->splash(HZ, ID2P(LANG_CACHE_REBUILT_NEXT_RESTART));
+            case 8:
+                rb->set_option(rb->str(LANG_WPS_INTEGRATION), &auto_wps, INT, wps_options, 3, NULL);
                 break;
-            case 12:
-                rb->set_option(rb->str(LANG_WPS_INTEGRATION),
-                               &pf_cfg.auto_wps, RB_INT, wps_options, 3, NULL);
-                break;
-            case 13:
-                rb->set_option(rb->str(LANG_BACKLIGHT),
-                        &pf_cfg.backlight_mode, RB_INT, backlight_options, 2, NULL);
+            case 9:
+                rb->set_option(rb->str(LANG_BACKLIGHT), &backlight_mode, INT, backlight_options, 2, NULL);
                 break;
 
             case MENU_ATTACHED_USB:
@@ -3664,67 +2338,45 @@ static int settings_menu(void)
   Show the main menu
  */
 enum {
-    PF_SHOW_TRACKS_WHILE_BROWSING,
-    PF_GOTO_LAST_ALBUM,
     PF_GOTO_WPS,
 #if PF_PLAYBACK_CAPABLE
+    PF_MENU_CLEAR_PLAYLIST,
     PF_MENU_PLAYBACK_CONTROL,
 #endif
     PF_MENU_SETTINGS,
+    PF_MENU_RETURN,
     PF_MENU_QUIT,
 };
 
 static int main_menu(void)
 {
     int selection = 0;
-    int result, curr_album;
+    int result;
 
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(N_BRIGHT(255));
 #endif
 
     MENUITEM_STRINGLIST(main_menu, "PictureFlow Main Menu", NULL,
-                        ID2P(LANG_SHOW_TRACKS_WHILE_BROWSING),
-                        ID2P(LANG_GOTO_LAST_ALBUM),
                         ID2P(LANG_GOTO_WPS),
 #if PF_PLAYBACK_CAPABLE
+                        ID2P(LANG_CLEAR_PLAYLIST),
                         ID2P(LANG_PLAYBACK_CONTROL),
 #endif
                         ID2P(LANG_SETTINGS),
+                        ID2P(LANG_RETURN),
                         ID2P(LANG_MENU_QUIT));
     while (1)  {
         switch (rb->do_menu(&main_menu,&selection, NULL, false)) {
-            case PF_SHOW_TRACKS_WHILE_BROWSING:
-                if (pf_state != pf_show_tracks)
-                {
-                    if (pf_state == pf_scrolling)
-                        set_current_slide(target);
-
-                    skip_animation_to_show_tracks();
-                }
-                show_tracks_while_browsing = true;
-                return 0;
-            case PF_GOTO_LAST_ALBUM:
-                if (pf_state == pf_scrolling)
-                    curr_album = target;
-                else
-                    curr_album = center_index;
-
-                if (pf_state == pf_show_tracks)
-                    free_borrowed_tracks();
-                if (pf_state == pf_show_tracks ||
-                    pf_state == pf_cover_in ||
-                    pf_state == pf_cover_out)
-                    skip_animation_to_idle_state();
-
-                set_current_slide(pf_cfg.last_album);
-                pf_cfg.last_album = curr_album;
-
-                pf_state = pf_idle;
-                return 0;
             case PF_GOTO_WPS: /* WPS */
                 return -2;
 #if PF_PLAYBACK_CAPABLE
+            case PF_MENU_CLEAR_PLAYLIST: 
+                if(rb->playlist_remove_all_tracks(NULL) == 0) {
+                    rb->playlist_create(NULL, NULL);
+                    rb->splash(HZ*2, ID2P(LANG_PLAYLIST_CLEARED));
+                }
+                break;
             case PF_MENU_PLAYBACK_CONTROL: /* Playback Control */
                 playback_control(NULL);
                 break;
@@ -3733,6 +2385,8 @@ static int main_menu(void)
                 result = settings_menu();
                 if ( result != 0 ) return result;
                 break;
+            case PF_MENU_RETURN:
+                return 0;
             case PF_MENU_QUIT:
                 return -1;
 
@@ -3745,33 +2399,21 @@ static int main_menu(void)
     }
 }
 
-#define ZOOMIN_FRAME_COUNT  19
-#define ZOOMIN_FRAME_DIST   -5
-#define ZOOMIN_FRAME_ANGLE  1
-#define ZOOMIN_FRAME_FADE   13
-
-#define ROTATE_FRAME_COUNT  15
-#define ROTATE_FRAME_ANGLE  16
-
-#define KEYFRAME_COUNT ZOOMIN_FRAME_COUNT + ROTATE_FRAME_COUNT
-
 /**
    Animation step for zooming into the current cover
  */
 static void update_cover_in_animation(void)
 {
     cover_animation_keyframe++;
-
-    if(cover_animation_keyframe <= ZOOMIN_FRAME_COUNT)
-    {
-        center_slide.distance += ZOOMIN_FRAME_DIST;
-        center_slide.angle +=    ZOOMIN_FRAME_ANGLE;
-        extra_fade +=            ZOOMIN_FRAME_FADE;
+    if( cover_animation_keyframe < 20 ) {
+        center_slide.distance-=5;
+        center_slide.angle+=1;
+        extra_fade += 13;
     }
-    else if(cover_animation_keyframe <= KEYFRAME_COUNT)
-        center_slide.angle += ROTATE_FRAME_ANGLE;
-    else
-    {
+    else if( cover_animation_keyframe < 35 ) {
+        center_slide.angle+=16;
+    }
+    else {
         cover_animation_keyframe = 0;
         pf_state = pf_show_tracks;
     }
@@ -3783,54 +2425,18 @@ static void update_cover_in_animation(void)
 static void update_cover_out_animation(void)
 {
     cover_animation_keyframe++;
-
-    if(cover_animation_keyframe <= ROTATE_FRAME_COUNT)
-        center_slide.angle -= ROTATE_FRAME_ANGLE;
-    else if(cover_animation_keyframe <= KEYFRAME_COUNT)
-    {
-        center_slide.distance -= ZOOMIN_FRAME_DIST;
-        center_slide.angle -=    ZOOMIN_FRAME_ANGLE;
-        extra_fade -=            ZOOMIN_FRAME_FADE;
+    if( cover_animation_keyframe <= 15 ) {
+        center_slide.angle-=16;
     }
-    else
-    {
+    else if( cover_animation_keyframe < 35 ) {
+        center_slide.distance+=5;
+        center_slide.angle-=1;
+        extra_fade -= 13;
+    }
+    else {
         cover_animation_keyframe = 0;
         pf_state = pf_idle;
     }
-}
-
-/**
-   Immediately show tracks and skip any animation frames
-*/
-static void skip_animation_to_show_tracks(void)
-{
-    pf_state = pf_show_tracks;
-    cover_animation_keyframe = 0;
-
-    extra_fade =            ZOOMIN_FRAME_COUNT * ZOOMIN_FRAME_FADE;
-    center_slide.distance = ZOOMIN_FRAME_COUNT * ZOOMIN_FRAME_DIST;
-    center_slide.angle   = (ZOOMIN_FRAME_COUNT * ZOOMIN_FRAME_ANGLE) +
-                           (ROTATE_FRAME_COUNT * ROTATE_FRAME_ANGLE);
-}
-
-/**
-   Immediately transition to idle state and skip any animation frames
-*/
-static void skip_animation_to_idle_state(void)
-{
-    pf_state = pf_idle;
-    cover_animation_keyframe = 0;
-    extra_fade = 0;
-    set_current_slide(center_index);
-}
-
-/**
-  Change direction during cover in/out animation
-*/
-static void reverse_animation(void)
-{
-    pf_state = pf_state == pf_cover_out ? pf_cover_in : pf_cover_out;
-    cover_animation_keyframe = KEYFRAME_COUNT - cover_animation_keyframe;
 }
 
 /**
@@ -3841,8 +2447,8 @@ static inline void draw_gradient(int y, int h)
     int r, inc, c;
     inc = (100 << 8) / h;
     c = 0;
-    pf_tracks.sel_pulse = (pf_tracks.sel_pulse+1) % 10;
-    int c2 = pf_tracks.sel_pulse - 5;
+    selected_track_pulse = (selected_track_pulse+1) % 10;
+    int c2 = selected_track_pulse - 5;
     for (r=0; r<h; r++) {
 #ifdef HAVE_LCD_COLOR
         mylcd_set_foreground(G_PIX(c2+80-(c >> 9), c2+100-(c >> 9),
@@ -3861,32 +2467,21 @@ static inline void draw_gradient(int y, int h)
 
 static void track_list_yh(int char_height)
 {
-    bool needs_space = pf_cfg.show_fps || aa_cache.inspected < pf_idx.album_ct;
-
-    switch (pf_cfg.show_album_name)
+    switch (show_album_name)
     {
         case ALBUM_NAME_HIDE:
-            pf_tracks.list_y = (needs_space ? char_height : 0);
-            pf_tracks.list_h = LCD_HEIGHT - pf_tracks.list_y;
+            track_list_y = (show_fps ? char_height : 0);
+            track_list_h = LCD_HEIGHT - track_list_y;
             break;
         case ALBUM_NAME_BOTTOM:
-            pf_tracks.list_y = (needs_space ? char_height : 0);
-            pf_tracks.list_h = LCD_HEIGHT - pf_tracks.list_y - (char_height * 3);
-            break;
-        case ALBUM_AND_ARTIST_TOP:
-            pf_tracks.list_y = char_height * 3;
-            pf_tracks.list_h = LCD_HEIGHT - pf_tracks.list_y -
-                           (needs_space ? char_height : 0);
-            break;
-        case ALBUM_AND_ARTIST_BOTTOM:
-            pf_tracks.list_y = (needs_space ? char_height : 0);
-            pf_tracks.list_h = LCD_HEIGHT - pf_tracks.list_y - (char_height * 3);
+            track_list_y = (show_fps ? char_height : 0);
+            track_list_h = LCD_HEIGHT - track_list_y - char_height * 2;
             break;
         case ALBUM_NAME_TOP:
         default:
-            pf_tracks.list_y = char_height * 3;
-            pf_tracks.list_h = LCD_HEIGHT - pf_tracks.list_y -
-                           (needs_space ? char_height : 0);
+            track_list_y = char_height * 2;
+            track_list_h = LCD_HEIGHT - track_list_y -
+                           (show_fps ? char_height : 0);
             break;
     }
 }
@@ -3899,35 +2494,19 @@ void reset_track_list(void)
     int char_height = rb->screens[SCREEN_MAIN]->getcharheight();
     int total_height;
     track_list_yh(char_height);
-    pf_tracks.list_visible =
-                         fmin( pf_tracks.list_h/char_height , pf_tracks.count );
-
-    pf_tracks.list_start = 0;
-    pf_tracks.sel = 0;
-    pf_tracks.last_sel = -1;
+    track_list_visible_entries = fmin( track_list_h/char_height , track_count );
+    start_index_track_list = 0;
+    selected_track = 0;
+    last_selected_track = -1;
 
     /* let the tracklist start more centered
      * if the screen isn't filled with tracks */
-    total_height = pf_tracks.count*char_height;
-    if (total_height < pf_tracks.list_h)
+    total_height = track_count*char_height;
+    if (total_height < track_list_h)
     {
-        pf_tracks.list_y += (pf_tracks.list_h - total_height) / 2;
-        pf_tracks.list_h = total_height;
+        track_list_y += (track_list_h - total_height) / 2;
+        track_list_h = total_height;
     }
-}
-
-static void draw_album_text(void);
-static void show_track_list_loading(void)
-{
-    int x = (LCD_WIDTH - mylcd_getstringsize(rb->str(LANG_WAIT), NULL, NULL)) / 2;
-    mylcd_set_foreground(G_BRIGHT(255));
-    int char_height = rb->screens[SCREEN_MAIN]->getcharheight();
-    track_list_yh(char_height);
-    mylcd_putsxy(x, pf_tracks.list_y + (pf_tracks.list_h  - char_height) / 2,
-                 rb->str(LANG_WAIT));
-    draw_album_text();
-    mylcd_update();
-    mylcd_clear_display();
 }
 
 /**
@@ -3936,35 +2515,24 @@ static void show_track_list_loading(void)
 static void show_track_list(void)
 {
     mylcd_clear_display();
-    if ( center_slide.slide_index != pf_tracks.cur_idx ) {
-#ifdef HAVE_TC_RAMCACHE
-        if (!rb->tagcache_is_in_ram())
-#endif
-            show_track_list_loading();
+    if ( center_slide.slide_index != track_index ) {
         create_track_index(center_slide.slide_index);
-        if (pf_tracks.count == 0)
-        {
-            pf_state = pf_cover_out;
-            free_borrowed_tracks();
-            return;
-        }
         reset_track_list();
     }
     int titletxt_w, titletxt_x, color, titletxt_h;
     titletxt_h = rb->screens[SCREEN_MAIN]->getcharheight();
 
-    int titletxt_y = pf_tracks.list_y;
+    int titletxt_y = track_list_y;
     int track_i;
-    int fade;
-
-    track_i = pf_tracks.list_start;
-    for (; track_i < pf_tracks.list_visible + pf_tracks.list_start; track_i++)
+    track_i = start_index_track_list;
+    for (;track_i < track_list_visible_entries+start_index_track_list;
+         track_i++)
     {
         char *trackname = get_track_name(track_i);
-        if (track_i == pf_tracks.sel && !show_tracks_while_browsing) {
-            if (pf_tracks.sel != pf_tracks.last_sel) {
+        if ( track_i == selected_track ) {
+            if (selected_track != last_selected_track) {
                 set_scroll_line(trackname, PF_SCROLL_TRACK);
-                pf_tracks.last_sel = pf_tracks.sel;
+                last_selected_track = selected_track;
             }
             draw_gradient(titletxt_y, titletxt_h);
             titletxt_x = get_scroll_line_offset(PF_SCROLL_TRACK);
@@ -3973,8 +2541,7 @@ static void show_track_list(void)
         else {
             titletxt_w = mylcd_getstringsize(trackname, NULL, NULL);
             titletxt_x = (LCD_WIDTH-titletxt_w)/2;
-            fade = (abs(pf_tracks.sel - track_i) * 200 / pf_tracks.count);
-            color = 250 - fade;
+            color = 250 - (abs(selected_track - track_i) * 200 / track_count);
         }
         mylcd_set_foreground(G_BRIGHT(color));
         mylcd_putsxy(titletxt_x,titletxt_y,trackname);
@@ -3984,342 +2551,80 @@ static void show_track_list(void)
 
 static void select_next_track(void)
 {
-    if ( pf_tracks.sel < pf_tracks.count - 1 ) {
-        pf_tracks.sel++;
-        if (pf_tracks.sel==(pf_tracks.list_visible+pf_tracks.list_start))
-            pf_tracks.list_start++;
-    } else if (rb->global_settings->list_wraparound) {
-        /* Rollover */
-        pf_tracks.sel = 0;
-        pf_tracks.list_start = 0;
+    if (  selected_track < track_count - 1 ) {
+        selected_track++;
+        if (selected_track==(track_list_visible_entries+start_index_track_list))
+            start_index_track_list++;
     }
 }
 
 static void select_prev_track(void)
 {
-    if (pf_tracks.sel > 0 ) {
-        if (pf_tracks.sel==pf_tracks.list_start) pf_tracks.list_start--;
-        pf_tracks.sel--;
-    } else if (rb->global_settings->list_wraparound) {
-        /* Rolllover */
-        pf_tracks.sel = pf_tracks.count - 1;
-        pf_tracks.list_start = pf_tracks.count - pf_tracks.list_visible;
-    }
-}
-
-static void select_next_album(void)
-{
-    if (center_index < number_of_slides - 1) {
-        free_borrowed_tracks();
-        target = center_index + 1;
-        set_current_slide(target);
-        skip_animation_to_show_tracks();
-    }
-}
-
-static void select_prev_album(void)
-{
-    if (center_index > 0) {
-        free_borrowed_tracks();
-        target = center_index - 1;
-        set_current_slide(target);
-        skip_animation_to_show_tracks();
+    if (selected_track > 0 ) {
+        if (selected_track==start_index_track_list) start_index_track_list--;
+        selected_track--;
     }
 }
 
 #if PF_PLAYBACK_CAPABLE
-static int show_id3_info(const char *selected_file)
-{
-    int i;
-    unsigned long last_tick;
-    const char *file_name;
-    bool is_multiple_tracks = insert_whole_album && pf_tracks.count > 1;
-
-    last_tick = *(rb->current_tick) + HZ/2;
-    rb->splash_progress_set_delay(HZ / 2); /* wait 1/2 sec before progress */
-    i = 0;
-    do {
-        file_name = i == 0 ? selected_file : get_track_filename(i);
-        if (!rb->get_metadata(&id3, -1, file_name))
-            return 0;
-
-        if (is_multiple_tracks)
-        {
-            rb->splash_progress(i, pf_tracks.count,
-                                "%s (%s)", rb->str(LANG_WAIT), rb->str(LANG_OFF_ABORT));
-            if (TIME_AFTER(*(rb->current_tick), last_tick + HZ/4))
-            {
-                if (rb->action_userabort(TIMEOUT_NOBLOCK))
-                    return 0;
-                last_tick = *(rb->current_tick);
-            }
-
-            collect_id3(&id3, i == 0);
-            rb->yield();
-        }
-    } while (++i < pf_tracks.count && is_multiple_tracks);
-
-    if (is_multiple_tracks)
-        finalize_id3(&id3);
-
-    return rb->browse_id3(&id3, 0, 0, NULL, i) ? PLUGIN_USB_CONNECTED : 0;
-}
-
-
-static bool pf_current_playlist_insert(int position, bool queue, bool create_new)
-{
-    if (position == PLAYLIST_REPLACE)
-    {
-        if ((!create_new && rb->playlist_remove_all_tracks(NULL) == 0) ||
-             (create_new && rb->playlist_create(NULL, NULL) == 0))
-            position = PLAYLIST_INSERT_LAST;
-        else
-            return false;
-    }
-
-    if (!insert_whole_album)
-        rb->playlist_insert_track(NULL, get_track_filename(pf_tracks.sel),
-                                        position, queue, false);
-    else
-    {
-        int i = 0;
-        do {
-            rb->yield();
-            if (rb->playlist_insert_track(NULL, get_track_filename(i),
-                    position, queue, false) < 0)
-                break;
-            if (position == PLAYLIST_INSERT_FIRST)
-                position = PLAYLIST_INSERT;
-        } while(++i < pf_tracks.count);
-    }
-    rb->playlist_sync(NULL);
-    old_playlist = create_new ? center_slide.slide_index : -1;
-    return true;
-}
-
-
-static int pf_add_to_playlist(const char* playlist, bool new_playlist)
-{
-    int fd;
-    int result = 0;
-
-    if (new_playlist)
-        fd = rb->open_utf8(playlist, O_CREAT|O_WRONLY|O_TRUNC);
-    else
-        fd = rb->open(playlist, O_CREAT|O_WRONLY|O_APPEND, 0666);
-
-    if(fd < 0)
-        return -1;
-
-    rb->reload_directory();
-
-    if (!insert_whole_album)
-    {
-        if (rb->fdprintf(fd, "%s\n", get_track_filename(pf_tracks.sel)) <= 0)
-            result = -1;
-    }
-    else
-    {
-        int i = 0;
-        do {
-            if (rb->fdprintf(fd, "%s\n", get_track_filename(i)) <= 0)
-            {
-                result = -1;
-                break;
-            }
-            rb->yield();
-        } while(++i < pf_tracks.count);
-    }
-    rb->close(fd);
-    return result;
-}
-
-
-static bool track_list_ready(void)
-{
-    if (pf_state != pf_show_tracks)
-    {
-#ifdef HAVE_TC_RAMCACHE
-        if (!rb->tagcache_is_in_ram())
-#endif
-            rb->splash(0, ID2P(LANG_WAIT));
-        create_track_index(center_slide.slide_index);
-        if (pf_tracks.count == 0)
-        {
-            free_borrowed_tracks();
-            return false;
-        }
-        reset_track_list();
-    }
-    return true;
-}
-
-
-static bool context_menu_ready(void)
-{
-#ifdef USEGSLIB
-    grey_show(false);
-    rb->lcd_clear_display();
-    rb->lcd_update();
-#endif
-    if (!track_list_ready())
-    {
-#ifdef USEGSLIB
-        grey_show(true);
-#endif
-        return false;
-    }
-#if LCD_DEPTH > 1
-#ifdef USEGSLIB
-    rb->lcd_set_foreground(N_BRIGHT(0));
-    rb->lcd_set_background(N_BRIGHT(255));
-#endif
-#endif
-    insert_whole_album = (pf_state != pf_show_tracks) || show_tracks_while_browsing;
-    FOR_NB_SCREENS(i)
-        rb->viewportmanager_theme_enable(i, true, NULL);
-
-    return true;
-}
-
-static void context_menu_cleanup(void)
-{
-    FOR_NB_SCREENS(i)
-        rb->viewportmanager_theme_undo(i, false);
-    if (pf_state != pf_show_tracks)
-        free_borrowed_tracks();
-#ifdef USEGSLIB
-    grey_show(true);
-#endif
-    mylcd_set_drawmode(DRMODE_FG);
-}
-
-
-static int context_menu(void)
-{
-    char album_name[MAX_PATH];
-    char *file_name = get_track_filename(show_tracks_while_browsing ? 0 : pf_tracks.sel);
-    int attr = FILE_ATTR_AUDIO;
-
-    enum {
-        PF_CURRENT_PLAYLIST = 0,
-        PF_CATALOG,
-        PF_ID3_INFO
-    };
-    MENUITEM_STRINGLIST(context_menu, ID2P(LANG_ONPLAY_MENU_TITLE), NULL,
-                        ID2P(LANG_PLAYING_NEXT),
-                        ID2P(LANG_ADD_TO_PL),
-                        ID2P(LANG_MENU_SHOW_ID3_INFO));
-
-    while (1)  {
-        switch (rb->do_menu(&context_menu,
-                            NULL, NULL, false)) {
-
-            case PF_CURRENT_PLAYLIST:
-                if (insert_whole_album && pf_tracks.count > 1)
-                {
-                    attr = ATTR_DIRECTORY;
-                    file_name = NULL;
-                }
-                rb->onplay_show_playlist_menu(file_name, attr, &pf_current_playlist_insert);
-                return 0;
-            case PF_CATALOG:
-                if (insert_whole_album)
-                {
-                    /* add a leading slash so that catalog_add_to_a_playlist
-                       later prefills the name when creating a new playlist */
-                    rb->snprintf(album_name, MAX_PATH, "/%s", get_album_name(center_index));
-                    rb->fix_path_part(album_name, 1, sizeof(album_name) - 2);
-                    file_name = album_name;
-                    attr = ATTR_DIRECTORY;
-                }
-
-                rb->onplay_show_playlist_cat_menu(file_name, attr, &pf_add_to_playlist);
-                return 0;
-            case PF_ID3_INFO:
-                return show_id3_info(file_name);
-            case MENU_ATTACHED_USB:
-                return PLUGIN_USB_CONNECTED;
-            default:
-                return 0;
-
-        }
-    }
-}
-
-
-
 /*
- * Puts selected album's tracks into a newly created playlist and starts playing
+ * Puts the current tracklist into a newly created playlist and starts playling
  */
-static bool start_playback(bool return_to_WPS)
+static void start_playback(bool append)
 {
-#ifdef USEGSLIB
-    grey_show(false);
-#if LCD_DEPTH > 1
-    rb->lcd_set_background(N_BRIGHT(0));
-    rb->lcd_set_foreground(N_BRIGHT(255));
-#endif
-    rb->lcd_clear_display();
-    rb->lcd_update();
-#else /* if !USEGSLIB */
-    (void) return_to_WPS;
-#endif
-
-    if (!rb->warn_on_pl_erase() || !track_list_ready())
+    static int old_playlist = -1, old_shuffle = 0;
+    int count = 0;
+    int position = selected_track;
+    int shuffle = rb->global_settings->playlist_shuffle;
+    /* reuse existing playlist if possible
+     * regenerate if shuffle is on or changed, since playlist index and
+     * selected track are "out of sync" */
+    if (!shuffle && !append && center_slide.slide_index == old_playlist
+            && (old_shuffle == shuffle))
     {
-#ifdef USEGSLIB
-        grey_show(true);
-#endif
-        return false;
+        goto play;
     }
-
-    insert_whole_album = true;
-    int start_index = pf_tracks.sel;
-    bool shuffle = rb->global_settings->playlist_shuffle;
-    /* can't reuse playlist if it may be out of sync with our track list */
-    if (shuffle || center_slide.slide_index != old_playlist
-                || (old_shuffle != shuffle))
+    /* First, replace the current playlist with a new one */
+    else if (append || (rb->playlist_remove_all_tracks(NULL) == 0
+            && rb->playlist_create(NULL, NULL) == 0))
     {
-        if (!pf_current_playlist_insert(PLAYLIST_REPLACE, false, true))
-        {
-#ifdef USEGSLIB
-            grey_show(true);
-#endif
-            return false;
-        }
-        if (shuffle)
-            start_index = rb->playlist_shuffle(*rb->current_tick, pf_tracks.sel);
+        do {
+            rb->yield();
+            if (rb->playlist_insert_track(NULL, get_track_filename(count),
+                    PLAYLIST_INSERT_LAST, false, true) < 0)
+                break;
+        } while(++count < track_count);
+        rb->playlist_sync(NULL);
     }
-    rb->playlist_start(start_index, 0, 0);
+    else
+        return;
+
+    if (rb->global_settings->playlist_shuffle)
+        position = rb->playlist_shuffle(*rb->current_tick, selected_track);
+play:
+    /* TODO: can we adjust selected_track if !play_selected ?
+     * if shuffle, we can't predict the playing track easily, and for either
+     * case the track list doesn't get auto scrolled*/
+    if(!append)
+        rb->playlist_start(position, 0, 0);
+    old_playlist = center_slide.slide_index;
     old_shuffle = shuffle;
-#ifdef USEGSLIB
-    if (!return_to_WPS)
-        grey_show(true);
-#endif
-    return true;
 }
-#endif /* PF_PLAYBACK_CAPABLE */
+#endif
 
 /**
    Draw the current album name
  */
 static void draw_album_text(void)
 {
-    char album_and_year[MAX_PATH];
-
-    if (pf_cfg.show_album_name == ALBUM_NAME_HIDE)
+    if (show_album_name == ALBUM_NAME_HIDE)
         return;
 
-    static int prev_albumtxt_index = -1;
-    static bool prev_show_year = false;
     int albumtxt_index;
     int char_height;
-    int albumtxt_x, albumtxt_y, artisttxt_x;
-    int album_idx = 0;
+    int albumtxt_x, albumtxt_y;
 
     char *albumtxt;
-    char *artisttxt;
     int c;
     /* Draw album text */
     if ( pf_state == pf_scrolling ) {
@@ -4338,68 +2643,22 @@ static void draw_album_text(void)
         albumtxt_index = center_index;
         c= 255;
     }
-    albumtxt = get_album_name_idx(albumtxt_index, &album_idx);
-
-    if (pf_cfg.show_year && pf_idx.album_index[albumtxt_index].year > 0)
-    {
-        rb->snprintf(album_and_year, sizeof(album_and_year), "%s – %d",
-             albumtxt, pf_idx.album_index[albumtxt_index].year);
-    } else
-        rb->snprintf(album_and_year, sizeof(album_and_year), "%s", albumtxt);
+    albumtxt = get_album_name(albumtxt_index);
 
     mylcd_set_foreground(G_BRIGHT(c));
-    if (albumtxt_index != prev_albumtxt_index || pf_cfg.show_year != prev_show_year) {
-        set_scroll_line(album_and_year, PF_SCROLL_ALBUM);
+    if (albumtxt_index != prev_albumtxt_index) {
+        set_scroll_line(albumtxt, PF_SCROLL_ALBUM);
         prev_albumtxt_index = albumtxt_index;
-        prev_show_year = pf_cfg.show_year;
     }
 
     char_height = rb->screens[SCREEN_MAIN]->getcharheight();
-    switch(pf_cfg.show_album_name){
-        case ALBUM_AND_ARTIST_TOP:
-            albumtxt_y = 0;
-            break;
-        case ALBUM_NAME_BOTTOM:
-        case ALBUM_AND_ARTIST_BOTTOM:
-            albumtxt_y = (LCD_HEIGHT - (char_height * 5 / 2));
-            break;
-        case ALBUM_NAME_TOP:
-        default:
-            albumtxt_y = char_height / 2;
-            break;
-    }
+    if (show_album_name == ALBUM_NAME_TOP)
+        albumtxt_y = char_height / 2;
+    else
+        albumtxt_y = LCD_HEIGHT - char_height - char_height/2;
 
     albumtxt_x = get_scroll_line_offset(PF_SCROLL_ALBUM);
-
-
-    if ((pf_cfg.show_album_name == ALBUM_AND_ARTIST_TOP)
-        || (pf_cfg.show_album_name == ALBUM_AND_ARTIST_BOTTOM)){
-
-        if (album_idx != (int) pf_idx.album_untagged_idx)
-            mylcd_putsxy(albumtxt_x, albumtxt_y, album_and_year);
-
-        artisttxt = get_album_artist(albumtxt_index);
-        set_scroll_line(artisttxt, PF_SCROLL_ARTIST);
-        artisttxt_x = get_scroll_line_offset(PF_SCROLL_ARTIST);
-        int y_offset = char_height + char_height/2;
-        mylcd_putsxy(artisttxt_x, albumtxt_y + y_offset, artisttxt);
-    } else {
-        mylcd_putsxy(albumtxt_x, albumtxt_y, album_and_year);
-    }
-}
-
-
-static void set_initial_slide(const char* selected_file)
-{
-    if (selected_file)
-        set_current_slide(retrieve_id3(&id3, selected_file) ?
-                            id3_get_index(&id3) :
-                            pf_cfg.last_album);
-    else
-        set_current_slide(rb->audio_status() ?
-                            id3_get_index(rb->audio_current_track()) :
-                            pf_cfg.last_album);
-
+    mylcd_putsxy(albumtxt_x, albumtxt_y, albumtxt);
 }
 
 /**
@@ -4417,9 +2676,9 @@ static void error_wait(const char *message)
   Main function that also contain the main plasma
   algorithm.
  */
-static int pictureflow_main(const char* selected_file)
+static int pictureflow_main(void)
 {
-    int ret = SUCCESS;
+    int ret;
 
     rb->lcd_setfont(FONT_UI);
 
@@ -4430,82 +2689,51 @@ static int pictureflow_main(const char* selected_file)
         }
     }
 
-    rb->memset(&aa_cache, 0, sizeof(struct albumart_t));
-    config_set_defaults(&pf_cfg);
-
-    configfile_load(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
-
-#ifdef HAVE_BACKLIGHT
-    if(pf_cfg.backlight_mode == 0)
+    configfile_load(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION); 
+    if(auto_wps == 0)
+        draw_splashscreen();
+    if(backlight_mode == 0) {
+        /* Turn off backlight timeout */
         backlight_ignore_timeout();
-#endif
-
-    rb->mutex_init(&buf_ctx_mutex);
+    }
 
     init_scroll_lines();
     init_reflect_table();
 
-    /*Scan will trigger when no file is found or the option was activated*/
-    if ((pf_cfg.cache_version != CACHE_VERSION)||(load_album_index() < 0)){
-        rb->splash(HZ/2,"Creating index, please wait");
-        ret = create_album_index();
-
-        if (ret == 0){
-            pf_cfg.cache_version = CACHE_REBUILD;
-            if (save_album_index() < 0) {
-                rb->splash(HZ, "Could not write index");
-            };
-        }
-    }
-
+    ALIGN_BUFFER(buf, buf_size, 4);
+    ret = create_album_index();
     if (ret == ERROR_BUFFER_FULL) {
         error_wait("Not enough memory for album names");
         return PLUGIN_ERROR;
     } else if (ret == ERROR_NO_ALBUMS) {
         error_wait("No albums found. Please enable database");
         return PLUGIN_ERROR;
-    } else if (ret == ERROR_USER_ABORT) {
-        error_wait("User aborted.");
+    }
+
+    ALIGN_BUFFER(buf, buf_size, 4);
+    number_of_slides  = album_count;
+    if ((cache_version != CACHE_VERSION) && !create_albumart_cache()) {
+        cache_version = CACHE_REBUILD;
+        configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
+        error_wait("Could not create album art cache");
         return PLUGIN_ERROR;
     }
 
-    number_of_slides = pf_idx.album_ct;
-
-    size_t aa_bufsz = ALIGN_DOWN(pf_idx.buf_sz / 4, sizeof(long));
-    if (aa_bufsz < DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(pix_t))
-    {
-        error_wait("Not enough memory for album art cache");
-        return PLUGIN_ERROR;
-    }
-
-    ALIGN_BUFFER(pf_idx.buf, pf_idx.buf_sz, sizeof(long));
-    aa_cache.buf = (char*) pf_idx.buf;
-    aa_cache.buf_sz = aa_bufsz;
-
-    pf_idx.buf += aa_bufsz;
-    pf_idx.buf_sz -= aa_bufsz;
-
-    if (!create_empty_slide(pf_cfg.cache_version != CACHE_VERSION)) {
-        config_save(CACHE_REBUILD, false);
+    if (!create_empty_slide(cache_version != CACHE_VERSION)) {
+        cache_version = CACHE_REBUILD;
+        configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
         error_wait("Could not load the empty slide");
         return PLUGIN_ERROR;
     }
-
-    if ((pf_cfg.cache_version != CACHE_VERSION) && !create_albumart_cache()) {
-        config_save(CACHE_REBUILD, false);
-        error_wait("Could not create album art cache");
-    } else if(aa_cache.inspected < pf_idx.album_ct) {
-        rb->splash(HZ * 2, "Updating album art cache in background");
-    }
-
-    if (pf_cfg.cache_version != CACHE_VERSION)
+    if (cache_version != CACHE_VERSION)
     {
-        config_save(CACHE_VERSION, pf_cfg.update_albumart);
+        cache_version = CACHE_VERSION;
+        configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
     }
 
-    rb->buflib_init(&buf_ctx, (void *)pf_idx.buf, pf_idx.buf_sz);
+    rb->buflib_init(&buf_ctx, (void *)buf, buf_size);
 
-    if ((empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)) < 0)
+    if (!(empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)))
     {
         error_wait("Unable to load empty slide image");
         return PLUGIN_ERROR;
@@ -4516,16 +2744,23 @@ static int pictureflow_main(const char* selected_file)
         return PLUGIN_ERROR;
     }
 
-    initialize_slide_cache();
+    int i;
 
+    /* initialize */
+    for (i = 0; i < SLIDE_CACHE_SIZE; i++) {
+        cache[i].hid = 0;
+        cache[i].index = 0;
+        cache[i].next = i + 1;
+        cache[i].prev = i - 1;
+    }
+    cache[0].prev = i - 1;
+    cache[i - 1].next = 0;
+    cache_free = 0;
     buffer = LCD_BUF;
 
     pf_state = pf_idle;
 
-    pf_tracks.cur_idx = -1;
-    pf_tracks.borrowed = 0;
-    pf_tracks.used = 0;
-
+    track_index = -1;
     extra_fade = 0;
     slide_frame = 0;
     step = 0;
@@ -4534,7 +2769,7 @@ static int pictureflow_main(const char* selected_file)
 
     recalc_offsets();
     reset_slides();
-    set_initial_slide(selected_file);
+    set_current_slide(get_wps_current_index());
 
     char fpstxt[10];
     int button;
@@ -4574,7 +2809,6 @@ static int pictureflow_main(const char* selected_file)
                 instant_update = true;
                 break;
             case pf_cover_out:
-                show_tracks_while_browsing = false;
                 update_cover_out_animation();
                 render_all_slides();
                 instant_update = true;
@@ -4583,14 +2817,7 @@ static int pictureflow_main(const char* selected_file)
                 show_track_list();
                 break;
             case pf_idle:
-                show_tracks_while_browsing = false;
                 render_all_slides();
-                if (aa_cache.inspected < pf_idx.album_ct)
-                {
-                    buf_ctx_lock();
-                    incremental_albumart_cache(false);
-                    buf_ctx_unlock();
-                }
                 break;
         }
 
@@ -4600,24 +2827,16 @@ static int pictureflow_main(const char* selected_file)
             last_update = current_update;
             frames = 0;
         }
-        /* Draw FPS or draw percentage of already built album cache */
-        if (pf_cfg.show_fps || aa_cache.inspected < pf_idx.album_ct)
+        /* Draw FPS */
+        if (show_fps)
         {
 #ifdef USEGSLIB
             mylcd_set_foreground(G_BRIGHT(255));
 #else
             mylcd_set_foreground(G_PIX(255,0,0));
 #endif
-            if(aa_cache.inspected >= pf_idx.album_ct)
-                 rb->snprintf(fpstxt, sizeof(fpstxt), "FPS: %d", fps);
-            else
-            {
-                int progress_pct = 100 * aa_cache.inspected / pf_idx.album_ct;
-                rb->snprintf(fpstxt, sizeof(fpstxt), "%d %%", progress_pct);
-            }
-
-            if (pf_cfg.show_album_name == ALBUM_NAME_TOP ||
-                pf_cfg.show_album_name == ALBUM_AND_ARTIST_TOP)
+            rb->snprintf(fpstxt, sizeof(fpstxt), "FPS: %d", fps);
+            if (show_album_name == ALBUM_NAME_TOP)
                 fpstxt_y = LCD_HEIGHT -
                            rb->screens[SCREEN_MAIN]->getcharheight();
             else
@@ -4628,8 +2847,7 @@ static int pictureflow_main(const char* selected_file)
 
 
         /* Copy offscreen buffer to LCD and give time to other threads */
-        if (is_initial_slide == false)
-            mylcd_update();
+        mylcd_update();
         rb->yield();
 
         /*/ Handle buttons */
@@ -4646,29 +2864,21 @@ static int pictureflow_main(const char* selected_file)
         case PF_WPS:
             return PLUGIN_GOTO_WPS;
         case PF_BACK:
-            if (show_tracks_while_browsing)
-                show_tracks_while_browsing = false;
-            else if (pf_state == pf_show_tracks)
+            if ( pf_state == pf_show_tracks )
             {
+                rb->buflib_buffer_in(&buf_ctx, borrowed);
+                borrowed = 0;
+                track_index = -1;
                 pf_state = pf_cover_out;
-                free_borrowed_tracks();
             }
-            else if (pf_state == pf_cover_in)
-                reverse_animation();
-            else if (pf_state == pf_cover_out)
-                skip_animation_to_idle_state();
-            else if (pf_state == pf_idle || pf_state == pf_scrolling)
+            if (pf_state == pf_idle || pf_state == pf_scrolling)
                 return PLUGIN_OK;
             break;
         case PF_MENU:
 #ifdef USEGSLIB
             grey_show(false);
 #endif
-            FOR_NB_SCREENS(i)
-                rb->viewportmanager_theme_enable(i, true, NULL);
             ret = main_menu();
-            FOR_NB_SCREENS(i)
-                rb->viewportmanager_theme_undo(i, false);
             if ( ret == -2 ) return PLUGIN_GOTO_WPS;
             if ( ret == -1 ) return PLUGIN_OK;
             if ( ret != 0 ) return ret;
@@ -4681,17 +2891,7 @@ static int pictureflow_main(const char* selected_file)
         case PF_NEXT:
         case PF_NEXT_REPEAT:
             if ( pf_state == pf_show_tracks )
-            {
-                if (show_tracks_while_browsing)
-                    select_next_album();
-                else
-                    select_next_track();
-            }
-            else if (pf_state == pf_cover_in)
-                skip_animation_to_show_tracks();
-            else if (pf_state == pf_cover_out)
-                skip_animation_to_idle_state();
-
+                select_next_track();
             if ( pf_state == pf_idle || pf_state == pf_scrolling )
                 show_next_slide();
             break;
@@ -4699,111 +2899,54 @@ static int pictureflow_main(const char* selected_file)
         case PF_PREV:
         case PF_PREV_REPEAT:
             if ( pf_state == pf_show_tracks )
-            {
-                if (show_tracks_while_browsing)
-                    select_prev_album();
-                else
-                    select_prev_track();
-            }
-            else if (pf_state == pf_cover_in)
-                skip_animation_to_show_tracks();
-            else if (pf_state == pf_cover_out)
-                skip_animation_to_idle_state();
-
+                select_prev_track();
             if ( pf_state == pf_idle || pf_state == pf_scrolling )
                 show_previous_slide();
             break;
-        case PF_SORTING_NEXT:
-            sort_albums((pf_cfg.sort_albums_by + 1) % SORT_VALUES_SIZE, false);
-            break;
-        case PF_SORTING_PREV:
-            sort_albums((pf_cfg.sort_albums_by + (SORT_VALUES_SIZE - 1)) % SORT_VALUES_SIZE, false);
-            break;
-        case PF_JMP:
-            if (pf_state == pf_idle || pf_state == pf_scrolling)
-            {
-                int new_idx = jmp_idx_next();
-                if (new_idx != center_index)
-                {
-                    pf_state = pf_idle;
-                    set_current_slide(new_idx);
-                }
-            }
-            else if ( pf_state == pf_show_tracks )
-                select_next_album();
-            break;
-        case PF_JMP_PREV:
-            if (pf_state == pf_idle || pf_state == pf_scrolling)
-            {
-                int new_idx = jmp_idx_prev();
-                if (new_idx != center_index)
-                {
-                    pf_state = pf_idle;
-                    set_current_slide(new_idx);
-                }
-            }
-            else if ( pf_state == pf_show_tracks )
-                select_prev_album();
-            else if (pf_state == pf_cover_in)
-                reverse_animation();
-            else if (pf_state == pf_cover_out)
-                skip_animation_to_idle_state();
-            break;
 #if PF_PLAYBACK_CAPABLE
         case PF_CONTEXT:
-            if (pf_state == pf_idle || pf_state == pf_scrolling ||
-                pf_state == pf_show_tracks || pf_state == pf_cover_out)
-            {
-                if ( pf_state == pf_scrolling)
-                {
-                    set_current_slide(target);
-                    pf_state = pf_idle;
+            if ( auto_wps != 0 ) {
+                if( pf_state == pf_idle ) {
+                    create_track_index(center_slide.slide_index);
+                    reset_track_list();
+                    start_playback(true);
+                    rb->splash(HZ*2, ID2P(LANG_ADDED_TO_PLAYLIST));
                 }
-                else if (pf_state == pf_cover_out)
-                    skip_animation_to_idle_state();
-
-                if (context_menu_ready())
-                {
-                    ret = context_menu();
-                    context_menu_cleanup();
-                    if ( ret != 0 ) return ret;
+                else if( pf_state == pf_show_tracks ) {
+                    rb->playlist_insert_track(NULL, get_track_filename(selected_track),
+                                                    PLAYLIST_INSERT_LAST, false, true);
+                    rb->playlist_sync(NULL);
+                    rb->splash(HZ*2, ID2P(LANG_ADDED_TO_PLAYLIST));
                 }
             }
             break;
 #endif
         case PF_TRACKLIST:
-            if ( pf_cfg.auto_wps == 1 && pf_state == pf_idle ) {
+            if ( auto_wps == 1 && pf_state == pf_idle ) {
                 pf_state = pf_cover_in;
                 break;
             }
         case PF_SELECT:
-            if ( pf_state == pf_idle || pf_state == pf_scrolling) {
-                if (pf_state == pf_scrolling)
-                    set_current_slide(target);
+            if ( pf_state == pf_idle ) {
 #if PF_PLAYBACK_CAPABLE
-                if(pf_cfg.auto_wps == 1) {
-                    if (start_playback(true))
-                        return PLUGIN_GOTO_WPS;
+                if(auto_wps == 1) {
+                    create_track_index(center_slide.slide_index);
+                    reset_track_list();
+                    start_playback(false);
+                    last_album = center_index;
+                    return PLUGIN_GOTO_WPS;
                 }
                 else
 #endif
                     pf_state = pf_cover_in;
             }
-            else if (pf_state == pf_cover_out)
-                reverse_animation();
-            else if (pf_state == pf_cover_in)
-                skip_animation_to_show_tracks();
-            else if (pf_state == pf_show_tracks)
-            {
-                if (show_tracks_while_browsing)
-                    show_tracks_while_browsing = false;
+            else if ( pf_state == pf_show_tracks ) {
 #if PF_PLAYBACK_CAPABLE
-                else if(pf_cfg.auto_wps != 0) {
-                    if (start_playback(true))
-                        return PLUGIN_GOTO_WPS;
+                start_playback(false);
+                if(auto_wps != 0) {
+                    last_album = center_index;
+                    return PLUGIN_GOTO_WPS;
                 }
-                else
-                    start_playback(false);
 #endif
             }
             break;
@@ -4818,22 +2961,8 @@ static int pictureflow_main(const char* selected_file)
 
 enum plugin_status plugin_start(const void *parameter)
 {
-    struct viewport *vp_main = rb->lcd_set_viewport(NULL);
-    lcd_fb = vp_main->buffer->fb_ptr;
-
     int ret;
-    const char *file = parameter;
-
-    void * buf;
-    size_t buf_size;
-    bool file_id3 = (parameter && (((char *) parameter)[0] == '/'));
-
-    if (!check_database())
-    {
-        error_wait("Please enable database");
-        return PLUGIN_OK;
-    }
-
+    (void) parameter;
     atexit(cleanup);
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
@@ -4865,22 +2994,11 @@ enum plugin_status plugin_start(const void *parameter)
     buf = (void*)(grey_buf_used + (char*)buf);
 #endif
 
-    /* store buffer pointers and sizes */
-    pf_idx.buf = buf;
-    pf_idx.buf_sz = buf_size;
-
-    ret = file_id3 ? pictureflow_main(file) : pictureflow_main(NULL);
+    ret = pictureflow_main();
     if ( ret == PLUGIN_OK || ret == PLUGIN_GOTO_WPS) {
-        if (pf_state == pf_scrolling)
-            pf_cfg.last_album = target;
-        else
-            pf_cfg.last_album = center_index;
         if (configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS,
                             CONFIG_VERSION))
         {
-#ifdef USEGSLIB
-            grey_show(false);
-#endif
             rb->splash(HZ, ID2P(LANG_ERROR_WRITING_CONFIG));
             ret = PLUGIN_ERROR;
         }

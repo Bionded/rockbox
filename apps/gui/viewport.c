@@ -31,7 +31,6 @@
 #include "settings.h"
 #include "misc.h"
 #include "list.h"
-
 /*some short cuts for fg/bg/line selector handling */
 #ifdef HAVE_LCD_COLOR
 #define FG_FALLBACK global_settings.fg_color
@@ -45,6 +44,7 @@
 #define REMOTE_BG_FALLBACK LCD_REMOTE_DEFAULT_BG
 #endif
 
+
 /* all below isn't needed for pc tools (i.e. checkwps/wps editor)
  * only viewport_parse_viewport() is */
 #ifndef __PCTOOL__
@@ -54,7 +54,9 @@
 #include "statusbar.h"
 #include "appevents.h"
 #include "panic.h"
+#ifdef HAVE_LCD_BITMAP
 #include "language.h"
+#endif
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_engine.h"
 #include "debug.h"
@@ -66,47 +68,42 @@ struct viewport_stack_item
     bool   enabled;
 };
 
+#ifdef HAVE_LCD_BITMAP
 static void viewportmanager_redraw(unsigned short id, void* data);
 
 static int theme_stack_top[NB_SCREENS]; /* the last item added */
 static struct viewport_stack_item theme_stack[NB_SCREENS][VPSTACK_DEPTH];
 static bool is_theme_enabled(enum screen_type screen);
 
-static void evt_toggle(bool enable, unsigned short id,
-                         void (*handler)(unsigned short id, void *data))
-{
-    if (enable)
-        add_event(id, handler);
-    else
-        remove_event(id, handler);
-}
 
 static void toggle_events(bool enable)
 {
-    evt_toggle(enable, GUI_EVENT_ACTIONUPDATE, viewportmanager_redraw);
-    evt_toggle(enable, PLAYBACK_EVENT_TRACK_CHANGE, do_sbs_update_callback);
-    evt_toggle(enable, PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, do_sbs_update_callback);
-#if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
-    evt_toggle(enable, LCD_EVENT_ACTIVATION, do_sbs_update_callback);
-#endif
-}
-
-static void set_clear_update_valid_vp(enum screen_type screen, struct viewport *vp)
-{
-    if (vp->width && vp->height)
+    if (enable)
     {
-        screens[screen].set_viewport(vp);
-        screens[screen].clear_viewport();
-        screens[screen].update_viewport();
+        add_event(GUI_EVENT_ACTIONUPDATE, viewportmanager_redraw);
+#if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
+        add_event(LCD_EVENT_ACTIVATION, do_sbs_update_callback);
+#endif
+        add_event(PLAYBACK_EVENT_TRACK_CHANGE, do_sbs_update_callback);
+        add_event(PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, do_sbs_update_callback);
+    }
+    else
+    {
+#if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
+        remove_event(LCD_EVENT_ACTIVATION, do_sbs_update_callback);
+#endif
+        remove_event(PLAYBACK_EVENT_TRACK_CHANGE, do_sbs_update_callback);
+        remove_event(PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, do_sbs_update_callback);
+        remove_event(GUI_EVENT_ACTIONUPDATE, viewportmanager_redraw);
     }
 }
+
 
 static void toggle_theme(enum screen_type screen, bool force)
 {
     bool enable_event = false;
     static bool was_enabled[NB_SCREENS] = {false};
     static bool after_boot[NB_SCREENS] = {false};
-    struct viewport *last_vp;
 
     FOR_NB_SCREENS(i)
     {
@@ -117,7 +114,6 @@ static void toggle_theme(enum screen_type screen, bool force)
 
     if (is_theme_enabled(screen))
     {
-        last_vp = screens[screen].set_viewport(NULL);
         bool first_boot = theme_stack_top[screen] == 0;
         /* remove the left overs from the previous screen.
          * could cause a tiny flicker. Redo your screen code if that happens */
@@ -134,23 +130,42 @@ static void toggle_theme(enum screen_type screen, bool force)
             deadspace.y = 0;
             deadspace.width = screens[screen].lcdwidth;
             deadspace.height = user.y;
-            set_clear_update_valid_vp(screen, &deadspace);
+            if (deadspace.width && deadspace.height)
+            {
+                screens[screen].set_viewport(&deadspace);
+                screens[screen].clear_viewport();
+                screens[screen].update_viewport();
+            }
             /* below */
             deadspace.y = user.y + user.height;
             deadspace.height = screens[screen].lcdheight - deadspace.y;
-            set_clear_update_valid_vp(screen, &deadspace);
+            if (deadspace.width && deadspace.height)
+            {
+                screens[screen].set_viewport(&deadspace);
+                screens[screen].clear_viewport();
+                screens[screen].update_viewport();
+            }
             /* left */
             deadspace.x = 0;
             deadspace.y = 0;
             deadspace.width = user.x;
             deadspace.height = screens[screen].lcdheight;
-            set_clear_update_valid_vp(screen, &deadspace);
+            if (deadspace.width && deadspace.height)
+            {
+                screens[screen].set_viewport(&deadspace);
+                screens[screen].clear_viewport();
+                screens[screen].update_viewport();
+            }
             /* below */
             deadspace.x = user.x + user.width;
             deadspace.width = screens[screen].lcdwidth - deadspace.x;
-            set_clear_update_valid_vp(screen, &deadspace);
-
-            screens[screen].set_viewport(last_vp);
+            if (deadspace.width && deadspace.height)
+            {
+                screens[screen].set_viewport(&deadspace);
+                screens[screen].clear_viewport();
+                screens[screen].update_viewport();
+            }
+            screens[screen].set_viewport(NULL);
         }
         intptr_t force = first_boot?0:1;
 
@@ -193,7 +208,7 @@ void viewportmanager_theme_undo(enum screen_type screen, bool force_redraw)
     int top = --theme_stack_top[screen];
     if (top < 0)
         panicf("Stack underflow... viewportmanager");
-
+    
     toggle_theme(screen, force_redraw);
 }
 
@@ -203,10 +218,16 @@ static bool is_theme_enabled(enum screen_type screen)
     int top = theme_stack_top[screen];
     return theme_stack[screen][top].enabled;
 }
+#endif /* HAVE_LCD_BITMAP */
 
 int viewport_get_nb_lines(const struct viewport *vp)
 {
+#ifdef HAVE_LCD_BITMAP
     return vp->height/font_get(vp->font)->height;
+#else
+    (void)vp;
+    return 2;
+#endif
 }
 
 static void viewportmanager_redraw(unsigned short id, void* data)
@@ -214,23 +235,40 @@ static void viewportmanager_redraw(unsigned short id, void* data)
     (void)id;
     FOR_NB_SCREENS(i)
     {
+#ifdef HAVE_LCD_BITMAP
         if (is_theme_enabled(i))
             sb_skin_update(i, NULL != data);
+#else
+        (void)data;
+        gui_statusbar_draw(&statusbars.statusbars[i], NULL, NULL);
+#endif
     }
 }
 
-void viewportmanager_init(void)
+void viewportmanager_init()
 {
+#ifdef HAVE_LCD_BITMAP
     FOR_NB_SCREENS(i)
     {
         theme_stack_top[i] = -1; /* the next call fixes this to 0 */
         /* We always want the theme enabled by default... */
         viewportmanager_theme_enable(i, true, NULL);
     }
+#else
+    add_event(GUI_EVENT_ACTIONUPDATE, viewportmanager_redraw);
+#endif
 }
 
+#ifdef HAVE_LCD_BITMAP
 void viewportmanager_theme_changed(const int which)
 {
+#ifdef HAVE_BUTTONBAR
+    if (which & THEME_BUTTONBAR)
+    {   /* don't handle further, the custom ui viewport ignores the buttonbar,
+         * as does viewport_set_defaults(), since only lists use it*/
+        screens[SCREEN_MAIN].has_buttonbar = global_settings.buttonbar;
+    }
+#endif
     if (which & THEME_LANGUAGE)
     {
     }
@@ -265,16 +303,18 @@ static void set_default_align_flags(struct viewport *vp)
         vp->flags |= VP_FLAG_ALIGN_RIGHT;
 }
 
+#endif /* HAVE_LCD_BITMAP */
 #endif /* __PCTOOL__ */
 
 void viewport_set_fullscreen(struct viewport *vp,
                               const enum screen_type screen)
 {
-    screens[screen].init_viewport(vp);
     vp->x = 0;
     vp->y = 0;
     vp->width = screens[screen].lcdwidth;
     vp->height = screens[screen].lcdheight;
+
+#ifdef HAVE_LCD_BITMAP
 #ifndef __PCTOOL__
     set_default_align_flags(vp);
 #endif
@@ -298,28 +338,13 @@ void viewport_set_fullscreen(struct viewport *vp,
         vp->bg_pattern = LCD_REMOTE_DEFAULT_BG;
     }
 #endif
-}
-
-void viewport_set_buffer(struct viewport *vp, struct frame_buffer_t *buffer,
-                                                const enum screen_type screen)
-{
-    if (!vp) /* NULL vp grabs current framebuffer */
-        vp = *(screens[screen].current_viewport);
-
-    /* NULL sets default buffer */
-    if (buffer && buffer->elems == 0)
-        vp->buffer = NULL;
-    else
-        vp->buffer = buffer;
-    screens[screen].init_viewport(vp);
+#endif
 }
 
 void viewport_set_defaults(struct viewport *vp,
                             const enum screen_type screen)
 {
-    vp->buffer = NULL; /* use default frame_buffer */
-    vp->flags = VP_DEFAULT_FLAGS;
-#if !defined(__PCTOOL__)
+#if defined(HAVE_LCD_BITMAP) && !defined(__PCTOOL__)
     struct viewport *sbs_area = NULL;
     if (!is_theme_enabled(screen))
     {
@@ -327,10 +352,52 @@ void viewport_set_defaults(struct viewport *vp,
         return;
     }
     sbs_area = sb_skin_get_info_vp(screen);
-
+    
     if (sbs_area)
         *vp = *sbs_area;
     else
-#endif /* !__PCTOOL__ */
+#endif /* HAVE_LCD_BITMAP */
         viewport_set_fullscreen(vp, screen);
 }
+
+
+#ifdef HAVE_LCD_BITMAP
+
+int get_viewport_default_colour(enum screen_type screen, bool fgcolour)
+{
+    (void)screen; (void)fgcolour;
+#if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && LCD_REMOTE_DEPTH > 1)
+    int colour;
+    if (fgcolour)
+    {
+#if (defined(HAVE_REMOTE_LCD) && LCD_REMOTE_DEPTH > 1)
+        if (screen == SCREEN_REMOTE)
+            colour = REMOTE_FG_FALLBACK;
+        else
+#endif
+#if defined(HAVE_LCD_COLOR)
+            colour = global_settings.fg_color;
+#else
+            colour = FG_FALLBACK;
+#endif
+    }
+    else
+    {
+#if (defined(HAVE_REMOTE_LCD) && LCD_REMOTE_DEPTH > 1)
+        if (screen == SCREEN_REMOTE)
+            colour = REMOTE_BG_FALLBACK;
+        else
+#endif
+#if defined(HAVE_LCD_COLOR)
+            colour = global_settings.bg_color;
+#else
+            colour = BG_FALLBACK;
+#endif
+    }
+    return colour;
+#else
+    return 0;
+#endif /* LCD_DEPTH > 1 || LCD_REMOTE_DEPTH > 1 */
+}
+
+#endif

@@ -27,6 +27,7 @@
 #include "appevents.h"
 #include "screens.h"
 #include "screen_access.h"
+#include "strlcpy.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
 #include "skin_engine/skin_engine.h"
@@ -37,7 +38,6 @@
 #include "debug.h"
 #include "font.h"
 #include "icon.h"
-#include "icons.h"
 #include "option_select.h"
 #ifdef HAVE_TOUCHSCREEN
 #include "sound.h"
@@ -48,13 +48,11 @@
 static int update_delay = DEFAULT_UPDATE_DELAY;
 
 static bool sbs_has_title[NB_SCREENS];
-static const char* sbs_title[NB_SCREENS];
+static char* sbs_title[NB_SCREENS];
 static enum themable_icons sbs_icon[NB_SCREENS];
 static bool sbs_loaded[NB_SCREENS] = { false };
 
-void sb_set_info_vp(enum screen_type screen, OFFSETTYPE(char*) label);
-
-bool sb_set_title_text(const char* title, enum themable_icons icon, enum screen_type screen)
+bool sb_set_title_text(char* title, enum themable_icons icon, enum screen_type screen)
 {
     sbs_title[screen] = title;
     /* Icon_NOICON == -1 which the skin engine wants at position 1, so + 2 */
@@ -87,15 +85,14 @@ int sb_preproccess(enum screen_type screen, struct wps_data *data)
 int sb_postproccess(enum screen_type screen, struct wps_data *data)
 {
     if (data->wps_loaded)
-    {
+    {  
         /* hide the sb's default viewport because it has nasty effect with stuff
         * not part of the statusbar,
         * hence .sbs's without any other vps are unsupported*/
         struct skin_viewport *vp = skin_find_item(VP_DEFAULT_LABEL_STRING, SKIN_FIND_VP, data);
         struct skin_element *tree = SKINOFFSETTOPTR(get_skin_buffer(data), data->tree);
-        struct skin_element *next_vp = NULL;
-        if (tree) next_vp = SKINOFFSETTOPTR(get_skin_buffer(data), tree->next);
-
+        struct skin_element *next_vp = SKINOFFSETTOPTR(get_skin_buffer(data), tree->next);
+        
         if (vp)
         {
             if (!next_vp)
@@ -134,12 +131,9 @@ struct viewport *sb_skin_get_info_vp(enum screen_type screen)
         viewportmanager_theme_enable(screen, false, NULL);
         viewportmanager_theme_undo(screen, true);
     }
+    label = SKINOFFSETTOPTR(get_skin_buffer(data), infovp_label[screen]);
     if (infovp_label[screen] == VP_DEFAULT_LABEL)
         label = VP_DEFAULT_LABEL_STRING;
-    else
-        label = SKINOFFSETTOPTR(get_skin_buffer(data), infovp_label[screen]);
-    if (!label)
-        return NULL;
     vp = skin_find_item(label, SKIN_FIND_UIVP, data);
     if (!vp)
         return NULL;
@@ -157,12 +151,7 @@ int sb_get_backdrop(enum screen_type screen)
     else
         return -1;
 }
-#else
-int sb_get_backdrop(enum screen_type screen)
-{
-    (void) screen;
-    return -1;
-}
+        
 #endif
 static bool force_waiting = false;
 void sb_skin_update(enum screen_type screen, bool force)
@@ -276,7 +265,6 @@ char* sb_create_from_settings(enum screen_type screen)
         {
             case STATUSBAR_TOP:
                 y = STATUSBAR_HEIGHT;
-                /* Fallthrough */
             case STATUSBAR_BOTTOM:
                 height = screens[screen].lcdheight - STATUSBAR_HEIGHT;
                 break;
@@ -306,17 +294,18 @@ void sb_bypass_touchregions(bool enable)
 
 int sb_touch_to_button(int context)
 {
+    struct touchregion *region;
     static int last_context = -1;
     int button, offset;
     if (bypass_sb_touchregions)
         return ACTION_TOUCHSCREEN;
-
-    struct gui_wps *gwps = skin_get_gwps(CUSTOM_STATUSBAR, SCREEN_MAIN);
+    
     if (last_context != context)
-        skin_disarm_touchregions(gwps);
+        skin_disarm_touchregions(skin_get_gwps(CUSTOM_STATUSBAR, SCREEN_MAIN)->data);
     last_context = context;
-
-    button = skin_get_touchaction(gwps, &offset);
+    button = skin_get_touchaction(skin_get_gwps(CUSTOM_STATUSBAR, SCREEN_MAIN)->data,
+                                  &offset, &region);
+    
     switch (button)
     {
 #ifdef HAVE_VOLUME_IN_LIST

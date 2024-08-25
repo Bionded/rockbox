@@ -23,18 +23,39 @@
 #define __LCD_H__
 
 #include <stdbool.h>
-#include <stddef.h>
 #include "cpu.h"
 #include "config.h"
 #include "events.h"
 
+#define VP_FLAG_ALIGN_RIGHT  0x01
+#define VP_FLAG_ALIGN_CENTER 0x02
+
+#define VP_FLAG_ALIGNMENT_MASK \
+        (VP_FLAG_ALIGN_RIGHT|VP_FLAG_ALIGN_CENTER)
+
+#define VP_IS_RTL(vp) (((vp)->flags & VP_FLAG_ALIGNMENT_MASK) == VP_FLAG_ALIGN_RIGHT)
+
+struct viewport {
+    int x;
+    int y;
+    int width;
+    int height;
+#ifdef HAVE_LCD_BITMAP
+    int flags;
+    int font;
+    int drawmode;
+    /* needed for even for mono displays to support greylib */
+    unsigned fg_pattern;
+    unsigned bg_pattern;
+#endif
+};
 
 /* Frame buffer stride
  *
  * Stride describes the amount that you need to increment to get to the next
  *  line.  For screens that have the pixels in contiguous horizontal strips
  *  stride should be equal to the image width.
- *
+ *  
  *      For example, if the screen pixels are layed out as follows:
  *
  *                  width0  width1  width2                      widthX-1
@@ -57,9 +78,9 @@
  *      height2     |   pixel2
  *         |        |     |
  *        \|/       |    \|/
- *      heightY-1   |   pixelY-1
+ *      heightY-1   |   pixelY-1 
  *
- *      then you would need to add Y pixels to get to the next line (the next
+ *      then you would need to add Y pixels to get to the next line (the next 
  *      line in this case is from width0 to width1).
  *
  * The remote might have a different stride than the main screen so the screen
@@ -82,7 +103,7 @@ enum screen_type {
 
 struct scrollinfo;
 
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#if   defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
 #define STRIDE_MAIN(w, h)   (h)
 #else
 #define STRIDE_MAIN(w, h)   (w)
@@ -93,111 +114,54 @@ struct scrollinfo;
 #define STRIDE(screen, w, h) (screen==SCREEN_MAIN?STRIDE_MAIN((w), \
                                         (h)):STRIDE_REMOTE((w),(h)))
 
+#ifdef HAVE_LCD_BITMAP
 #if LCD_DEPTH <=8
 #if (LCD_PIXELFORMAT == VERTICAL_INTERLEAVED) \
  || (LCD_PIXELFORMAT == HORIZONTAL_INTERLEAVED)
-        typedef unsigned short fb_data;
+typedef unsigned short fb_data;
 #define FB_DATA_SZ 2
 #else
-        typedef unsigned char fb_data;
+typedef unsigned char fb_data;
 #define FB_DATA_SZ 1
 #endif
 #elif LCD_DEPTH <= 16
-    typedef unsigned short fb_data;
+typedef unsigned short fb_data;
 #define FB_DATA_SZ 2
 #elif LCD_DEPTH <= 24
-    struct _fb_pixel {
-        unsigned char b, g, r;
-    };
-    typedef struct _fb_pixel fb_data;
+struct _fb_pixel {
+    unsigned char b, g, r;
+};
+typedef struct _fb_pixel fb_data;
 #define FB_DATA_SZ 3
 #else /* LCD_DEPTH > 24 */
 #if (LCD_PIXELFORMAT == XRGB8888)
-        struct _fb_pixel {
-            unsigned char b, g, r, x;
-        };
-        typedef struct _fb_pixel fb_data;
+struct _fb_pixel {
+    unsigned char b, g, r, x;
+};
+typedef struct _fb_pixel fb_data;
 #else
-        typedef unsigned long fb_data;
+typedef unsigned long fb_data;
 #endif
 #define FB_DATA_SZ 4
 #endif /* LCD_DEPTH */
 
-#ifdef HAVE_REMOTE_LCD
-#if LCD_REMOTE_DEPTH <= 8
-#if (LCD_REMOTE_PIXELFORMAT == VERTICAL_INTERLEAVED) \
-            || (LCD_REMOTE_PIXELFORMAT == HORIZONTAL_INTERLEAVED)
-            typedef unsigned short fb_remote_data;
-#define FB_RDATA_SZ 2
-#else
-            typedef unsigned char fb_remote_data;
-#define FB_RDATA_SZ 1
-#endif
-#elif LCD_DEPTH <= 16
-        typedef unsigned short fb_remote_data;
-#define FB_RDATA_SZ 2
-#else
-        typedef unsigned long fb_remote_data;
-#define FB_RDATA_SZ 4
-#endif
+#else /* LCD_CHARCELLS */
+typedef unsigned char fb_data;
 #endif
 
 #if defined(HAVE_LCD_MODES)
-    void lcd_set_mode(int mode);
+void lcd_set_mode(int mode);
 #define LCD_MODE_RGB565 0x00000001
 #define LCD_MODE_YUV    0x00000002
 #define LCD_MODE_PAL256 0x00000004
 
 #if HAVE_LCD_MODES & LCD_MODE_PAL256
-        void lcd_blit_pal256(unsigned char *src, int src_x, int src_y, int x, int y,
+    void lcd_blit_pal256(unsigned char *src, int src_x, int src_y, int x, int y,
                             int width, int height);
-        void lcd_pal256_update_pal(fb_data *palette);
+    void lcd_pal256_update_pal(fb_data *palette);
 #endif
 #endif
 
-struct frame_buffer_t {
-    union
-    {
-        void           *data;
-        char           *ch_ptr;
-        fb_data        *fb_ptr;
-#ifdef HAVE_REMOTE_LCD
-        fb_remote_data *fb_remote_ptr;
-#endif
-    };
-    void   *(*get_address_fn)(int x, int y);
-    ptrdiff_t stride;
-    size_t    elems;
-};
-
-#define VP_FLAG_ALIGN_RIGHT  0x01
-#define VP_FLAG_ALIGN_CENTER 0x02
-
-#define VP_FLAG_ALIGNMENT_MASK \
-        (VP_FLAG_ALIGN_RIGHT|VP_FLAG_ALIGN_CENTER)
-
-#define VP_IS_RTL(vp) (((vp)->flags & VP_FLAG_ALIGNMENT_MASK) == VP_FLAG_ALIGN_RIGHT)
-
-#define VP_FLAG_OWNER_UPDATE 0x2000 /* block update_vp functions */
-#define VP_FLAG_VP_DIRTY     0x4000
-#define VP_FLAG_CLEAR_FLAG   0x8000
-#define VP_FLAG_VP_SET_CLEAN (VP_FLAG_CLEAR_FLAG | VP_FLAG_VP_DIRTY)
-/* flags set by viewport_set_defaults() */
-#define VP_DEFAULT_FLAGS (VP_FLAG_VP_DIRTY)
-
-struct viewport {
-    int x;
-    int y;
-    int width;
-    int height;
-    int flags;
-    int font;
-    int drawmode;
-    struct frame_buffer_t *buffer;
-    /* needed for even for mono displays to support greylib */
-    unsigned fg_pattern;
-    unsigned bg_pattern;
-};
 
 /* common functions */
 extern void lcd_write_command(int byte);
@@ -214,10 +178,7 @@ extern int  lcd_getwidth(void);
 extern int  lcd_getheight(void);
 extern int  lcd_getstringsize(const unsigned char *str, int *w, int *h);
 
-extern struct viewport* lcd_init_viewport(struct viewport* vp);
-extern struct viewport* lcd_set_viewport(struct viewport* vp);
-extern struct viewport* lcd_set_viewport_ex(struct viewport* vp, int flags);
-
+extern void lcd_set_viewport(struct viewport* vp);
 extern void lcd_update(void);
 extern void lcd_update_viewport(void);
 extern void lcd_update_viewport_rect(int x, int y, int width, int height);
@@ -235,19 +196,21 @@ extern bool lcd_putsxy_scroll_func(int x, int y, const unsigned char *string,
                                    void (*scroll_func)(struct scrollinfo *),
                                    void *data, int x_offset);
 
+#ifdef HAVE_LCD_BITMAP
+
 /* performance function */
 #if defined(HAVE_LCD_COLOR)
 #if MEMORYSIZE > 2
 #define LCD_YUV_DITHER 0x1
-    extern void lcd_yuv_set_options(unsigned options);
-    extern void lcd_blit_yuv(unsigned char * const src[3],
+extern void lcd_yuv_set_options(unsigned options);
+extern void lcd_blit_yuv(unsigned char * const src[3],
                          int src_x, int src_y, int stride,
                          int x, int y, int width, int height);
 #endif /* MEMORYSIZE > 2 */
 #else
-    extern void lcd_blit_mono(const unsigned char *data, int x, int by, int width,
+extern void lcd_blit_mono(const unsigned char *data, int x, int by, int width,
                           int bheight, int stride);
-    extern void lcd_blit_grey_phase(unsigned char *values, unsigned char *phases,
+extern void lcd_blit_grey_phase(unsigned char *values, unsigned char *phases,
                                 int bx, int by, int bwidth, int bheight,
                                 int stride);
 #endif
@@ -257,10 +220,48 @@ extern bool lcd_putsxy_scroll_func(int x, int y, const unsigned char *string,
 extern void lcd_update_rect(int x, int y, int width, int height);
 
 #ifdef HAVE_REMOTE_LCD
-    extern void lcd_remote_update(void);
-    /* update a fraction of the screen */
-    extern void lcd_remote_update_rect(int x, int y, int width, int height);
+extern void lcd_remote_update(void);
+/* update a fraction of the screen */
+extern void lcd_remote_update_rect(int x, int y, int width, int height);
 #endif /* HAVE_REMOTE_LCD */
+#endif /* HAVE_LCD_BITMAP */
+
+#ifdef HAVE_LCD_CHARCELLS
+
+/* Icon definitions for lcd_icon() */
+enum
+{
+    ICON_BATTERY = 0,
+    ICON_BATTERY_1,
+    ICON_BATTERY_2,
+    ICON_BATTERY_3,
+    ICON_USB,
+    ICON_PLAY,
+    ICON_RECORD,
+    ICON_PAUSE,
+    ICON_AUDIO,
+    ICON_REPEAT,
+    ICON_1,
+    ICON_VOLUME,
+    ICON_VOLUME_1,
+    ICON_VOLUME_2,
+    ICON_VOLUME_3,
+    ICON_VOLUME_4,
+    ICON_VOLUME_5,
+    ICON_PARAM
+};
+
+void lcd_icon(int icon, bool enable);
+void lcd_double_height(bool on);
+void lcd_define_pattern(unsigned long ucs, const char *pattern);
+unsigned long lcd_get_locked_pattern(void);
+void lcd_unlock_pattern(unsigned long ucs);
+void lcd_put_cursor(int x, int y, unsigned long cursor_ucs);
+void lcd_remove_cursor(void);
+#define JUMP_SCROLL_ALWAYS 5
+extern void lcd_jump_scroll(int mode); /* 0=off, 1=once, ..., ALWAYS */
+extern void lcd_jump_scroll_delay(int ms);
+#endif /* HAVE_LCD_CHARCELLS */
 
 /* Bitmap formats */
 enum
@@ -285,13 +286,15 @@ enum
 typedef void lcd_pixelfunc_type(int x, int y);
 typedef void lcd_blockfunc_type(fb_data *address, unsigned mask, unsigned bits);
 #if LCD_DEPTH >= 8
-    typedef void lcd_fastpixelfunc_type(fb_data *address);
+typedef void lcd_fastpixelfunc_type(fb_data *address);
 #endif
+
+#ifdef HAVE_LCD_BITMAP
 
 #if defined(HAVE_LCD_COLOR) && defined(LCD_REMOTE_DEPTH) && \
  LCD_REMOTE_DEPTH > 1
 /* Just return color for screens use */
-    static inline unsigned lcd_color_to_native(unsigned color)
+static inline unsigned lcd_color_to_native(unsigned color)
     { return color; }
 #define SCREEN_COLOR_TO_NATIVE(screen, color) (screen)->color_to_native(color)
 #else
@@ -332,7 +335,7 @@ typedef void lcd_blockfunc_type(fb_data *address, unsigned mask, unsigned bits);
                                    (((b) >>   3) <<  8) )
 /* swap color once - not currenly used in static inits */
 #define _SWAPUNPACK(x, _unp_) \
-            ({ typeof (x) _x_ = swap16(x); _unp_(_x_); })
+    ({ typeof (x) _x_ = swap16(x); _unp_(_x_); })
 #define RGB_UNPACK_RED(x)        _SWAPUNPACK((x), _RGB_UNPACK_RED)
 #define RGB_UNPACK_GREEN(x)      _SWAPUNPACK((x), _RGB_UNPACK_GREEN)
 #define RGB_UNPACK_BLUE(x)       _SWAPUNPACK((x), _RGB_UNPACK_BLUE)
@@ -420,16 +423,16 @@ typedef void lcd_blockfunc_type(fb_data *address, unsigned mask, unsigned bits);
  *                      format, so it's the reverse of FB_SCALARPACK_LCD
  */
 #if LCD_DEPTH >= 24
-    static inline fb_data scalar_to_fb(unsigned p)
-    {
-        union { fb_data st; unsigned sc; } convert;
-        convert.sc = p; return convert.st;
-    }
-    static inline unsigned fb_to_scalar(fb_data p)
-    {
-        union { fb_data st; unsigned sc; } convert;
-        convert.st = p; return convert.sc;
-    }
+static inline fb_data scalar_to_fb(unsigned p)
+{
+    union { fb_data st; unsigned sc; } convert;
+    convert.sc = p; return convert.st;
+}
+static inline unsigned fb_to_scalar(fb_data p)
+{
+    union { fb_data st; unsigned sc; } convert;
+    convert.st = p; return convert.sc;
+}
 #define FB_RGBPACK(r_, g_, b_)      ((fb_data){.r = r_, .g = g_, .b = b_})
 #define FB_RGBPACK_LCD(r_, g_, b_)  FB_RGBPACK(r_, g_, b_)
 #define FB_UNPACK_RED(fb)           ((fb).r)
@@ -457,28 +460,17 @@ typedef void lcd_blockfunc_type(fb_data *address, unsigned mask, unsigned bits);
 /* Frame buffer dimensions */
 #if LCD_DEPTH == 1
 #if LCD_PIXELFORMAT == HORIZONTAL_PACKING
-#define LCD_FBSTRIDE(w, h) ((w+7)/8)
-#define LCD_FBWIDTH LCD_FBSTRIDE(LCD_WIDTH, LCD_HEIGHT)
-#define LCD_NBELEMS(w, h) ((((h-1)*LCD_FBSTRIDE(w, h)) + w) / sizeof(fb_data))
+#define LCD_FBWIDTH ((LCD_WIDTH+7)/8)
 #else /* LCD_PIXELFORMAT == VERTICAL_PACKING */
-#define LCD_FBSTRIDE(w, h) ((h+7)/8)
-#define LCD_FBHEIGHT LCD_FBSTRIDE(LCD_WIDTH, LCD_HEIGHT)
-#define LCD_NBELEMS(w, h) ((((w-1)*LCD_FBSTRIDE(w, h)) + h) / sizeof(fb_data))
+#define LCD_FBHEIGHT ((LCD_HEIGHT+7)/8)
 #endif /* LCD_PIXELFORMAT */
 #elif LCD_DEPTH == 2
 #if LCD_PIXELFORMAT == HORIZONTAL_PACKING
-#define LCD_FBSTRIDE(w, h) ((w+3)>>2)
-#define LCD_NATIVE_STRIDE(s) LCD_FBSTRIDE(s, s)
-#define LCD_FBWIDTH LCD_FBSTRIDE(LCD_WIDTH, LCD_HEIGHT)
-#define LCD_NBELEMS(w, h) ((((h-1)*LCD_FBSTRIDE(w, h)) + w) / sizeof(fb_data))
+#define LCD_FBWIDTH ((LCD_WIDTH+3)/4)
 #elif LCD_PIXELFORMAT == VERTICAL_PACKING
-#define LCD_FBSTRIDE(w, h) ((h+3)/4)
-#define LCD_FBHEIGHT LCD_FBSTRIDE(LCD_WIDTH, LCD_HEIGHT)
-#define LCD_NBELEMS(w, h) ((((w-1)*LCD_FBSTRIDE(w, h)) + h) / sizeof(fb_data))
+#define LCD_FBHEIGHT ((LCD_HEIGHT+3)/4)
 #elif LCD_PIXELFORMAT == VERTICAL_INTERLEAVED
-#define LCD_FBSTRIDE(w, h) ((h+7)/8)
-#define LCD_FBHEIGHT LCD_FBSTRIDE(LCD_WIDTH, LCD_HEIGHT)
-#define LCD_NBELEMS(w, h) ((((w-1)*LCD_FBSTRIDE(w, h)) + h) / sizeof(fb_data))
+#define LCD_FBHEIGHT ((LCD_HEIGHT+7)/8)
 #endif /* LCD_PIXELFORMAT */
 #endif /* LCD_DEPTH */
 /* Set defaults if not defined different yet. The defaults apply to both
@@ -489,32 +481,15 @@ typedef void lcd_blockfunc_type(fb_data *address, unsigned mask, unsigned bits);
 #ifndef LCD_FBHEIGHT
 #define LCD_FBHEIGHT LCD_HEIGHT
 #endif
-
-#ifndef LCD_NATIVE_STRIDE
-/* 2-bit Horz is the only display that actually defines this */
-#define LCD_NATIVE_STRIDE(s) (s)
-#endif
-
-#ifndef LCD_NBELEMS
-#if LCD_STRIDEFORMAT == VERTICAL_STRIDE
-#define LCD_NBELEMS(w, h) (((w-1)*STRIDE_MAIN(w, h)) + h)
+/* The actual framebuffer */
+extern fb_data *lcd_framebuffer;
+extern fb_data lcd_static_framebuffer[LCD_FBHEIGHT][LCD_FBWIDTH];
+#if defined(LCD_STRIDEFORMAT) && LCD_STRIDEFORMAT == VERTICAL_STRIDE
+#define FBADDR(x, y) (lcd_framebuffer + ((x) * LCD_FBHEIGHT) + (y))
 #else
-#define LCD_NBELEMS(w, h) (((h-1)*STRIDE_MAIN(w, h)) + w)
+#define FBADDR(x, y) (lcd_framebuffer + ((y) * LCD_FBWIDTH) + (x))
 #endif
-#define LCD_FBSTRIDE(w, h) STRIDE_MAIN(w, h)
-#endif
-
-#ifndef LCD_STRIDE
-    #define LCD_STRIDE(w, h) STRIDE_MAIN(w, h)
-#endif
-
-extern struct viewport* lcd_current_viewport;
-
-#define FB_CURRENTVP_BUFFER (lcd_current_viewport->buffer)
-#define FBADDRBUF(buffer,x,y) ((fb_data*) buffer->get_address_fn(x,y))
-#define FBADDR(x,y) (FBADDRBUF(lcd_current_viewport->buffer,x,y))
-
-#define FRAMEBUFFER_SIZE (sizeof(fb_data)*LCD_FBWIDTH*LCD_FBHEIGHT)
+#define FRAMEBUFFER_SIZE (sizeof(lcd_static_framebuffer))
 
 /** Port-specific functions. Enable in port config file. **/
 #ifdef HAVE_REMOTE_LCD_AS_MAIN
@@ -574,7 +549,7 @@ struct bitmap {
 
 extern void lcd_set_invert_display(bool yesno);
 #ifdef HAVE_BACKLIGHT_INVERSION
-    extern void lcd_set_backlight_inversion(bool yesno);
+extern void lcd_set_backlight_inversion(bool yesno);
 #endif /* HAVE_BACKLIGHT_INVERSION */
 extern void lcd_set_flip(bool yesno);
 
@@ -585,13 +560,13 @@ extern int lcd_getfont(void);
 
 /* low level drawing function pointer arrays */
 #if LCD_DEPTH >= 8
-    extern lcd_fastpixelfunc_type* const *lcd_fastpixelfuncs;
+extern lcd_fastpixelfunc_type* const *lcd_fastpixelfuncs;
 #elif LCD_DEPTH > 1
-    extern lcd_pixelfunc_type* const *lcd_pixelfuncs;
-    extern lcd_blockfunc_type* const *lcd_blockfuncs;
+extern lcd_pixelfunc_type* const *lcd_pixelfuncs;
+extern lcd_blockfunc_type* const *lcd_blockfuncs;
 #else /* LCD_DEPTH == 1*/
-    extern lcd_pixelfunc_type* const lcd_pixelfuncs[8];
-    extern lcd_blockfunc_type* const lcd_blockfuncs[8];
+extern lcd_pixelfunc_type* const lcd_pixelfuncs[8];
+extern lcd_blockfunc_type* const lcd_blockfuncs[8];
 #endif /* LCD_DEPTH */
 
 extern void lcd_drawpixel(int x, int y);
@@ -601,44 +576,45 @@ extern void lcd_vline(int x, int y1, int y2);
 extern void lcd_drawrect(int x, int y, int width, int height);
 extern void lcd_fillrect(int x, int y, int width, int height);
 extern void lcd_gradient_fillrect(int x, int y, int width, int height,
-                                    unsigned start_rgb, unsigned end_rgb);
+        unsigned start_rgb, unsigned end_rgb);
 extern void lcd_gradient_fillrect_part(int x, int y, int width, int height,
-            unsigned start_rgb, unsigned end_rgb, int src_height, int row_skip);
+        unsigned start_rgb, unsigned end_rgb, int src_height, int row_skip);
 extern void lcd_draw_border_viewport(void);
 extern void lcd_fill_viewport(void);
 extern void lcd_bitmap_part(const fb_data *src, int src_x, int src_y,
                             int stride, int x, int y, int width, int height);
 extern void lcd_bitmap(const fb_data *src, int x, int y, int width,
                        int height);
+extern void lcd_set_framebuffer(fb_data *fb);
 
 extern void lcd_scroll_step(int pixels);
 
 #if LCD_DEPTH > 1
-    extern void     lcd_set_foreground(unsigned foreground);
-    extern unsigned lcd_get_foreground(void);
-    extern void     lcd_set_background(unsigned background);
-    extern unsigned lcd_get_background(void);
+extern void     lcd_set_foreground(unsigned foreground);
+extern unsigned lcd_get_foreground(void);
+extern void     lcd_set_background(unsigned background);
+extern unsigned lcd_get_background(void);
 #ifdef HAVE_LCD_COLOR
-    extern void     lcd_set_selector_start(unsigned selector);
-    extern void     lcd_set_selector_end(unsigned selector);
-    extern void     lcd_set_selector_text(unsigned selector_text);
+extern void     lcd_set_selector_start(unsigned selector);
+extern void     lcd_set_selector_end(unsigned selector);
+extern void     lcd_set_selector_text(unsigned selector_text);
 #endif
-    extern void     lcd_set_drawinfo(int mode, unsigned foreground,
-                                    unsigned background);
-    void lcd_set_backdrop(fb_data* backdrop);
+extern void     lcd_set_drawinfo(int mode, unsigned foreground,
+                                 unsigned background);
+void lcd_set_backdrop(fb_data* backdrop);
 
-    fb_data* lcd_get_backdrop(void);
+fb_data* lcd_get_backdrop(void);
 
-    extern void lcd_mono_bitmap_part(const unsigned char *src, int src_x, int src_y,
-                                    int stride, int x, int y, int width, int height);
-    extern void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width,
-                                int height);
-    extern void lcd_bitmap_transparent_part(const fb_data *src,
-                                            int src_x, int src_y,
-                                            int stride, int x, int y, int width,
-                                            int height);
-    extern void lcd_bitmap_transparent(const fb_data *src, int x, int y,
-                                        int width, int height);
+extern void lcd_mono_bitmap_part(const unsigned char *src, int src_x, int src_y,
+                            int stride, int x, int y, int width, int height);
+extern void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width,
+                            int height);
+extern void lcd_bitmap_transparent_part(const fb_data *src,
+                                        int src_x, int src_y,
+                                        int stride, int x, int y, int width,
+                                        int height);
+extern void lcd_bitmap_transparent(const fb_data *src, int x, int y,
+                                   int width, int height);
 #else /* LCD_DEPTH == 1 */
 #define lcd_mono_bitmap lcd_bitmap
 #define lcd_mono_bitmap_part lcd_bitmap_part
@@ -651,10 +627,12 @@ extern void lcd_nine_segment_bmp(const struct bitmap* bm, int x, int y,
 
 /* TODO: Impement this for remote displays if ever needed */
 #if defined(LCD_DPI) && (LCD_DPI > 0)
-    /* returns the pixel density of the display */
-    static inline int lcd_get_dpi(void) { return LCD_DPI; }
+/* returns the pixel density of the display */
+static inline int lcd_get_dpi(void) { return LCD_DPI; }
 #else
-    extern int lcd_get_dpi(void);
+extern int lcd_get_dpi(void);
 #endif /* LCD_DPI */
+
+#endif /* HAVE_LCD_BITMAP */
 
 #endif /* __LCD_H__ */

@@ -1,9 +1,9 @@
 % $Id$ %
 \section{\label{ref:Bookmarkconfigactual}Bookmarking}
   Bookmarks allow you to save your current position within a track so that 
-  you can return to it at a later time. Bookmarks also store rate, pitch
-  and speed information from the \setting{Pitch Screen} (see
-  \reference{sec:pitchscreen}). Bookmarks are saved on a per directory
+  you can return to it at a later time. \opt{swcodec}{Bookmarks also store
+  rate, pitch and speed information from the \setting{Pitch Screen} (see
+  \reference{sec:pitchscreen}).} Bookmarks are saved on a per directory
   basis or for individual (saved) playlists. You can store multiple bookmarks,
   even for the same track. When there's already a bookmark for a directory or
   playlist, new bookmarks are added before existing ones.
@@ -13,20 +13,18 @@
   extension. To load a bookmark, select the bookmark file and then select
   the bookmark to load. There are other ways to load a bookmarks mentioned
   below.
-
-  \note{If the current playlist has been modified or is unsaved, such as when
-        playing tracks from the \setting{Database}, Rockbox will automatically
-        offer to save the playlist to a file when you attempt to create a bookmark. 
-        Queued tracks (see \reference{ref:queuing}) do not get saved to the playlist file.
-        You're asked to confirm their removal when saving, so that the current playlist
-        can be bookmarked. }
+  
+  \note{Bookmarking only works when tracks are launched from the file browser,
+        and does not work for tracks launched via the
+        database. In addition, they do not work with dynamic
+        playlists.}
 
   \begin{description}
 
   \item [Bookmark on Stop.]
     This option controls whether Rockbox creates a bookmark when playback is
     stopped manually.
-    \begin{description}
+    \begin{description}    
       \item[No.]
             Do not create bookmarks.
       \item[Yes.]

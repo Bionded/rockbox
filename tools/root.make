@@ -14,16 +14,19 @@ DEFINES = -DROCKBOX -DMEMORYSIZE=$(MEMORYSIZE) $(TARGET) \
 	$(EXTRA_DEFINES) # <-- -DSIMULATOR or not
 INCLUDES = -I$(BUILDDIR) -I$(BUILDDIR)/lang $(TARGET_INC)
 
-CFLAGS = $(INCLUDES) $(DEFINES) $(GCCOPTS)
+CFLAGS = $(INCLUDES) $(DEFINES) $(GCCOPTS) 
 PPCFLAGS = $(filter-out -g -Dmain=SDL_main,$(CFLAGS)) # cygwin sdl-config fix
+ASMFLAGS = -D__ASSEMBLER__      # work around gcc 3.4.x bug with -std=gnu99, only meant for .S files
 CORE_LDOPTS = $(GLOBAL_LDOPTS)  # linker ops specifically for core build
 
 TOOLS = $(TOOLSDIR)/rdf2binary $(TOOLSDIR)/convbdf \
 	$(TOOLSDIR)/codepages $(TOOLSDIR)/scramble $(TOOLSDIR)/bmp2rb \
 	$(TOOLSDIR)/uclpack $(TOOLSDIR)/mkboot $(TOOLSDIR)/iaudio_bl_flash.c \
 	$(TOOLSDIR)/iaudio_bl_flash.h
-TOOLS += $(foreach tool,$(TOOLSET),$(TOOLSDIR)/$(tool))
 
+ifeq ($(MODELNAME),archosplayer)
+  TOOLS += $(TOOLSDIR)/player_unifont
+endif
 
 ifeq (,$(PREFIX))
 ifdef APP_TYPE
@@ -75,12 +78,6 @@ ifeq (,$(findstring checkwps,$(APP_TYPE)))
             include $(ROOTDIR)/lib/unwarminder/unwarminder.make
           endif
       endif
-      ifeq (arch_mips,$(ARCH))
-          # mips unwinder is only usable on native ports
-          ifeq (,$(APP_TYPE))
-            include $(ROOTDIR)/lib/mipsunwinder/mipsunwinder.make
-          endif
-      endif
       ifeq (,$(findstring bootloader,$(APPSDIR)))
         include $(ROOTDIR)/lib/skin_parser/skin_parser.make
         include $(ROOTDIR)/lib/tlsf/libtlsf.make
@@ -108,17 +105,11 @@ ifneq (,$(findstring bootloader,$(APPSDIR)))
     include $(ROOTDIR)/firmware/target/hosted/sonynwz/sonynwz.make
   else ifneq (,$(findstring rocker,$(APP_TYPE)))
     include $(ROOTDIR)/firmware/target/hosted/agptek/rocker.make
-  else ifneq (,$(findstring xduoo,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/xduoo/xduoo.make
-  else ifneq (,$(findstring erosq,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/aigo/erosq.make
-  else ifneq (,$(findstring fiio,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/fiio/fiio.make
-  else ifneq (,$(findstring ingenic_x1000,$(MANUFACTURER)))
-    include $(ROOTDIR)/firmware/target/mips/ingenic_x1000/x1000boot.make
   else
     include $(APPSDIR)/bootloader.make
   endif
+else ifneq (,$(findstring bootbox,$(APPSDIR)))
+  include $(APPSDIR)/bootbox.make
 else ifneq (,$(findstring checkwps,$(APP_TYPE)))
   include $(APPSDIR)/checkwps.make
   include $(ROOTDIR)/lib/skin_parser/skin_parser.make
@@ -133,7 +124,7 @@ else # core
   include $(APPSDIR)/apps.make
   include $(ROOTDIR)/lib/rbcodec/rbcodec.make
 
-  ifeq ($(ENABLEDPLUGINS),yes)
+  ifdef ENABLEDPLUGINS
     include $(APPSDIR)/plugins/bitmaps/pluginbitmaps.make
     include $(APPSDIR)/plugins/plugins.make
   endif
@@ -156,18 +147,6 @@ else # core
 
   ifneq (,$(findstring rocker,$(APP_TYPE)))
     include $(ROOTDIR)/firmware/target/hosted/agptek/rocker.make
-  endif
-
-  ifneq (,$(findstring xduoo,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/xduoo/xduoo.make
-  endif
-
-  ifneq (,$(findstring fiio,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/fiio/fiio.make
-  endif
-
-  ifneq (,$(findstring erosq,$(APP_TYPE)))
-    include $(ROOTDIR)/firmware/target/hosted/aigo/erosq.make
   endif
 
   ifneq (,$(findstring android_ndk, $(APP_TYPE)))
@@ -197,7 +176,7 @@ OBJ := $(OBJ:.S=.o)
 OBJ += $(BMP:.bmp=.o)
 OBJ := $(call full_path_subst,$(ROOTDIR)/%,$(BUILDDIR)/%,$(OBJ))
 
-build: $(TOOLS) $(BUILDDIR)/$(BINARY) $(CODECS) $(ROCKS) $(RBINFO)
+build: $(TOOLS) $(BUILDDIR)/$(BINARY) $(CODECS) $(ROCKS) $(ARCHOSROM) $(RBINFO)
 
 $(RBINFO): $(BUILDDIR)/$(BINARY)
 	$(SILENT)echo Creating $(@F)
@@ -228,9 +207,9 @@ clean::
 		manual *.pdf *.a credits.raw rockbox.ipod bitmaps \
 		pluginbitmaps UI256.bmp rockbox-full.zip html txt \
 		rockbox-manual*.zip sysfont.h rockbox-info.txt voicefontids \
-		*.wav *.mp3 *.voice *.talk $(CLEANOBJS) \
+		*.wav *.mp3 *.voice $(CLEANOBJS) \
 		$(LINKRAM) $(LINKROM) rockbox.elf rockbox.map rockbox.bin \
-		make.dep rombox.elf rombox.map rombox.bin romstart.txt \
+		make.dep rombox.elf rombox.map rombox.bin rombox.ucl romstart.txt \
 		$(BINARY) $(FLASHFILE) uisimulator bootloader flash $(BOOTLINK) \
 		rockbox.apk lang_enum.h rbversion.h
 
@@ -267,7 +246,7 @@ $(LINKROM): $(ROMLDS)
 # Note: make sure -Wl,--gc-sections comes before -T in the linker options.
 # Having the latter first caused crashes on (at least) mini2g.
 $(BUILDDIR)/rockbox.elf : $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $$(LINKRAM)
-	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -nostdlib -o $@ $(OBJ) \
+	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -Os -nostdlib -o $@ $(OBJ) \
 		-L$(BUILDDIR)/firmware \
 		-L$(RBCODEC_BLD)/codecs $(call a2lnk, $(VOICESPEEXLIB)) \
 		-L$(BUILDDIR)/lib $(call a2lnk, $(CORE_LIBS)) \
@@ -275,7 +254,7 @@ $(BUILDDIR)/rockbox.elf : $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $$(LI
 		-Wl,-Map,$(BUILDDIR)/rockbox.map
 
 $(BUILDDIR)/rombox.elf : $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $$(LINKROM)
-	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -nostdlib -o $@ $(OBJ) \
+	$(call PRINTS,LD $(@F))$(CC) $(GCCOPTS) -Os -nostdlib -o $@ $(OBJ) \
 		-L$(BUILDDIR)/firmware \
 		-L$(RBCODEC_BLD)/codecs $(call a2lnk, $(VOICESPEEXLIB)) \
 		-L$(BUILDDIR)/lib $(call a2lnk, $(CORE_LIBS)) \
@@ -288,8 +267,37 @@ $(BUILDDIR)/rockbox.bin : $(BUILDDIR)/rockbox.elf
 $(BUILDDIR)/rombox.bin : $(BUILDDIR)/rombox.elf
 	$(call PRINTS,OC $(@F))$(call objcopy,$<,$@)
 
+#
+# If there's a flashfile defined for this target (rockbox.ucl for Archos
+# models) Then check if the mkfirmware script fails, as then it is (likely)
+# because the image is too big and we need to create a compressed image
+# instead.
+#
 $(BUILDDIR)/$(BINARY) : $(BUILDDIR)/rockbox.bin $(FLASHFILE)
-	$(call PRINTS,SCRAMBLE $(notdir $@)) $(MKFIRMWARE) $< $@
+	$(call PRINTS,SCRAMBLE $(notdir $@))($(MKFIRMWARE) $< $@; \
+	stat=$$?; \
+	if test -n "$(FLASHFILE)"; then \
+	  if test "$$stat" -ne 0; then \
+	    echo "Image too big, making a compressed version!"; \
+	    $(MAKE) -C $(FIRMDIR)/decompressor OBJDIR=$(BUILDDIR)/firmware/decompressor; \
+	    $(MKFIRMWARE) $(BUILDDIR)/firmware/decompressor/compressed.bin $@; \
+	  fi \
+	fi )
+
+# archos
+$(BUILDDIR)/rockbox.ucl: $(BUILDDIR)/rockbox.bin
+	$(call PRINTS,UCLPACK $(@F))$(TOOLSDIR)/uclpack --best --2e -b1048576 $< $@ >/dev/null
+
+MAXINFILE = $(BUILDDIR)/temp.txt
+MAXOUTFILE = $(BUILDDIR)/romstart.txt
+
+$(BUILDDIR)/rombox.ucl: $(BUILDDIR)/rombox.bin $(MAXOUTFILE)
+	$(call PRINTS,UCLPACK $(@F))$(TOOLSDIR)/uclpack --none $< $@ >/dev/null; \
+		perl $(TOOLSDIR)/romsizetest.pl `cat $(MAXOUTFILE)` $<; \
+		if test $$? -ne 0; then \
+		  echo "removing UCL file again, making it a fake one"; \
+		  echo "fake" > $@; \
+		fi
 
 $(MAXOUTFILE):
 	$(call PRINTS,Creating $(@F))
@@ -329,7 +337,7 @@ endif
 mapzip:
 	$(SILENT)find . -name "*.map" | xargs zip rockbox-maps.zip
 
-elfzip:
+elfzip: 
 	$(SILENT)find . -name "*.elf" | xargs zip rockbox-elfs.zip
 
 fullzip:
@@ -338,25 +346,15 @@ fullzip:
 7zip:
 	$(SILENT)$(TOOLSDIR)/buildzip.pl $(VERBOSEOPT) --app=$(APPLICATION) -m \"$(MODELNAME)\" -i \"$(TARGET_ID)\"  -o "rockbox.7z" -z "7za a -mx=9" -r "$(ROOTDIR)" --rbdir="$(RBDIR)" $(TARGET) $(BINARY)
 
-ifdef NODEPS
-$(BUILDDIR)/rockbox.tar:
-else
-$(BUILDDIR)/rockbox.tar: build
-endif
+tar:
 	$(SILENT)rm -f rockbox.tar
-	$(call PRINTS,TAR $(notdir $@))
 	$(SILENT)$(TOOLSDIR)/buildzip.pl $(VERBOSEOPT) --app=$(APPLICATION) -m \"$(MODELNAME)\" -i \"$(TARGET_ID)\"  -o "rockbox.tar" -z "tar -cf" -r "$(ROOTDIR)" --rbdir="$(RBDIR)" $(TARGET) $(BINARY)
-
-tar: $(BUILDDIR)/rockbox.tar
 
 bzip2: tar
 	$(SILENT)bzip2 -f9 rockbox.tar
 
 gzip: tar
 	$(SILENT)gzip -f9 rockbox.tar
-
-xz: tar
-	$(SILENT)xz -f rockbox.tar
 
 manual manual-pdf:
 	$(SILENT)$(MAKE) -C $(MANUALDIR) OBJDIR=$(BUILDDIR)/manual manual-pdf
@@ -374,21 +372,7 @@ ifdef TTS_ENGINE
 
 voice: voicetools $(BUILDDIR)/apps/features
 	$(SILENT)for f in `cat $(BUILDDIR)/apps/features`; do feat="$$feat:$$f" ; done ; \
-	if [ -z "$$POOL" ] ; then \
-		export POOL="$(BUILDDIR)/voice-pool" ; \
-	fi;\
-	mkdir -p $${POOL} ;\
-	for lang in `echo $(VOICELANGUAGE) |sed "s/,/ /g"`; do $(TOOLSDIR)/voice.pl -V -l=$$lang -t=$(MODELNAME)$$feat -i=$(TARGET_ID) -e="$(ENCODER)" -E="$(ENC_OPTS)" -s=$(TTS_ENGINE) -S="$(TTS_OPTS)"; done
-
-talkclips: voicetools
-	$(SILENT)if [ -z '$(TALKDIR)' ] ; then \
-		echo "Must specify TALKDIR"; \
-	else \
-		for lang in `echo $(VOICELANGUAGE) |sed "s/,/ /g"`; do $(TOOLSDIR)/voice.pl -C -l=$$lang -e="$(ENCODER)" -E="$(ENC_OPTS)" -s=$(TTS_ENGINE) -S="$(TTS_OPTS)" $(FORCE) "$(TALKDIR)" ; done \
-	fi
-
-talkclips-force: FORCE=-F
-talkclips-force: talkclips
+	for lang in `echo $(VOICELANGUAGE) |sed "s/,/ /g"`; do $(TOOLSDIR)/voice.pl -V -l=$$lang -t=$(MODELNAME)$$feat -i=$(TARGET_ID) -e="$(ENCODER)" -E="$(ENC_OPTS)" -s=$(TTS_ENGINE) -S="$(TTS_OPTS)"; done \
 
 endif
 
@@ -432,7 +416,6 @@ help:
 	@echo "zip            - creates a rockbox.zip of your build (no fonts)"
 	@echo "gzip           - creates a rockbox.tar.gz of your build (no fonts)"
 	@echo "bzip2          - creates a rockbox.tar.bz2 of your build (no fonts)"
-	@echo "xz             - creates a rockbox.tar.xz of your build (no fonts)"
 	@echo "7zip           - creates a rockbox.7z of your build (no fonts)"
 	@echo "fontzip        - creates rockbox-fonts.zip"
 	@echo "mapzip         - creates rockbox-maps.zip with all .map files"
@@ -441,8 +424,6 @@ help:
 	@echo "tools          - builds the tools only"
 	@echo "voice          - creates the voice clips (voice builds only)"
 	@echo "voicetools     - builds the voice tools only"
-	@echo "talkclips      - builds talkclips for everything under TALKDIR, skipping existing clips"
-	@echo "talkclips-force - builds talkclips for everything under TALKDIR, overwriting all existing clips"
 	@echo "install        - installs your build (at PREFIX, defaults to simdisk/ for simulators (no fonts))"
 	@echo "fullinstall    - installs your build (like install, but with fonts)"
 	@echo "symlinkinstall - like fullinstall, but with links instead of copying files. (Good for developing on simulator)"
@@ -457,7 +438,7 @@ $(BUILDDIR)/%.o: $(ROOTDIR)/%.c
 
 $(BUILDDIR)/%.o: $(ROOTDIR)/%.S
 	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(CFLAGS) -c $< -o $@
+	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(CFLAGS) $(ASMFLAGS) -c $< -o $@
 
 # generated definitions for use in .S files
 $(BUILDDIR)/%_asmdefs.h: $(ROOTDIR)/%_asmdefs.c
@@ -472,7 +453,7 @@ $(BUILDDIR)/%_asmdefs.h: $(ROOTDIR)/%_asmdefs.c
 
 %.o: %.S
 	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(CFLAGS) -c $< -o $@
+	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(CFLAGS) $(ASMFLAGS) -c $< -o $@
 
 Makefile: $(TOOLSDIR)/configure
 ifneq (reconf,$(MAKECMDGOALS))

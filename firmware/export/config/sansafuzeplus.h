@@ -12,16 +12,13 @@
 #define HAVE_BOOTDATA
 /* define boot redirect file name allows booting from external drives */
 #define BOOT_REDIR "rockbox_main.fuze+"
-#define MULTIBOOT_MIN_VOLUME 1
 
-// HW can do it but we don't have the IRAM for mix buffers
-//#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_192
-#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_48
+#define HW_SAMPR_CAPS       SAMPR_CAP_ALL
 
 /* define this if you have recording possibility */
 #define HAVE_RECORDING
 
-#define REC_SAMPR_CAPS      SAMPR_CAP_ALL_96
+#define REC_SAMPR_CAPS      SAMPR_CAP_ALL
 
 /* Default recording levels */
 #define DEFAULT_REC_MIC_GAIN    23
@@ -32,8 +29,8 @@
    explicitly if different */
 #define INPUT_SRC_CAPS (SRC_CAP_MIC | SRC_CAP_FMRADIO)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 /* define this if you have a colour LCD */
 #define HAVE_LCD_COLOR
 #define HAVE_LCD_FLIP
@@ -98,8 +95,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* LCD dimensions */
 #define LCD_WIDTH  240
@@ -184,12 +181,16 @@
 /* Type of LCD */
 #define CONFIG_LCD LCD_FUZEPLUS
 
+/* Offset ( in the firmware file's header ) to the file CRC and data. These are
+   only used when loading the old format rockbox.e200 file */
+#define FIRMWARE_OFFSET_FILE_CRC    0x0
+#define FIRMWARE_OFFSET_FILE_DATA   0x8
+
 /* USB On-the-go */
 #define CONFIG_USBOTG USBOTG_ARC
 
 /* enable these for the experimental usb stack */
 #define HAVE_USBSTACK
-#define USB_EXTRA_STACK 0x80
 //#define USB_HANDLED_BY_OF
 #define USB_VENDOR_ID 0x0781
 #define USB_PRODUCT_ID 0x74e1

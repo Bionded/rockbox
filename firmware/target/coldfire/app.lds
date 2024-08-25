@@ -117,11 +117,7 @@ SECTIONS
     {
        *(.stack)
        stackbegin = .;
-#ifdef IAUDIO_M5
-       . += 0x2000-0x30;
-#else
        . += 0x2000;
-#endif
        stackend = .;
     } > IRAM
 
@@ -159,3 +155,4 @@ SECTIONS
         pluginbuf = .;
     }
 }
+

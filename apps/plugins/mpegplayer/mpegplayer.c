@@ -23,9 +23,9 @@
 
 /****************************************************************************
  * NOTES:
- *
+ * 
  * mpegplayer is structured as follows:
- *
+ * 
  *                       +-->Video Thread-->Video Output-->LCD
  *                       |
  * UI-->Stream Manager-->+-->Audio Thread-->PCM buffer--Audio Device
@@ -36,53 +36,53 @@
  *                 |          Disk I/O
  *         Stream services
  *          (timing, etc.)
- *
+ * 
  * Thread list:
  *  1) The main thread - Handles user input, settings, basic playback control
  *     and USB connect.
- *
+ * 
  *  2) Stream Manager thread - Handles playback state, events from streams
  *     such as when a stream is finished, stream commands, PCM state. The
  *     layer in which this thread run also handles arbitration of data
  *     requests between the streams and the disk buffer. The actual specific
  *     transport layer code may get moved out to support multiple container
  *     formats.
- *
+ * 
  *  3) Buffer thread - Buffers data in the background, generates notifications
  *     to streams when their data has been buffered, and watches streams'
  *     progress to keep data available during playback. Handles synchronous
  *     random access requests when the file cache is missed.
- *
+ * 
  *  4) Video thread (running on the COP for PortalPlayer targets) - Decodes
  *     the video stream and renders video frames to the LCD. Handles
  *     miscellaneous video tasks like frame and thumbnail printing.
- *
+ * 
  *  5) Audio thread (running on the main CPU to maintain consistency with the
  *     audio FIQ hander on PP) - Decodes audio frames and places them into
  *     the PCM buffer for rendering by the audio device.
- *
+ * 
  * Streams are neither aware of one another nor care about one another. All
  * streams shall have their own thread (unless it is _really_ efficient to
  * have a single thread handle a couple minor streams). All coordination of
  * the streams is done through the stream manager. The clocking is controlled
  * by and exposed by the stream manager to other streams and implemented at
  * the PCM level.
- *
+ * 
  * Notes about MPEG files:
- *
+ * 
  * MPEG System Clock is 27MHz - i.e. 27000000 ticks/second.
- *
+ * 
  * FPS is represented in terms of a frame period - this is always an
  * integer number of 27MHz ticks.
- *
+ * 
  * e.g. 29.97fps (30000/1001) NTSC video has an exact frame period of
  * 900900 27MHz ticks.
- *
+ * 
  * In libmpeg2, info->sequence->frame_period contains the frame_period.
- *
+ * 
  * Working with Rockbox's 100Hz tick, the common frame rates would need
  * to be as follows (1):
- *
+ * 
  * FPS     | 27Mhz   | 100Hz          | 44.1KHz   | 48KHz
  * --------|-----------------------------------------------------------
  * 10*     | 2700000 | 10             | 4410      | 4800
@@ -93,9 +93,9 @@
  * 25      | 1080000 |  4             | 1764      | 1920
  * 29.9700 |  900900 |  3.336667      | 1471,47   | 1601.6
  * 30      |  900000 |  3.333333      | 1470      | 1600
- *
+ * 
  * *Unofficial framerates
- *
+ * 
  * (1) But we don't really care since the audio clock is used anyway and has
  *     very fine resolution ;-)
  *****************************************************************************/
@@ -253,6 +253,15 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 //#define MPEG_STOP       BUTTON_POWER
 #define MPEG_VOLDOWN    BUTTON_MINUS
 #define MPEG_VOLUP      BUTTON_PLUS
+
+#elif CONFIG_KEYPAD == IAUDIO67_PAD
+#define MPEG_MENU       BUTTON_MENU
+#define MPEG_STOP       BUTTON_STOP
+#define MPEG_PAUSE      BUTTON_PLAY
+#define MPEG_VOLDOWN    BUTTON_VOLDOWN
+#define MPEG_VOLUP      BUTTON_VOLUP
+#define MPEG_RW         BUTTON_LEFT
+#define MPEG_FF         BUTTON_RIGHT
 
 #elif CONFIG_KEYPAD == CREATIVEZVM_PAD
 #define MPEG_MENU       BUTTON_MENU
@@ -441,7 +450,7 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 #define MPEG_RW         BUTTON_PREV
 #define MPEG_FF         BUTTON_NEXT
 
-#elif CONFIG_KEYPAD == XDUOO_X3II_PAD || CONFIG_KEYPAD == XDUOO_X20_PAD
+#elif CONFIG_KEYPAD == IHIFI_770_PAD
 #define MPEG_MENU       BUTTON_PLAY
 #define MPEG_STOP       BUTTON_POWER
 #define MPEG_PAUSE      BUTTON_HOME
@@ -450,7 +459,7 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 #define MPEG_RW         BUTTON_PREV
 #define MPEG_FF         BUTTON_NEXT
 
-#elif CONFIG_KEYPAD == FIIO_M3K_LINUX_PAD
+#elif CONFIG_KEYPAD == IHIFI_800_PAD
 #define MPEG_MENU       BUTTON_PLAY
 #define MPEG_STOP       BUTTON_POWER
 #define MPEG_PAUSE      BUTTON_HOME
@@ -458,36 +467,6 @@ CONFIG_KEYPAD == SANSA_M200_PAD
 #define MPEG_VOLUP      BUTTON_VOL_UP
 #define MPEG_RW         BUTTON_PREV
 #define MPEG_FF         BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == IHIFI_770_PAD || CONFIG_KEYPAD == IHIFI_800_PAD
-#define MPEG_MENU       BUTTON_PLAY
-#define MPEG_STOP       BUTTON_POWER
-#define MPEG_PAUSE      BUTTON_HOME
-#define MPEG_VOLDOWN    BUTTON_VOL_DOWN
-#define MPEG_VOLUP      BUTTON_VOL_UP
-#define MPEG_RW         BUTTON_PREV
-#define MPEG_FF         BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == EROSQ_PAD
-#define MPEG_MENU       BUTTON_MENU
-#define MPEG_STOP       BUTTON_POWER
-#define MPEG_PAUSE      BUTTON_PLAY
-#define MPEG_VOLDOWN    BUTTON_VOL_DOWN
-#define MPEG_VOLUP      BUTTON_VOL_UP
-#define MPEG_RW         BUTTON_PREV
-#define MPEG_FF         BUTTON_NEXT
-
-#elif CONFIG_KEYPAD == FIIO_M3K_PAD
-#define MPEG_MENU       BUTTON_MENU
-#define MPEG_STOP       BUTTON_POWER
-#define MPEG_PAUSE      BUTTON_PLAY
-#define MPEG_VOLDOWN    BUTTON_VOL_DOWN
-#define MPEG_VOLUP      BUTTON_VOL_UP
-#define MPEG_RW         BUTTON_LEFT
-#define MPEG_FF         BUTTON_RIGHT
-
-#elif CONFIG_KEYPAD == SHANLING_Q1_PAD
-/* use touchscreen */
 
 #else
 #error No keymap defined!
@@ -622,14 +601,6 @@ struct fps
 
 static struct osd osd;
 static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
-
-#ifdef LCD_PORTRAIT
-static fb_data* get_framebuffer(void)
-{
-    struct viewport *vp_main = *(rb->screens[SCREEN_MAIN]->current_viewport);
-    return vp_main->buffer->fb_ptr;
-}
-#endif
 
 static void osd_show(unsigned show);
 
@@ -832,7 +803,7 @@ static void draw_oriented_mono_bitmap_part(const unsigned char *src,
     src_y  &= 7;
     src_end = src + width;
 
-    dst = get_framebuffer() + (LCD_WIDTH - y) + x*LCD_WIDTH;
+    dst = rb->lcd_framebuffer + (LCD_WIDTH - y) + x*LCD_WIDTH;
     do
     {
         const unsigned char *src_col = src++;
@@ -964,7 +935,7 @@ static void draw_oriented_alpha_bitmap_part(const unsigned char *src,
     fg_pattern =    rb->lcd_get_foreground();
     /*bg_pattern=*/ rb->lcd_get_background();
 
-    dst_start = get_framebuffer() + (LCD_WIDTH - y - 1) + x*LCD_WIDTH;
+    dst_start = rb->lcd_framebuffer + (LCD_WIDTH - y - 1) + x*LCD_WIDTH;
     int col, row = height;
     unsigned data, pixels;
     unsigned skip_end = (stride - width);
@@ -1217,7 +1188,6 @@ static void osdbacklight_hw_on_video_mode(bool video_on)
     if (video_on) {
         /* Turn off backlight timeout */
         backlight_ignore_timeout();
-
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
         rb->remove_event(LCD_EVENT_ACTIVATION, osd_lcd_enable_hook);
 #endif
@@ -2507,7 +2477,7 @@ enum plugin_status plugin_start(const void* parameter)
                     /* Enter button loop and process UI */
                     next_action = button_loop();
                     manual_skip = next_action & VIDEO_ACTION_MANUAL;
-                    next_action &= ~VIDEO_ACTION_MANUAL;
+                    next_action &= ~VIDEO_ACTION_MANUAL;                    
                 }
 
                 stream_close();

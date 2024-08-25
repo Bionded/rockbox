@@ -30,8 +30,7 @@
 #define TAG_NAME_LENGTH             32
 #define TAG_VALUE_LENGTH            128
 
-#define FOURCC(a,b,c,d) ((((unsigned long)(a)) << 24) | (((unsigned long)(b)) << 16) | \
-                         (((unsigned long)(c)) <<  8) | ((unsigned long)(d)))
+#define FOURCC(a,b,c,d) (((a)<<24) | ((b) << 16) | ((c) << 8) | (d))
 
 enum tagtype { TAGTYPE_APE = 1, TAGTYPE_VORBIS };
 
@@ -39,7 +38,6 @@ bool read_ape_tags(int fd, struct mp3entry* id3);
 long read_vorbis_tags(int fd, struct mp3entry *id3,
     long tag_remaining);
 
-int string_option(const char *option, const char *const oplist[], bool ignore_case);
 bool skip_id3v2(int fd, struct mp3entry *id3);
 long read_string(int fd, char* buf, long buf_size, int eos, long size);
 

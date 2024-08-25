@@ -247,20 +247,20 @@
   user: core
   <source>
     *: "PLAY = Yes"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, or top-right = Yes"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Yes"
     iriverh100,iriverh120,iriverh300: "NAVI = Yes"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Yes"
     mrobe500: "PLAY, POWER, or top-right = Yes"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Yes"
   </source>
   <dest>
     *: "PLAY = Sim"
-    archosplayer: "(PLAY/STOP)"
     cowond2*: "MENU, ou topo direito = Sim"
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Sim"
     iriverh100,iriverh120,iriverh300: "NAVI = Sim"
+    ipod*,iaudiox5,iaudiom5,gigabeat*,sansae200*,sansac200*,iriverh10,iriverh10_5gb,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Sim"
     mrobe500: "PLAY, POWER, ou topo direito = Sim"
+    archosplayer: "(PLAY/STOP)"
     vibe500: "OK = Sim"
   </dest>
   <voice>
@@ -772,15 +772,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono Left + Right"
+    recording_swcodec: "Mono Left + Right"
   </source>
   <dest>
     *: none
-    recording: "Mono Esquerdo + Direito"
+    recording_swcodec: "Mono Esquerdo + Direito"
   </dest>
   <voice>
     *: none
-    recording: "Mono Esquerdo mais Direito"
+    recording_swcodec: "Mono Esquerdo mais Direito"
   </voice>
 </phrase>
 <phrase>
@@ -816,13 +816,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </source>
   <dest>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </dest>
   <voice>
-    *: "Crossfeed"
+    *: none
+    swcodec: "Crossfeed"
   </voice>
 </phrase>
 <phrase>
@@ -830,13 +833,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Direct Gain"
+    *: none
+    swcodec: "Direct Gain"
   </source>
   <dest>
-    *: "Ganho Direto"
+    *: none
+    swcodec: "Ganho Direto"
   </dest>
   <voice>
-    *: "Ganho Direto"
+    *: none
+    swcodec: "Ganho Direto"
   </voice>
 </phrase>
 <phrase>
@@ -844,13 +850,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "Cross Gain"
+    *: none
+    swcodec: "Cross Gain"
   </source>
   <dest>
-    *: "Ganho Cruzado"
+    *: none
+    swcodec: "Ganho Cruzado"
   </dest>
   <voice>
-    *: "Ganho Cruzado"
+    *: none
+    swcodec: "Ganho Cruzado"
   </voice>
 </phrase>
 <phrase>
@@ -858,13 +867,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Attenuation"
+    *: none
+    swcodec: "High-Frequency Attenuation"
   </source>
   <dest>
-    *: "Atenuação de Altas Frequências"
+    *: none
+    swcodec: "Atenuação de Altas Frequências"
   </dest>
   <voice>
-    *: "Atenuação de Altas Frequências"
+    *: none
+    swcodec: "Atenuação de Altas Frequências"
   </voice>
 </phrase>
 <phrase>
@@ -872,13 +884,16 @@
   desc: in crossfeed settings
   user: core
   <source>
-    *: "High-Frequency Cutoff"
+    *: none
+    swcodec: "High-Frequency Cutoff"
   </source>
   <dest>
-    *: "Corte de Altas Frenquências"
+    *: none
+    swcodec: "Corte de Altas Frenquências"
   </dest>
   <voice>
-    *: "Corte de Altas Frenquências"
+    *: none
+    swcodec: "Corte de Altas Frenquências"
   </voice>
 </phrase>
 <phrase>
@@ -886,13 +901,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Equalizer"
+    *: none
+    swcodec: "Equalizer"
   </source>
   <dest>
-    *: "Equalizador"
+    *: none
+    swcodec: "Equalizador"
   </dest>
   <voice>
-    *: "Equalizador"
+    *: none
+    swcodec: "Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -900,13 +918,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Enable EQ"
+    *: none
+    swcodec: "Enable EQ"
   </source>
   <dest>
-    *: "Habilitar EQ"
+    *: none
+    swcodec: "Habilitar EQ"
   </dest>
   <voice>
-    *: "Habilitar Equalizador"
+    *: none
+    swcodec: "Habilitar Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -914,13 +935,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Graphical EQ"
+    *: none
+    swcodec: "Graphical EQ"
   </source>
   <dest>
-    *: "EQ Gráfico"
+    *: none
+    swcodec: "EQ Gráfico"
   </dest>
   <voice>
-    *: "Equalizador Gráfico"
+    *: none
+    swcodec: "Equalizador Gráfico"
   </voice>
 </phrase>
 <phrase>
@@ -928,13 +952,16 @@
   desc: in eq settings
   user: core
   <source>
-    *: "Precut"
+    *: none
+    swcodec: "Precut"
   </source>
   <dest>
-    *: "Pré-corte"
+    *: none
+    swcodec: "Pré-corte"
   </dest>
   <voice>
-    *: "Pré-corte"
+    *: none
+    swcodec: "Pré-corte"
   </voice>
 </phrase>
 <phrase>
@@ -942,13 +969,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Simple EQ Settings"
+    *: none
+    swcodec: "Simple EQ Settings"
   </source>
   <dest>
-    *: "Opções Simples de EQ"
+    *: none
+    swcodec: "Opções Simples de EQ"
   </dest>
   <voice>
-    *: "Opções Simples De Equalizador"
+    *: none
+    swcodec: "Opções Simples De Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -956,13 +986,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Advanced EQ Settings"
+    *: none
+    swcodec: "Advanced EQ Settings"
   </source>
   <dest>
-    *: "Opções Avançadas de EQ"
+    *: none
+    swcodec: "Opções Avançadas de EQ"
   </dest>
   <voice>
-    *: "Opções Avançadas de Equalizador"
+    *: none
+    swcodec: "Opções Avançadas de Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -970,13 +1003,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Save EQ Preset"
+    *: none
+    swcodec: "Save EQ Preset"
   </source>
   <dest>
-    *: "Salvar Predefinição de EQ"
+    *: none
+    swcodec: "Salvar Predefinição de EQ"
   </dest>
   <voice>
-    *: "Salvar Predefinição de Equalizador"
+    *: none
+    swcodec: "Salvar Predefinição de Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -984,13 +1020,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Browse EQ Presets"
+    *: none
+    swcodec: "Browse EQ Presets"
   </source>
   <dest>
-    *: "Explorar Predefinição de EQ"
+    *: none
+    swcodec: "Explorar Predefinição de EQ"
   </dest>
   <voice>
-    *: "Explorar Predefinição de Equalizador"
+    *: none
+    swcodec: "Explorar Predefinição de Equalizador"
   </voice>
 </phrase>
 <phrase>
@@ -998,13 +1037,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s"
+    *: none
+    swcodec: "Edit mode: %s"
   </source>
   <dest>
-    *: "Modo de Edição: %s"
+    *: none
+    swcodec: "Modo de Edição: %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -1012,13 +1054,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "%d Hz Band Gain"
+    *: none
+    swcodec: "%d Hz Band Gain"
   </source>
   <dest>
-    *: "%d Hz Ganho de Banda"
+    *: none
+    swcodec: "%d Hz Ganho de Banda"
   </dest>
   <voice>
-    *: "hertz de Ganho de Banda"
+    *: none
+    swcodec: "hertz de Ganho de Banda"
   </voice>
 </phrase>
 <phrase>
@@ -1026,13 +1071,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Low Shelf Filter"
+    *: none
+    swcodec: "Low Shelf Filter"
   </source>
   <dest>
-    *: "Filtro de Baixa Proteção"
+    *: none
+    swcodec: "Filtro de Baixa Proteção"
   </dest>
   <voice>
-    *: "Filtro de Baixa Proteção"
+    *: none
+    swcodec: "Filtro de Baixa Proteção"
   </voice>
 </phrase>
 <phrase>
@@ -1040,13 +1088,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Peak Filter %d"
+    *: none
+    swcodec: "Peak Filter %d"
   </source>
   <dest>
-    *: "Filtro de Picos %d"
+    *: none
+    swcodec: "Filtro de Picos %d"
   </dest>
   <voice>
-    *: "Filtro de Picos"
+    *: none
+    swcodec: "Filtro de Picos"
   </voice>
 </phrase>
 <phrase>
@@ -1054,13 +1105,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "High Shelf Filter"
+    *: none
+    swcodec: "High Shelf Filter"
   </source>
   <dest>
-    *: "Filtro de Alta Proteção"
+    *: none
+    swcodec: "Filtro de Alta Proteção"
   </dest>
   <voice>
-    *: "Filtro de Alta Proteção"
+    *: none
+    swcodec: "Filtro de Alta Proteção"
   </voice>
 </phrase>
 <phrase>
@@ -1068,13 +1122,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff Frequency"
+    *: none
+    swcodec: "Cutoff Frequency"
   </source>
   <dest>
-    *: "Frequência de Corte"
+    *: none
+    swcodec: "Frequência de Corte"
   </dest>
   <voice>
-    *: "Frequência de Corte"
+    *: none
+    swcodec: "Frequência de Corte"
   </voice>
 </phrase>
 <phrase>
@@ -1082,13 +1139,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Centre Frequency"
+    *: none
+    swcodec: "Centre Frequency"
   </source>
   <dest>
-    *: "Centrar Frequência"
+    *: none
+    swcodec: "Centrar Frequência"
   </dest>
   <voice>
-    *: "Centrar Frequência"
+    *: none
+    swcodec: "Centrar Frequência"
   </voice>
 </phrase>
 <phrase>
@@ -1096,13 +1156,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </source>
   <dest>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </dest>
   <voice>
-    *: "Q"
+    *: none
+    swcodec: "Q"
   </voice>
 </phrase>
 <phrase>
@@ -1110,13 +1173,16 @@
   desc: in the sound settings menu
   user: core
   <source>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </source>
   <dest>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </dest>
   <voice>
-    *: "Dithering"
+    *: none
+    swcodec: "Dithering"
   </voice>
 </phrase>
 <phrase>
@@ -1660,13 +1726,16 @@
   desc: in replaygain
   user: core
   <source>
-    *: "Prevent Clipping"
+    *: none
+    swcodec: "Prevent Clipping"
   </source>
   <dest>
-    *: "Prevenir Clipping"
+    *: none
+    swcodec: "Prevenir Clipping"
   </dest>
   <voice>
-    *: "Prevenir Clipping"
+    *: none
+    swcodec: "Prevenir Clipping"
   </voice>
 </phrase>
 <phrase>
@@ -1744,13 +1813,16 @@
   desc: in playback settings
   user: core
   <source>
-    *: "Track Skip Beep"
+    *: none
+    swcodec: "Track Skip Beep"
   </source>
   <dest>
-    *: "Beep do pulo de faixa"
+    *: none
+    swcodec: "Beep do pulo de faixa"
   </dest>
   <voice>
-    *: "Beep do pulo de faixa"
+    *: none
+    swcodec: "Beep do pulo de faixa"
   </voice>
 </phrase>
 <phrase>
@@ -1758,13 +1830,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Weak"
+    *: none
+    swcodec: "Weak"
   </source>
   <dest>
-    *: "Fraco"
+    *: none
+    swcodec: "Fraco"
   </dest>
   <voice>
-    *: "Fraco"
+    *: none
+    swcodec: "Fraco"
   </voice>
 </phrase>
 <phrase>
@@ -1772,13 +1847,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Moderate"
+    *: none
+    swcodec: "Moderate"
   </source>
   <dest>
-    *: "Moderado"
+    *: none
+    swcodec: "Moderado"
   </dest>
   <voice>
-    *: "Moderado"
+    *: none
+    swcodec: "Moderado"
   </voice>
 </phrase>
 <phrase>
@@ -1786,13 +1864,16 @@
   desc: in beep volume in playback settings
   user: core
   <source>
-    *: "Strong"
+    *: none
+    swcodec: "Strong"
   </source>
   <dest>
-    *: "Forte"
+    *: none
+    swcodec: "Forte"
   </dest>
   <voice>
-    *: "Forte"
+    *: none
+    swcodec: "Forte"
   </voice>
 </phrase>
 <phrase>
@@ -1900,6 +1981,20 @@
   <voice>
     *: none
     headphone_detection: "Pausar e Retomar"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_HEADPHONE_UNPLUG_RW
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -2135,19 +2230,21 @@
   user: core
   <source>
     *: "Building database... %d found (OFF to return)"
-    archosplayer: "Building DB %d found"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
-    gogearsa9200: "Building database... %d found (REW to return)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
     iriverh100,iriverh120,iriverh300: "Building database... %d found (STOP to return)"
+    ipod*: "Building database... %d found (PREV to return)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Building database... %d found (LEFT to return)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Building database... %d found (PREV to return)"
+    gogearsa9200: "Building database... %d found (REW to return)"
+    archosplayer: "Building DB %d found"
   </source>
   <dest>
     *: "Construindo Base de Dados... %d encontrados (OFF para retornar)"
-    archosplayer: "Construindo BD %d encontrado"
-    gigabeat*,iaudiom5,iaudiox5,mrobe100,samsungyh*: "Construindo Base de Dados... %d encontrados (LEFT para retornar)"
-    gogearsa9200: "Construindo Base de Dados... %d encontrados (REW para retornar)"
-    ipod*,iriverh10,iriverh10_5gb,sansac200*,sansae200*,sansafuze*,vibe500: "Construindo Base de Dados... %d encontrados (PREV para retornar)"
     iriverh100,iriverh120,iriverh300: "Construindo Base de Dados... %d encontrados (STOP para retornar)"
+    ipod*: "Construindo Base de Dados... %d encontrados (PREV para retornar)"
+    iaudiox5,iaudiom5,gigabeat*,mrobe100,samsungyh*: "Construindo Base de Dados... %d encontrados (LEFT para retornar)"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,sansafuze*,vibe500: "Construindo Base de Dados... %d encontrados (PREV para retornar)"
+    gogearsa9200: "Construindo Base de Dados... %d encontrados (REW para retornar)"
+    archosplayer: "Construindo BD %d encontrado"
   </dest>
   <voice>
     *: "entradas encontradas para a base de dados"
@@ -2329,13 +2426,16 @@
   desc: in setting_menu()
   user: core
   <source>
-    *: "Font"
+    *: none
+    lcd_bitmap: "Font"
   </source>
   <dest>
-    *: "Fontes"
+    *: none
+    lcd_bitmap: "Fontes"
   </dest>
   <voice>
-    *: "Fontes"
+    *: none
+    lcd_bitmap: "Fontes"
   </voice>
 </phrase>
 <phrase>
@@ -2597,13 +2697,16 @@
   desc: in settings_menu, option to turn display+buttos by 180 degrees
   user: core
   <source>
-    *: "Upside Down"
+    *: none
+    lcd_bitmap: "Upside Down"
   </source>
   <dest>
-    *: "Rodar 180 Graus"
+    *: none
+    lcd_bitmap: "Rodar 180 Graus"
   </dest>
   <voice>
-    *: "Rodar Cento e Oitenta Graus"
+    *: none
+    lcd_bitmap: "Rodar Cento e Oitenta Graus"
   </voice>
 </phrase>
 <phrase>
@@ -2611,13 +2714,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Line Selector Type"
+    *: none
+    lcd_bitmap: "Line Selector Type"
   </source>
   <dest>
-    *: "Tipo De Seletor De Linha"
+    *: none
+    lcd_bitmap: "Tipo De Seletor De Linha"
   </dest>
   <voice>
-    *: "Tipo De Seletor De Linha"
+    *: none
+    lcd_bitmap: "Tipo De Seletor De Linha"
   </voice>
 </phrase>
 <phrase>
@@ -2625,13 +2731,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Pointer"
+    *: none
+    lcd_bitmap: "Pointer"
   </source>
   <dest>
-    *: "Apontador"
+    *: none
+    lcd_bitmap: "Apontador"
   </dest>
   <voice>
-    *: "Apontador"
+    *: none
+    lcd_bitmap: "Apontador"
   </voice>
 </phrase>
 <phrase>
@@ -2639,13 +2748,16 @@
   desc: in settings_menu
   user: core
   <source>
-    *: "Bar (Inverse)"
+    *: none
+    lcd_bitmap: "Bar (Inverse)"
   </source>
   <dest>
-    *: "Barra (Inversa)"
+    *: none
+    lcd_bitmap: "Barra (Inversa)"
   </dest>
   <voice>
-    *: "Barra Inversa"
+    *: none
+    lcd_bitmap: "Barra Inversa"
   </voice>
 </phrase>
 <phrase>
@@ -2935,13 +3047,16 @@
   desc: should lines scroll out of the screen
   user: core
   <source>
-    *: "Screen Scrolls Out Of View"
+    *: none
+    lcd_bitmap: "Screen Scrolls Out Of View"
   </source>
   <dest>
-    *: "Barras de Navegação Fora da Tela"
+    *: none
+    lcd_bitmap: "Barras de Navegação Fora da Tela"
   </dest>
   <voice>
-    *: "Barras de Navegação Fora da Tela"
+    *: none
+    lcd_bitmap: "Barras de Navegação Fora da Tela"
   </voice>
 </phrase>
 <phrase>
@@ -2949,13 +3064,16 @@
   desc: Pixels to advance per Screen scroll
   user: core
   <source>
-    *: "Screen Scroll Step Size"
+    *: none
+    lcd_bitmap: "Screen Scroll Step Size"
   </source>
   <dest>
-    *: "Avanço das Barras de Navegação"
+    *: none
+    lcd_bitmap: "Avanço das Barras de Navegação"
   </dest>
   <voice>
-    *: "Avanço das Barras de Navegação"
+    *: none
+    lcd_bitmap: "Avanço das Barras de Navegação"
   </voice>
 </phrase>
 <phrase>
@@ -3011,13 +3129,16 @@
   desc: in the display sub menu
   user: core
   <source>
-    *: "Status-/Scrollbar"
+    *: none
+    lcd_bitmap: "Status-/Scrollbar"
   </source>
   <dest>
-    *: "Estado e Barra de Navegação"
+    *: none
+    lcd_bitmap: "Estado e Barra de Navegação"
   </dest>
   <voice>
-    *: "Estado e Barra de Navegação"
+    *: none
+    lcd_bitmap: "Estado e Barra de Navegação"
   </voice>
 </phrase>
 <phrase>
@@ -3025,13 +3146,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Scroll Bar"
+    *: none
+    lcd_bitmap: "Scroll Bar"
   </source>
   <dest>
-    *: "Barra de Navegação"
+    *: none
+    lcd_bitmap: "Barra de Navegação"
   </dest>
   <voice>
-    *: "Barra de Navegação"
+    *: none
+    lcd_bitmap: "Barra de Navegação"
   </voice>
 </phrase>
 <phrase>
@@ -3039,13 +3163,16 @@
   desc: display menu, F3 substitute
   user: core
   <source>
-    *: "Status Bar"
+    *: none
+    lcd_bitmap: "Status Bar"
   </source>
   <dest>
-    *: "Barra de Estado"
+    *: none
+    lcd_bitmap: "Barra de Estado"
   </dest>
   <voice>
-    *: "Barra de Estado"
+    *: none
+    lcd_bitmap: "Barra de Estado"
   </voice>
 </phrase>
 <phrase>
@@ -3070,13 +3197,16 @@
   desc: Volume type title
   user: core
   <source>
-    *: "Volume Display"
+    *: none
+    lcd_bitmap: "Volume Display"
   </source>
   <dest>
-    *: "Mostragem do Volume"
+    *: none
+    lcd_bitmap: "Mostragem do Volume"
   </dest>
   <voice>
-    *: "Mostragem do Volume"
+    *: none
+    lcd_bitmap: "Mostragem do Volume"
   </voice>
 </phrase>
 <phrase>
@@ -3084,13 +3214,16 @@
   desc: Battery type title
   user: core
   <source>
-    *: "Battery Display"
+    *: none
+    lcd_bitmap: "Battery Display"
   </source>
   <dest>
-    *: "Mostragem de Bateria"
+    *: none
+    lcd_bitmap: "Mostragem de Bateria"
   </dest>
   <voice>
-    *: "Mostragem de Bateria"
+    *: none
+    lcd_bitmap: "Mostragem de Bateria"
   </voice>
 </phrase>
 <phrase>
@@ -3098,13 +3231,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Graphic"
+    *: none
+    lcd_bitmap: "Graphic"
   </source>
   <dest>
-    *: "Gráfica"
+    *: none
+    lcd_bitmap: "Gráfica"
   </dest>
   <voice>
-    *: "Gráfica"
+    *: none
+    lcd_bitmap: "Gráfica"
   </voice>
 </phrase>
 <phrase>
@@ -3112,13 +3248,16 @@
   desc: Label for type of icon display
   user: core
   <source>
-    *: "Numeric"
+    *: none
+    lcd_bitmap: "Numeric"
   </source>
   <dest>
-    *: "Numérica"
+    *: none
+    lcd_bitmap: "Numérica"
   </dest>
   <voice>
-    *: "Numérica"
+    *: none
+    lcd_bitmap: "Numérica"
   </voice>
 </phrase>
 <phrase>
@@ -3338,13 +3477,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Hebrew (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebrew (ISO-8859-8)"
   </source>
   <dest>
-    *: "Hebraico (ISO-8859-8)"
+    *: none
+    lcd_bitmap: "Hebraico (ISO-8859-8)"
   </dest>
   <voice>
-    *: "Hebraico"
+    *: none
+    lcd_bitmap: "Hebraico"
   </voice>
 </phrase>
 <phrase>
@@ -3366,13 +3508,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Thai (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Thai (ISO-8859-11)"
   </source>
   <dest>
-    *: "Tailandês (ISO-8859-11)"
+    *: none
+    lcd_bitmap: "Tailandês (ISO-8859-11)"
   </dest>
   <voice>
-    *: "Tailandês"
+    *: none
+    lcd_bitmap: "Tailandês"
   </voice>
 </phrase>
 <phrase>
@@ -3380,13 +3525,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Arabic (CP1256)"
+    *: none
+    lcd_bitmap: "Arabic (CP1256)"
   </source>
   <dest>
-    *: "Árabe (CP1256)"
+    *: none
+    lcd_bitmap: "Árabe (CP1256)"
   </dest>
   <voice>
-    *: "Árabe"
+    *: none
+    lcd_bitmap: "Árabe"
   </voice>
 </phrase>
 <phrase>
@@ -3422,13 +3570,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Japanese (SJIS)"
+    *: none
+    lcd_bitmap: "Japanese (SJIS)"
   </source>
   <dest>
-    *: "Japonês (SJIS)"
+    *: none
+    lcd_bitmap: "Japonês (SJIS)"
   </dest>
   <voice>
-    *: "Japanês"
+    *: none
+    lcd_bitmap: "Japanês"
   </voice>
 </phrase>
 <phrase>
@@ -3436,13 +3587,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Simp. Chinese (GB2312)"
+    *: none
+    lcd_bitmap: "Simp. Chinese (GB2312)"
   </source>
   <dest>
-    *: "Chinês Simplificado (GB2312)"
+    *: none
+    lcd_bitmap: "Chinês Simplificado (GB2312)"
   </dest>
   <voice>
-    *: "Chinês Simplificado"
+    *: none
+    lcd_bitmap: "Chinês Simplificado"
   </voice>
 </phrase>
 <phrase>
@@ -3450,13 +3604,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Korean (KSX1001)"
+    *: none
+    lcd_bitmap: "Korean (KSX1001)"
   </source>
   <dest>
-    *: "Coreano (KSX1001)"
+    *: none
+    lcd_bitmap: "Coreano (KSX1001)"
   </dest>
   <voice>
-    *: "Coreano"
+    *: none
+    lcd_bitmap: "Coreano"
   </voice>
 </phrase>
 <phrase>
@@ -3464,13 +3621,16 @@
   desc: in codepage setting menu
   user: core
   <source>
-    *: "Trad. Chinese (BIG5)"
+    *: none
+    lcd_bitmap: "Trad. Chinese (BIG5)"
   </source>
   <dest>
-    *: "Chinês Tradicional (BIG5)"
+    *: none
+    lcd_bitmap: "Chinês Tradicional (BIG5)"
   </dest>
   <voice>
-    *: "Chinês Tradicional"
+    *: none
+    lcd_bitmap: "Chinês Tradicional"
   </voice>
 </phrase>
 <phrase>
@@ -3494,17 +3654,17 @@
   <source>
     *: none
     button_light: "Button Light Timeout"
-    sansae200*,sansafuze*: "Wheel Light Timeout"
+    sansafuze*,sansae200*: "Wheel Light Timeout"
   </source>
   <dest>
     *: none
     button_light: "Duração da Luz do Botão"
-    sansae200*,sansafuze*: "Duração da Luz da Roda"
+    sansafuze*,sansae200*: "Duração da Luz da Roda"
   </dest>
   <voice>
     *: none
     button_light: "Duração da Luz do Botão"
-    sansae200*,sansafuze*: "Duração da Luz da Roda"
+    sansafuze*,sansae200*: "Duração da Luz da Roda"
   </voice>
 </phrase>
 <phrase>
@@ -3612,7 +3772,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_1
+  id: LANG_BATTERY_TYPE_ALKALINE
   desc: in battery settings
   user: core
   <source>
@@ -3629,7 +3789,7 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_BATTERY_TYPE_2
+  id: LANG_BATTERY_TYPE_NIMH
   desc: in battery settings
   user: core
   <source>
@@ -3775,27 +3935,27 @@
   user: core
   <source>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Set"
-    gogearsa9200,samsungyh*: "PLAY = Set"
-    iriverh100,iriverh120,iriverh300: "NAVI = Set"
-    mpiohd300: "ENTER = Set"
-    mrobe500: "HEART = Set"
     rtc: "ON = Set"
+    mrobe500: "HEART = Set"
+    iriverh100,iriverh120,iriverh300: "NAVI = Set"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Set"
+    gogearsa9200,samsungyh*: "PLAY = Set"
     vibe500: "OK = Set"
+    mpiohd300: "ENTER = Set"
   </source>
   <dest>
     *: none
-    gigabeat*,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh10_5gb,mrobe100,sansac200*,sansaclip*,sansaconnect,sansae200*,sansafuze*: "SELECT = Ajustar"
-    gogearsa9200,samsungyh*: "PLAY = Ajustar"
-    iriverh100,iriverh120,iriverh300: "NAVI = Ajustar"
-    mpiohd300: "ENTER = Ajustar"
-    mrobe500: "HEART = Ajustar"
     rtc: "ON = Ajustar"
+    mrobe500: "HEART = Ajustar"
+    iriverh100,iriverh120,iriverh300: "NAVI = Ajustar"
+    ipod*,iaudiox5,iaudiom5,iriverh10,iriverh10_5gb,sansae200*,sansac200*,gigabeat*,mrobe100,sansaclip*,sansafuze*,sansaconnect: "SELECT = Ajustar"
+    gogearsa9200,samsungyh*: "PLAY = Ajustar"
     vibe500: "OK = Ajustar"
+    mpiohd300: "ENTER = Ajustar"
   </dest>
   <voice>
     *: none
-    gigabeat*,gogearsa9200,iaudiom5,iaudiox5,ipod*,iriverh10,iriverh100,iriverh10_5gb,iriverh120,iriverh300,mrobe100,rtc,samsungyh*,sansac200*,sansae200*: ""
+    rtc,iriverh100,iriverh120,iriverh300,iriverh10,iriverh10_5gb,iaudiox5,iaudiom5,ipod*,sansae200*,sansac200*,gigabeat*,mrobe100,gogearsa9200,samsungyh*: ""
   </voice>
 </phrase>
 <phrase>
@@ -3804,31 +3964,35 @@
   user: core
   <source>
     *: none
-    gigabeatfx,mrobe500: "POWER = Revert"
-    gigabeats,sansafuzeplus: "BACK = Revert"
-    gogearsa9200: "LEFT = Revert"
-    iaudiom5,iaudiox5: "RECORD = Revert"
-    ipod*,mpiohd300,sansac200*: "MENU = Revert"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
-    iriverh100,iriverh120,iriverh300: "STOP = Revert"
-    mrobe100: "DISPLAY = Revert"
     rtc: "OFF = Revert"
-    samsungyh*: "REW = Revert"
+    mrobe500: "POWER = Revert"
+    iriverh100,iriverh120,iriverh300: "STOP = Revert"
+    ipod*,sansac200*,mpiohd300: "MENU = Revert"
+    iaudiox5,iaudiom5: "RECORD = Revert"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Revert"
+    gigabeatfx: "POWER = Revert"
+    sansafuzeplus: "BACK = Revert"
+    mrobe100: "DISPLAY = Revert"
+    gigabeats: "BACK = Revert"
+    gogearsa9200: "LEFT = Revert"
     vibe500: "CANCEL = Revert"
+    samsungyh*: "REW = Revert"
   </source>
   <dest>
     *: none
-    gigabeatfx,mrobe500: "POWER = Reverter"
-    gigabeats,sansafuzeplus: "BACK = Reverter"
-    gogearsa9200: "LEFT = Reverter"
-    iaudiom5,iaudiox5: "RECORD = Reverter"
-    ipod*,mpiohd300,sansac200*: "MENU = Reverter"
-    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Reverter"
-    iriverh100,iriverh120,iriverh300: "STOP = Reverter"
-    mrobe100: "DISPLAY = Reverter"
     rtc: "OFF = Reverter"
-    samsungyh*: "REW = Reverter"
+    mrobe500: "POWER = Reverter"
+    iriverh100,iriverh120,iriverh300: "STOP = Reverter"
+    ipod*,sansac200*,mpiohd300: "MENU = Reverter"
+    iaudiox5,iaudiom5: "RECORD = Reverter"
+    iriverh10,iriverh10_5gb,sansae200*,sansafuze*: "PREV = Reverter"
+    gigabeatfx: "POWER = Reverter"
+    sansafuzeplus: "BACK = Reverter"
+    mrobe100: "DISPLAY = Reverter"
+    gigabeats: "BACK = Reverter"
+    gogearsa9200: "LEFT = Reverter"
     vibe500: "CANCEL = Reverter"
+    samsungyh*: "REW = Reverter"
   </dest>
   <voice>
     *: none
@@ -4317,22 +4481,22 @@
   <source>
     *: none
     alarm: "PLAY=Set OFF=Cancel"
-    gigabeats: "SELECT=Set POWER=Cancel"
     ipod*: "SELECT=Set MENU=Cancel"
     iriverh10,iriverh10_5gb: "SELECT=Set PREV=Cancel"
+    gigabeats: "SELECT=Set POWER=Cancel"
+    vibe500: "OK=Set C=Cancel"
     mpiohd300: "ENTER=Set MENU=Cancel"
     sansafuzeplus: "SELECT=Set  BACK=Cancel"
-    vibe500: "OK=Set C=Cancel"
   </source>
   <dest>
     *: none
     alarm: "PLAY=Alterar OFF=Cancelar"
-    gigabeats: "SELECT=Alterar POWER=Cancelar"
     ipod*: "SELECT=Alterar MENU=Cancelar"
     iriverh10,iriverh10_5gb: "SELECT=Alterar PREV=Cancelar"
+    gigabeats: "SELECT=Alterar POWER=Cancelar"
+    vibe500: "OK=Alterar C=Cancelar"
     mpiohd300: "ENTER=Alterar MENU=Cancelar"
     sansafuzeplus: "SELECT=Alterar  BACK=Cancelar"
-    vibe500: "OK=Alterar C=Cancelar"
   </dest>
   <voice>
     *: none
@@ -5177,6 +5341,23 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_FM_SAVE_CHANGES
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    radio: ""
+  </source>
+  <dest>
+    *: none
+    radio: ""
+  </dest>
+  <voice>
+    *: none
+    radio: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_FM_REGION
   desc: fm tuner region setting
   user: core
@@ -5262,17 +5443,20 @@
   </voice>
 </phrase>
 <phrase>
-  id: LANG_FORMAT
-  desc: audio format
+  id: LANG_RECORDING_FORMAT
+  desc: audio format item in recording menu
   user: core
   <source>
-    *: "Format"
+    *: none
+    recording: "Format"
   </source>
   <dest>
-    *: "Formato"
+    *: none
+    recording: "Formato"
   </dest>
   <voice>
-    *: "Formato"
+    *: none
+    recording: "Formato"
   </voice>
 </phrase>
 <phrase>
@@ -5315,15 +5499,15 @@
   user: core
   <source>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </source>
   <dest>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </dest>
   <voice>
     *: none
-    recording: "WavPack"
+    recording_swcodec: "WavPack"
   </voice>
 </phrase>
 <phrase>
@@ -5366,15 +5550,15 @@
   user: core
   <source>
     *: none
-    recording: "Bitrate"
+    recording_swcodec: "Bitrate"
   </source>
   <dest>
     *: none
-    recording: "Taxa de Bits"
+    recording_swcodec: "Taxa de Bits"
   </dest>
   <voice>
     *: none
-    recording: "Taxa de Bits"
+    recording_swcodec: "Taxa de Bits"
   </voice>
 </phrase>
 <phrase>
@@ -5417,15 +5601,15 @@
   user: core
   <source>
     *: none
-    play_frequency,recording: "Frequency"
+    recording,play_frequency: "Frequency"
   </source>
   <dest>
     *: none
-    play_frequency,recording: "Frequência"
+    recording,play_frequency: "Frequência"
   </dest>
   <voice>
     *: none
-    play_frequency,recording: "Frequência"
+    recording,play_frequency: "Frequência"
   </voice>
 </phrase>
 <phrase>
@@ -5468,18 +5652,18 @@
   user: core
   <source>
     *: none
-    iriverh100,iriverh120,iriverh300: "Internal Microphone"
     recording: "Microphone"
+    iriverh100,iriverh120,iriverh300: "Internal Microphone"
   </source>
   <dest>
     *: none
-    iriverh100,iriverh120,iriverh300: "Microfone Interno"
     recording: "Microfone"
+    iriverh100,iriverh120,iriverh300: "Microfone Interno"
   </dest>
   <voice>
     *: none
-    iriverh100,iriverh120,iriverh300: "Microfone Interno"
     recording: "Microfone"
+    iriverh100,iriverh120,iriverh300: "Microfone Interno"
   </voice>
 </phrase>
 <phrase>
@@ -5505,15 +5689,15 @@
   user: core
   <source>
     *: none
-    recording: "Line In"
+    recording,archosplayer: "Line In"
   </source>
   <dest>
     *: none
-    recording: "Entrada de Linha"
+    recording,archosplayer: "Entrada de Linha"
   </dest>
   <voice>
     *: none
-    recording: "Entrada de Linha"
+    recording,archosplayer: "Entrada de Linha"
   </voice>
 </phrase>
 <phrase>
@@ -6357,13 +6541,13 @@
   user: core
   <source>
     *: "Battery: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Batt: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Batt: %d%% %dh %dm"
   </source>
   <dest>
     *: "Bateria: %d%% %dh %dm"
-    ipodmini1g,ipodmini2g,iriverh10: "Bat: %d%% %dh %dm"
-    iriverifp7xx: "%d%% %dh %dm"
+    archosplayer,archosrecorder,archosfmrecorder,archosrecorderv2,archosondio*,iriverifp7xx: "%d%% %dh %dm"
+    iriverh10,ipodmini1g,ipodmini2g: "Bat: %d%% %dh %dm"
   </dest>
   <voice>
     *: "Nível da bateria"
@@ -6420,24 +6604,24 @@
   user: core
   <source>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "mSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "mSD:"
     xduoox3: "mSD2:"
+    archosondio*: "MMC:"
   </source>
   <dest>
     *: none
-    archosondio*: "MMC:"
     multivolume: "HD1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "MSD:"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "MSD:"
     xduoox3: "MSD2:"
+    archosondio*: "MMC:"
   </dest>
   <voice>
     *: none
-    archosondio*: "M M C"
     multivolume: "H D 1"
-    sansac200*,sansaclipplus,sansae200*,sansafuze*: "micro S D"
+    sansae200*,sansac200*,sansafuze*,sansaclipplus: "micro S D"
     xduoox3: "micro S D 2"
+    archosondio*: "M M C"
   </voice>
 </phrase>
 <phrase>
@@ -7340,6 +7524,40 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_BACKDROP_LOADED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_BACKDROP_FAILED
+  desc: deprecated
+  user: core
+  <source>
+    *: none
+    lcd_non-mono: ""
+  </source>
+  <dest>
+    *: none
+    lcd_non-mono: ""
+  </dest>
+  <voice>
+    *: none
+    lcd_non-mono: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_ONPLAY_OPEN_WITH
   desc: Onplay open with
   user: core
@@ -7718,23 +7936,23 @@
   user: core
   <source>
     *: none
-    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
-    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
     recording: "The disk is full. Press OFF to continue."
+    iriverh100,iriverh120,iriverh300: "The disk is full. Press STOP to continue."
+    iaudiom5,iaudiox5: "The disk is full. Press POWER to continue."
+    sansae200*,sansac200*,vibe500: "The disk is full. Press PREV to continue."
     samsungyh*: "Disk full. Press LEFT to continue."
-    sansac200*,sansae200*,vibe500: "The disk is full. Press PREV to continue."
   </source>
   <dest>
     *: none
-    iaudiom5,iaudiox5: "O disco está cheio. Pressione POWER para continuar."
-    iriverh100,iriverh120,iriverh300: "O disco está cheio. Pressione STOP para continuar."
     recording: "O disco está cheio. Pressione OFF para continuar."
+    iriverh100,iriverh120,iriverh300: "O disco está cheio. Pressione STOP para continuar."
+    iaudiom5,iaudiox5: "O disco está cheio. Pressione POWER para continuar."
+    sansae200*,sansac200*,vibe500: "O disco está cheio. Pressione PREV para continuar."
     samsungyh*: "O disco está cheio. Pressione LEFT para continuar."
-    sansac200*,sansae200*,vibe500: "O disco está cheio. Pressione PREV para continuar."
   </dest>
   <voice>
     *: none
-    iaudiom5,iaudiox5,iriverh100,iriverh120,iriverh300,recording,sansac200*,sansae200*: ""
+    recording,iriverh100,iriverh120,iriverh300,iaudiom5,iaudiox5,sansae200*,sansac200*: ""
   </voice>
 </phrase>
 <phrase>
@@ -7822,21 +8040,23 @@
   user: core
   <source>
     *: "OFF to abort"
-    gigabeatfx: "POWER to abort"
-    gigabeats,sansafuzeplus: "BACK to abort"
-    iaudiom5,iaudiox5: "Long PLAY to abort"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP to abort"
     ipod*: "PLAY/PAUSE to abort"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV to abort"
-    iriverh100,iriverh120,iriverh300: "STOP to abort"
+    iaudiox5,iaudiom5: "Long PLAY to abort"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV to abort"
+    gigabeats: "BACK to abort"
+    gigabeatfx: "POWER to abort"
+    sansafuzeplus: "BACK to abort"
   </source>
   <dest>
     *: "OFF para abortar"
-    gigabeatfx: "POWER para abortar"
-    gigabeats,sansafuzeplus: "BACK para abortar"
-    iaudiom5,iaudiox5: "PLAY Longo para abortar"
+    archosplayer,iriverh100,iriverh120,iriverh300: "STOP para abortar"
     ipod*: "PLAY/PAUSE para abortar"
-    iriverh10,iriverh10_5gb,sansac200*,sansae200*,vibe500: "PREV para abortar"
-    iriverh100,iriverh120,iriverh300: "STOP para abortar"
+    iaudiox5,iaudiom5: "PLAY Longo para abortar"
+    iriverh10,iriverh10_5gb,sansae200*,sansac200*,vibe500: "PREV para abortar"
+    gigabeats: "BACK para abortar"
+    gigabeatfx: "POWER para abortar"
+    sansafuzeplus: "BACK para abortar"
   </dest>
   <voice>
     *: ""
@@ -9388,7 +9608,7 @@
     *: ""
   </source>
   <dest>
-    *: ""
+     *: ""
   </dest>
   <voice>
     *: "cuesheet"
@@ -9430,13 +9650,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Edit mode: %s %s"
+    *: none
+    swcodec: "Edit mode: %s %s"
   </source>
   <dest>
-    *: "Modo de Edição: %s %s"
+    *: none
+    swcodec: "Modo de Edição: %s %s"
   </dest>
   <voice>
-    *: ""
+    *: none
+    swcodec: ""
   </voice>
 </phrase>
 <phrase>
@@ -9444,13 +9667,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Cutoff"
+    *: none
+    swcodec: "Cutoff"
   </source>
   <dest>
-    *: "Corte"
+    *: none
+    swcodec: "Corte"
   </dest>
   <voice>
-    *: "Corte"
+    *: none
+    swcodec: "Corte"
   </voice>
 </phrase>
 <phrase>
@@ -9458,13 +9684,16 @@
   desc: in the equalizer settings menu
   user: core
   <source>
-    *: "Gain"
+    *: none
+    swcodec: "Gain"
   </source>
   <dest>
-    *: "Ganho"
+    *: none
+    swcodec: "Ganho"
   </dest>
   <voice>
-    *: "Ganho"
+    *: none
+    swcodec: "Ganho"
   </voice>
 </phrase>
 <phrase>
@@ -9472,13 +9701,16 @@
   desc: in wps F2 pressed
   user: core
   <source>
-    *: "Mode:"
+    *: none
+    lcd_bitmap: "Mode:"
   </source>
   <dest>
-    *: "Modo:"
+    *: none
+    lcd_bitmap: "Modo:"
   </dest>
   <voice>
-    *: ""
+    *: none
+    lcd_bitmap: ""
   </voice>
 </phrase>
 <phrase>
@@ -10141,15 +10373,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Corte de Graves"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Corte de Graves"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Corte de Graves"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Corte de Graves"
   </voice>
 </phrase>
 <phrase>
@@ -10158,15 +10390,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Corte de Agudos"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Corte de Agudos"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Corte de Agudos"
+    ipodvideo,ipod6g,mpiohd200,mpiohd300,gigabeatfx,mrobe100: "Corte de Agudos"
   </voice>
 </phrase>
 <phrase>
@@ -10202,13 +10434,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </source>
   <dest>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </dest>
   <voice>
-    *: "Keyclick"
+    *: none
+    swcodec: "Keyclick"
   </voice>
 </phrase>
 <phrase>
@@ -10216,13 +10451,16 @@
   desc: in keyclick settings menu
   user: core
   <source>
-    *: "Keyclick Repeats"
+    *: none
+    swcodec: "Keyclick Repeats"
   </source>
   <dest>
-    *: "Repetir Keyclick"
+    *: none
+    swcodec: "Repetir Keyclick"
   </dest>
   <voice>
-    *: "Repetir Keyclick"
+    *: none
+    swcodec: "Repetir Keyclick"
   </voice>
 </phrase>
 <phrase>
@@ -10307,15 +10545,15 @@
   user: core
   <source>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
+    gigabeatfx,sansafuzeplus: "Touchpad Sensitivity"
   </source>
   <dest>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Sensibilidade do Touchpad"
+    gigabeatfx,sansafuzeplus: "Sensibilidade do Touchpad"
   </dest>
   <voice>
     *: none
-    fiiom3k,gigabeatfx,sansafuzeplus: "Sensibilidade do Touchpad"
+    gigabeatfx,sansafuzeplus: "Sensibilidade do Touchpad"
   </voice>
 </phrase>
 <phrase>
@@ -10343,11 +10581,11 @@
     *: none
     serial_port: "Serial Bitrate"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Taxa de Bits Serial"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Taxa de Bits Serial"
   </voice>
@@ -10360,11 +10598,11 @@
     *: none
     serial_port: "Auto"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "Auto"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "Automático"
   </voice>
@@ -10377,11 +10615,11 @@
     *: none
     serial_port: "9600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "9600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "9600"
   </voice>
@@ -10394,11 +10632,11 @@
     *: none
     serial_port: "19200"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "19200"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "19200"
   </voice>
@@ -10411,11 +10649,11 @@
     *: none
     serial_port: "38400"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "38400"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "38400"
   </voice>
@@ -10428,11 +10666,11 @@
     *: none
     serial_port: "57600"
   </source>
-  <dest>
+  <dest> 
     *: none
     serial_port: "57600"
   </dest>
-  <voice>
+  <voice> 
     *: none
     serial_port: "57600"
   </voice>
@@ -10694,15 +10932,15 @@
   user: core
   <source>
     *: none
-    recording: "Mono mode"
+    recording_swcodec: "Mono mode"
   </source>
   <dest>
     *: none
-    recording: "Modo mono"
+    recording_swcodec: "Modo mono"
   </dest>
   <voice>
     *: none
-    recording: "Modo mono"
+    recording_swcodec: "Modo mono"
   </voice>
 </phrase>
 <phrase>
@@ -10955,13 +11193,16 @@
   desc: timestretch enable
   user: core
   <source>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </source>
   <dest>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </dest>
   <voice>
-    *: "Timestretch"
+    *: none
+    swcodec: "Timestretch"
   </voice>
 </phrase>
 <phrase>
@@ -10969,13 +11210,16 @@
   desc: timestretch speed
   user: core
   <source>
-    *: "Speed"
+    *: none
+    swcodec: "Speed"
   </source>
   <dest>
-    *: "Velocidade"
+    *: none
+    swcodec: "Velocidade"
   </dest>
   <voice>
-    *: "Velocidade"
+    *: none
+    swcodec: "Velocidade"
   </voice>
 </phrase>
 <phrase>
@@ -11076,7 +11320,7 @@
 </phrase>
 <phrase>
   id: LANG_SEMITONE
-  desc:
+  desc: 
   user: core
   <source>
     *: none
@@ -11211,17 +11455,34 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_SKIN_RAM_USAGE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SCROLLBAR_WIDTH
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Width"
+    *: none
+    lcd_bitmap: "Scroll Bar Width"
   </source>
   <dest>
-    *: "Largura da barra de rolagem"
+    *: none
+    lcd_bitmap: "Largura da barra de rolagem"
   </dest>
   <voice>
-    *: "Largura da barra de rolagem"
+    *: none
+    lcd_bitmap: "Largura da barra de rolagem"
   </voice>
 </phrase>
 <phrase>
@@ -11229,13 +11490,16 @@
   desc: in Settings -> General -> Display -> Status-/Scrollbar
   user: core
   <source>
-    *: "Scroll Bar Position"
+    *: none
+    lcd_bitmap: "Scroll Bar Position"
   </source>
   <dest>
-    *: "Posição da barra de rolagem"
+    *: none
+    lcd_bitmap: "Posição da barra de rolagem"
   </dest>
   <voice>
-    *: "Posição da barra de rolagem"
+    *: none
+    lcd_bitmap: "Posição da barra de rolagem"
   </voice>
 </phrase>
 <phrase>
@@ -11243,13 +11507,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </source>
   <dest>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </dest>
   <voice>
-    *: "Compressor"
+    *: none
+    swcodec: "Compressor"
   </voice>
 </phrase>
 <phrase>
@@ -11308,13 +11575,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Threshold"
+    *: none
+    swcodec: "Threshold"
   </source>
   <dest>
-    *: "Limiar"
+    *: none
+    swcodec: "Limiar"
   </dest>
   <voice>
-    *: "Limiar"
+    *: none
+    swcodec: "Limiar"
   </voice>
 </phrase>
 <phrase>
@@ -11322,13 +11592,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Ratio"
+    *: none
+    swcodec: "Ratio"
   </source>
   <dest>
-    *: "Razão"
+    *: none
+    swcodec: "Razão"
   </dest>
   <voice>
-    *: "Razão"
+    *: none
+    swcodec: "Razão"
   </voice>
 </phrase>
 <phrase>
@@ -11336,13 +11609,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </source>
   <dest>
-    *: "2:1"
+    *: none
+    swcodec: "2:1"
   </dest>
   <voice>
-    *: "2 por 1"
+    *: none
+    swcodec: "2 por 1"
   </voice>
 </phrase>
 <phrase>
@@ -11350,13 +11626,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </source>
   <dest>
-    *: "4:1"
+    *: none
+    swcodec: "4:1"
   </dest>
   <voice>
-    *: "4 por 1"
+    *: none
+    swcodec: "4 por 1"
   </voice>
 </phrase>
 <phrase>
@@ -11364,13 +11643,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </source>
   <dest>
-    *: "6:1"
+    *: none
+    swcodec: "6:1"
   </dest>
   <voice>
-    *: "6 por 1"
+    *: none
+    swcodec: "6 por 1"
   </voice>
 </phrase>
 <phrase>
@@ -11378,13 +11660,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </source>
   <dest>
-    *: "10:1"
+    *: none
+    swcodec: "10:1"
   </dest>
   <voice>
-    *: "10 por 1"
+    *: none
+    swcodec: "10 por 1"
   </voice>
 </phrase>
 <phrase>
@@ -11392,13 +11677,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Limit"
+    *: none
+    swcodec: "Limit"
   </source>
   <dest>
-    *: "Limite"
+    *: none
+    swcodec: "Limite"
   </dest>
   <voice>
-    *: "Limite"
+    *: none
+    swcodec: "Limite"
   </voice>
 </phrase>
 <phrase>
@@ -11406,13 +11694,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Makeup Gain"
+    *: none
+    swcodec: "Makeup Gain"
   </source>
   <dest>
-    *: "Ganho Conjunto"
+    *: none
+    swcodec: "Ganho Conjunto"
   </dest>
   <voice>
-    *: "Ganho Conjunto"
+    *: none
+    swcodec: "Ganho Conjunto"
   </voice>
 </phrase>
 <phrase>
@@ -11420,13 +11711,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </source>
   <dest>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </dest>
   <voice>
-    *: "Auto"
+    *: none
+    swcodec: "Auto"
   </voice>
 </phrase>
 <phrase>
@@ -11434,13 +11728,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Knee"
+    *: none
+    swcodec: "Knee"
   </source>
   <dest>
-    *: "Joelho"
+    *: none
+    swcodec: "Joelho"
   </dest>
   <voice>
-    *: "Joelho"
+    *: none
+    swcodec: "Joelho"
   </voice>
 </phrase>
 <phrase>
@@ -11448,13 +11745,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Hard Knee"
+    *: none
+    swcodec: "Hard Knee"
   </source>
   <dest>
-    *: "Joelho Forte"
+    *: none
+    swcodec: "Joelho Forte"
   </dest>
   <voice>
-    *: "Joelho Forte"
+    *: none
+    swcodec: "Joelho Forte"
   </voice>
 </phrase>
 <phrase>
@@ -11462,13 +11762,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Soft Knee"
+    *: none
+    swcodec: "Soft Knee"
   </source>
   <dest>
-    *: "Joelho Suave"
+    *: none
+    swcodec: "Joelho Suave"
   </dest>
   <voice>
-    *: "Joelho Suave"
+    *: none
+    swcodec: "Joelho Suave"
   </voice>
 </phrase>
 <phrase>
@@ -11476,13 +11779,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Release Time"
+    *: none
+    swcodec: "Release Time"
   </source>
   <dest>
-    *: "Tempo de Liberação"
+    *: none
+    swcodec: "Tempo de Liberação"
   </dest>
   <voice>
-    *: "Tempo de Liberação"
+    *: none
+    swcodec: "Tempo de Liberação"
   </voice>
 </phrase>
 <phrase>
@@ -11670,13 +11976,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Base Skin"
+    *: none
+    lcd_bitmap: "Base Skin"
   </source>
   <dest>
-    *: "Skin Base"
+    *: none
+    lcd_bitmap: "Skin Base"
   </dest>
   <voice>
-    *: "Skin Base"
+    *: none
+    lcd_bitmap: "Skin Base"
   </voice>
 </phrase>
 <phrase>
@@ -11684,13 +11993,16 @@
   desc: browse for the base skin in theme settings
   user: core
   <source>
-    *: "Remote Base Skin"
+    *: none
+    lcd_bitmap: "Remote Base Skin"
   </source>
   <dest>
-    *: "Skin Base Remota"
+    *: none
+    lcd_bitmap: "Skin Base Remota"
   </dest>
   <voice>
-    *: "Skin Base Remota"
+    *: none
+    lcd_bitmap: "Skin Base Remota"
   </voice>
 </phrase>
 <phrase>
@@ -11817,13 +12129,16 @@
   desc: in playback settings menu
   user: core
   <source>
-    *: "Rewind Before Resume"
+    *: none
+    swcodec: "Rewind Before Resume"
   </source>
   <dest>
-    *: "Rebobinar Antes de Retomar"
+    *: none
+    swcodec: "Rebobinar Antes de Retomar"
   </dest>
   <voice>
-    *: "Rebobinar antes de retomar"
+    *: none
+    swcodec: "Rebobinar antes de retomar"
   </voice>
 </phrase>
 <phrase>
@@ -12019,15 +12334,15 @@
   user: core
   <source>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "3-D Enhancement"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "3-D Enhancement"
   </source>
   <dest>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "Efeito 3-D"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "Efeito 3-D"
   </dest>
   <voice>
     *: none
-    creativezenxfi2,creativezenxfi3,gigabeats,mpiohd200,mpiohd300,sansafuzeplus: "Efeito 3 D"
+    gigabeats,mpiohd200,mpiohd300,sansafuzeplus,creativezenxfi2,creativezenxfi3: "Efeito 3 D"
   </voice>
 </phrase>
 <phrase>
@@ -12170,7 +12485,7 @@
 </phrase>
 <phrase>
   id: LANG_FILESIZE
-  desc: in record timesplit options and in track information viewer
+  desc: in record timesplit options and in track information viewer 
   user: core
   <source>
     *: "Filesize"
@@ -12315,6 +12630,20 @@
   </voice>
 </phrase>
 <phrase>
+  id: LANG_AUTORESUME_ENABLE_YES
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
+  </voice>
+</phrase>
+<phrase>
   id: LANG_SLEEP_TIMER_CANCEL_CURRENT
   desc: shown instead of sleep timer when it's running
   user: core
@@ -12371,6 +12700,20 @@
   </dest>
   <voice>
     *: "Tempo para o Desligamento Automático"
+  </voice>
+</phrase>
+<phrase>
+  id: LANG_AUTORESUME_ENABLE
+  desc: deprecated
+  user: core
+  <source>
+    *: ""
+  </source>
+  <dest>
+    *: ""
+  </dest>
+  <voice>
+    *: ""
   </voice>
 </phrase>
 <phrase>
@@ -12462,13 +12805,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Simple (Meier)"
+    *: none
+    swcodec: "Simple (Meier)"
   </source>
   <dest>
-    *: "Simples (Meier)"
+    *: none
+    swcodec: "Simples (Meier)"
   </dest>
   <voice>
-    *: "Simples"
+    *: none
+    swcodec: "Simples"
   </voice>
 </phrase>
 <phrase>
@@ -12552,13 +12898,16 @@
   desc: in sound settings
   user: core
   <source>
-    *: "Custom"
+    *: none
+    swcodec: "Custom"
   </source>
   <dest>
-    *: "Customizado"
+    *: none
+    swcodec: "Customizado"
   </dest>
   <voice>
-    *: "Customizado"
+    *: none
+    swcodec: "Customizado"
   </voice>
 </phrase>
 <phrase>

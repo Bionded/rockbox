@@ -180,7 +180,7 @@ void INT_GPIOA(void)
     void button_gpioa_isr(void);
     button_gpioa_isr();
 #endif
-#if defined(HAVE_RDS_CAP) && !(CONFIG_RDS & RDS_CFG_POLL)
+#ifdef HAVE_RDS_CAP
     void tuner_isr(void);
     tuner_isr();
 #endif

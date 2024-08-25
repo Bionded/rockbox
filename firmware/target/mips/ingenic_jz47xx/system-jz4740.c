@@ -18,7 +18,7 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-
+ 
 #include "config.h"
 #include "jz4740.h"
 #include "mips.h"
@@ -165,9 +165,9 @@ static int get_irq_number(void)
 {
     static unsigned long ipl;
     register int irq;
-
+    
     ipl |= REG_INTC_IPR;
-
+    
     if (UNLIKELY(ipl == 0))
         return -1;
 
@@ -180,7 +180,7 @@ static int get_irq_number(void)
                          : "r" (ipl)
                          : "t0"
                         );
-
+    
     if (UNLIKELY(irq < 0))
         return -1;
 
@@ -213,10 +213,85 @@ void intr_handler(void)
     register int irq = get_irq_number();
     if(UNLIKELY(irq < 0))
         return;
-
+    
     ack_irq(irq);
     if(LIKELY(irq > 0))
         irqvector[irq-1]();
+}
+
+#define EXC(x,y) case (x): return (y);
+static char* parse_exception(unsigned int cause)
+{
+    switch(cause & M_CauseExcCode)
+    {
+        EXC(EXC_INT, "Interrupt");
+        EXC(EXC_MOD, "TLB Modified");
+        EXC(EXC_TLBL, "TLB Exception (Load or Ifetch)");
+        EXC(EXC_ADEL, "Address Error (Load or Ifetch)");
+        EXC(EXC_ADES, "Address Error (Store)");
+        EXC(EXC_TLBS, "TLB Exception (Store)");
+        EXC(EXC_IBE, "Instruction Bus Error");
+        EXC(EXC_DBE, "Data Bus Error");
+        EXC(EXC_SYS, "Syscall");
+        EXC(EXC_BP, "Breakpoint");
+        EXC(EXC_RI, "Reserved Instruction");
+        EXC(EXC_CPU, "Coprocessor Unusable");
+        EXC(EXC_OV, "Overflow");
+        EXC(EXC_TR, "Trap Instruction");
+        EXC(EXC_FPE, "Floating Point Exception");
+        EXC(EXC_C2E, "COP2 Exception");
+        EXC(EXC_MDMX, "MDMX Exception");
+        EXC(EXC_WATCH, "Watch Exception");
+        EXC(EXC_MCHECK, "Machine Check Exception");
+        EXC(EXC_CacheErr, "Cache error caused re-entry to Debug Mode");
+        default:
+            return NULL;
+    }
+}
+
+void exception_handler(void* stack_ptr, unsigned int cause, unsigned int epc)
+{
+#if EXTENDED_EXCEPTION_DESC
+    (void)epc;
+
+    /* Depends on crt0.S ! */
+    char *registers[] = { "ra", "fp", "gp", "t9", "t8", "s7", "s6", "s5", "s4",
+                          "s3", "s2", "s1", "s0", "t7", "t6", "t5", "t4", "t3",
+                          "t2", "t1", "t0", "a3", "a2", "a1", "a0", "v1", "v0",
+                          "$1", "LO", "HI", "STATUS", "EPC" };
+    int i;
+
+#ifdef HAVE_LCD_BITMAP
+#if LCD_DEPTH > 1
+    lcd_set_backdrop(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_foreground(LCD_BLACK);
+    lcd_set_background(LCD_WHITE);
+#endif
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_viewport(NULL);
+#endif
+    lcd_clear_display();
+    backlight_hw_on();
+
+    lcd_puts(0, 0, parse_exception(cause));
+    lcd_putsf(0, 1, "0x%08x at 0x%08x", read_c0_badvaddr(), epc);
+    for(i=0; i< 0x80/4; i+=2)
+    {
+        unsigned int* ptr = (unsigned int*)(stack_ptr + i*4);
+        lcd_putsf(0, 3 + i/2, "%s: 0x%08x %s: 0x%08x", registers[i], *ptr, registers[i+1], *(ptr+1));
+    }
+    lcd_update();
+
+    system_exception_wait();
+#else
+    panicf("Exception occurred: %s [0x%08x] at 0x%08x (stack at 0x%08x)", parse_exception(cause), read_c0_badvaddr(), epc, (unsigned int)stack_ptr);
+#endif
+}
+
+void tlb_refill_handler(void)
+{
+    panicf("TLB refill handler at 0x%08lx! [0x%x]", read_c0_epc(), read_c0_badvaddr());
 }
 
 void udelay(unsigned int usec)
@@ -246,14 +321,14 @@ void dma_enable(void)
     if(++dma_count == 1)
     {
         __cpm_start_dmac();
-
+        
         REG_DMAC_DCCSR(0) = 0;
         REG_DMAC_DCCSR(1) = 0;
         REG_DMAC_DCCSR(2) = 0;
         REG_DMAC_DCCSR(3) = 0;
         REG_DMAC_DCCSR(4) = 0;
         REG_DMAC_DCCSR(5) = 0;
-
+        
         REG_DMAC_DMACR = (DMAC_DMACR_PR_RR | DMAC_DMACR_DMAE);
     }
 }
@@ -303,7 +378,7 @@ static void pll_init(void)
         (0 << CPM_CPPCR_PLLN_BIT) |     /* RD=0, NR=2 */
         (0 << CPM_CPPCR_PLLOD_BIT) |    /* OD=0, NO=1 */
         (0x20 << CPM_CPPCR_PLLST_BIT) | /* PLL stable time */
-        CPM_CPPCR_PLLEN;                /* enable PLL */
+        CPM_CPPCR_PLLEN;                /* enable PLL */          
 
     /* init PLL */
     REG_CPM_CPCCR = cfcr;
@@ -434,26 +509,27 @@ static void sdram_init(void)
 }
 
 /* Gets called *before* main */
-void ICODE_ATTR system_early_init(void)
+void ICODE_ATTR system_main(void)
 {
     int i;
-
-    commit_discard_idcache();
-
+       
+    __dcache_writeback_all();
+    __icache_invalidate_all();
+    
     write_c0_status(1 << 28 | 1 << 10 ); /* Enable CP | Mask interrupt 2 */
-
+    
     /* Disable all interrupts */
     for(i=0; i<IRQ_MAX; i++)
         dis_irq(i);
-
+    
     mmu_init();
     pll_init();
     sdram_init();
-
+    
     /* Disable unneeded clocks, clocks are enabled when needed */
     __cpm_stop_all();
     __cpm_suspend_usbhost();
-
+    
     /* Enable interrupts at core level */
     enable_interrupt();
 }
@@ -465,7 +541,7 @@ void system_reboot(void)
     REG_WDT_TDR = JZ_EXTAL/1000;   /* reset after 4ms */
     REG_TCU_TSCR = TCU_TSSR_WDTSC; /* enable wdt clock */
     REG_WDT_TCER = WDT_TCER_TCEN;  /* wdt start */
-
+    
     while (1);
 }
 
@@ -476,7 +552,7 @@ void system_exception_wait(void)
     {
         if( (~REG_GPIO_PXPIN(3)) & (1 << 29) )
             return;
-        asm volatile("ssnop");
+        asm volatile("nop");
     }
 }
 
@@ -484,7 +560,7 @@ void power_off(void)
 {
     /* Enable RTC clock */
     __cpm_start_rtc();
-
+    
     /* Put system into hibernate mode */
     __rtc_clear_alarm_flag();
     __rtc_clear_hib_stat_all();
@@ -493,7 +569,7 @@ void power_off(void)
     __rtc_set_hrcr_val(0xFE0);
     __rtc_set_hwfcr_val(0xFFFF << 4);
     __rtc_power_down();
-
+    
     while(1);
 }
 

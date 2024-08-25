@@ -5,6 +5,7 @@ load_asy.c
 load_dsm.c
 load_far.c
 load_gdm.c
+load_gt2.c
 load_imf.c
 load_it.c
 load_m15.c
@@ -16,7 +17,6 @@ load_s3m.c
 load_stm.c
 load_stx.c
 load_ult.c
-load_umx.c
 load_uni.c
 load_xm.c
 mdreg.c
@@ -34,7 +34,6 @@ sloader.c
 strdup.c
 strstr.c
 virtch.c
-virtch2.c
 virtch_common.c
 mikmod.c
 

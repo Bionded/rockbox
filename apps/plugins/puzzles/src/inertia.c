@@ -11,12 +11,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-#include <limits.h>
-#ifdef NO_TGMATH_H
-#  include <math.h>
-#else
-#  include <tgmath.h>
-#endif
+#include <math.h>
 
 #include "puzzles.h"
 
@@ -207,8 +202,6 @@ static const char *validate_params(const game_params *params, bool full)
      */
     if (params->w < 2 || params->h < 2)
 	return "Width and height must both be at least two";
-    if (params->w > INT_MAX / params->h)
-        return "Width times height must not be unreasonably large";
 
     /*
      * The grid construction algorithm creates 1/5 as many gems as
@@ -720,6 +713,18 @@ static int move_goes_to(int w, int h, char *grid, int x, int y, int d)
     }
     assert(dr >= 0);
     return (y*w+x)*DP1+dr;
+}
+
+static int compare_integers(const void *av, const void *bv)
+{
+    const int *a = (const int *)av;
+    const int *b = (const int *)bv;
+    if (*a < *b)
+	return -1;
+    else if (*a > *b)
+	return +1;
+    else
+	return 0;
 }
 
 static char *solve_game(const game_state *state, const game_state *currstate,
@@ -1515,8 +1520,7 @@ static char *encode_ui(const game_ui *ui)
     return dupstr(buf);
 }
 
-static void decode_ui(game_ui *ui, const char *encoding,
-                      const game_state *state)
+static void decode_ui(game_ui *ui, const char *encoding)
 {
     int p = 0;
     sscanf(encoding, "D%d%n", &ui->deaths, &p);
@@ -1539,15 +1543,6 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
 	ui->just_died = false;
     }
     ui->just_made_move = false;
-}
-
-static const char *current_key_label(const game_ui *ui,
-                                     const game_state *state, int button)
-{
-    if (IS_CURSOR_SELECT(button) &&
-        state->soln && state->solnpos < state->soln->len)
-        return "Advance";
-    return "";
 }
 
 struct game_drawstate {
@@ -1598,7 +1593,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 	     * end up the right way round. */
 	    angle = atan2(dx, -dy);
 
-	    angle = (angle + (float)(PI/8)) / (float)(PI/4);
+	    angle = (angle + (PI/8)) / (PI/4);
 	    assert(angle > -16.0F);
 	    dir = (int)(angle + 16.0F) & 7;
 	}
@@ -1623,20 +1618,20 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 	dir = state->soln->list[state->solnpos];
 
     if (dir < 0)
-	return MOVE_UNUSED;
+	return NULL;
 
     /*
      * Reject the move if we can't make it at all due to a wall
      * being in the way.
      */
     if (AT(w, h, state->grid, state->px+DX(dir), state->py+DY(dir)) == WALL)
-	return MOVE_NO_EFFECT;
+	return NULL;
 
     /*
      * Reject the move if we're dead!
      */
     if (state->dead)
-	return MOVE_NO_EFFECT;
+	return NULL;
 
     /*
      * Otherwise, we can make the move. All we need to specify is
@@ -1690,7 +1685,6 @@ static game_state *execute_move(const game_state *state, const char *move)
 	 * This is a solve move, so we don't actually _change_ the
 	 * grid but merely set up a stored solution path.
 	 */
-        if (move[1] == '\0') return NULL; /* Solution must be non-empty. */
 	ret = dup_game(state);
 	install_new_solution(ret, move);
 	return ret;
@@ -1735,10 +1729,11 @@ static game_state *execute_move(const game_state *state, const char *move)
     if (ret->soln) {
 	if (ret->dead || ret->gems == 0)
 	    discard_solution(ret);
-	else if (ret->soln->list[ret->solnpos] == dir &&
-            ret->solnpos+1 < ret->soln->len)
+	else if (ret->soln->list[ret->solnpos] == dir) {
 	    ++ret->solnpos;
-	else {
+	    assert(ret->solnpos < ret->soln->len); /* or gems == 0 */
+	    assert(!ret->dead); /* or not a solution */
+	} else {
 	    const char *error = NULL;
             char *soln = solve_game(NULL, ret, NULL, &error);
 	    if (!error) {
@@ -1756,7 +1751,7 @@ static game_state *execute_move(const game_state *state, const char *move)
  */
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              const game_ui *ui, int *x, int *y)
+                              int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
     struct { int tilesize; } ads, *ds = &ads;
@@ -1874,6 +1869,11 @@ static void draw_player(drawing *dr, game_drawstate *ds, int x, int y,
 	    coords[d*4+2] = x + TILESIZE/2 + (int)((TILESIZE*3/7) * x2);
 	    coords[d*4+3] = y + TILESIZE/2 + (int)((TILESIZE*3/7) * y2);
 	}
+        /* rockbox hack */
+        int tmp[2] = { coords[0], coords[1] };
+        memmove(coords, coords + 2, sizeof(int) * DIRECTIONS * 4 - 2);
+        memcpy(coords + DIRECTIONS * 4 - 2, tmp, 2 * sizeof(int));
+        
 	draw_polygon(dr, coords, DIRECTIONS*2, COL_DEAD_PLAYER, COL_OUTLINE);
     } else {
 	draw_circle(dr, x + TILESIZE/2, y + TILESIZE/2,
@@ -1889,8 +1889,6 @@ static void draw_player(drawing *dr, game_drawstate *ds, int x, int y,
 	int coords[14], *c;
 
 	c = coords;
-	*c++ = ox + px/9;
-	*c++ = oy + py/9;
 	*c++ = ox + px/9 + ax*2/3;
 	*c++ = oy + py/9 + ay*2/3;
 	*c++ = ox + px/3 + ax*2/3;
@@ -1903,6 +1901,8 @@ static void draw_player(drawing *dr, game_drawstate *ds, int x, int y,
 	*c++ = oy - py/9 + ay*2/3;
 	*c++ = ox - px/9;
 	*c++ = oy - py/9;
+	*c++ = ox + px/9;
+	*c++ = oy + py/9;
 	draw_polygon(dr, coords, 7, COL_HINT, COL_OUTLINE);
     }
 
@@ -2013,6 +2013,15 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
      * Initialise a fresh drawstate.
      */
     if (!ds->started) {
+	int wid, ht;
+
+	/*
+	 * Blank out the window initially.
+	 */
+	game_compute_size(&ds->p, TILESIZE, &wid, &ht);
+	draw_rect(dr, 0, 0, wid, ht, COL_BACKGROUND);
+	draw_update(dr, 0, 0, wid, ht);
+
 	/*
 	 * Draw the grid lines.
 	 */
@@ -2177,17 +2186,6 @@ static float game_flash_length(const game_state *oldstate,
     return 0.0F;
 }
 
-static void game_get_cursor_location(const game_ui *ui,
-                                     const game_drawstate *ds,
-                                     const game_state *state,
-                                     const game_params *params,
-                                     int *x, int *y, int *w, int *h)
-{
-    *x = ds->pbgx;
-    *y = ds->pbgy;
-    *w = *h = TILESIZE;
-}
-
 static int game_status(const game_state *state)
 {
     /*
@@ -2196,6 +2194,19 @@ static int game_status(const game_state *state)
      * on.
      */
     return state->gems == 0 ? +1 : 0;
+}
+
+static bool game_timing_state(const game_state *state, game_ui *ui)
+{
+    return true;
+}
+
+static void game_print_size(const game_params *params, float *x, float *y)
+{
+}
+
+static void game_print(drawing *dr, const game_state *state, int tilesize)
+{
 }
 
 #ifdef COMBINED
@@ -2219,14 +2230,12 @@ const struct game thegame = {
     free_game,
     true, solve_game,
     true, game_can_format_as_text_now, game_text_format,
-    NULL, NULL, /* get_prefs, set_prefs */
     new_ui,
     free_ui,
     encode_ui,
     decode_ui,
     NULL, /* game_request_keys */
     game_changed_state,
-    current_key_label,
     interpret_move,
     execute_move,
     PREFERRED_TILESIZE, game_compute_size, game_set_size,
@@ -2236,10 +2245,9 @@ const struct game thegame = {
     game_redraw,
     game_anim_length,
     game_flash_length,
-    game_get_cursor_location,
     game_status,
-    false, false, NULL, NULL,          /* print_size, print */
+    false, false, game_print_size, game_print,
     true,			       /* wants_statusbar */
-    false, NULL,                       /* timing_state */
+    false, game_timing_state,
     0,				       /* flags */
 };

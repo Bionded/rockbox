@@ -31,7 +31,7 @@ SECTIONS
     {
         _dramcopystart = .;
     } > DRAM
-
+    
     .text :
     {
         *(.text*)

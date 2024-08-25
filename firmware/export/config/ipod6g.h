@@ -38,8 +38,8 @@
                        | SAMPR_CAP_48 | SAMPR_CAP_24 | SAMPR_CAP_12 \
                        | SAMPR_CAP_32 | SAMPR_CAP_16 | SAMPR_CAP_8)
 
-
-
+/* define this if you have a bitmap LCD display */
+#define HAVE_LCD_BITMAP
 
 /* define this if you can flip your LCD */
 //#define HAVE_LCD_FLIP
@@ -110,8 +110,8 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-
-
+/* Define this if you do software codec */
+#define CONFIG_CODEC SWCODEC
 
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_NANO2G
@@ -133,18 +133,16 @@
 /* Define this if you have a software controlled poweroff */
 #define HAVE_SW_POWEROFF
 
-/* Buffer for plugins and codecs. */
-#define PLUGIN_BUFFER_SIZE  0x200000 /* 2 MiB */
-#define CODEC_SIZE          0x100000 /* 1 MiB */
+/* The number of bytes reserved for loadable codecs */
+#define CODEC_SIZE 0x100000
 
-/* 6g has a standard battery of 550mAh, except for the thick 6g (2007 160gb)
- * which has a standard battery of 850mAh.
- * 
- * It's possible to buy 3rd party batteries up to 3000mAh.
- */
+/* The number of bytes reserved for loadable plugins */
+#define PLUGIN_BUFFER_SIZE 0x80000
+
+/* 6g has a standard battery of 550mAh, except for the thick 6g (2007 160gb) which has a standard battery of 850mAh */
 #define BATTERY_CAPACITY_DEFAULT 550 /* default battery capacity */
 #define BATTERY_CAPACITY_MIN     300 /* min. capacity selectable */
-#define BATTERY_CAPACITY_MAX     3000 /* max. capacity selectable */
+#define BATTERY_CAPACITY_MAX     1000 /* max. capacity selectable */
 #define BATTERY_CAPACITY_INC      10 /* capacity increment */
 #define BATTERY_TYPES_COUNT        1 /* only one type */
 
@@ -156,7 +154,6 @@
 /* define current usage levels */
 #define CURRENT_NORMAL     18  /* playback @48MHz clock, backlight off */
 #define CURRENT_BACKLIGHT  23  /* maximum brightness */
-#define CURRENT_RECORD      2  /* FIXME: placeholder value */
 
 /* define this if the unit can be powered or charged via USB */
 #define HAVE_USB_POWER
@@ -185,6 +182,12 @@
 
 /* define this if the hardware can be powered off while charging */
 #define HAVE_POWEROFF_WHILE_CHARGING
+
+/* Offset ( in the firmware file's header ) to the file CRC */
+#define FIRMWARE_OFFSET_FILE_CRC 0
+
+/* Offset ( in the firmware file's header ) to the real data */
+#define FIRMWARE_OFFSET_FILE_DATA 8
 
 /* Define this if you can read an absolute wheel position */
 #define HAVE_WHEEL_POSITION

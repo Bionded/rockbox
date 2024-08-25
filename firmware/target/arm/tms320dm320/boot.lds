@@ -14,28 +14,22 @@ STARTUP(target/arm/tms320dm320/crt0.o)
 #define LCD_NATIVE_HEIGHT LCD_HEIGHT
 #endif
 
+#define LCD_FUDGE       LCD_NATIVE_WIDTH%32
+
+#define LCD_BUFFER_SIZE  ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
+
 /* must be 16Kb (0x4000) aligned */
 #define TTB_SIZE         (0x4000)
 
-/* Bootloader only uses/knows about the upper 32 M */
-#define DRAMSIZE    (MEMORYSIZE * 0x100000 / 2)
-#define DRAMORIG    CONFIG_SDRAM_START+DRAMSIZE
-
-#ifdef MROBE_500
-#define LCD_FUDGE       LCD_NATIVE_WIDTH%32
-#define LCD_BUFFER_SIZE ((LCD_NATIVE_WIDTH+LCD_FUDGE)*LCD_NATIVE_HEIGHT*2)
 /* Give this some memory to allow it to align to the MMU boundary.
  * Note that since there are two buffers (YUV/RGB) it calculates the approximate
  * memory needed in steps of 1 Meg.
  */
-#define LCD_TTB_AREA    (0x100000*((LCD_BUFFER_SIZE>>19)+1))
-/* End of the audio buffer, where the codec buffer starts */
-#define TTB_BEGIN       (DRAMORIG + DRAMSIZE - LCD_TTB_AREA)
-#else
-#define LCD_BUFFER_SIZE (LCD_NATIVE_WIDTH*LCD_NATIVE_HEIGHT*2)
-#define LCD_TTB_AREA    (TTB_SIZE + LCD_BUFFER_SIZE)
-#define LCD_BEGIN       (DRAMORIG + DRAMSIZE - LCD_TTB_AREA)
-#endif
+#define LCD_TTB_AREA    0x100000*((LCD_BUFFER_SIZE>>19)+1)
+
+/* Bootloader only uses/knows about the upper 32 M */
+#define DRAMORIG    CONFIG_SDRAM_START+0x02000000
+#define DRAMSIZE    (MEMORYSIZE * 0x80000)
 
 #define IRAMORIG    0x00000000
 #define IRAMSIZE    0x4000
@@ -44,12 +38,12 @@ STARTUP(target/arm/tms320dm320/crt0.o)
 
 #ifdef SANSA_CONNECT
 /* Offset in flash from beginning, we don't want overwrite OF bootloader
- * due to recovery mode and more importantly - hardware block protection.
- * Rockbox bootloader is flashed into kernel partition and chainloaded
- * from OF bootloader via Arbitrary Code Execution exploit. The first
- * instruction must be position independent as Rockbox bootloader will be
- * copied to RAM at 0x01000000 and executed from RAM.
- */
+   due to recovery mode and more importantly - hardware block protection.
+   This offset makes Rockbox bootloader a replacement for OF vmlinux.
+   In .srr file header add any valid memory address from following
+   <0x1000000; 0x1300180) u (0x131EAF4; 0x1420000) u (0x1440000; 0x5000000>
+   ensuring that complete bootloader fits in.
+   Entry point in .srr file should be equal to _loadaddress. */
 #define FLASHSIZE     0x00400000
 #define FLASHMEMORIG  0x00120010
 /* Kernel partition is 2 M, srr header is 16 bytes, sig is 2048 bytes */
@@ -64,6 +58,9 @@ STARTUP(target/arm/tms320dm320/crt0.o)
 PRO_STACK_SIZE =  0x2000;
 IRQ_STACK_SIZE =  0x400;
 FIQ_STACK_SIZE =  0x400;
+
+/* End of the audio buffer, where the codec buffer starts */
+#define TTB_BEGIN   (DRAMORIG + DRAMSIZE - LCD_TTB_AREA)
 
 MEMORY
 {
@@ -151,7 +148,7 @@ SECTIONS
     } > IRAM AT> FLASH
 
     _iramcopy = LOADADDR(.iram);
-
+    
     .ibss (NOLOAD) :
     {
         . = ALIGN(0x4);
@@ -161,12 +158,12 @@ SECTIONS
     } > IRAM
 
     /* Program stack space */
-    .pro_stack (NOLOAD):
+    .pro_stack (NOLOAD): 
     {
         . = ALIGN(0x4);
         *(.stack)
         stackbegin = .;        /* Variable for thread.c */
-        _pro_stack_end = .;
+        _pro_stack_end = .;       
         . += PRO_STACK_SIZE;
         _pro_stack_start = .;
         stackend = .;          /* Variable for tread.c */
@@ -189,45 +186,28 @@ SECTIONS
         . += FIQ_STACK_SIZE;
         _fiq_stack_start = .;
     } > IRAM
-
-#ifdef MROBE_500
+    
     .ttbtable TTB_BEGIN (NOLOAD) :
     {
         . = ALIGN (0x4000);
         _ttbstart = .;
         . += TTB_SIZE;
     } > DRAM
-
+    
     /* The LCD buffer should be at the end of memory to protect against
-     * overflowing something else when the YUV blitter is fudging the screen
+     * overflowing something else when the YUV blitter is fudging the screen 
      * size.
      */
-
+    
     .lcdbuffer (NOLOAD) :
     {
         _lcdbuf = .;
         . += LCD_BUFFER_SIZE;
     } > DRAM
-
+    
     .lcdbuffer2 (NOLOAD) :
     {
         _lcdbuf2 = .;
         . += LCD_BUFFER_SIZE;
     } > DRAM
-#else
-    .lcdbuffer LCD_BEGIN (NOLOAD) :
-    {
-        . = ALIGN(32);
-        _lcdbuf = .;
-        . += LCD_BUFFER_SIZE;
-    } > DRAM
-
-    /* Place TTB at the end of RAM to minimize alignment losses */
-    .ttbtable (NOLOAD) :
-    {
-        . = ALIGN (0x4000);
-        _ttbstart = .;
-        . += TTB_SIZE;
-    } > DRAM
-#endif
 }

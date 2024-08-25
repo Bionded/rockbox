@@ -71,8 +71,8 @@ void cleanup(void)
 #endif
 }
 
-static long main_stack[1024 * 1024 / 4]; /* ie 1 MB */
-
+/* 256KB */
+static long main_stack[1024 * 1024 / 2];
 int (*main_fn)(int argc, char *argv[]);
 int prog_idx;
 static void main_thread(void)
@@ -176,7 +176,7 @@ enum plugin_status plugin_start(const void *param)
 #if defined(CPU_ARM) && !defined(SIMULATOR) && (ARM_ARCH >= 5)
     /* (don't) set alignment trap. Will generate a data abort
      * exception on ARM. */
-//    set_cr(get_cr() | CR_A);
+    set_cr(get_cr() | CR_A);
 #endif
 
 #if 0
@@ -220,7 +220,6 @@ enum plugin_status plugin_start(const void *param)
 #endif
 
     backlight_ignore_timeout();
-
     /* set the real exit handler */
 #undef rb_atexit
     rb_atexit(cleanup);

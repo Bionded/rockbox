@@ -42,7 +42,7 @@
 #NowPlaying - AA
 %Vl(a,5,88,118,24,1)
 %s%ac%?it<%it|%fn>
-%s%ac%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%s%ac%?ia<%ia|%?d(2)<%d(2)|%(root%)>>
 #Album Art
 %Vl(a,5,15,118,70,1)
 %Cl(0,0,118,70)
@@ -51,16 +51,16 @@
 #Now Playing - NOAA
 %Vl(b,0,15,-,84,1)
 
-%s%ac%?id<%id|%?d(1)<%d(1)|%(root%)>>
 %s%ac%?it<%it|%fn>
-%s%ac%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%s%ac%?ia<%ia|%?d(2)<%d(2)|%(root%)>>
+%s%ac%?id<%id|%?d(1)<%d(1)|%(root%)>>
 
 %s%acNext Track:
 %s%ac%?It<%It|%Fn>
 
 #Time and Playlist Info
 %V(8,126,112,12,1)
-%al%pc%ac%?Sr<%pe/%pp|%pp/%pe>%ar%pr
+%al%pc%ac%pc%ac%?Sr<%pe %Sx(of) %pp|%pp %Sx(of) %pe>%ar%pr%ar%pr
 
 #Progressbar
 %V(8,116,112,8,1)

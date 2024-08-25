@@ -32,6 +32,7 @@ enum dsp_ids
 
 enum dsp_settings
 {
+    DSP_INIT, /* For dsp_init */
     DSP_RESET,
     DSP_SET_FREQUENCY,
     DSP_SET_SAMPLE_DEPTH,
@@ -127,10 +128,10 @@ static inline void dsp_advance_buffer32(struct dsp_buffer *buf,
 }
 
 /* Get DSP pointer */
-struct dsp_config *dsp_get_config(unsigned int dsp_id);
+struct dsp_config * dsp_get_config(enum dsp_ids id);
 
 /* Get DSP id */
-unsigned int dsp_get_id(const struct dsp_config *dsp);
+enum dsp_ids dsp_get_id(const struct dsp_config *dsp);
 
 /** General DSP processing **/
 
@@ -143,6 +144,6 @@ intptr_t dsp_configure(struct dsp_config *dsp, unsigned int setting,
                        intptr_t value);
 
 /* One-time startup init that must come before settings reset/apply */
-void dsp_init(void) INIT_ATTR;
+void dsp_init(void);
 
 #endif /* _DSP_H */

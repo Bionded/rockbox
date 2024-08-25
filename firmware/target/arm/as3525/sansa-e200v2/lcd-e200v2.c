@@ -149,7 +149,6 @@ static void lcd_write_reg(int reg, int value)
 
 void lcd_set_invert_display(bool yesno)
 {
-#ifdef HAVE_LCD_INVERT
     r_disp_control_rev = yesno ? R_DISP_CONTROL_REV :
                                  R_DISP_CONTROL_NORMAL;
 
@@ -157,13 +156,9 @@ void lcd_set_invert_display(bool yesno)
     {
         lcd_write_reg(R_DISP_CONTROL1, 0x0033 | r_disp_control_rev);
     }
-#else
-    (void)yesno;
-#endif
 
 }
 
-#ifdef HAVE_LCD_FLIP
 static bool display_flipped = false;
 
 /* turn the display upside down  */
@@ -174,19 +169,15 @@ void lcd_set_flip(bool yesno)
     r_entry_mode = yesno ? R_ENTRY_MODE_HORZ_FLIPPED :
                            R_ENTRY_MODE_HORZ_NORMAL;
 }
-#endif // HAVE_LCD_FLIP
 
 static void lcd_window(int xmin, int ymin, int xmax, int ymax)
 {
-#ifdef HAVE_LCD_FLIP
     if (!display_flipped)
-#endif
     {
         lcd_write_reg(R_HORIZ_RAM_ADDR_POS, (xmax << 8) | xmin);
         lcd_write_reg(R_VERT_RAM_ADDR_POS,  (ymax << 8) | ymin);
         lcd_write_reg(R_RAM_ADDR_SET,       (ymin << 8) | xmin);
     }
-#ifdef HAVE_LCD_FLIP   
     else
     {
         lcd_write_reg(R_HORIZ_RAM_ADDR_POS,
@@ -196,7 +187,6 @@ static void lcd_window(int xmin, int ymin, int xmax, int ymax)
         lcd_write_reg(R_RAM_ADDR_SET,
             ((LCD_HEIGHT-1 - ymin) << 8) | (LCD_WIDTH-1 - xmin));
     }
-#endif // HAVE_LCD_FLIP
 }
 
 static void _display_on(void)
@@ -441,7 +431,7 @@ void lcd_blit_yuv(unsigned char * const src[3],
     }
 }
 
-#endif /* !BOOTLOADER */
+#endif
 
 
 /* Update the display.
@@ -458,7 +448,7 @@ void lcd_update(void)
 
     lcd_write_cmd(R_WRITE_DATA_2_GRAM);
 
-    dbop_write_data((fb_data*)FBADDR(0,0), LCD_WIDTH*LCD_HEIGHT);
+    dbop_write_data((fb_data*)lcd_framebuffer, LCD_WIDTH*LCD_HEIGHT);
 }
 
 /* Update a fraction of the display. */
@@ -470,7 +460,7 @@ void lcd_update_rect(int x, int y, int width, int height)
         return;
 
     /* nothing to draw? */
-    if ((width <= 0) || (height <= 0) || (x >= LCD_WIDTH) ||
+    if ((width <= 0) || (height <= 0) || (x >= LCD_WIDTH) || 
         (y >= LCD_HEIGHT) || (x + width <= 0) || (y + height <= 0))
         return;
 
